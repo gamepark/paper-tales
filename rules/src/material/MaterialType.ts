@@ -1,6 +1,6 @@
 export enum MaterialType {
     Unit = 1,
-    Bulding,
+    Building,
     Age,
     Gold,
     PlayerAidCards,

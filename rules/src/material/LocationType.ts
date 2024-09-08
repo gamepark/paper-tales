@@ -9,4 +9,5 @@ export enum LocationType {
     AgeStock,
     GoldStock,
     Discard,
+    Deck,
 }

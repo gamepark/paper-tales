@@ -5,6 +5,9 @@ import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { RuleId } from './rules/RuleId'
+import { units } from './material/Unit'
+import { Gold } from './material/Gold'
+import { buildings } from './material/Building'
 
 /**
  * This class creates a new Game based on the game options
@@ -12,10 +15,38 @@ import { RuleId } from './rules/RuleId'
 export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType, LocationType, PaperTalesOptions> {
   Rules = PaperTalesRules
 
-  setupMaterial(_options: PaperTalesOptions) {
+  setupMaterial() {
+    this.setupDeck()
+    this.setupPlayers()
+  }
+
+  setupDeck() {
+    const items = units.map(unit => ({
+      location: { type: LocationType.Deck, id: unit }
+    }))
+    this.material(MaterialType.Unit).createItems(items)
+    this.material(MaterialType.Unit).location(LocationType.Deck).shuffle()
+  }
+
+  setupPlayers() {
+    this.players.forEach(player => {
+      this.material(MaterialType.Gold).createItem({
+        id: Gold.Gold1,
+        location: { type: LocationType.PlayerGoldStock, player },
+        quantity: 3
+      })
+
+      const items = buildings.map(building => ({
+        location: { type: LocationType.PlayerBuildingHand, id:building, player}
+      }))
+      
+      this.material(MaterialType.Building).createItems(items)
+      
+    })
+
   }
 
   start() {
-    this.startPlayerTurn(RuleId.PlayerTurn, this.game.players[0])
+    this.startPlayerTurn(RuleId.Deal, this.game.players[0])
   }
 }

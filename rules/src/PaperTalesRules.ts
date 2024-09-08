@@ -4,7 +4,7 @@ import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { PlayerTurn } from './rules/PlayerTurn'
 import { RuleId } from './rules/RuleId'
-
+import { Deal } from './rules/Deal'
 
 /**
  * This class implements the rules of the board game.
@@ -13,7 +13,8 @@ import { RuleId } from './rules/RuleId'
 export class PaperTalesRules extends MaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
   rules = {
-    [RuleId.PlayerTurn]: PlayerTurn
+    [RuleId.PlayerTurn]: PlayerTurn,
+    [RuleId.Deal]: Deal,
   }
 
   giveTime(): number {
