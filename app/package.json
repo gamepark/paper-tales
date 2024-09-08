@@ -1,5 +1,5 @@
 {
-  "name": "@gamepark/game-template-app",
+  "name": "@gamepark/paper-tales-app",
   "version": "0.0.0",
   "private": true,
   "description": "The user interface of Game Template adaptation for Game Park",
@@ -39,7 +39,7 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "deploy": "yarn build && rclone sync build game-template:game-template.game-park.com --progress --s3-acl=public-read"
+    "deploy": "yarn build && rclone sync build paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read"
   },
   "eslintConfig": {
     "extends": [
@@ -61,7 +61,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^@gamepark/game-template/(.*)$": "<rootDir>/../rules/src/$1"
+      "^@gamepark/paper-tales/(.*)$": "<rootDir>/../rules/src/$1"
     }
   }
 }

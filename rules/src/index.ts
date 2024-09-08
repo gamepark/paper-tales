@@ -1,3 +1,3 @@
-export { GameTemplateRules } from './GameTemplateRules'
-export { GameTemplateOptionsSpec } from './GameTemplateOptions'
-export { GameTemplateSetup } from './GameTemplateSetup'
+export { PaperTalesRules } from './PaperTalesRules'
+export { PaperTalesOptionsSpec } from './PaperTalesOptions'
+export { PaperTalesSetup } from './PaperTalesSetup'

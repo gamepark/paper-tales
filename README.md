@@ -11,7 +11,7 @@ Then, let's code 🙂
 You must install [Git](https://git-scm.com/) on your computer, and create an account on [Github](https://github.com/) if you do not have one.
 
 Then, you need a repository for you game. You can either wait for us to create one, or
-use [our template on Github](https://github.com/gamepark/board-game-template)
+use [our template on Github](https://github.com/gamepark/board-paper-tales)
 to [create a new repository](https://docs.github.com/fr/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
 
 We recommend to use this syntax to name the repository: "name-of-your-game"
@@ -52,8 +52,8 @@ real-time.
 Search and replace in **every file**:
 
 - `Game Template` => `Name of your Game`
-- `GameTemplate` => `NameOfYourGame`
-- `game-template` => `name-of-your-game`
+- `PaperTales` => `NameOfYourGame`
+- `paper-tales` => `name-of-your-game`
 
 ### 3.1 The Material
 
@@ -128,7 +128,7 @@ export class PlayerHandLocator extends HandLocator<PlayerColor, MaterialType, Lo
 
 ### 3.3 The setup
 
-Once you have one Material type and one Location type, you can start to setup a new game in [GameTemplateRules.ts](/rules/src/GameTemplateRules.ts)
+Once you have one Material type and one Location type, you can start to setup a new game in [PaperTalesRules.ts](/rules/src/PaperTalesRules.ts)
 
 You can easily create and manipulate the material in the setup:
 
@@ -171,7 +171,7 @@ Then, run:
 ```
 rclone config
 > n (For "New remote)
-name> game-template
+name> paper-tales
 Storage> s3 (Amazon S3 Compliant Storage Provider)
 provider> Other
 env_auth> false
