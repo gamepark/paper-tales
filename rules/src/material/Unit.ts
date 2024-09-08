@@ -45,4 +45,6 @@ export enum Unit {
     Adventurer,
 }
 
-export const cards = getEnumValues(Unit)
+
+
+export const units = getEnumValues(Unit)

@@ -8,4 +8,4 @@ export enum Building {
     Town,
 }
 
-export const cards = getEnumValues(Building)
+export const buildings = getEnumValues(Building)
