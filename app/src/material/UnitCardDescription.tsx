@@ -1,6 +1,6 @@
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription } from '@gamepark/react-game'
-import Back from '../images/units/pt_integral_cards_back_fr.jpg'
+import Back from '../images/units/en/Ogre.jpg'
 import Commander from '../images/units/en/Commander.jpg'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -19,8 +19,8 @@ import Golem from '../images/units/en/Golem.jpg'
 import GrandArchitect from '../images/units/en/GrandArchitect.jpg'
 import Hunter from '../images/units/en/Hunter.jpg'
 import Knight from '../images/units/en/Knight.jpg'
-import kraken from '../images/units/en/kraken.jpg'
-import Landlord from '../images/units/en/Landlord.jpg'
+import kraken from '../images/units/en/Kraken.jpg'
+import Landlord from '../images/units/en/LandLord.jpg'
 import Leviathan from '../images/units/en/Leviathan.jpg'
 import Manticore from '../images/units/en/Manticore.jpg'
 import MasterAlchemist from '../images/units/en/MasterAlchemist.jpg'
@@ -44,7 +44,7 @@ import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 
-export class RegionCardDescription extends CardDescription {
+export class UnitCardDescription extends CardDescription {
   height = 7
   width = 7
   borderRadius = 0.5
@@ -99,3 +99,5 @@ export class RegionCardDescription extends CardDescription {
 
 
 }
+
+export const unitCardDescription = new UnitCardDescription()
