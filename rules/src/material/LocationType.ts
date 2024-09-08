@@ -6,7 +6,6 @@ export enum LocationType {
     PlayerBuildingBoard,
     PlayerGoldStock,
     PlayerAidCard,
-    Scoretrack,
     AgeStock,
     GoldStock,
     Discard,
