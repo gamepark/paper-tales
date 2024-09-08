@@ -1,15 +1,13 @@
 export enum LocationType {
-    PlayerUnitsHand = 1,
-    PlayerBuldingsHand,
+    PlayerUnitHand = 1,
     PlayerDraftHand,
-    PlayerUnitslay,
-    PlayerBuldingsPlay,
+    PlayerUnitBoard,
+    PlayerBuildingHand,
+    PlayerBuildingBoard,
     PlayerGoldStock,
-    PlayerAgeStock,
-    PlayerAidCards,
+    PlayerAidCard,
     Scoretrack,
     AgeStock,
     GoldStock,
     Discard,
-
 }
