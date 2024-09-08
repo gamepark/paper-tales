@@ -4,5 +4,5 @@ import { ComponentType } from 'react'
 import { PlayerTurnHeader } from './PlayerTurnHeader'
 
 export const Headers: Partial<Record<RuleId, ComponentType>> = {
-  [RuleId.PlayerTurn]: PlayerTurnHeader
+  [RuleId.Draft]: PlayerTurnHeader
 }
