@@ -45,8 +45,8 @@ import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 
 export class UnitCardDescription extends CardDescription {
-  height = 7
-  width = 7
+  height = 14
+  width = 10
   borderRadius = 0.5
 
   backImage = Back
