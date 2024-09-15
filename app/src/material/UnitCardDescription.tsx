@@ -1,6 +1,5 @@
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription } from '@gamepark/react-game'
-import Back from '../images/units/en/Ogre.jpg'
 import Commander from '../images/units/en/Commander.jpg'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
