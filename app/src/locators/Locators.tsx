@@ -5,7 +5,7 @@ import { Locator } from '@gamepark/react-game'
 import { UnitDeckLocator } from './DeckLocator'
 import { GoldStockLocator } from './GoldStockLocator'
 import { DiscardLocator } from './DiscardLocator'
-import { PlayerDraftHandLocator } from './PlayerHandLocator'
+import { PlayerDraftHandLocator } from './PlayerDraftHandLocator'
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
 
