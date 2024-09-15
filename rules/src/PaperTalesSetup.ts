@@ -22,6 +22,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
 
   setupDeck() {
     const items = units.map(unit => ({
+      id:unit,
       location: { type: LocationType.Deck, id: unit }
     }))
     this.material(MaterialType.Unit).createItems(items)
