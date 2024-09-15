@@ -6,13 +6,15 @@ import { UnitDeckLocator } from './DeckLocator'
 import { GoldStockLocator } from './GoldStockLocator'
 import { DiscardLocator } from './DiscardLocator'
 import { PlayerDraftHandLocator } from './PlayerHandLocator'
+import { AgeStockLocator } from './AgeStockLocator'
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
 
     [LocationType.Deck]: new UnitDeckLocator(),
     [LocationType.GoldStock]: new GoldStockLocator(),
     [LocationType.Discard]: new DiscardLocator(),
-    [LocationType.PlayerDraftHand]: new PlayerDraftHandLocator()
+    [LocationType.PlayerDraftHand]: new PlayerDraftHandLocator(),
+    [LocationType.AgeStock]: new AgeStockLocator()
 
 
 }
