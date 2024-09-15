@@ -43,13 +43,14 @@ import Treefolk from '../images/units/en/Treefolk.jpg'
 import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
+import CardBack from '../images/units/en/CardBack.jpg'
 
 export class UnitCardDescription extends CardDescription {
   height = 14
   width = 10
   borderRadius = 0.5
 
-  backImage = Back
+  backImage = CardBack
 
 //Image en EN.
   images = {
