@@ -1,4 +1,4 @@
-import { MaterialGame, MaterialMove, MaterialRules, TimeLimit } from '@gamepark/rules-api'
+import { hideItemId, hideItemIdToOthers, MaterialGame, MaterialMove, PositiveSequenceStrategy, SecretMaterialRules, TimeLimit } from '@gamepark/rules-api'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
@@ -10,11 +10,26 @@ import { Deal } from './rules/Deal'
  * This class implements the rules of the board game.
  * It must follow Game Park "Rules" API so that the Game Park server can enforce the rules.
  */
-export class PaperTalesRules extends MaterialRules<PlayerColor, MaterialType, LocationType>
+export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
   rules = {
     [RuleId.Draft]: Draft,
     [RuleId.Deal]: Deal,
+  }
+
+  locationsStrategies = {
+    [MaterialType.Unit]:{
+      [LocationType.Deck]: new PositiveSequenceStrategy(),
+      [LocationType.Discard]: new PositiveSequenceStrategy(),
+      [LocationType.PlayerDraftHand]: new PositiveSequenceStrategy(),
+    }
+  }
+
+  hidingStrategies = {
+    [MaterialType.Unit]:{
+      [LocationType.Deck]:hideItemId,
+      [LocationType.PlayerDraftHand]:hideItemIdToOthers,
+    }
   }
 
   giveTime(): number {
