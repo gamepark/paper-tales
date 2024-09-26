@@ -1,6 +1,17 @@
-import { FlexLocator } from '@gamepark/react-game'
+/** @jsxImportSource @emotion/react */
+import { PileLocator } from '@gamepark/react-game'
+import { MaterialItem } from '@gamepark/rules-api'
 
-export class PlayerGoldStockLocator extends FlexLocator {
-  coordinates = { x: -30, y: -30, z: 0 }
-  delta = { x: -0.05, y: -0.05, z: 0.1 }
+class PlayerGoldStockLocator extends PileLocator {
+  radius = 2
+  // TODO: better management of animations + limits ?
+  limit = 1000
+
+
+
+  getPileId(item: MaterialItem) {
+    return `${item.location.player}-${item.id}`
+  }
 }
+
+export const playerGoldStockLocator = new PlayerGoldStockLocator()
