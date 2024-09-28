@@ -1,6 +1,9 @@
-import { FlexLocator } from '@gamepark/react-game'
+import { PileLocator } from '@gamepark/react-game'
 
-export class AgeStockLocator extends FlexLocator {
-  coordinates = { x: -40, y: -30, z: 0 }
-  delta = { x: -0.05, y: -0.05, z: 0.1 }
+export class AgeStockLocator extends PileLocator {
+  coordinates = { x: -50, y: -18, z: 0 }
+  radius = 2
+
 }
+
+export const ageStockLocator = new AgeStockLocator()
