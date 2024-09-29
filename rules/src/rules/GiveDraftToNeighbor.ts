@@ -16,7 +16,7 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
         players.forEach(player => {
           
           const playerRemainingUnits = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player)
-          moves.push(...playerRemainingUnits.moveItems({type:LocationType.PlayerUnitHand, player:this.getNextPlayer(player)}))
+          moves.push(...playerRemainingUnits.moveItems({type:LocationType.PlayerDraftHand, player:this.getNextPlayer(player)}))
         })
         moves.push(this.startSimultaneousRule(RuleId.Draft))
       }

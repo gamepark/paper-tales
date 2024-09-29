@@ -22,6 +22,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
       [LocationType.Deck]: new PositiveSequenceStrategy(),
       [LocationType.Discard]: new PositiveSequenceStrategy(),
       [LocationType.PlayerDraftHand]: new PositiveSequenceStrategy(),
+      [LocationType.PlayerUnitHand]: new PositiveSequenceStrategy(),
     }
   }
 

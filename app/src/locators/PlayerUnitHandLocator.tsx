@@ -29,7 +29,7 @@ export class PlayerUnitHandLocator extends HandLocator {
 
     getItemIndex(item: MaterialItem, context: ItemContext): number {
         if (item.location.player === context.player) {
-          const cards = context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(context.player).getItems().map(item => item.id)
+          const cards = context.rules.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(context.player).getItems().map(item => item.id)
           cards.sort((a, b) => a - b)
           return cards.indexOf(item.id)
         } else {
