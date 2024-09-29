@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import { LocationType } from "@gamepark/paper-tales/material/LocationType";
 import { MaterialType } from "@gamepark/paper-tales/material/MaterialType";
 import { DropAreaDescription, getRelativePlayerIndex, HandLocator, ItemContext } from "@gamepark/react-game";
@@ -6,7 +7,7 @@ import { playerPositions, Position } from "./TableauLocator";
 
 export class PlayerUnitHandLocator extends HandLocator {
 
-  locationDescription = new PlayerUnitHandDescription()
+  locationDescription = new DropAreaDescription({ width: 20, height: 8, borderRadius: 0.4 })
 
   getCoordinates(location: Location, context: ItemContext) {
     const playerIndex = getRelativePlayerIndex(context, location.player)
@@ -36,10 +37,6 @@ export class PlayerUnitHandLocator extends HandLocator {
         }
       }
 
-}
-
-class PlayerUnitHandDescription extends DropAreaDescription {
-  
 }
 
 export const playerUnitHandLocator = new PlayerUnitHandLocator()

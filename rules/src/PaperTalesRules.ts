@@ -5,6 +5,7 @@ import { PlayerColor } from './PlayerColor'
 import { Draft } from './rules/Draft'
 import { RuleId } from './rules/RuleId'
 import { Deal } from './rules/Deal'
+import { GiveDraftToNeighbor } from './rules/GiveDraftToNeighbor'
 
 /**
  * This class implements the rules of the board game.
@@ -15,6 +16,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
   rules = {
     [RuleId.Draft]: Draft,
     [RuleId.Deal]: Deal,
+    [RuleId.GiveDraftToNeighbor]: GiveDraftToNeighbor
   }
 
   locationsStrategies = {
