@@ -12,7 +12,7 @@ export class Deal extends PlayerTurnRule {
       ...this.game.players.flatMap(player => 
         deck.deal({type:LocationType.PlayerDraftHand, player}, 5)
       ), 
-      this.rules().startRule(RuleId.Draft)
+      this.startSimultaneousRule(RuleId.Draft)
     ]
     
   }
