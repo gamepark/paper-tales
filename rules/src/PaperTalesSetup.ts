@@ -38,7 +38,8 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       })
 
       const items = buildings.map(building => ({
-        location: { type: LocationType.PlayerBuildingHand, id:building, player}
+        id:building,
+        location: { type: LocationType.PlayerBuildingHand, player}
       }))
       
       this.material(MaterialType.Building).createItems(items)
