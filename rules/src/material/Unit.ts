@@ -48,3 +48,8 @@ export enum Unit {
 
 
 export const units = getEnumValues(Unit)
+
+export const theRealDeck = [
+    Unit.Adventurer, Unit.Adventurer,
+    // TODO MAPOW : Exemple a compléter
+]

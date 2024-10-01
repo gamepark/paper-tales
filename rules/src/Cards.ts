@@ -134,3 +134,4 @@ export enum Card {
 export const cards = getEnumValues(Card)
 
 
+// TODO MAPOW : Delete file
