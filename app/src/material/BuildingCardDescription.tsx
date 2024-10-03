@@ -8,8 +8,8 @@ import Town from '../images/buildings/en/level1/TownL1.jpg'
 
 
 export class BuildingCardDescription extends CardDescription {
-    height = 14
-    width = 10
+    height = 10
+    width = 14
     borderRadius = 0.5
   
   
