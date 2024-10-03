@@ -10,7 +10,7 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
       const remainingUnits = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getItems().length
       
       if (remainingUnits === 0){
-        moves.push(this.startRule(RuleId.PlaceUnitOnBoard))
+        moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
       } else {
         const players = this.game.players
         players.forEach(player => {
