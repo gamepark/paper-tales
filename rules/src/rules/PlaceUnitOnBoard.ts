@@ -1,7 +1,6 @@
-import { CustomMove, MaterialMove, SimultaneousRule, XYCoordinates } from "@gamepark/rules-api"
+import { MaterialMove, SimultaneousRule, XYCoordinates } from "@gamepark/rules-api"
 import { MaterialType } from "../material/MaterialType";
 import { LocationType } from "../material/LocationType";
-import { CustomMoveType } from "./CustomMoveType";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 
@@ -20,17 +19,9 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         ]}))
         moves.push(...playerBoard.moveItems({type:LocationType.Discard}))
 
-        moves.push(this.customMove(CustomMoveType.FinishDeployment, playerId))
+        moves.push(this.endPlayerTurn(playerId))
 
         return moves
-    }
-
-
-    onCustomMove(move: CustomMove) {
-        if (move.type === CustomMoveType.FinishDeployment){
-            return [this.endPlayerTurn(move.data.player!)]
-        }
-        return []
     }
 
     getMovesAfterPlayersDone(): MaterialMove[] {
