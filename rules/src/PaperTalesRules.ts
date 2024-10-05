@@ -7,6 +7,7 @@ import { RuleId } from './rules/RuleId'
 import { Deal } from './rules/Deal'
 import { GiveDraftToNeighbor } from './rules/GiveDraftToNeighbor'
 import { PlaceUnitOnBoard } from './rules/PlaceUnitOnBoard'
+import { RevealBoards } from './rules/RevealBoards'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -15,6 +16,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.Deal]: Deal,
     [RuleId.GiveDraftToNeighbor]: GiveDraftToNeighbor,
     [RuleId.PlaceUnitOnBoard]: PlaceUnitOnBoard,
+    [RuleId.RevealBoards]: RevealBoards
   }
 
   locationsStrategies = {
