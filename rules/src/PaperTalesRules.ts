@@ -1,4 +1,4 @@
-import { hideItemId, hideItemIdToOthers, MaterialGame, MaterialMove, PositiveSequenceStrategy, SecretMaterialRules, TimeLimit } from '@gamepark/rules-api'
+import { hideItemId, hideItemIdToOthers, HidingStrategy, MaterialGame, MaterialItem, MaterialMove, PositiveSequenceStrategy, SecretMaterialRules, TimeLimit } from '@gamepark/rules-api'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
@@ -33,7 +33,8 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
       [LocationType.Deck]:hideItemId,
       [LocationType.PlayerDraftHand]:hideItemIdToOthers,
       [LocationType.PlayerUnitHand]:hideItemIdToOthers,
-      [LocationType.Discard]:hideItemId
+      [LocationType.Discard]:hideItemId,
+      [LocationType.PlayerUnitBoard]:hideRotatedCardToOthers,
     }
   }
 
@@ -41,3 +42,6 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     return 60
   }
 }
+
+export const hideRotatedCardToOthers: HidingStrategy = (item: MaterialItem<number, LocationType>, player?: number) =>
+  item.location.rotation && item.location.player !== player ? ['id'] : []

@@ -32,7 +32,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
             ]
         }))
 
-        moves.push(...this.material(MaterialType.Unit).index((index) => !placedIndexes.includes(index)).moveItems({
+        moves.push(...this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).index((index) => !placedIndexes.includes(index)).moveItems({
              type: LocationType.Discard 
         }))
         moves.push(...playerHand.moveItems({
