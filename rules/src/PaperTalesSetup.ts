@@ -5,7 +5,7 @@ import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { RuleId } from './rules/RuleId'
-import { units } from './material/Unit'
+import { theRealDeck } from './material/Unit'
 import { Gold } from './material/Gold'
 import { buildings } from './material/Building'
 
@@ -21,7 +21,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
   }
 
   setupDeck() {
-    const items = units.map(unit => ({
+    const items = theRealDeck.map(unit => ({
       id:unit,
       location: { type: LocationType.Deck }
     }))
