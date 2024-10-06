@@ -33,6 +33,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
       [LocationType.Deck]:hideItemId,
       [LocationType.PlayerDraftHand]:hideItemIdToOthers,
       [LocationType.PlayerUnitHand]:hideItemIdToOthers,
+      [LocationType.Discard]:hideItemId
     }
   }
 
