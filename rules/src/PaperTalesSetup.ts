@@ -5,7 +5,7 @@ import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { RuleId } from './rules/RuleId'
-import { theRealDeck, units } from './material/Unit'
+import { theRealDeck } from './material/Unit'
 import { Gold } from './material/Gold'
 import { buildings } from './material/Building'
 
