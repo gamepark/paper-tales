@@ -1,16 +1,24 @@
-import { MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
+import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
 import { MaterialType } from "../material/MaterialType";
 import { LocationType } from "../material/LocationType";
 import { RuleId } from "./RuleId";
+import { Memory } from "./Memory";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
+
+    onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove<number, number, number>[] {
+        this.game.players.forEach(player => {
+            this.memorize(Memory.PlayedCardsDuringDeployment, [], player)
+        })
+        return []
+    }
 
     getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
 
         const moves = []
 
+        const placedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, playerId)
         const playerHand = this.getPlayerHand(playerId)
-        const playerBoard = this.getplayerBoard(playerId)
         const remainingSpaces = this.getRemainingSpaces(playerId)
 
         moves.push(...remainingSpaces.flatMap((space) => {
@@ -23,11 +31,28 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
                 })
             ]
         }))
-        
-        moves.push(...playerBoard.moveItems({type:LocationType.Discard}))
+
+        moves.push(...this.material(MaterialType.Unit).index((index) => !placedIndexes.includes(index)).moveItems({
+             type: LocationType.Discard 
+        }))
+        moves.push(...playerHand.moveItems({
+            type:LocationType.Discard
+        }))
         moves.push(this.endPlayerTurn(playerId))
 
         return moves
+    }
+
+    afterItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
+
+        if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
+            const cardsPlayedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
+            cardsPlayedIndexes.push(move.itemIndex)
+            this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes ,move.location.player)
+        }
+
+        return []
+        
     }
 
     getMovesAfterPlayersDone(): MaterialMove[] {
@@ -38,7 +63,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(playerId)
     }
 
-    getplayerBoard(playerId:number){
+    getPlayerBoard(playerId:number){
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     }
 
@@ -54,7 +79,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     }
 
     getRemainingSpaces(playerId:number){
-        return this.getBoardSpacesCoordinates(playerId).filter(space => this.getplayerBoard(playerId).getItems().find(item => item.location.x === space.x && item.location.y === space.y) === undefined)
+        return this.getBoardSpacesCoordinates(playerId).filter(space => this.getPlayerBoard(playerId).getItems().find(item => item.location.x === space.x && item.location.y === space.y) === undefined)
     }
 
 }
