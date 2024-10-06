@@ -49,6 +49,12 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
             const cardsPlayedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
             cardsPlayedIndexes.push(move.itemIndex)
             this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes ,move.location.player)
+            
+            //const testPlacedCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(move.location.player).getItems()
+            //for (const item of testPlacedCards){
+                //console.log(unitCardCaracteristics[item.id! as number].cost)
+            //}
+
         }
 
         return []

@@ -4,4 +4,6 @@ export enum RuleId {
   GiveDraftToNeighbor,
   PlaceUnitOnBoard,
   RevealBoards,
+  PayDeployedUnits,
+  ChooseUnpaidUnits,
 }

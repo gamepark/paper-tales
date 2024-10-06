@@ -14,7 +14,6 @@ export enum Resources {
 }
 
 export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
-
     [Unit.Commander]: { cost: 2, power: 4 },
     [Unit.Militiaman]: { cost: 0, power: 2 },
     [Unit.TimeMaster]: { cost: 0, power: 1 },
