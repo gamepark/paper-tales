@@ -3,6 +3,7 @@ import { MaterialType } from "../material/MaterialType";
 import { LocationType } from "../material/LocationType";
 import { RuleId } from "./RuleId";
 import { Memory } from "./Memory";
+import { DiscardRemainingUnits } from "./DiscardRemainingUnits";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 
@@ -35,10 +36,9 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         moves.push(...this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).index((index) => !placedIndexes.includes(index)).moveItems({
              type: LocationType.Discard 
         }))
-        moves.push(...playerHand.moveItems({
-            type:LocationType.Discard
-        }))
-        moves.push(this.endPlayerTurn(playerId))
+
+        const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
+        moves.push(...discardAndEndMoves)
 
         return moves
     }
