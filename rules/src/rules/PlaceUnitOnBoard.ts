@@ -4,6 +4,7 @@ import { LocationType } from "../material/LocationType";
 import { RuleId } from "./RuleId";
 import { Memory } from "./Memory";
 import { DiscardRemainingUnits } from "./DiscardRemainingUnits";
+import { unitCardCaracteristics } from "../material/UnitCaracteristics";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 
@@ -19,12 +20,16 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         const moves = []
 
         const placedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, playerId)
-        const playerHand = this.getPlayerHand(playerId)
         const remainingSpaces = this.getRemainingSpaces(playerId)
+        const playerGold = this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).getQuantity()
+        const goldAlreadyToSpend = this.material(MaterialType.Unit).index((index) => placedIndexes.includes(index)).getItems().reduce((acc, cur) => acc + unitCardCaracteristics[cur.id].cost , 0)
+        const goldRemainingToSpend = playerGold - goldAlreadyToSpend
+        const playerHand = this.getPlayerHand(playerId)
+        const playerHandPlayable = playerHand.filter(item => unitCardCaracteristics[item.id].cost <= goldRemainingToSpend)
 
         moves.push(...remainingSpaces.flatMap((space) => {
             return [
-                ...playerHand.moveItems({
+                ...playerHandPlayable.moveItems({
                     type:LocationType.PlayerUnitBoard,
                     player:playerId,
                     x:space.x, y:space.y,
@@ -49,11 +54,6 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
             const cardsPlayedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
             cardsPlayedIndexes.push(move.itemIndex)
             this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes ,move.location.player)
-            
-            //const testPlacedCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(move.location.player).getItems()
-            //for (const item of testPlacedCards){
-                //console.log(unitCardCaracteristics[item.id! as number].cost)
-            //}
 
         }
 

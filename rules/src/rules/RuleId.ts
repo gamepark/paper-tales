@@ -6,4 +6,5 @@ export enum RuleId {
   RevealBoards,
   PayDeployedUnits,
   ChooseUnpaidUnits,
+  War,
 }
