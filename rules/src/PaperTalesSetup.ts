@@ -8,6 +8,7 @@ import { RuleId } from './rules/RuleId'
 import { theRealDeck } from './material/Unit'
 import { Gold } from './material/Gold'
 import { buildings } from './material/Building'
+import { Memory } from './rules/Memory'
 
 /**
  * This class creates a new Game based on the game options
@@ -18,6 +19,9 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
   setupMaterial() {
     this.setupDeck()
     this.setupPlayers()
+    this.game.players.forEach(player => {
+      this.memorize(Memory.PlayerScore,0, player)
+    })
   }
 
   setupDeck() {

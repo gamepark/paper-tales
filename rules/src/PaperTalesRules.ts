@@ -10,6 +10,9 @@ import { PlaceUnitOnBoard } from './rules/PlaceUnitOnBoard'
 import { RevealBoards } from './rules/RevealBoards'
 import { PayDeployedUnits } from './rules/PayDeployedUnits'
 import { War } from './rules/War'
+import { Income } from './rules/Income'
+import { Build } from './rules/Build'
+import { Age } from './rules/Age'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -21,6 +24,9 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.RevealBoards]: RevealBoards,
     [RuleId.PayDeployedUnits]:PayDeployedUnits,
     [RuleId.War]: War,
+    [RuleId.Income]:Income,
+    [RuleId.Build]:Build,
+    [RuleId.Age]:Age,
   }
 
   locationsStrategies = {

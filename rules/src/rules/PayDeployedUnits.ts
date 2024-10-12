@@ -14,7 +14,6 @@ export class PayDeployedUnits extends MaterialRulesPart {
             const deployedUnitsIndexes = this.remind(Memory.PlayedCardsDuringDeployment, player)
             const units = this.material(MaterialType.Unit).index((index) => deployedUnitsIndexes.includes(index)).getItems()
             units.forEach(item => { 
-                console.log(item.id, unitCardCaracteristics[item.id].cost)
                 moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, -unitCardCaracteristics[item.id].cost))
             })
 
