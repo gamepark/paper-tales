@@ -6,7 +6,7 @@ import { Trans } from "react-i18next"
 export const PlayerTurnHeader = () => {
 
   const end = useLegalMoves()
-  console.log(end)
+  //console.log(end)
    
   return <>
     <Trans defaults="end.turn">

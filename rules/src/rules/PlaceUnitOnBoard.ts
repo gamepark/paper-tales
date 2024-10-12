@@ -50,14 +50,19 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
     afterItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
 
+        const moves = []
+
         if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
             const cardsPlayedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
             cardsPlayedIndexes.push(move.itemIndex)
             this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes ,move.location.player)
 
+            if (this.getPlayerHand(move.location.player!).getQuantity() <= 1){
+                moves.push(this.endPlayerTurn(move.location.player!))       // Just to replace the utton for now
+            }
         }
 
-        return []
+        return moves
         
     }
 
