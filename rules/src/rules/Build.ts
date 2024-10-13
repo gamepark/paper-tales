@@ -1,6 +1,7 @@
 import { ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
 import { LocationType } from "../material/LocationType";
 import { MaterialType } from "../material/MaterialType";
+import { ResourcesHelper } from "./helpers/ResourcesHelper";
 import { RuleId } from "./RuleId";
 
 export class Build extends SimultaneousRule {
@@ -9,9 +10,13 @@ export class Build extends SimultaneousRule {
         return [this.startRule(RuleId.Age)]
     }
 
-    getActivePlayerLegalMoves(_playerId: number): MaterialMove[] {
+    getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
 
         const moves:MaterialMove[] = []
+        const resourcesHelper =  new ResourcesHelper(this.game, playerId)
+        const playerResources = resourcesHelper.getPlayerResources(playerId)
+
+        console.log("player : ", playerId, ", resources : ", playerResources)
 
         return moves
     }
@@ -30,6 +35,10 @@ export class Build extends SimultaneousRule {
 
     getFieldCost(playerId:number){
         return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity() * 2
+    }
+
+    getPlayerBoard(playerId:number){
+        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     }
 
 }
