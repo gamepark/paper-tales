@@ -7,7 +7,7 @@ import { RuleId } from "./RuleId";
 export class Build extends SimultaneousRule {
 
     onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove<number, number, number>[] {
-        return [this.startRule(RuleId.Age)]
+        return []
     }
 
     getActivePlayerLegalMoves(playerId: number): MaterialMove[] {

@@ -14,7 +14,7 @@ export class Income extends MaterialRulesPart {
             console.log("score : ",this.remind(Memory.PlayerScore, player))
             moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, 2))
         })
-        moves.push(this.startRule(RuleId.Build))
+        moves.push(this.startSimultaneousRule(RuleId.Build))
 
         return moves
     }

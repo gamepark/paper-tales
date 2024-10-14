@@ -24,15 +24,20 @@ export class ResourcesHelper extends MaterialRulesPart {
 
     getUnitResource(playerId:number, unit: MaterialItem):Resource[] {
         const resourceObject = unitCardCaracteristics[unit.id].resources
-        if(resourceObject.condition !== undefined){
-            if (resourceObject.condition.onLane !== undefined){
-                return unit.location.y === resourceObject.condition.onLane && resourceObject.type
-            } else if (resourceObject.condition.perAgeToken !== undefined){
-                return [...Array(this.getAgeOnUnit(playerId, unit).length).keys()].map(resourceObject.type)
-            } else if (resourceObject.condition.ifAgeToken !== undefined){
-                return this.getAgeOnUnit(playerId, unit).length > 0 ? resourceObject.type : []
+        if(resourceObject !== undefined){
+            if (resourceObject.condition !== undefined){
+                if (resourceObject.condition.onLane !== undefined){
+                    return unit.location.y === resourceObject.condition.onLane && resourceObject.type
+                } else if (resourceObject.condition.perAgeToken !== undefined){
+                    return [...Array(this.getAgeOnUnit(playerId, unit).length).keys()].map(resourceObject.type)
+                } else if (resourceObject.condition.ifAgeToken !== undefined){
+                    return this.getAgeOnUnit(playerId, unit).length > 0 ? resourceObject.type : []
+                }
+            } else {
+                return resourceObject.type
             }
         }
-        return resourceObject.type;
+         
+        return []
     }
 }
