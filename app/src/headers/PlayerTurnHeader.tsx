@@ -1,17 +1,21 @@
 /** @jsxImportSource @emotion/react */
 
 import { PlayMoveButton, useLegalMoves } from "@gamepark/react-game"
-import { Trans } from "react-i18next"
+
 
 export const PlayerTurnHeader = () => {
 
-  const end = useLegalMoves()
-  //console.log(end)
-   
+  const legalMoves = useLegalMoves()
+  const endMove = legalMoves.find(move => move.type === 2)
+
+
   return <>
-    <Trans defaults="end.turn">
-    <PlayMoveButton move={end} />
-    </Trans>
+
+    <PlayMoveButton move={endMove}>
+      <div> coucou</div>
+    </PlayMoveButton>
+
+
   </>
 }
 

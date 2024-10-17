@@ -19,10 +19,10 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
         const moves = []
 
-        const placedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, playerId)
+        const placedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, playerId)
         const remainingSpaces = this.getRemainingSpaces(playerId)
         const playerGold = this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).getQuantity()
-        const goldAlreadyToSpend = this.material(MaterialType.Unit).index((index) => placedIndexes.includes(index)).getItems().reduce((acc, cur) => acc + unitCardCaracteristics[cur.id].cost , 0)
+        const goldAlreadyToSpend = this.material(MaterialType.Unit).index((index) => placedIndexes.includes(index)).getItems().reduce((acc, cur) => acc + unitCardCaracteristics[cur.id].cost, 0)
         const goldRemainingToSpend = playerGold - goldAlreadyToSpend
         const playerHand = this.getPlayerHand(playerId)
         const playerHandPlayable = playerHand.filter(item => unitCardCaracteristics[item.id].cost <= goldRemainingToSpend)
@@ -30,16 +30,16 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         moves.push(...remainingSpaces.flatMap((space) => {
             return [
                 ...playerHandPlayable.moveItems({
-                    type:LocationType.PlayerUnitBoard,
-                    player:playerId,
-                    x:space.x, y:space.y,
-                    rotation:true
+                    type: LocationType.PlayerUnitBoard,
+                    player: playerId,
+                    x: space.x, y: space.y,
+                    rotation: true
                 })
             ]
         }))
 
         moves.push(...this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).index((index) => !placedIndexes.includes(index)).moveItems({
-             type: LocationType.Discard 
+            type: LocationType.Discard
         }))
 
         const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
@@ -50,46 +50,44 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
     afterItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
 
-        const moves = []
+        const moves: MaterialMove[] = []
 
         if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
-            const cardsPlayedIndexes:number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
+            const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
             cardsPlayedIndexes.push(move.itemIndex)
-            this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes ,move.location.player)
+            this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
 
-            if (this.getPlayerHand(move.location.player!).getQuantity() <= 1){
-                moves.push(this.endPlayerTurn(move.location.player!))       // Just to replace the utton for now
-            }
+
         }
 
         return moves
-        
+
     }
 
     getMovesAfterPlayersDone(): MaterialMove[] {
         return [this.startRule(RuleId.RevealBoards)]
     }
 
-    getPlayerHand(playerId:number){
+    getPlayerHand(playerId: number) {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(playerId)
     }
 
-    getPlayerBoard(playerId:number){
+    getPlayerBoard(playerId: number) {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     }
 
-    getPlayerGold(playerId:number){
+    getPlayerGold(playerId: number) {
         return this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId)
     }
 
-    getBoardSpacesCoordinates(playerId:number){
+    getBoardSpacesCoordinates(playerId: number) {
         const hasLevel2Building = this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getItems().find(item => item.location.rotation.y !== 0) !== undefined
-        return hasLevel2Building 
-        ? [{x:0, y:0}, {x:1, y:0}, {x:0, y:1}, {x:1, y:1}, {x:2, y:1}]
-        : [{x:0, y:0}, {x:1, y:0}, {x:0, y:1}, {x:1, y:1}]
+        return hasLevel2Building
+            ? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }]
+            : [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
     }
 
-    getRemainingSpaces(playerId:number){
+    getRemainingSpaces(playerId: number) {
         return this.getBoardSpacesCoordinates(playerId).filter(space => this.getPlayerBoard(playerId).getItems().find(item => item.location.x === space.x && item.location.y === space.y) === undefined)
     }
 
