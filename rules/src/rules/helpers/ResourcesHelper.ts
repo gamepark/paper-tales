@@ -28,6 +28,10 @@ export class ResourcesHelper extends MaterialRulesPart {
         return this.getPlayerBoard(playerId).getItems().flatMap(unit => this.getUnitResource(playerId, unit))
     }
 
+    getPlayerOneTypeResource(playerId:number, resource:Resources){
+        return this.getPlayerResources(playerId).filter(r => r === resource).length
+    }
+
     getUnitResource(playerId:number, unit: MaterialItem):Resources[] {
         const resourceObject = unitCardCaracteristics[unit.id].resources
         if(resourceObject !== undefined){
