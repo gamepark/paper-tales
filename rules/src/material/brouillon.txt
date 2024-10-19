@@ -1,0 +1,88 @@
+export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
+
+    [Building.Mine] : {
+        cost1: [{
+                [Resources.Wood]:1,
+                [Resources.Food]:0,
+                [Resources.Diamond]:0,
+                [Resources.Gold]:0,
+        }],
+        cost2: [{
+            [Resources.Wood]:1,
+            [Resources.Food]:0,
+            [Resources.Diamond]:1,
+            [Resources.Gold]:0,
+        }]
+    }, 
+    [Building.Tavern] : {
+        cost1: [{
+                [Resources.Wood]:0,
+                [Resources.Food]:1,
+                [Resources.Diamond]:0,
+                [Resources.Gold]:0,
+        }],
+        cost2: [{
+            [Resources.Wood]:1,
+            [Resources.Food]:1,
+            [Resources.Diamond]:0,
+            [Resources.Gold]:0,
+        }]
+    }, 
+    [Building.Barracks] : {
+        cost1: [{
+                [Resources.Wood]:1,
+                [Resources.Food]:0,
+                [Resources.Diamond]:0,
+                [Resources.Gold]:0,
+        }],
+        cost2: [{
+            [Resources.Wood]:1,
+            [Resources.Food]:1,
+            [Resources.Diamond]:0,
+            [Resources.Gold]:0,
+        }]
+    }, 
+    [Building.Town] : {
+        cost1: [{
+                [Resources.Wood]:1,
+                [Resources.Food]:0,
+                [Resources.Diamond]:0,
+                [Resources.Gold]:0,
+        }],
+        cost2: [{
+            [Resources.Wood]:2,
+            [Resources.Food]:0,
+            [Resources.Diamond]:0,
+            [Resources.Gold]:0,
+        }]
+    }, 
+    [Building.Temple] : {
+        cost1: [{
+                [Resources.Wood]:0,
+                [Resources.Food]:0,
+                [Resources.Diamond]:1,
+                [Resources.Gold]:0,
+            }, 
+            {
+                [Resources.Wood]:0,
+                [Resources.Food]:0,
+                [Resources.Diamond]:0,
+                [Resources.Gold]:2,
+            }
+        ],
+        cost2: [{
+            [Resources.Wood]:0,
+            [Resources.Food]:0,
+            [Resources.Diamond]:2,
+            [Resources.Gold]:0,
+        },
+        {
+            [Resources.Wood]:0,
+            [Resources.Food]:0,
+            [Resources.Diamond]:0,
+            [Resources.Gold]:3,
+        }]
+    }, 
+    
+    
+}
