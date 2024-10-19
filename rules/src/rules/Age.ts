@@ -20,7 +20,7 @@ export class Age extends MaterialRulesPart {
                 ))
             })
         })
-        moves.push(this.startRule(RuleId.NextTurn))
+        moves.push(this.getTurn() === 4 ? this.startRule(RuleId.EndGame) : this.startRule(RuleId.NextTurn))
 
         return moves
     }
@@ -39,6 +39,10 @@ export class Age extends MaterialRulesPart {
 
     getAgeTokenOnCoord(playerId:number, x:number, y:number){
         return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(playerId).filter(item => item.location.x === x && item.location.y === y).getQuantity()
+    }
+
+    getTurn(){
+        return this.material(MaterialType.Time).location(LocationType.Time).getItem()?.location.x!
     }
 
 }

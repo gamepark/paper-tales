@@ -11,4 +11,5 @@ export enum RuleId {
   Build,
   Age,
   NextTurn, 
+  EndGame, 
 }

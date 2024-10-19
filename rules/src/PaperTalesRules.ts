@@ -14,6 +14,7 @@ import { Income } from './rules/Income'
 import { Build } from './rules/Build'
 import { Age } from './rules/Age'
 import { NextTurn } from './rules/NextTurn'
+import { EndGame } from './rules/EndGame'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -29,6 +30,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.Build]:Build,
     [RuleId.Age]:Age,
     [RuleId.NextTurn]:NextTurn,
+    [RuleId.EndGame]:EndGame,
   }
 
   locationsStrategies = {
