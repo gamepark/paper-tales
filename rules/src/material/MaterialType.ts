@@ -4,4 +4,5 @@ export enum MaterialType {
     Age,
     Gold,
     PlayerAidCards,
+    Time
 }
