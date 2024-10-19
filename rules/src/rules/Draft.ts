@@ -2,14 +2,19 @@ import { isMoveItemType, ItemMove, MaterialMove, SimultaneousRule } from '@gamep
 import { MaterialType } from '../material/MaterialType'
 import { LocationType } from '../material/LocationType'
 import { RuleId } from './RuleId'
+import { Unit } from '../material/Unit'
 
 export class Draft extends SimultaneousRule {
   
   getActivePlayerLegalMoves(playerId: number): MaterialMove<number, number, number>[] {
+    
+    console.log(this.material(MaterialType.Unit).filter(item => item.id === Unit.Commander))
+
     const draftHand = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(playerId)
     return draftHand.moveItems({
       type:LocationType.PlayerUnitHand, player:playerId
     })
+
 
   }
 
