@@ -9,7 +9,7 @@ export class PlayerBuildingHandLocator extends HandLocator {
 
     locationDescription = new DropAreaDescription({ width: 20, height: 8, borderRadius: 0.4 })
 
-    coordinates = { x: -40, y: 5, z: 0 }
+    coordinates = { x: 5, y: 30, z: 0 }
     radius = 2
   
     getItemIndex(item: MaterialItem, context: ItemContext): number {
