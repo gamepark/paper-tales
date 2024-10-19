@@ -20,13 +20,19 @@ export class Build extends SimultaneousRule {
         const buildHelper =  new BuildHelper(this.game, playerId)
 
         // Passages aux niveaux 2
-        moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(item => buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2)).moveItems({rotation:true}))
+        moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(item => buildHelper
+            .canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2))
+            .moveItems({rotation:true}))
         
         if(buildHelper.getPlayerGold(playerId) >= this.getFieldCost(playerId)){
             // Achats au niveau 1 
-            moves.push(...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1)).moveItems({type:LocationType.PlayerBuildingBoard, player:playerId, rotation:false}))
+            moves.push(...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => buildHelper
+                .canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1))
+                .moveItems({type:LocationType.PlayerBuildingBoard, player:playerId, y:this.getPlayerBuildingQuantity(playerId), rotation:false}))
             // Achats au niveau 2
-            moves.push(...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2])).moveItems({type:LocationType.PlayerBuildingBoard, player:playerId, rotation:true}))
+            moves.push(...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => buildHelper
+                .canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2]))
+                .moveItems({type:LocationType.PlayerBuildingBoard, player:playerId, y:this.getPlayerBuildingQuantity(playerId), rotation:true}))
         }
         // Passer sans construire
         moves.push(this.endPlayerTurn(playerId))
@@ -64,7 +70,11 @@ export class Build extends SimultaneousRule {
     }
 
     getFieldCost(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity() * 2
+        return this.getPlayerBuildingQuantity(playerId) * 2
+    }
+
+    getPlayerBuildingQuantity(playerId:number){
+        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
     }
 
     getPlayerBoard(playerId:number){
