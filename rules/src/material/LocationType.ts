@@ -10,4 +10,5 @@ export enum LocationType {
     GoldStock,
     Discard,
     Deck,
+    Time,
 }
