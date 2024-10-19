@@ -1,7 +1,7 @@
 import { PileLocator } from '@gamepark/react-game'
 
 export class AgeStockLocator extends PileLocator {
-  coordinates = { x: -50, y: -18, z: 0 }
+  coordinates = { x: 20, y: -30, z: 0 }
   radius = 2
 
 }
