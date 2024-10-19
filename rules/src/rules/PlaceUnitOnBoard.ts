@@ -5,6 +5,7 @@ import { RuleId } from "./RuleId";
 import { Memory } from "./Memory";
 import { DiscardRemainingUnits } from "./DiscardRemainingUnits";
 import { unitCardCaracteristics } from "../material/UnitCaracteristics";
+import { ageMoney } from "../material/Age";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 
@@ -52,13 +53,18 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
         const moves: MaterialMove[] = []
 
-        if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
-            const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
-            cardsPlayedIndexes.push(move.itemIndex)
-            this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
-
-
-        }
+        if (isMoveItemType(MaterialType.Unit)(move)){
+            if (move.location.type === LocationType.PlayerUnitBoard){
+                const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
+                cardsPlayedIndexes.push(move.itemIndex)
+                this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
+            } else if (move.location.type === LocationType.Discard){
+                    const ageTokenOnSpot = this.getAgeTokensOnSpot(move.location.player!, move.location.x!, move.location.y!)
+                    moves.push(...ageMoney.createOrDelete(ageTokenOnSpot, {
+                        type:LocationType.Discard}, -ageMoney.count(ageTokenOnSpot)
+                    ))
+            }
+        } 
 
         return moves
 
@@ -89,6 +95,11 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
     getRemainingSpaces(playerId: number) {
         return this.getBoardSpacesCoordinates(playerId).filter(space => this.getPlayerBoard(playerId).getItems().find(item => item.location.x === space.x && item.location.y === space.y) === undefined)
+    }
+
+    getAgeTokensOnSpot(playerId:number, x:number, y:number){
+        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(playerId)
+            .filter(item => item.location.x === x && item.location.y === y)
     }
 
 }
