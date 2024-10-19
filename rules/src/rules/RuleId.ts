@@ -10,4 +10,5 @@ export enum RuleId {
   Income,
   Build,
   Age,
+  NextTurn, 
 }

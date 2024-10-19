@@ -20,7 +20,7 @@ export class Age extends MaterialRulesPart {
                 ))
             })
         })
-        moves.push(this.startRule(RuleId.Deal))
+        moves.push(this.startRule(RuleId.NextTurn))
 
         return moves
     }
