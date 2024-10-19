@@ -33,7 +33,7 @@ export class Income extends MaterialRulesPart {
 
     getIncomeUnits(playerId:number){
         return this.getPlayerBoard(playerId)
-            .filter(item => isIncomeType(unitCardCaracteristics[item.id].effect))
+            .filter(item => unitCardCaracteristics[item.id].effect !== undefined && isIncomeType(unitCardCaracteristics[item.id].effect))
     }
 
     getIncomeByEffect(playerId:number, effect:IncomeEffect, x:number, y:number){
