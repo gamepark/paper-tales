@@ -12,7 +12,7 @@ export const PlayerTurnHeader = () => {
   return <>
 
     <PlayMoveButton move={endMove}>
-      <div> coucou</div>
+      <div> end.turn.player</div>
     </PlayMoveButton>
 
 
