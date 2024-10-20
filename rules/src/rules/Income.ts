@@ -5,7 +5,7 @@ import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
 import { unitCardCaracteristics } from "../material/UnitCaracteristics"
 import { ResourcesHelper } from "./helpers/ResourcesHelper"
-import { Memory } from "./Memory"
+import { ScoreHelper } from "./helpers/ScoreHelper"
 import { RuleId } from "./RuleId"
 
 export class Income extends MaterialRulesPart {
@@ -14,7 +14,8 @@ export class Income extends MaterialRulesPart {
         const moves:MaterialMove[] = []
         const players = this.game.players
         players.forEach(player => {
-            console.log("score : ",this.remind(Memory.PlayerScore, player))
+            const scoreHelper = new ScoreHelper(this.game, player)
+            console.log(scoreHelper.getScore(player))
 
             moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, this.getPlayerIncome(player)))
         })
