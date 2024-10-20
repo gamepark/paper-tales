@@ -1,5 +1,5 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { EffectType, IncomeEffect, isIncomeType } from "../material/Effect"
+import { Effect, EffectType, IncomeEffect, isIncomeType } from "../material/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
@@ -28,12 +28,17 @@ export class Income extends MaterialRulesPart {
     }
 
     getPlayerIncome(playerId:number){
-        return this.getIncomeUnits(playerId).getItems().reduce((acc, cur) => acc + this.getIncomeByEffect(playerId, unitCardCaracteristics[cur.id].effect, cur.location.x!, cur.location.y!), 2)
+        return this.getIncomeUnits(playerId).getItems().reduce((acc, cur) => 
+            acc + (unitCardCaracteristics[cur.id].effect as IncomeEffect[])
+                .reduce((cardIncome, cardEff) => 
+                cardIncome + this.getIncomeByEffect(playerId, cardEff, cur.location.x!, cur.location.y!),0)
+        , 2)
     }
 
     getIncomeUnits(playerId:number){
         return this.getPlayerBoard(playerId)
-            .filter(item => unitCardCaracteristics[item.id].effect !== undefined && isIncomeType(unitCardCaracteristics[item.id].effect))
+            .filter(item => unitCardCaracteristics[item.id].effect !== undefined 
+                && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isIncomeType(eff)))
     }
 
     getIncomeByEffect(playerId:number, effect:IncomeEffect, x:number, y:number){

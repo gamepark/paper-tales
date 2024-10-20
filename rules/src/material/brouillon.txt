@@ -86,3 +86,8 @@ export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
     
     
 }
+
+
+this.getIncomeByEffect(playerId, 
+                unitCardCaracteristics[cur.id].effect,
+                cur.location.x!, cur.location.y!)
