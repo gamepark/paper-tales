@@ -11,10 +11,14 @@ export const BuildHeader = () => {
 
 
   return <>
+    {endMove !== undefined
+      ? <PlayMoveButton move={endMove}>
+        <div> end.turn.build</div>
+      </PlayMoveButton>
+      : <div> wait.turn.build  </div>
+    }
 
-    <PlayMoveButton move={endMove}>
-      <div> end.turn.build</div>
-    </PlayMoveButton>
+
 
 
   </>
