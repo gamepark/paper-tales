@@ -39,7 +39,7 @@ export class ResourcesHelper extends MaterialRulesPart {
                 if (resourceObject.condition.onLane !== undefined){
                     return unit.location.y === resourceObject.condition.onLane && resourceObject.type
                 } else if (resourceObject.condition.perAgeToken !== undefined){
-                    return [...Array(this.getAgeOnUnit(playerId, unit).length).keys()].flatMap(resourceObject.type)
+                    return [...Array(this.getAgeOnUnit(playerId, unit).length).keys()].flatMap(_ => resourceObject.type[0])
                 } else if (resourceObject.condition.ifAgeToken !== undefined){
                     return this.getAgeOnUnit(playerId, unit).length > 0 ? resourceObject.type : []
                 }
