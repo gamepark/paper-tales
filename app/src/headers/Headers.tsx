@@ -8,6 +8,7 @@ import { GiveDraftToNeighborHeader } from './GiveDraftToNeighborHeader'
 import { RevealBoardsHeader } from './RevealBoardsHeader'
 import { DealHeader } from './DealHeader'
 import { PayDeployedUnitsHeader } from './PayDeployedUnitsHeader'
+import { IncomeHeader } from './IncomeHeader'
 
 export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Draft]: DraftHeader,
@@ -17,4 +18,5 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.RevealBoards]: RevealBoardsHeader,
   [RuleId.Deal]: DealHeader,
   [RuleId.PayDeployedUnits]: PayDeployedUnitsHeader,
+  [RuleId.Income]: IncomeHeader,
 }
