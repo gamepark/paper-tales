@@ -200,7 +200,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         cost: 0, 
         power: 2, 
         resources:{
-            type:[Resources.Diamond], 
+            type:[Resources.Food], 
             condition:{
                 onLane:LaneType.FrontLane
             }
