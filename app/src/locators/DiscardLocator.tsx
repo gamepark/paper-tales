@@ -8,3 +8,5 @@ export class DiscardLocator extends PileLocator {
 
 
 }
+
+export const discardLocator = new DiscardLocator()
