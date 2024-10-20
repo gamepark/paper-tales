@@ -1,14 +1,10 @@
 import { MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
+import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
+import { Resources } from "../../material/Resources";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
-
-export enum Resources {
-    Wood = 1,
-    Food,
-    Diamond,
-    Gold
-}
+import { BuildHelper } from "./BuildHelper";
 
 export class ResourcesHelper extends MaterialRulesPart {
 
@@ -25,7 +21,13 @@ export class ResourcesHelper extends MaterialRulesPart {
     }
 
     getPlayerResources(playerId:number){
-        return this.getPlayerBoard(playerId).getItems().flatMap(unit => this.getUnitResource(playerId, unit))
+        const buildHelper =  new BuildHelper(this.game, playerId)
+        const buildingResources = [
+            ...buildHelper.getPlayerBuildingPlayedLevel1(playerId).getItems(item => buildingCardCaracteristics[item.id].resources1 !== undefined).flatMap(item => buildingCardCaracteristics[item.id].resources1),
+            ...buildHelper.getPlayerBuildingPlayedLevel2(playerId).getItems(item => buildingCardCaracteristics[item.id].resources2 !== undefined).flatMap(item => buildingCardCaracteristics[item.id].resources2)
+        ]
+        const unitResources = this.getPlayerBoard(playerId).getItems().flatMap(unit => this.getUnitResource(playerId, unit))
+        return [...buildingResources, ...unitResources]
     }
 
     getPlayerOneTypeResource(playerId:number, resource:Resources){

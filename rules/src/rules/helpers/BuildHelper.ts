@@ -1,7 +1,8 @@
 import { MaterialGame, MaterialRulesPart } from "@gamepark/rules-api";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
-import { Resources, ResourcesHelper } from "./ResourcesHelper";
+import { Resources } from "../../material/Resources";
+import { ResourcesHelper } from "./ResourcesHelper";
 
 export class BuildHelper extends MaterialRulesPart {
 
@@ -24,6 +25,10 @@ export class BuildHelper extends MaterialRulesPart {
 
     getPlayerBuildingPlayedLevel1(playerId:number){
         return this.getPlayerBuildingPlayed(playerId).filter(item => item.location.rotation === false)
+    }
+
+    getPlayerBuildingPlayedLevel2(playerId:number){
+        return this.getPlayerBuildingPlayed(playerId).filter(item => item.location.rotation === true)
     }
 
     getPlayerBuildingUnplayed(playerId:number){
