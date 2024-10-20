@@ -12,13 +12,17 @@ import { IncomeHeader } from './IncomeHeader'
 import { AgeHeader } from './AgeHeader'
 
 export const Headers: Partial<Record<RuleId, ComponentType>> = {
+  [RuleId.Deal]: DealHeader,
   [RuleId.Draft]: DraftHeader,
   [RuleId.GiveDraftToNeighbor]: GiveDraftToNeighborHeader,
   [RuleId.PlaceUnitOnBoard]: PlayerTurnHeader,
-  [RuleId.Build]: BuildHeader,
   [RuleId.RevealBoards]: RevealBoardsHeader,
-  [RuleId.Deal]: DealHeader,
   [RuleId.PayDeployedUnits]: PayDeployedUnitsHeader,
+  [RuleId.War]: WarHeader,
   [RuleId.Income]: IncomeHeader,
+  [RuleId.Build]: BuildHeader,
   [RuleId.Age]: AgeHeader, 
+
+
+
 }
