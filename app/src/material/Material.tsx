@@ -1,8 +1,8 @@
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { MaterialDescription } from '@gamepark/react-game'
 import { unitCardDescription } from './UnitCardDescription'
-import { goldCoinDescription } from './goldCoinDescription'
-import { ageTokenDescription } from './ageTokenDescription'
+import { goldCoinDescription } from './GoldCoinDescription'
+import { ageTokenDescription } from './AgeTokenDescription'
 import { buildingCardDescription } from './BuildingCardDescription'
 
 export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
