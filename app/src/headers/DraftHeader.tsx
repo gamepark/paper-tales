@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 export const DraftHeader = () => {
   const { t } = useTranslation()
   const legalMoves = useLegalMoves()
-  console.log(legalMoves)
+
 
   return <>
 
