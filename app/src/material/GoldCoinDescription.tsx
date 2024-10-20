@@ -1,11 +1,10 @@
-import { LocationType } from "@gamepark/paper-tales/material/LocationType"
-import { ComponentSize, MoneyDescription } from "@gamepark/react-game"
-import Gold1 from '../images/tokens/Gold1.png'
-import Gold5 from '../images/tokens/Gold5.png'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { ComponentSize, MoneyDescription } from '@gamepark/react-game'
+import Gold1 from '../images/tokens/Gold1.jpg'
+import Gold5 from '../images/tokens/Gold5.jpg'
 
 class GoldCoinDescription extends MoneyDescription {
   borderRadius = 2
-
   images = {
     1: Gold1,
     5: Gold5
