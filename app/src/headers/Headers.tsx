@@ -9,6 +9,7 @@ import { RevealBoardsHeader } from './RevealBoardsHeader'
 import { DealHeader } from './DealHeader'
 import { PayDeployedUnitsHeader } from './PayDeployedUnitsHeader'
 import { IncomeHeader } from './IncomeHeader'
+import { AgeHeader } from './AgeHeader'
 
 export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Draft]: DraftHeader,
@@ -19,4 +20,5 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Deal]: DealHeader,
   [RuleId.PayDeployedUnits]: PayDeployedUnitsHeader,
   [RuleId.Income]: IncomeHeader,
+  [RuleId.Age]: AgeHeader, 
 }
