@@ -11,7 +11,7 @@ export class ScoreHelper extends MaterialRulesPart {
     }
 
     getScoreMaterial(player:number){
-        return this.material(MaterialType.Score).location(LocationType.PlayerScore).player(player)
+        return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player)
     }
 
     getScore(player:number){

@@ -6,4 +6,5 @@ export enum MaterialType {
     PlayerAidCards,
     Time,
     ScoreBoard,
+    ScoreToken,
 }
