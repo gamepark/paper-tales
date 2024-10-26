@@ -1,5 +1,6 @@
 import { MaterialItem, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
 import { AgeLocation, Effect, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/Effect"
+import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
 import { unitCardCaracteristics } from "../material/UnitCaracteristics"
@@ -30,22 +31,70 @@ export class War extends MaterialRulesPart {
             
             if (players.length === 2){
                 if (myPower >= leftPower){
-                    warScoring = myPower >= leftPower*2 ? 6 : 3
+                    warScoring += myPower >= leftPower*2 ? 6 : 3
+                    moves.push(...this.getGainGoldIfWinWarMoves(player))
+                    warScoring += this.getGainScoreIfWinWarAmount(player)
                 } 
             } else {
                 if (myPower >= leftPower){
                     warScoring+=3
+                    moves.push(...this.getGainGoldIfWinWarMoves(player))
+                    warScoring += this.getGainScoreIfWinWarAmount(player)
                 }
                 if (myPower>= rightPower){
                     warScoring+=3
+                    moves.push(...this.getGainGoldIfWinWarMoves(player))
+                    warScoring += this.getGainScoreIfWinWarAmount(player)
                 }
             }
 
+            console.log("Score gagné par le joueur ", player, " : ", warScoring)
             warScoring !==0 && moves.push(scoreHelper.gainOrLoseScore(player, warScoring))
 
         })
 
         moves.push(this.startRule(RuleId.Income))
+        return moves
+    }
+
+    getGainScoreIfWinWarAmount(player:number):number{
+        let score = 0
+        this.getPlayerBoard(player).getItems(item => unitCardCaracteristics[item.id].effect !== undefined).forEach(item => {
+            const effects: Effect[] = unitCardCaracteristics[item.id].effect
+            effects.forEach(eff => {
+                if (isGainTokenIfWinWar(eff) && eff.token === MaterialType.ScoreToken){
+                    if (eff.perResource !== undefined){
+                        const resourcesHelper =  new ResourcesHelper(this.game, player)
+                        const resourceAmount = eff.perResource.reduce((acc, cur) => acc + resourcesHelper.getPlayerOneTypeResource(player, cur), 0)
+                        score += eff.amount * resourceAmount
+                    } else {
+                        score += eff.amount
+                    }
+                }
+            })
+
+        })
+        return score    
+    }
+
+    getGainGoldIfWinWarMoves(player:number):MaterialMove[]{
+        const moves:MaterialMove[] = []
+        this.getPlayerBoard(player).getItems(item => unitCardCaracteristics[item.id].effect !== undefined).forEach(item => {
+            const effects: Effect[] = unitCardCaracteristics[item.id].effect
+            effects.forEach(eff => {
+                if (isGainTokenIfWinWar(eff) && eff.token === MaterialType.Gold){
+                    if (eff.perResource !== undefined){
+                        const resourcesHelper =  new ResourcesHelper(this.game, player)
+                        const amount = eff.perResource.reduce((acc, cur) => acc + resourcesHelper.getPlayerOneTypeResource(player, cur), 0)
+                        moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : player}, amount * eff.amount))
+                    } else {
+                        moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : player}, eff.amount))
+                    }
+                }
+            })
+
+        })
+
         return moves
     }
 
