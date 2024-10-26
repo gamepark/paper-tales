@@ -12,7 +12,7 @@ import { playerGoldStockLocator } from './PlayerGoldStockLocator'
 import { playerBuldingBoard } from './PlayerBuildingBoardLocator'
 import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
 import { playerUnitBoard } from './PlayerUnitBoard'
-import { scoreBoard } from './ScoreBoard'
+import { scoreBoardLocator } from './ScoreBoardLocator'
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
 
@@ -26,7 +26,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.PlayerBuildingBoard]: playerBuldingBoard,
     [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
     [LocationType.PlayerUnitBoard]: playerUnitBoard,
-    [LocationType.Score]: scoreBoard,
+    [LocationType.Score]: scoreBoardLocator,
 
 
 
