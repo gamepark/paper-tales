@@ -1,8 +1,11 @@
-import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
+import { MaterialItem, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
+import { Effect, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/Effect"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
 import { unitCardCaracteristics } from "../material/UnitCaracteristics"
+import { ResourcesHelper } from "./helpers/ResourcesHelper"
 import { ScoreHelper } from "./helpers/ScoreHelper"
+import { Income } from "./Income"
 import { RuleId } from "./RuleId"
 
 export class War extends MaterialRulesPart {
@@ -10,7 +13,7 @@ export class War extends MaterialRulesPart {
     onRuleStart(): MaterialMove[] {
         const moves:MaterialMove[] = []
         const players = this.game.players
-        const playerPower = players.map(player => this.getFrontLanePower(player))
+        const playerPower = players.map(player => this.getPlayerPower(player))
         
         players.forEach((player, index) => {
 
@@ -42,16 +45,91 @@ export class War extends MaterialRulesPart {
         return moves
     }
 
-    getPlayerFrontLane(player:number){
-        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).filter(item => item.location.y === 0)
+    getPlayerBoard(player:number){
+        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
     }
 
-    getUnitPower(unitId:number){
-        return unitCardCaracteristics[unitId].power
+    getPlayerFrontLane(player:number){
+        return this.getPlayerBoard(player).filter(item => this.isAtFrontLane(item))
+    }
+
+    isAtFrontLane(unit:MaterialItem<number, number, any>){
+        return unit.location.y === 0
+    }
+
+    getUnitPower(player:number, unitMaterial:MaterialItem<number, number, any>){
+        const unit = unitCardCaracteristics[unitMaterial.id]
+        const effects:Effect[] = unit.effect
+        if (effects !== undefined){
+            const cantWarEffect = effects.find(isCantWar)
+            const changeWarPowerEffect = effects.find(isChangeWarPower)
+            const addWarPowerEffect = effects.find(isAddWarPower)
+
+            // On applique la premiere condition exclusive
+            if (cantWarEffect !== undefined){
+                if (cantWarEffect.ifAgeToken){
+                    const ageOnUnit = this.getAgeOnUnit(player, unitMaterial)
+                    if (ageOnUnit > 0) {
+                        return 0
+                    }
+                } 
+            }
+
+            // Ensuite, on applique la seconde condition exclusive
+            if (changeWarPowerEffect !== undefined){
+                if (changeWarPowerEffect.ifAgeToken){
+                    const ageOnUnit = this.getAgeOnUnit(player, unitMaterial)
+                    return ageOnUnit > 0 ? changeWarPowerEffect.alternativePower : unit.power
+                } else if (changeWarPowerEffect.ifResource){
+                    const resourcesHelper =  new ResourcesHelper(this.game, player)
+                    const playerResources = resourcesHelper.getPlayerResources(player)
+                    return changeWarPowerEffect.ifResource.some(resource => playerResources.some(r => r === resource))
+                        ? changeWarPowerEffect.alternativePower
+                        : unit.power
+                }
+            }
+
+            // Enfin, on calcule le surplus de puissance qu'on peut ajouter. Pas de return ici
+            let add = 0
+            if (addWarPowerEffect){
+                if (addWarPowerEffect.perAgeToken){
+                    const ageOnUnit = this.getAgeOnUnit(player, unitMaterial)
+                    add += ageOnUnit * addWarPowerEffect.powerAdded
+                } else if (addWarPowerEffect.perResource) {
+                    const resourcesHelper =  new ResourcesHelper(this.game, player)
+                    addWarPowerEffect.perResource.forEach(resource => {
+                        const ressources = resourcesHelper.getPlayerOneTypeResource(player, resource)
+                        add += ressources * addWarPowerEffect.powerAdded
+                    })
+                } else if (addWarPowerEffect.perGoldOnIncomePhase){
+                    const incomeHelper = new Income(this.game)
+                    const income = incomeHelper.getPlayerIncome(player)
+                    add += income * addWarPowerEffect.powerAdded
+                }
+            }
+
+            return unit.power + add
+            
+        }
+
+        // Si pas d'effet, on retourne juste la puissance.
+        return unit.power
+
+    }
+
+    getAgeOnUnit(player:number, unit:MaterialItem){
+        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(player).filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y).length
     }
 
     getFrontLanePower(player:number){
-        return this.getPlayerFrontLane(player).getItems().reduce((acc, cur) => acc + this.getUnitPower(cur.id), 0)
+        return this.getPlayerFrontLane(player).getItems().reduce((acc, cur) => acc + this.getUnitPower(player, cur.id), 0)
+    }
+
+    getPlayerPower(player:number){
+        return this.getPlayerBoard(player).getItems()
+            .reduce((acc, cur) => acc 
+                + (this.isAtFrontLane(cur) || isWarFromBacklane(unitCardCaracteristics[cur.id].effect) ? this.getUnitPower(player, cur) : 0)
+            ,0)
     }
 
     getNeighbor(players:number[], playerIndex:number, side:"left"|"right"){
@@ -61,5 +139,13 @@ export class War extends MaterialRulesPart {
             return playerIndex +1 > players.length-1 ? 0 : playerIndex + 1
         }
     }
+
+    getPlayerUnitsWithGainTokenWarEffect(player:number){
+        return this.getPlayerBoard(player).filter(item => unitCardCaracteristics[item.id].effect !== undefined && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isGainTokenIfWinWar(eff)))
+    }
+
+
+
+
 
 }
