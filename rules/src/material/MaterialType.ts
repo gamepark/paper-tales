@@ -5,5 +5,5 @@ export enum MaterialType {
     Gold,
     PlayerAidCards,
     Time,
-    Score,
+    ScoreBoard,
 }

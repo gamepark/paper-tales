@@ -12,6 +12,6 @@ export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
     [MaterialType.Gold]: goldCoinDescription,
     [MaterialType.Age]: ageTokenDescription,
     [MaterialType.Building]: buildingCardDescription,
-    [MaterialType.Score]: scoreBoardDescription,
+    [MaterialType.ScoreBoard]: scoreBoardDescription,
 
 }
