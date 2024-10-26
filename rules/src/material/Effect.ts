@@ -26,7 +26,7 @@ export type Deploymennt = {
 export type WarEffect = GainTokenIfWinWar | ChangeWarPower | AddWarPower | WarFromBacklane | CantWar
 export type GainTokenIfWinWar = {
     type:EffectType.GainTokenIfWinWar
-    token:MaterialType.Gold | MaterialType.Score
+    token:MaterialType.Gold | MaterialType.ScoreToken
     perResource?:Resources[]
 }
 export type ChangeWarPower = {
