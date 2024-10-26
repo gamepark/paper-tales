@@ -1,4 +1,4 @@
-import { Resources } from "../rules/helpers/ResourcesHelper"
+import { Resources } from "./Resources"
 
 export enum EffectType {
     Deploymennt,

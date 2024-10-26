@@ -1,5 +1,5 @@
-import { Resources } from "../rules/helpers/ResourcesHelper"
 import { Effect, EffectType } from "./Effect"
+import { Resources } from "./Resources"
 import { Unit } from "./Unit"
 
 export type UnitPattern = {
