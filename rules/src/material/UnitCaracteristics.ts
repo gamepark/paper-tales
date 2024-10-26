@@ -1,4 +1,5 @@
-import { Effect, EffectType } from "./Effect"
+import { AgeLocation, Effect, EffectType } from "./Effect"
+import { MaterialType } from "./MaterialType"
 import { Resources } from "./Resources"
 import { Unit } from "./Unit"
 
@@ -26,11 +27,22 @@ export enum LaneType {
 export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     [Unit.Commander]: {
         cost: 2, 
-        power: 4
+        power: 4,
+        effect:[{
+            type:EffectType.GainTokenIfWinWar,
+            token:MaterialType.ScoreToken,
+            amount:1,
+        
+        }]
     },
     [Unit.Militiaman]: { 
         cost: 0, 
-        power: 2 
+        power: 2,
+        effect:[{
+            type:EffectType.AddWarPower,
+            powerAdded:1,
+            perAgeToken:AgeLocation.OnUnit
+        }]
     },
     [Unit.TimeMaster]: { 
         cost: 0, 
@@ -49,7 +61,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Rogue]: { 
         cost: 1, 
-        power: 3 
+        power: 3,
+        effect:[{
+            type:EffectType.GainTokenIfWinWar,
+            token:MaterialType.Gold,
+            amount:1
+        }] 
     },
     [Unit.Sculptor]: { 
         cost: 0, 
@@ -86,7 +103,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Dragon]: {
         cost: 3, 
-        power: 0
+        power: 0,
+        effect:[{
+            type:EffectType.ChangeWarPower,
+            alternativePower:7,
+            ifResource:[Resources.Diamond]
+        }]
     },
     [Unit.Knight]: { 
         cost: 1, 
@@ -97,7 +119,16 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         resources:{
             type:[Resources.Food, Resources.Food],
             condition:{ifAgeToken:true}
-        }
+        },
+        effect:[{
+            type:EffectType.AddWarPower,
+            powerAdded:2,
+            perResource:[Resources.Food]
+        },
+        {
+            type:EffectType.CantWar,
+            ifAgeToken:true
+        }]
     },
     [Unit.Shapeshifter]: { 
         cost: 0, 
@@ -130,7 +161,14 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             type:EffectType.IncomePerResource,
             resource:Resources.Wood,
             amount:1
-        }]
+        },
+        {
+            type:EffectType.GainTokenIfWinWar,
+            token:MaterialType.ScoreToken,
+            perResource:[Resources.Diamond],
+            amount:1
+        }
+        ]
     },
     [Unit.ForestSpirit]: { 
         cost: 3, 
@@ -148,7 +186,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Manticore]: { 
         cost: 2, 
-        power: 2
+        power: 2,
+        effect:[{
+            type:EffectType.AddWarPower,
+            powerAdded:2,
+            perResource:[Resources.Food]
+        }]
     },
     [Unit.GiantSnake]: { 
         cost: 1, 
@@ -156,7 +199,13 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         effect:[{
             type:EffectType.IncomeIfAgeToken,
             amount:3
-        }]
+        },{
+            type:EffectType.ChangeWarPower,
+            alternativePower:0,
+            ifAgeToken:true
+        }
+    
+        ]
     },
     [Unit.GrandArchitect]: {
         cost: 1, 
@@ -164,11 +213,26 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Colossus]: { 
         cost: 2, 
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.ChangeWarPower,
+            alternativePower:7,
+            ifAgeToken:true
+        },
+        {
+            type:EffectType.GainTokenIfWinWar,
+            token:MaterialType.ScoreToken,
+            amount:1
+        }]
     },
     [Unit.Cerberus]: { 
         cost: 0, 
-        power: 2
+        power: 2,
+        effect:[{
+            type:EffectType.ChangeWarPower,
+            alternativePower:3,
+            ifResource:[Resources.Food]
+        }]
     },
     [Unit.Farmer]: { 
         cost: 0, 
@@ -194,7 +258,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },    // OK
     [Unit.Ogre]: { 
         cost: 2, 
-        power: 2
+        power: 2,
+        effect:[{
+            type:EffectType.AddWarPower,
+            powerAdded:1,
+            perGoldOnIncomePhase:true
+        }]
     },
     [Unit.Hunter]: { 
         cost: 0, 
@@ -224,7 +293,15 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Strategist]: { 
         cost: 3, 
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.WarFromBacklane
+        },
+        {
+            type:EffectType.AddWarPower,
+            powerAdded:1,
+            perAgeToken:AgeLocation.InRealm
+        }]
     },
     [Unit.PalmReader]: { 
         cost: 2, 
@@ -232,7 +309,10 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Archer]: { 
         cost: 1, 
-        power: 2
+        power: 2,
+        effect:[{
+            type:EffectType.WarFromBacklane
+        }]
     },
     [Unit.Golem]: { 
         cost: 2, 
@@ -240,7 +320,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Salamander]: { 
         cost: 2, 
-        power: 4
+        power: 4,
+        effect:[{
+            type:EffectType.AddWarPower,
+            powerAdded:1,
+            perAgeToken:AgeLocation.OnUnit
+        }]
     },
     [Unit.Monkey]: { 
         cost: -1,

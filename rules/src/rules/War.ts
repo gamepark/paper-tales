@@ -1,5 +1,5 @@
 import { MaterialItem, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { Effect, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/Effect"
+import { AgeLocation, Effect, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/Effect"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
 import { unitCardCaracteristics } from "../material/UnitCaracteristics"
@@ -17,8 +17,12 @@ export class War extends MaterialRulesPart {
         
         players.forEach((player, index) => {
 
+            this.logAllPlayerUnitPower(player)
             const scoreHelper =  new ScoreHelper(this.game, player)
             const myPower = playerPower[index]
+
+            console.log("Puissance du joueur ",player, " : ", myPower)
+
             const leftPower = playerPower[this.getNeighbor(players, index, "left")]
             const rightPower = playerPower[this.getNeighbor(players, index, "right")]
 
@@ -92,9 +96,11 @@ export class War extends MaterialRulesPart {
             // Enfin, on calcule le surplus de puissance qu'on peut ajouter. Pas de return ici
             let add = 0
             if (addWarPowerEffect){
-                if (addWarPowerEffect.perAgeToken){
-                    const ageOnUnit = this.getAgeOnUnit(player, unitMaterial)
-                    add += ageOnUnit * addWarPowerEffect.powerAdded
+                if (addWarPowerEffect.perAgeToken !== undefined){
+                    const ageFactor = addWarPowerEffect.perAgeToken === AgeLocation.OnUnit
+                        ? this.getAgeOnUnit(player, unitMaterial)
+                        : this.getAgeInPlayerRealm(player)
+                    add += ageFactor * addWarPowerEffect.powerAdded
                 } else if (addWarPowerEffect.perResource) {
                     const resourcesHelper =  new ResourcesHelper(this.game, player)
                     addWarPowerEffect.perResource.forEach(resource => {
@@ -109,7 +115,7 @@ export class War extends MaterialRulesPart {
             }
 
             return unit.power + add
-            
+
         }
 
         // Si pas d'effet, on retourne juste la puissance.
@@ -121,6 +127,10 @@ export class War extends MaterialRulesPart {
         return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(player).filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y).length
     }
 
+    getAgeInPlayerRealm(player:number){
+        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(player).length
+    }
+
     getFrontLanePower(player:number){
         return this.getPlayerFrontLane(player).getItems().reduce((acc, cur) => acc + this.getUnitPower(player, cur.id), 0)
     }
@@ -128,8 +138,29 @@ export class War extends MaterialRulesPart {
     getPlayerPower(player:number){
         return this.getPlayerBoard(player).getItems()
             .reduce((acc, cur) => acc 
-                + (this.isAtFrontLane(cur) || isWarFromBacklane(unitCardCaracteristics[cur.id].effect) ? this.getUnitPower(player, cur) : 0)
+                + (
+                    (
+                        this.isAtFrontLane(cur) 
+                        || 
+                        ( unitCardCaracteristics[cur.id].effect !== undefined 
+                            && (unitCardCaracteristics[cur.id].effect as Effect[]).some(eff => isWarFromBacklane(eff))
+                        )
+                    ) 
+                    ? this.getUnitPower(player, cur) 
+                    : 0
+                )
             ,0)
+    }
+
+    logAllPlayerUnitPower(player:number){
+        return this.getPlayerBoard(player).getItems()
+        .forEach(item => {
+            (
+                this.isAtFrontLane(item) 
+                || 
+                ( unitCardCaracteristics[item.id].effect !== undefined && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isWarFromBacklane(eff)))
+            ) && console.log("Puissance de l'unité n° ", item.id, " : ", this.getUnitPower(player, item))
+        })    
     }
 
     getNeighbor(players:number[], playerIndex:number, side:"left"|"right"){

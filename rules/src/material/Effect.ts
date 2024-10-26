@@ -2,7 +2,7 @@ import { MaterialType } from "./MaterialType"
 import { Resources } from "./Resources"
 
 export enum EffectType {
-    Deploymennt,
+    Deploymennt = 1,
     GainTokenIfWinWar,
     ChangeWarPower,
     AddWarPower,
@@ -13,7 +13,11 @@ export enum EffectType {
     IncomeIfAgeToken,
     Build,
     Age
+}
 
+export enum AgeLocation {
+    OnUnit = 1,
+    InRealm
 }
 
 export type Effect = Deploymennt | WarEffect | IncomeEffect | Build | Age
@@ -27,6 +31,7 @@ export type WarEffect = GainTokenIfWinWar | ChangeWarPower | AddWarPower | WarFr
 export type GainTokenIfWinWar = {
     type:EffectType.GainTokenIfWinWar
     token:MaterialType.Gold | MaterialType.ScoreToken
+    amount:number
     perResource?:Resources[]
 }
 export type ChangeWarPower = {
@@ -38,7 +43,7 @@ export type ChangeWarPower = {
 export type AddWarPower = {
     type:EffectType.AddWarPower
     perResource?:Resources[]
-    perAgeToken?:true
+    perAgeToken?:AgeLocation
     perGoldOnIncomePhase?:true
     powerAdded:number
 }
