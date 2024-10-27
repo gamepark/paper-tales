@@ -59,10 +59,18 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
                 cardsPlayedIndexes.push(move.itemIndex)
                 this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
             } else if (move.location.type === LocationType.Discard){
-                    const ageTokenOnSpot = this.getAgeTokensOnSpot(move.location.player!, move.location.x!, move.location.y!)
-                    moves.push(...ageMoney.createOrDelete(ageTokenOnSpot, {
-                        type:LocationType.Discard}, -ageMoney.count(ageTokenOnSpot)
-                    ))
+
+                this.game.players.forEach(player => {
+                    this.getRemainingSpaces(player).forEach(space => {
+                        const ageTokens = this.getAgeTokensOnSpot(player, space.x, space.y)
+                        if (ageTokens.length > 0){
+                            moves.push(...ageMoney.createOrDelete(ageTokens, 
+                                {type:LocationType.PlayerUnitBoard, player, x:space.x, y:space.y},
+                                -ageMoney.count(ageTokens)
+                            ))
+                        }
+                    })
+                })
             }
         } 
 
