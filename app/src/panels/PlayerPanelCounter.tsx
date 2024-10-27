@@ -1,6 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
+import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
 import { Avatar, PlayerTimer, SpeechBubbleDirection, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
 import { FC, HTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +20,8 @@ export const TarotPlayerPanel: FC<FarawayPlayerPanelProps> = ({ player, players,
     const direction = speechBubbleDirection(position, players)
     const { t } = useTranslation()
     const rules = useRules<PaperTalesRules>()!
+    const scoreHelper =  new ScoreHelper(rules.game, player)
+    const getScore = scoreHelper.getScore(player)  
 
     return (
         <div  {...props}>
@@ -26,7 +29,7 @@ export const TarotPlayerPanel: FC<FarawayPlayerPanelProps> = ({ player, players,
             </Avatar>
             <h2 css={[nameStyle]}>{playerName}</h2>
             <Timer player={player} long={long} />
-            <span css={[scoreCss, long ? scoreLongCss : scoreShortCss]}>{t('points', { score: rules?.getScore(player) })}</span>
+            <span css={[scoreCss, long ? scoreLongCss : scoreShortCss]}>{t('points', { score: getScore })}</span>
 
         </div>
     )

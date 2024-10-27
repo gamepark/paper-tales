@@ -15,7 +15,6 @@ import { Build } from './rules/Build'
 import { Age } from './rules/Age'
 import { NextTurn } from './rules/NextTurn'
 import { EndGame } from './rules/EndGame'
-import { Memory } from './rules/Memory'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -51,13 +50,6 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
       [LocationType.Discard]:hideItemId,
       [LocationType.PlayerUnitBoard]:hideRotatedCardToOthers,
     }
-  }
-
-
-  getScore(player: number): number {
-    const summaries = this.remind(Memory.PlayerScore, player)
-    return summaries
-
   }
 
 
