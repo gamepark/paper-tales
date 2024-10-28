@@ -11,7 +11,7 @@ import pawn_red from '../images/pawns/pawn_red.png'
 
 class ScoreTokenDescription extends TokenDescription {
   diameter = 4
-  location = { type: LocationType.Pawn}
+  location = { type: LocationType.PlayerScore}
 
 
   images = {

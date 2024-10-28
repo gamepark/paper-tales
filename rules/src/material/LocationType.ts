@@ -12,6 +12,5 @@ export enum LocationType {
     Discard,
     Deck,
     Time,
-    Score,
-    Pawn,
+    ScoreBoard,
 }

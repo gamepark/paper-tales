@@ -27,8 +27,8 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.PlayerBuildingBoard]: playerBuldingBoard,
     [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
     [LocationType.PlayerUnitBoard]: playerUnitBoard,
-    [LocationType.Score]: scoreBoardLocator,
-    [LocationType.Pawn]: scoreTokenLocator,
+    [LocationType.ScoreBoard]: scoreBoardLocator,
+    [LocationType.PlayerScore]: scoreTokenLocator,
 
 
 

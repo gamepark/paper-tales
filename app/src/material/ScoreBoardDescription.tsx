@@ -9,7 +9,7 @@ export class ScoreBoardDescription extends BoardDescription {
     image = score_board
 
 
-    staticItem = { location: { type: LocationType.Score } }
+    staticItem = { location: { type: LocationType.ScoreBoard } }
 }
 
 
