@@ -9,15 +9,9 @@ export class ScoreTokenLocator extends Locator {
 
   getPositionOnParent(location: Location) {
     return scoreCasesCoordinates[location.x!]
-    
   }
 
-
-
   getParentItem = (_location: Location) => scoreBoardDescription.getPlayerScoreBoard()
-
-    //scoreBoardDescription.getPlayerScoreBoard().location:{type:LocationType.ScoreBoard}
-    // {location:{type:LocationType.ScoreBoard}}
 }
 
 
