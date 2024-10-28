@@ -36,9 +36,9 @@ export class PlayerBuildingHandLocator extends HandLocator {
 
   getItemIndex(item: MaterialItem, context: ItemContext): number {
 
-      const cards = context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(context.player).getItems().map(item => item.id)
-      cards.sort((a, b) => a - b)
-      return cards.indexOf(item.id)
+    const cards = context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(context.player).getItems().map(item => item.id)
+    cards.sort((a, b) => a - b)
+    return cards.indexOf(item.id)
 
   }
 
