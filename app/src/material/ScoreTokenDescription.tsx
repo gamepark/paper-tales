@@ -10,8 +10,8 @@ import pawn_purple from '../images/pawns/pawn_purple.png'
 import pawn_red from '../images/pawns/pawn_red.png'
 
 class ScoreTokenDescription extends TokenDescription {
-  width = 3
-  height = 4
+  width = 2
+  ratio = 0.77
   location = { type: LocationType.PlayerScore }
 
 
