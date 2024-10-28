@@ -5,7 +5,7 @@ import { goldCoinDescription } from './GoldCoinDescription'
 import { ageTokenDescription } from './AgeTokenDescription'
 import { buildingCardDescription } from './BuildingCardDescription'
 import { scoreBoardDescription } from './ScoreBoardDescription'
-import { pawnDescription } from './PawnDescription'
+import { scoreTokenDescription } from './ScoreTokenDescription'
 
 
 export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
@@ -15,6 +15,6 @@ export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
     [MaterialType.Age]: ageTokenDescription,
     [MaterialType.Building]: buildingCardDescription,
     [MaterialType.ScoreBoard]: scoreBoardDescription,
-    [MaterialType.Pawn]: pawnDescription,
+    [MaterialType.ScoreToken]: scoreTokenDescription,
 
 }

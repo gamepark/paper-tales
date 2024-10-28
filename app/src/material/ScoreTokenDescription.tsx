@@ -1,5 +1,5 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { RoundTokenDescription } from '@gamepark/react-game'
+import { TokenDescription } from '@gamepark/react-game'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import pawn_yellow from '../images/pawns/pawn_yellow.png'
 import pawn_blue from '../images/pawns/pawn_blue.png'
@@ -9,9 +9,9 @@ import pawn_black from '../images/pawns/pawn_black.png'
 import pawn_purple from '../images/pawns/pawn_purple.png'
 import pawn_red from '../images/pawns/pawn_red.png'
 
-class PawnDescription extends RoundTokenDescription {
-  diameter = 2
-  stockLocation = { type: LocationType.Score }
+class ScoreTokenDescription extends TokenDescription {
+  diameter = 4
+  location = { type: LocationType.Pawn}
 
 
   images = {
@@ -28,4 +28,4 @@ class PawnDescription extends RoundTokenDescription {
 
 }
 
-export const pawnDescription = new PawnDescription()
+export const scoreTokenDescription = new ScoreTokenDescription()
