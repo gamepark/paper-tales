@@ -10,6 +10,11 @@ export class ScoreBoardDescription extends BoardDescription {
 
 
     staticItem = { location: { type: LocationType.ScoreBoard } }
+
+
+    getPlayerScoreBoard() {
+        return { location: { type: LocationType.ScoreBoard} }
+      }
 }
 
 

@@ -10,18 +10,19 @@ import pawn_purple from '../images/pawns/pawn_purple.png'
 import pawn_red from '../images/pawns/pawn_red.png'
 
 class ScoreTokenDescription extends TokenDescription {
-  diameter = 4
-  location = { type: LocationType.PlayerScore}
+  width = 3
+  height = 4
+  location = { type: LocationType.PlayerScore }
 
 
   images = {
-   [PlayerColor.Yellow]: pawn_yellow,
-   [PlayerColor.Blue]: pawn_blue,
-   [PlayerColor.Green]: pawn_green,
-   [PlayerColor.White]: pawn_white,
-   [PlayerColor.Black]: pawn_black,
-   [PlayerColor.Purple]: pawn_purple,
-   [PlayerColor.Red]: pawn_red,
+    [PlayerColor.Yellow]: pawn_yellow,
+    [PlayerColor.Blue]: pawn_blue,
+    [PlayerColor.Green]: pawn_green,
+    [PlayerColor.White]: pawn_white,
+    [PlayerColor.Black]: pawn_black,
+    [PlayerColor.Purple]: pawn_purple,
+    [PlayerColor.Red]: pawn_red,
 
   }
 
