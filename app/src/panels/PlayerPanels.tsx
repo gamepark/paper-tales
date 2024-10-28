@@ -33,5 +33,9 @@ export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',
   [PlayerColor.Blue]: 'blue',
   [PlayerColor.Green]: 'green',
-  [PlayerColor.Yellow]: 'yellow'
+  [PlayerColor.Yellow]: 'yellow',
+  [PlayerColor.Black]: 'black',
+  [PlayerColor.Purple]: 'purple',
+  [PlayerColor.White]: 'white'
+
 }

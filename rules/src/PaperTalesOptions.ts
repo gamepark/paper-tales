@@ -39,5 +39,11 @@ export function getPlayerName(playerId: PlayerColor, t: TFunction) {
       return t('Green')
     case PlayerColor.Yellow:
       return t('Yellow')
+    case PlayerColor.Black:
+      return t('Black')
+    case PlayerColor.Purple:
+      return t('Purple')
+    case PlayerColor.White:
+      return t('White')
   }
 }
