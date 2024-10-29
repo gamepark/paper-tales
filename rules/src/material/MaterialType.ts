@@ -7,4 +7,5 @@ export enum MaterialType {
     Time,
     ScoreBoard,
     ScoreToken,
+    RoundToken,
 }
