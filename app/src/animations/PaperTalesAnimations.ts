@@ -18,4 +18,5 @@ paperTalesAnimation.when()
   paperTalesAnimation.when()
   .move(move => isMoveItem(move) && move.location.type === LocationType.PlayerUnitHand)
   .duration(0.5)
+  paperTalesAnimation.when().rule(RuleId.RevealBoards).move(isMoveItem).duration(0.5)
 
