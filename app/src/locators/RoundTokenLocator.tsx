@@ -19,11 +19,11 @@ export const roundTokenLocator = new RoundTokenLocator()
 
 
 export const scoreCasesCoordinates: XYCoordinates[] = [
-  { x: 90, y: 8 }, // 0 
-  { x: 21, y: 8 }, // 1
-  { x: 30, y: 8 }, // 2
-  { x: 40, y: 8 }, // 3
-  { x: 49, y: 8 }, // 4
+  { x: 0, y: 0 }, // 0 
+  { x: 20, y: 92 }, // 1
+  { x: 40, y: 92 }, // 2
+  { x: 59, y: 92 }, // 3
+  { x: 79, y: 92 }, // 4
 
 ]
 
