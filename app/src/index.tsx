@@ -14,9 +14,15 @@ setupTranslation(translations, { debug: false })
 
 ReactDOM.render(
   <StrictMode>
-    <GameProvider game="paper-tales" Rules={PaperTalesRules} optionsSpec={PaperTalesOptionsSpec} GameSetup={PaperTalesSetup}
-                  material={Material} locators={Locators} animations={new MaterialGameAnimations()}>
-      <App/>
+    <GameProvider 
+    game="paper-tales" 
+    Rules={PaperTalesRules} 
+    optionsSpec={PaperTalesOptionsSpec} 
+    GameSetup={PaperTalesSetup}
+      material={Material} 
+      locators={Locators} 
+      animations={new MaterialGameAnimations()}>
+      <App />
     </GameProvider>
   </StrictMode>,
   document.getElementById('root')
