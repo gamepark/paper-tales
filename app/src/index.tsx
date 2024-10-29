@@ -2,9 +2,10 @@
 import { PaperTalesOptionsSpec } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PaperTalesSetup } from '@gamepark/paper-tales/PaperTalesSetup'
-import { GameProvider, MaterialGameAnimations, setupTranslation } from '@gamepark/react-game'
+import { GameProvider, setupTranslation } from '@gamepark/react-game'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
+import { paperTalesAnimation } from './animations/PaperTalesAnimations'
 import App from './App'
 import { Locators } from './locators/Locators'
 import { Material } from './material/Material'
@@ -21,7 +22,7 @@ ReactDOM.render(
     GameSetup={PaperTalesSetup}
       material={Material} 
       locators={Locators} 
-      animations={new MaterialGameAnimations()}>
+      animations={paperTalesAnimation}>
       <App />
     </GameProvider>
   </StrictMode>,
