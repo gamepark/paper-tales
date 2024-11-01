@@ -55,7 +55,7 @@ const topCenter = css`
 
 const positionCss = [
   [topLeft, topRight], // 2 players
-  [bottomLeft, topCenter, bottomRight], // 3 players
+  [bottomLeft, topRight, bottomRight], // 3 players
   [bottomLeft, topLeft, topRight, bottomRight], // 4 players
   [bottomLeft, topLeft, topCenter, topRight, bottomRight] // 5 players
 ]
