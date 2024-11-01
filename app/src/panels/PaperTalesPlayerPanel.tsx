@@ -10,6 +10,7 @@ import gold from '../images/tokens/Gold1.jpg'
 import wood from '../images/ressources/ressources_bois.png'
 import food from '../images/ressources/ressources_viande.png'
 import diamond from '../images/ressources/ressources_minerai.png'
+import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 
 type PaperTalesPlayerPanelProps = {
   player: Player,
@@ -21,6 +22,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
   const rules = useRules<PaperTalesRules>()!
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player.id), [rules.game, player.id])
   const ressourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player.id), [rules.game, player.id])
+  const buildHelper = useMemo(() => new BuildHelper(rules.game, player.id), [rules.game, player.id])
 
 
   const { setFocus } = useFocusContext()
@@ -58,7 +60,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
 
   {
     image: gold, 
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, 4) 
+    value: buildHelper.getPlayerGold(player.id)
   }
 ]
 
