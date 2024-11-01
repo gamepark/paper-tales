@@ -13,6 +13,7 @@ import diamond from '../images/ressources/ressources_minerai.png'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { War } from '@gamepark/paper-tales/rules/War'
 import shield from '../images/tokens/bouclier_rouge.png'
+import { Resources } from '@gamepark/paper-tales/material/Resources'
 
 type PaperTalesPlayerPanelProps = {
   player: Player,
@@ -50,15 +51,15 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
   },
   {
     image: wood,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, 1) 
+    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Wood) 
   },
   {
     image: food,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, 2) 
+    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Food) 
   },
   {
     image: diamond,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, 3) 
+    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Diamond) 
   },
 
   {
