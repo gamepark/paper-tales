@@ -28,12 +28,12 @@ const absolute = css`
 
 const topLeft = css`
   left: 2em;
-  top: 10em;
+  top: 15em;
 `
 
 const topRight = css`
   right: 2em;
-  top: 10em;
+  top: 15em;
 `
 
 const bottomLeft = css`
