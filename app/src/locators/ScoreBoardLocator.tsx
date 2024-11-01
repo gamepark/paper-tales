@@ -5,12 +5,10 @@ export class ScoreBoardLocator extends Locator {
 
   getCoordinates(_location: Location, context: ItemContext) {
     const players = context.rules.players.length
-    return players === 2 ? { x: 0, y: -5 } : players === 3 ? { x: -50, y: -30 } : { x: 58, y: -9 }    // TD > 2
+    return players === 2 ? { x: 0, y: -5 } : players === 3 ? { x: -50, y: -30 } : { x: 58, y: -9 }    // TD > 3
   }
 
 }
-
-
 
 
 export const scoreBoardLocator = new ScoreBoardLocator()
