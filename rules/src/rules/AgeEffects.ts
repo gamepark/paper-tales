@@ -76,11 +76,7 @@ export class AgeEffects extends MaterialRulesPart {
             })
 
             scoreToGain !== 0 && moves.push(scoreHelper.gainOrLoseScore(player, scoreToGain))
-            goldToGain !== 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, goldToGain))
-
-            if (goldToGain > 0){
-
-            } 
+            goldToGain > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, goldToGain))
 
         })
 
