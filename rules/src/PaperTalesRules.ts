@@ -56,6 +56,10 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     }
   }
 
+  getScore(player:number){
+    return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player)
+  }
+  
 
   giveTime(): number {
     return 60
@@ -64,3 +68,5 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
 
 export const hideRotatedCardToOthers: HidingStrategy = (item: MaterialItem<number, LocationType>, player?: number) =>
   item.location.rotation && item.location.player !== player ? ['id'] : []
+
+
