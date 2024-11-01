@@ -12,9 +12,11 @@ import { PayDeployedUnits } from './rules/PayDeployedUnits'
 import { War } from './rules/War'
 import { Income } from './rules/Income'
 import { Build } from './rules/Build'
-import { Age } from './rules/Age'
 import { NextTurn } from './rules/NextTurn'
 import { EndGame } from './rules/EndGame'
+import { AgeEffects } from './rules/AgeEffects'
+import { AgeUnitsAge } from './rules/AgeUnitsAge'
+import { AgeUnitsDie } from './rules/AgeUnitsDie'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -28,7 +30,9 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.War]: War,
     [RuleId.Income]:Income,
     [RuleId.Build]:Build,
-    [RuleId.Age]:Age,
+    [RuleId.AgeEffects]:AgeEffects,
+    [RuleId.AgeUnitsAge]:AgeUnitsAge,
+    [RuleId.AgeUnitsDie]:AgeUnitsDie,
     [RuleId.NextTurn]:NextTurn,
     [RuleId.EndGame]:EndGame,
   }
