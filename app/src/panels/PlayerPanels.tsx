@@ -16,19 +16,49 @@ export const PlayerPanels: FC<any> = () => {
   return createPortal(
     <>
       {players.map((player, index) =>
-        <PaperTalesPlayerPanel key={player.id} player={player} index={index} color={playerColorCode[player.id]} css={panelPosition(index)}/>
+        <PaperTalesPlayerPanel key={player.id} player={player} index={index} color={playerColorCode[player.id]} css={[absolute, positionCss[players.length - 2][index]]}/>
       )}
     </>,
     root
   )
 }
-const panelPosition = (index: number) => css`
+const absolute = css`
   position: absolute;
-  right: 1em;
-  top: ${8.5 + index * 16}em;
-  width: 35em;
-  height: 17.5em;
 `
+
+const topLeft = css`
+  left: 2em;
+  top: 10em;
+`
+
+const topRight = css`
+  right: 2em;
+  top: 10em;
+`
+
+const bottomLeft = css`
+  left: 2em;
+  bottom: 2em;
+`
+
+const bottomRight = css`
+  right: 2em;
+  bottom: 2em;
+`
+
+const topCenter = css`
+  left: 50%;
+  top: 10em;
+  transform: translateX(-32em);
+`
+
+
+const positionCss = [
+  [topLeft, topRight], // 2 players
+  [bottomLeft, topCenter, bottomRight], // 3 players
+  [bottomLeft, topLeft, topRight, bottomRight], // 4 players
+  [bottomLeft, topLeft, topCenter, topRight, bottomRight] // 4 players
+]
 
 export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',
