@@ -1,5 +1,5 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
-import { AgeEffect, Effect, isAgeEffect } from "../../material/Effect";
+import { AgeEffect, Effect, isAgeEffect, isSpecialDyingCondition } from "../../material/Effect";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
@@ -39,7 +39,18 @@ export class AgeHelper extends MaterialRulesPart {
     }
 
     isUnitDying(player:number, unit:MaterialItem<number, number, any>):boolean{
-        return this.getAgeTokenOnUnit(player, unit) > 1
+        const effects = this.getUnitAgeEffects(player, unit)
+        const specialDyingEffect = effects.find(isSpecialDyingCondition)
+        
+        if (specialDyingEffect === undefined) {
+            return this.getAgeTokenOnUnit(player, unit) >= 1
+        } 
+
+        if (specialDyingEffect.dyingFromAmount === false){
+            return false
+        } else {
+            return this.getAgeTokenOnUnit(player, unit) >= specialDyingEffect.dyingFromAmount
+        }
     }
 
     getPlayerDyingUnits(playerId:number){
@@ -55,6 +66,10 @@ export class AgeHelper extends MaterialRulesPart {
     }
 
     getUnitAgeEffects(player:number, unit:MaterialItem<number, number, any>):AgeEffect[]{
+
+        if (unit.id === undefined) {
+            return []
+        } 
 
         const ageEffectToReturn : AgeEffect[] = []
         if (unitCardCaracteristics[unit.id].effect !== undefined){

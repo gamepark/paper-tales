@@ -101,7 +101,11 @@ export type SpecialDyingCondition = {
     dyingFromAmount:number|false    
 }
 
-export type WhichUnit = "myself" | "others" | "all"
+export enum WhichUnit {
+    Myself = 1,
+    Others,
+    All,
+} 
 
 
 

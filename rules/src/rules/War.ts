@@ -30,7 +30,7 @@ export class War extends MaterialRulesPart {
             let warScoring = 0
             
             if (players.length === 2){
-                if (myPower >= leftPower){
+                if (myPower > 0 && myPower >= leftPower){
                     warScoring += myPower >= leftPower*2 ? 6 : 3
                     moves.push(...this.getGainGoldIfWinWarMoves(player))
                     warScoring += this.getGainScoreIfWinWarAmount(player)
@@ -111,11 +111,12 @@ export class War extends MaterialRulesPart {
     }
 
     getUnitPower(player:number, unitMaterial:MaterialItem<number, number, any>){
-        const unit = unitCardCaracteristics[unitMaterial.id]
-
-        if (unit.id === undefined){
+        
+        if (unitMaterial.id === undefined){
             return 0
         }
+        
+        const unit = unitCardCaracteristics[unitMaterial.id]
 
         const effects:Effect[] = unit.effect
         if (effects !== undefined){

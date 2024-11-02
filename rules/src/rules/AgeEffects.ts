@@ -1,5 +1,5 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isGainTokenIfDying } from "../material/Effect"
+import { isGainTokenIfDying, WhichUnit } from "../material/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
@@ -25,7 +25,7 @@ export class AgeEffects extends MaterialRulesPart {
                 ageHelper.getUnitAgeEffects(player, unit).forEach(eff => {
                     if(isGainTokenIfDying(eff)){
                         switch(eff.whoDies){
-                            case "myself": 
+                            case WhichUnit.Myself: 
                                 if (ageHelper.isUnitDying(player, unit)){
 
                                     if (eff.perAgeToken){
@@ -51,10 +51,10 @@ export class AgeEffects extends MaterialRulesPart {
                                 }
 
                                 break;
-                            case "others":
+                            case WhichUnit.Others:
                                 // No case for now
                                 break;
-                            case "all":
+                            case WhichUnit.All:
                                 // Other effects are not really meaningfull, but I let the door open to do them.
                                 if (eff.perAgeToken){
                                     const ageTokens = ageHelper.getAgeTokensOnDyingUnits(player)
@@ -74,6 +74,8 @@ export class AgeEffects extends MaterialRulesPart {
                     } 
                 })
             })
+
+            console.log("score win par ", player, " : ", scoreToGain)
 
             scoreToGain !== 0 && moves.push(scoreHelper.gainOrLoseScore(player, scoreToGain))
             goldToGain > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, goldToGain))

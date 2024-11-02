@@ -1,4 +1,4 @@
-import { AgeLocation, Effect, EffectType } from "./Effect"
+import { AgeLocation, Effect, EffectType, WhichUnit } from "./Effect"
 import { MaterialType } from "./MaterialType"
 import { Resources } from "./Resources"
 import { Unit } from "./Unit"
@@ -70,7 +70,13 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Sculptor]: { 
         cost: 0, 
-        power: 1 
+        power: 1,
+        effect:[{
+            type:EffectType.GainTokenIfDying,
+            amount:3,
+            tokenGain:MaterialType.ScoreToken,
+            whoDies:WhichUnit.Myself
+        }]
     },
     [Unit.Treefolk]: { 
         cost: 1, 
@@ -243,11 +249,25 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     }, // OK
     [Unit.Kraken]: { 
         cost: 6, 
-        power: 9
+        power: 9,
+        effect:[{
+            type:EffectType.GainTokenIfDying,
+            amount:1,
+            tokenGain:MaterialType.ScoreToken,
+            whoDies:WhichUnit.All,
+            perAgeToken:true
+        }]
     },
     [Unit.Demon]: { 
         cost: 2, 
-        power: 7
+        power: 7,
+        effect:[{
+            type:EffectType.GainTokenIfDying,
+            amount:-3,
+            tokenGain:MaterialType.ScoreToken,
+            whoDies:WhichUnit.Myself,
+            ifAgeToken:true
+        }]
     },
     [Unit.ForestChild]: { 
         cost: 1, 
@@ -285,7 +305,11 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.RelicOfWisdom]: { 
         cost: 2, 
-        power: 0
+        power: 0,
+        effect:[{
+            type:EffectType.SpecialDyingCondition,
+            dyingFromAmount:false
+        }]
     },
     [Unit.WoodMerchant]: { 
         cost: 0, 
@@ -305,7 +329,13 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.PalmReader]: { 
         cost: 2, 
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.GainTokenIfDying,
+            amount:1,
+            tokenGain:MaterialType.ScoreToken,
+            whoDies:WhichUnit.All
+        }]
     },
     [Unit.Archer]: { 
         cost: 1, 
@@ -325,11 +355,22 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             type:EffectType.AddWarPower,
             powerAdded:1,
             perAgeToken:AgeLocation.OnUnit
+        },
+        {
+            type:EffectType.SpecialDyingCondition,
+            dyingFromAmount:2
         }]
     },
     [Unit.Monkey]: { 
         cost: -1,
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.GainTokenIfDying,
+            amount:1,
+            tokenGain:MaterialType.Gold,
+            whoDies:WhichUnit.Myself,
+            perAgeToken:true
+        }]
     },
     [Unit.Adventurer]: { 
         cost: 0, 
