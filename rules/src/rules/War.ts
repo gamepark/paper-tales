@@ -112,6 +112,11 @@ export class War extends MaterialRulesPart {
 
     getUnitPower(player:number, unitMaterial:MaterialItem<number, number, any>){
         const unit = unitCardCaracteristics[unitMaterial.id]
+
+        if (unit.id === undefined){
+            return 0
+        }
+
         const effects:Effect[] = unit.effect
         if (effects !== undefined){
             const cantWarEffect = effects.find(isCantWar)
@@ -191,7 +196,7 @@ export class War extends MaterialRulesPart {
                     (
                         this.isAtFrontLane(cur) 
                         || 
-                        ( unitCardCaracteristics[cur.id].effect !== undefined 
+                        ( cur.id !== undefined && unitCardCaracteristics[cur.id].effect !== undefined 
                             && (unitCardCaracteristics[cur.id].effect as Effect[]).some(eff => isWarFromBacklane(eff))
                         )
                     ) 

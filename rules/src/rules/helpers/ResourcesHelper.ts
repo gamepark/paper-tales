@@ -35,7 +35,14 @@ export class ResourcesHelper extends MaterialRulesPart {
     }
 
     getUnitResource(playerId:number, unit: MaterialItem):Resources[] {
+
+        // Si l'Id est inaccessible, on renvoie 0
+        if (unit.id === undefined){
+            return []
+        }
+
         const resourceObject = unitCardCaracteristics[unit.id].resources
+
         if(resourceObject !== undefined){
             if (resourceObject.condition !== undefined){
                 if (resourceObject.condition.onLane !== undefined){

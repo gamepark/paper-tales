@@ -9,7 +9,6 @@ import { RevealBoardsHeader } from './RevealBoardsHeader'
 import { DealHeader } from './DealHeader'
 import { PayDeployedUnitsHeader } from './PayDeployedUnitsHeader'
 import { IncomeHeader } from './IncomeHeader'
-import { AgeHeader } from './AgeHeader'
 import { WarHeader } from './WarHeader'
 import { NextTurnHeader } from './NexturnHeader'
 import { EndGameHeader } from './EndGameHeader'
@@ -24,7 +23,6 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.War]: WarHeader,
   [RuleId.Income]: IncomeHeader,
   [RuleId.Build]: BuildHeader,
-  [RuleId.Age]: AgeHeader,
   [RuleId.NextTurn]: NextTurnHeader, 
   [RuleId.EndGame]: EndGameHeader,
 

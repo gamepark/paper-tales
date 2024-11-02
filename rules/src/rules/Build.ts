@@ -66,7 +66,7 @@ export class Build extends SimultaneousRule {
     }
 
     getMovesAfterPlayersDone(): MaterialMove[] {
-        return [this.startRule(RuleId.Age)]
+        return [this.startRule(RuleId.AgeEffects)]
     }
 
     getFieldCost(playerId:number){

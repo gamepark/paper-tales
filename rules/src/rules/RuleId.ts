@@ -9,7 +9,9 @@ export enum RuleId {
   War,
   Income,
   Build,
-  Age,
+  AgeEffects,
+  AgeUnitsDie,
+  AgeUnitsAge,
   NextTurn, 
   EndGame, 
 }
