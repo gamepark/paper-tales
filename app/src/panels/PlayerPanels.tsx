@@ -33,7 +33,7 @@ const topLeft = css`
 
 const topRight = css`
   right: 2em;
-  top: 15em;
+  top: 10em;
 `
 
 const bottomLeft = css`

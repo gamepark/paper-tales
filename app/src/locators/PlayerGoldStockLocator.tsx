@@ -17,11 +17,11 @@ class PlayerGoldStockLocator extends PileLocator {
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return { x: 58, y: -40 }    // TDB
+        return { x: 0, y: -40 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -60, y: 20 } : players === 3 ? { x: -30, y: -9 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -60, y: 20 } : players === 3 ? { x: -60, y: 20 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 60, y: 20 } : players === 3 ? { x: 40, y: -9 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 60, y: 20 } : players === 3 ? { x: 60, y: 20 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 
