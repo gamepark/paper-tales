@@ -3,13 +3,13 @@
 
 import { useTranslation } from "react-i18next"
 
-export const AgeHeader = () => {
+export const AgeUnitsDieHeader = () => {
     const { t } = useTranslation()
 
 
     return <>
 
-        <div>{t('age.units')}</div>
+        <div>{t('age.effects')}</div>
 
     </>
 
