@@ -194,7 +194,7 @@ export class War extends MaterialRulesPart {
             .reduce((acc, cur) => acc 
                 + (
                     (
-                        this.isAtFrontLane(cur) 
+                        (cur.id !== undefined && this.isAtFrontLane(cur)) 
                         || 
                         ( cur.id !== undefined && unitCardCaracteristics[cur.id].effect !== undefined 
                             && (unitCardCaracteristics[cur.id].effect as Effect[]).some(eff => isWarFromBacklane(eff))
