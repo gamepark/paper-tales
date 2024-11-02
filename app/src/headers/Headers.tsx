@@ -12,6 +12,9 @@ import { IncomeHeader } from './IncomeHeader'
 import { WarHeader } from './WarHeader'
 import { NextTurnHeader } from './NexturnHeader'
 import { EndGameHeader } from './EndGameHeader'
+import { AgeUnitsAgeHeader } from './AgeUnitsHeader'
+import { AgeEffectsHeader } from './AgeEffectsHeader'
+import { AgeUnitsDieHeader } from './AgeUnitsDieHeader'
 
 export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Deal]: DealHeader,
@@ -25,6 +28,9 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Build]: BuildHeader,
   [RuleId.NextTurn]: NextTurnHeader, 
   [RuleId.EndGame]: EndGameHeader,
+  [RuleId.AgeUnitsAge]: AgeUnitsAgeHeader,
+  [RuleId.AgeEffects]: AgeEffectsHeader,
+  [RuleId.AgeUnitsDie]: AgeUnitsDieHeader,
 
 
 
