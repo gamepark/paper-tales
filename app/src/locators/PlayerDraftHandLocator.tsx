@@ -14,13 +14,13 @@ export class PlayerDraftHandLocator extends HandLocator {
         case Position.TopLeft:
           return { x: -48, y: -40 }   // TDB
         case Position.TopCenter:
-          return { x: -7, y: -40 }    // TDB 
+          return { x: 50, y: -35 }    // TDB 
         case Position.TopRight:
-          return { x: 58, y: -40 }    // TDB
+          return { x: 50, y: -25 }    // TDB
         case Position.BottomLeft:
-          return players === 2 ? { x: -50, y: 30 } : players === 3 ? { x: -30, y: -9 } : { x: -48, y: -9 }    // TDB > 2
+          return players === 2 ? { x: -50, y: 30 } : players === 3 ? { x: -50, y: 30 } : { x: -48, y: -9 }    // TDB > 2
         case Position.BottomRight:
-          return players === 2 ? { x: 50, y: 30 } : players === 3 ? { x: 40, y: -9 } : { x: 58, y: -9 }    // TD > 2
+          return players === 2 ? { x: 50, y: 30 } : players === 3 ? { x: 50, y: 30 } : { x: 58, y: -9 }    // TD > 2
       }
     }
 

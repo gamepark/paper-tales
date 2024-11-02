@@ -28,7 +28,7 @@ const absolute = css`
 
 const topLeft = css`
   left: 2em;
-  top: 10em;
+  top: 15em;
 `
 
 const topRight = css`
@@ -55,9 +55,9 @@ const topCenter = css`
 
 const positionCss = [
   [topLeft, topRight], // 2 players
-  [bottomLeft, topCenter, bottomRight], // 3 players
+  [bottomLeft, topRight, bottomRight], // 3 players
   [bottomLeft, topLeft, topRight, bottomRight], // 4 players
-  [bottomLeft, topLeft, topCenter, topRight, bottomRight] // 4 players
+  [bottomLeft, topLeft, topCenter, topRight, bottomRight] // 5 players
 ]
 
 export const playerColorCode: Record<PlayerColor, string> = {
