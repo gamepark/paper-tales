@@ -3,7 +3,7 @@
 
 import { useTranslation } from "react-i18next"
 
-export const AgeHeader = () => {
+export const AgeUnitsAgeHeader = () => {
     const { t } = useTranslation()
 
 
