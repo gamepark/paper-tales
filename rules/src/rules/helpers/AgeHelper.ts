@@ -1,5 +1,5 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
-import { AgeEffect, Effect, isAgeEffect, isSpecialDyingCondition } from "../../material/Effect";
+import { AgeEffect, Effect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from "../../material/Effect";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
@@ -63,6 +63,10 @@ export class AgeHelper extends MaterialRulesPart {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).filter(material => 
             unitCardCaracteristics[material.id].effect !== undefined && (unitCardCaracteristics[material.id].effect as Effect[]).some(eff => isAgeEffect(eff))
         )
+    }
+
+    getMysticalEffects(player:number):number{
+        return this.getUnitsWithAgeEffects(player).filter(item => item.id !== undefined && isMysticEffect(unitCardCaracteristics[item.id].effect)).length
     }
 
     getUnitAgeEffects(player:number, unit:MaterialItem<number, number, any>):AgeEffect[]{

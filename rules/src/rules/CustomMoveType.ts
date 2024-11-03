@@ -1,3 +1,4 @@
 export enum CustomMoveType {
-    FinishDeployment
+    FinishDeployment = 1,
+    MysticEffect
 }

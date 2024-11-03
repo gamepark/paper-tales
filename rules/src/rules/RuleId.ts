@@ -12,6 +12,7 @@ export enum RuleId {
   AgeEffects,
   AgeUnitsDie,
   AgeUnitsAge,
+  SaveUnitsWithMysticEffect,
   NextTurn, 
   EndGame, 
 }

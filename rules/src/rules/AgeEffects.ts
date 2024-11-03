@@ -1,5 +1,5 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isGainTokenIfDying, WhichUnit } from "../material/Effect"
+import { isGainTokenIfDying, isMysticEffect, WhichUnit } from "../material/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
@@ -13,6 +13,7 @@ export class AgeEffects extends MaterialRulesPart {
     onRuleStart(): MaterialMove[] {
         const moves:MaterialMove[] = []
         const players = this.game.players
+        let isAtLeastOneMysticEffect:boolean = false
         
         players.forEach(player => {
             let goldToGain = 0
@@ -20,10 +21,14 @@ export class AgeEffects extends MaterialRulesPart {
             const ageHelper = new AgeHelper(this.game, player)
             const scoreHelper = new ScoreHelper(this.game, player)
 
+            
+
             const unitswithAgeEffects = ageHelper.getUnitsWithAgeEffects(player)
             unitswithAgeEffects.getItems().forEach(unit => {
                 ageHelper.getUnitAgeEffects(player, unit).forEach(eff => {
+
                     if(isGainTokenIfDying(eff)){
+
                         switch(eff.whoDies){
                             case WhichUnit.Myself: 
                                 if (ageHelper.isUnitDying(player, unit)){
@@ -72,6 +77,11 @@ export class AgeEffects extends MaterialRulesPart {
 
                         }
                     } 
+
+                    if (isMysticEffect(eff)){
+                        isAtLeastOneMysticEffect = true
+                    }
+
                 })
             })
 
@@ -82,7 +92,12 @@ export class AgeEffects extends MaterialRulesPart {
 
         })
 
-        moves.push(this.startRule(RuleId.AgeUnitsDie))
+        if (isAtLeastOneMysticEffect){
+            moves.push(this.startSimultaneousRule(RuleId.SaveUnitsWithMysticEffect))
+        } else {
+            moves.push(this.startRule(RuleId.AgeUnitsDie))
+        }
+
         return moves
 
     }
