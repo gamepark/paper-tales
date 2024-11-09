@@ -1,6 +1,6 @@
-import { MaterialItem, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
+import { MaterialItem, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
 import { ageMoney } from "../material/Age"
-import { isDeploymentType, isGainAgeToken, isGainTokenOnDeploy, isImproveBuilding, isShapeshifter } from "../material/effects/2_DeploymentEffects"
+import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../material/effects/2_DeploymentEffects"
 import { Effect, WhichBuilding, WhichUnit } from "../material/effects/Effect"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
@@ -12,7 +12,8 @@ import { Memory } from "./Memory"
 import { RuleId } from "./RuleId"
 
 
-export class DeployEffects extends MaterialRulesPart {
+export class DeployEffects extends SimultaneousRule {
+
 
     onRuleStart(): MaterialMove[] {
 
@@ -26,6 +27,7 @@ export class DeployEffects extends MaterialRulesPart {
             const buildHelper =  new BuildHelper(this.game, player)
             const scoreHelper = new ScoreHelper(this.game, player)
             let scoreToAdd = 0
+            let manuelEffectToDo = false
 
             playerUnitBoard.forEach(unit => {
                 const unitCaracs:UnitPattern = unitCardCaracteristics[unit.id]
@@ -69,9 +71,9 @@ export class DeployEffects extends MaterialRulesPart {
                                         scoreToAdd = eff.amount * coeff 
                                     }
 
+                                } else if (isGainAgeTokenOnChosenUnit(eff)){
+                                    manuelEffectToDo = true
                                 }
-
-
 
                             }
                         }
@@ -79,17 +81,32 @@ export class DeployEffects extends MaterialRulesPart {
                 }
             })
 
+            if (manuelEffectToDo === false){
+                this.endPlayerTurn(player)
+            } else {
+
+            }
             scoreToAdd !== 0 && moves.push(scoreHelper.gainOrLoseScore(player, scoreToAdd))
             this.forget(Memory.PlayedCardsDuringDeployment, player)
 
 
         })
 
+        return moves
 
-        moves.push(this.startRule(RuleId.War))
+    }
+
+    getActivePlayerLegalMoves(_playerId: number): MaterialMove<number, number, number>[] {
+        
+        const moves:MaterialMove[] = []
+
+
 
         return moves
 
+    }
+    getMovesAfterPlayersDone(): MaterialMove<number, number, number>[] {
+        return [this.startRule(RuleId.War)]
     }
 
     getPlayerUnits(player:number):MaterialItem<number, number, any>[]{
@@ -102,6 +119,10 @@ export class DeployEffects extends MaterialRulesPart {
         return buildingLevel2.length > 0
             ? [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 0 }]
             : [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 1 }]
+    }
+
+    getManuelDeploymentEffects(player:number){
+        return this.getPlayerUnits(player).filter(item => item.id !== undefined && isManualDeploymentEffect(unitCardCaracteristics[item.id].effect))
     }
 
 }

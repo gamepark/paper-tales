@@ -1,7 +1,8 @@
+import { Resource } from "i18next"
 import { MaterialType } from "../MaterialType"
 import { Effect, EffectType, WhichBuilding, WhichUnit } from "./Effect"
 
-export type DeploymentEffect = Shapeshifter | GainTokenOnDeploy | ImproveBuilding | GainAgeToken
+export type DeploymentEffect = Shapeshifter | GainTokenOnDeploy | ImproveBuilding | GainAgeToken | GainAgeTokenOnChosenUnit
 
 export type Deploymennt = {
     type: EffectType.Deploymennt
@@ -35,10 +36,17 @@ export type GainAgeToken = {
     amount:number
 }
 
+export type GainAgeTokenOnChosenUnit = {
+    type:EffectType.GainAgeTokenOnChosenUnit,
+    onDeployment:boolean,
+    amount: number,
+    perResource?:Resource
+}
+
 // Typechecks
 
 export function isDeploymentType(effect:Effect):effect is DeploymentEffect{
-    return isShapeshifter(effect) || isGainTokenOnDeploy(effect) || isImproveBuilding(effect) || isGainAgeToken(effect)
+    return isShapeshifter(effect) || isGainTokenOnDeploy(effect) || isImproveBuilding(effect) || isGainAgeToken(effect) || isGainAgeTokenOnChosenUnit(effect)
 }
 
 export function isShapeshifter(effect:Effect):effect is Shapeshifter{
@@ -55,4 +63,13 @@ export function isImproveBuilding(effect:Effect):effect is ImproveBuilding{
 
 export function isGainAgeToken(effect:Effect):effect is GainAgeToken{
     return effect.type === EffectType.GainAgeToken
+}
+
+export function isGainAgeTokenOnChosenUnit(effect:Effect):effect is GainAgeTokenOnChosenUnit{
+    return effect.type === EffectType.GainAgeTokenOnChosenUnit
+}
+
+// Same than above, but can be modify to get all manual effects in the future with extends.
+export function isManualDeploymentEffect(effect:Effect):effect is (GainAgeTokenOnChosenUnit){
+    return effect.type === EffectType.GainAgeTokenOnChosenUnit
 }

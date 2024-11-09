@@ -22,7 +22,7 @@ export class PayDeployedUnits extends MaterialRulesPart {
 
 
 
-        moves.push(this.startRule(RuleId.DeployEffects))
+        moves.push(this.startSimultaneousRule(RuleId.DeployEffects))
         
         return moves
     }

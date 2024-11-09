@@ -9,6 +9,7 @@ export enum EffectType {
     GainTokenOnDeploy,
     ImproveBuilding,
     GainAgeToken,
+    GainAgeTokenOnChosenUnit,
     GainTokenIfWinWar,
     ChangeWarPower,
     AddWarPower,
