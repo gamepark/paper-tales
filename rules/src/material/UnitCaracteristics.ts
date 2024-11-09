@@ -158,7 +158,10 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.MysticalHealer]: { 
         cost: 0, 
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.MysticEffect
+        }]
     },
     [Unit.MasterAlchemist]: { 
         cost: 2, 
