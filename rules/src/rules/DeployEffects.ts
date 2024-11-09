@@ -82,13 +82,12 @@ export class DeployEffects extends SimultaneousRule {
             })
 
             if (manuelEffectToDo === false){
-                this.endPlayerTurn(player)
+                moves.push(this.endPlayerTurn(player))
             } else {
 
             }
             scoreToAdd !== 0 && moves.push(scoreHelper.gainOrLoseScore(player, scoreToAdd))
             this.forget(Memory.PlayedCardsDuringDeployment, player)
-
 
         })
 
