@@ -1,5 +1,6 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
-import { AgeEffect, Effect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from "../../material/Effect";
+import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from "../../material/effects/6_AgeEffects";
+import { Effect } from "../../material/effects/Effect";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";

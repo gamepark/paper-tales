@@ -1,5 +1,6 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isGainTokenIfDying, WhichUnit } from "../material/Effect"
+import { isGainTokenIfDying } from "../material/effects/6_AgeEffects"
+import { WhichUnit } from "../material/effects/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"

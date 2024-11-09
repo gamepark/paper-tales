@@ -1,5 +1,6 @@
 import { MaterialItem, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { AgeLocation, Effect, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/Effect"
+import { isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from "../material/effects/3_WarEffects"
+import { AgeLocation, Effect } from "../material/effects/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"

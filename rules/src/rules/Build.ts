@@ -1,6 +1,6 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
 import { buildingCardCaracteristics } from "../material/BuildingCaracteristics";
-import { isMysticEffect } from "../material/Effect";
+import { isMysticEffect } from "../material/effects/6_AgeEffects";
 import { goldMoney } from "../material/Gold";
 import { LocationType } from "../material/LocationType";
 import { MaterialType } from "../material/MaterialType";

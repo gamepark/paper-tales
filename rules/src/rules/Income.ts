@@ -1,5 +1,6 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { Effect, EffectType, IncomeEffect, isIncomeType } from "../material/Effect"
+import { IncomeEffect, isIncomeType } from "../material/effects/4_IncomeEffects"
+import { Effect, EffectType } from "../material/effects/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"

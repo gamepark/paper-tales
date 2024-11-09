@@ -1,4 +1,4 @@
-import { AgeLocation, Effect, EffectType, WhichUnit } from "./Effect"
+import { AgeLocation, Effect, EffectType, WhichUnit } from "./effects/Effect"
 import { MaterialType } from "./MaterialType"
 import { Resources } from "./Resources"
 import { Unit } from "./Unit"
