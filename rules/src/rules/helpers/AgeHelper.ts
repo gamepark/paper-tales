@@ -3,6 +3,7 @@ import { AgeEffect, Effect, isAgeEffect, isMysticEffect, isSpecialDyingCondition
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
+import { Memory } from "../Memory";
 
 export class AgeHelper extends MaterialRulesPart {
 
@@ -41,6 +42,11 @@ export class AgeHelper extends MaterialRulesPart {
     isUnitDying(player:number, unit:MaterialItem<number, number, any>):boolean{
         const effects = this.getUnitAgeEffects(player, unit)
         const specialDyingEffect = effects.find(isSpecialDyingCondition)
+        const unitsSavedByMysticEffect:number[] = this.remind(Memory.UnitSavedWithMystic, player)
+
+        if (unitsSavedByMysticEffect.includes(unit.id)){
+            return false
+        }
         
         if (specialDyingEffect === undefined) {
             return this.getAgeTokenOnUnit(player, unit) >= 1

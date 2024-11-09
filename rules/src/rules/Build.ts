@@ -1,8 +1,10 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
 import { buildingCardCaracteristics } from "../material/BuildingCaracteristics";
+import { isMysticEffect } from "../material/Effect";
 import { goldMoney } from "../material/Gold";
 import { LocationType } from "../material/LocationType";
 import { MaterialType } from "../material/MaterialType";
+import { AgeHelper } from "./helpers/AgeHelper";
 import { BuildHelper } from "./helpers/BuildHelper";
 import { ResourcesHelper } from "./helpers/ResourcesHelper";
 import { RuleId } from "./RuleId";
@@ -66,7 +68,28 @@ export class Build extends SimultaneousRule {
     }
 
     getMovesAfterPlayersDone(): MaterialMove[] {
-        return [this.startRule(RuleId.AgeEffects)]
+
+        const moves:MaterialMove[] = []
+
+        const players = this.game.players
+        players.forEach(player => {
+            const ageHelper = new AgeHelper(this.game, player)
+            const unitswithAgeEffects = ageHelper.getUnitsWithAgeEffects(player)
+            unitswithAgeEffects.getItems().forEach(unit => {
+                ageHelper.getUnitAgeEffects(player, unit).forEach(eff => {
+                    if (isMysticEffect(eff)){
+                        moves.push(this.startRule(RuleId.SaveUnitsWithMysticEffect))
+                    }
+                })
+            })
+        })
+
+        if (moves.length !== 0){
+            return moves
+        } else {
+            return [this.startRule(RuleId.AgeEffects)]
+        }
+
     }
 
     getFieldCost(playerId:number){

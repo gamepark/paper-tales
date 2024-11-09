@@ -17,6 +17,7 @@ import { EndGame } from './rules/EndGame'
 import { AgeEffects } from './rules/AgeEffects'
 import { AgeUnitsAge } from './rules/AgeUnitsAge'
 import { AgeUnitsDie } from './rules/AgeUnitsDie'
+import { SaveUnitsWithMysticEffect } from './rules/SaveUnitsWithMysticEffect'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -30,6 +31,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.War]: War,
     [RuleId.Income]:Income,
     [RuleId.Build]:Build,
+    [RuleId.SaveUnitsWithMysticEffect]:SaveUnitsWithMysticEffect,
     [RuleId.AgeEffects]:AgeEffects,
     [RuleId.AgeUnitsAge]:AgeUnitsAge,
     [RuleId.AgeUnitsDie]:AgeUnitsDie,

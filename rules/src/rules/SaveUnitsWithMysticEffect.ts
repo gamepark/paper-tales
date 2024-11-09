@@ -4,7 +4,7 @@ import { AgeHelper } from "./helpers/AgeHelper"
 import { Memory } from "./Memory"
 import { RuleId } from "./RuleId"
 
-export class AgeUnitsDie extends SimultaneousRule {
+export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
     // Need to call this rule BEFORE age effect (conflict with palm reader for example)
 
@@ -13,7 +13,11 @@ export class AgeUnitsDie extends SimultaneousRule {
         const players = this.game.players
         players.forEach(player => {
             const ageHelper = new AgeHelper(this.game, player)
-            if (ageHelper.getMysticalEffects(player) === 0){
+            const alreadySavedUnits = this.remind(Memory.UnitSavedWithMystic, player)
+            const saveableUnits = ageHelper.getPlayerUnits(player).filter(item => ageHelper.getAgeTokenOnUnit(player, item) === 1 
+                && (alreadySavedUnits as number[]).find(unitId => unitId === item.id) === undefined)
+            
+            if (ageHelper.getMysticalEffects(player) === 0 || saveableUnits.length === 0 ){
                 moves.push(this.endPlayerTurn(player))
             }
         })
@@ -31,14 +35,11 @@ export class AgeUnitsDie extends SimultaneousRule {
         const saveableUnits = ageHelper.getPlayerUnits(playerId).filter(item => ageHelper.getAgeTokenOnUnit(playerId, item) === 1 
             && (alreadySavedUnits as number[]).find(unitId => unitId === item.id) === undefined)
         
-        if (saveableUnits.length === 0){
-            // Can't work ! Need to push it in onRuleStart or in onCustomMove.
-            moves.push(this.endPlayerTurn(playerId))
-        } else {
-            saveableUnits.getItems().forEach(item => {
-                moves.push(this.customMove(CustomMoveType.MysticEffect, {unitId : item.id, player : playerId}))
-            })
-        }
+        // saveableUnits is different of 0 thanks to the pre work in onRuleStart
+
+        saveableUnits.getItems().forEach(item => {
+            moves.push(this.customMove(CustomMoveType.MysticEffect, {unitId : item.id, player : playerId}))
+        })
         
         return moves
 

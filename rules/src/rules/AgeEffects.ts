@@ -1,5 +1,5 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isGainTokenIfDying, isMysticEffect, WhichUnit } from "../material/Effect"
+import { isGainTokenIfDying, WhichUnit } from "../material/Effect"
 import { goldMoney } from "../material/Gold"
 import { LocationType } from "../material/LocationType"
 import { MaterialType } from "../material/MaterialType"
@@ -13,15 +13,12 @@ export class AgeEffects extends MaterialRulesPart {
     onRuleStart(): MaterialMove[] {
         const moves:MaterialMove[] = []
         const players = this.game.players
-        let isAtLeastOneMysticEffect:boolean = false
         
         players.forEach(player => {
             let goldToGain = 0
             let scoreToGain = 0
             const ageHelper = new AgeHelper(this.game, player)
             const scoreHelper = new ScoreHelper(this.game, player)
-
-            
 
             const unitswithAgeEffects = ageHelper.getUnitsWithAgeEffects(player)
             unitswithAgeEffects.getItems().forEach(unit => {
@@ -72,15 +69,9 @@ export class AgeEffects extends MaterialRulesPart {
                                             break;
                                     }
                                 }
-                                 
                                 break;
-
                         }
                     } 
-
-                    if (isMysticEffect(eff)){
-                        isAtLeastOneMysticEffect = true
-                    }
 
                 })
             })
@@ -92,11 +83,7 @@ export class AgeEffects extends MaterialRulesPart {
 
         })
 
-        if (isAtLeastOneMysticEffect){
-            moves.push(this.startSimultaneousRule(RuleId.SaveUnitsWithMysticEffect))
-        } else {
-            moves.push(this.startRule(RuleId.AgeUnitsDie))
-        }
+        moves.push(this.startRule(RuleId.AgeUnitsDie))
 
         return moves
 
