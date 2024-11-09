@@ -18,6 +18,7 @@ import { AgeEffects } from './rules/AgeEffects'
 import { AgeUnitsAge } from './rules/AgeUnitsAge'
 import { AgeUnitsDie } from './rules/AgeUnitsDie'
 import { SaveUnitsWithMysticEffect } from './rules/SaveUnitsWithMysticEffect'
+import { DeployEffects } from './rules/DeployEffects'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -28,6 +29,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.PlaceUnitOnBoard]: PlaceUnitOnBoard,
     [RuleId.RevealBoards]: RevealBoards,
     [RuleId.PayDeployedUnits]:PayDeployedUnits,
+    [RuleId.DeployEffects]:DeployEffects,
     [RuleId.War]: War,
     [RuleId.Income]:Income,
     [RuleId.Build]:Build,

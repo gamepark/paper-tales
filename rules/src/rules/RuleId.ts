@@ -5,6 +5,7 @@ export enum RuleId {
   PlaceUnitOnBoard,
   RevealBoards,
   PayDeployedUnits,
+  DeployEffects,
   ChooseUnpaidUnits,
   War,
   Income,

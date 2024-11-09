@@ -1,4 +1,4 @@
-import { AgeLocation, Effect, EffectType, WhichUnit } from "./effects/Effect"
+import { AgeLocation, Effect, EffectType, WhichBuilding, WhichUnit } from "./effects/Effect"
 import { MaterialType } from "./MaterialType"
 import { Resources } from "./Resources"
 import { Unit } from "./Unit"
@@ -87,11 +87,23 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },  // OK
     [Unit.Necromancer]: { 
         cost: 1, 
-        power: 4
+        power: 4,
+        effect:[{
+            type:EffectType.GainAgeToken,
+            amount:1,
+            onDeployment:true,
+            whichUnit:WhichUnit.Others
+        }]
     },
     [Unit.Veteran]: { 
         cost: 0, 
-        power: 3
+        power: 3,
+        effect:[{
+            type:EffectType.GainAgeToken,
+            amount:1,
+            onDeployment:true,
+            whichUnit:WhichUnit.Myself
+        }]
     },
     [Unit.Miner]: { 
         cost: 1, 
@@ -145,7 +157,13 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         power: 4, 
         resources:{
             type:[Resources.Diamond]
-        }
+        },
+        effect:[{
+            type:EffectType.GainAgeToken,
+            amount:1,
+            onDeployment:true,
+            whichUnit:WhichUnit.Myself
+        }]
     },
     [Unit.Cook]: { 
         cost: 0, 
@@ -259,6 +277,19 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             tokenGain:MaterialType.ScoreToken,
             whoDies:WhichUnit.All,
             perAgeToken:true
+        },
+        {
+            type:EffectType.GainAgeToken,
+            amount:1,
+            onDeployment:true,
+            whichUnit:WhichUnit.Others
+        },
+        {
+            type:EffectType.GainTokenOnDeploy,
+            amount:3,
+            onDeployment:true,
+            token:MaterialType.ScoreToken,
+            perLevel2Builds:true
         }]
     },
     [Unit.Demon]: { 
@@ -270,6 +301,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             tokenGain:MaterialType.ScoreToken,
             whoDies:WhichUnit.Myself,
             ifAgeToken:true
+        },
+        {
+            type:EffectType.GainAgeToken,
+            amount:1,
+            onDeployment:true,
+            whichUnit:WhichUnit.Myself
         }]
     },
     [Unit.ForestChild]: { 
@@ -349,7 +386,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Golem]: { 
         cost: 2, 
-        power: 3
+        power: 3,
+        effect:[{
+            type:EffectType.ImproveBuilding,
+            onDeployment:true,
+            whichBuilding:WhichBuilding.All
+        }]
     },
     [Unit.Salamander]: { 
         cost: 2, 

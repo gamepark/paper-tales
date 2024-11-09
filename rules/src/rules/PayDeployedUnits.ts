@@ -18,7 +18,11 @@ export class PayDeployedUnits extends MaterialRulesPart {
             })
 
         })
-        moves.push(this.startRule(RuleId.War))
+
+
+
+
+        moves.push(this.startRule(RuleId.DeployEffects))
         
         return moves
     }
