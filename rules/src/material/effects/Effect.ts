@@ -1,7 +1,9 @@
 import { DeploymentEffect } from "./2_DeploymentEffects"
 import { WarEffect } from "./3_WarEffects"
 import { IncomeEffect } from "./4_IncomeEffects"
+import { Build } from "./5_Build"
 import { AgeEffect } from "./6_AgeEffects"
+import { RelicEffect } from "./7_EndGameEffects"
 
 export enum EffectType {
     Deploymennt = 1,
@@ -23,6 +25,7 @@ export enum EffectType {
     GainTokenIfDying,
     MysticEffect,
     SpecialDyingCondition,
+    RelicEffect,
 }
 
 export enum AgeLocation {
@@ -41,8 +44,5 @@ export enum WhichBuilding {
     Choice,
 }
 
-export type Effect = DeploymentEffect | WarEffect | IncomeEffect | Build | AgeEffect
+export type Effect = DeploymentEffect | WarEffect | IncomeEffect | Build | AgeEffect | RelicEffect
 
-export type Build = {
-    type: EffectType.Build
-}

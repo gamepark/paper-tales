@@ -130,7 +130,8 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Knight]: { 
         cost: 1, 
-        power: 4}, // OK
+        power: 4
+    }, // OK
     [Unit.Leviathan]: { 
         cost: 3, 
         power: 4, 
@@ -349,6 +350,10 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         effect:[{
             type:EffectType.SpecialDyingCondition,
             dyingFromAmount:false
+        },
+        {
+            type:EffectType.RelicEffect,
+            amount:2
         }]
     },
     [Unit.WoodMerchant]: { 
