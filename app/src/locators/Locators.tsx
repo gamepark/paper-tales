@@ -1,7 +1,7 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { Locator } from '@gamepark/react-game'
+import { Locator, PileLocator } from '@gamepark/react-game'
 import { unitDeckLocator } from './DeckLocator'
 import { goldStockLocator } from './GoldStockLocator'
 import { discardLocator } from './DiscardLocator'
@@ -32,6 +32,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.ScoreBoard]: scoreBoardLocator,
     [LocationType.PlayerScore]: scoreTokenLocator,
     [LocationType.Time]: roundTokenLocator,
+    [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit , radius: 1, positionOnParent: { x: 50, y: 40 } }),
 
 
 
