@@ -1,7 +1,7 @@
 import { MaterialMove, PlayerTurnRule} from '@gamepark/rules-api'
-import { MaterialType } from '../material/MaterialType'
-import { LocationType } from '../material/LocationType'
-import { RuleId } from './RuleId'
+import { MaterialType } from '../../material/MaterialType'
+import { LocationType } from '../../material/LocationType'
+import { RuleId } from '../RuleId'
 
 export class Deal extends PlayerTurnRule {
 

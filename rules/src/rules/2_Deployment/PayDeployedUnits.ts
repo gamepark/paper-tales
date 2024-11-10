@@ -1,10 +1,10 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { MaterialType } from "../material/MaterialType"
-import { RuleId } from "./RuleId"
-import { Memory } from "./Memory"
-import { unitCardCaracteristics } from "../material/UnitCaracteristics"
-import { goldMoney } from "../material/Gold" 
-import { LocationType } from "../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { RuleId } from "../RuleId"
+import { Memory } from "../Memory"
+import { unitCardCaracteristics } from "../../material/UnitCaracteristics"
+import { goldMoney } from "../../material/Gold" 
+import { LocationType } from "../../material/LocationType"
 
 export class PayDeployedUnits extends MaterialRulesPart {
 

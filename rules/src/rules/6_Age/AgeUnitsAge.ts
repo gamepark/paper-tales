@@ -1,9 +1,9 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { ageMoney } from "../material/Age"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
-import { AgeHelper } from "./helpers/AgeHelper"
-import { RuleId } from "./RuleId"
+import { ageMoney } from "../../material/Age"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { AgeHelper } from "../helpers/AgeHelper"
+import { RuleId } from "../RuleId"
 
 export class AgeUnitsAge extends MaterialRulesPart {
 

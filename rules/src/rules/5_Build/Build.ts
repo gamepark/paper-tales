@@ -1,13 +1,13 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
-import { buildingCardCaracteristics } from "../material/BuildingCaracteristics";
-import { isMysticEffect } from "../material/effects/6_AgeEffects";
-import { goldMoney } from "../material/Gold";
-import { LocationType } from "../material/LocationType";
-import { MaterialType } from "../material/MaterialType";
-import { AgeHelper } from "./helpers/AgeHelper";
-import { BuildHelper } from "./helpers/BuildHelper";
-import { ResourcesHelper } from "./helpers/ResourcesHelper";
-import { RuleId } from "./RuleId";
+import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
+import { isMysticEffect } from "../../material/effects/6_AgeEffects";
+import { goldMoney } from "../../material/Gold";
+import { LocationType } from "../../material/LocationType";
+import { MaterialType } from "../../material/MaterialType";
+import { AgeHelper } from "../helpers/AgeHelper";
+import { BuildHelper } from "../helpers/BuildHelper";
+import { ResourcesHelper } from "../helpers/ResourcesHelper";
+import { RuleId } from "../RuleId";
 
 export class Build extends SimultaneousRule {
 

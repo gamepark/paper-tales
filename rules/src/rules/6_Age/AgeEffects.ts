@@ -1,12 +1,12 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isGainTokenIfDying } from "../material/effects/6_AgeEffects"
-import { WhichUnit } from "../material/effects/Effect"
-import { goldMoney } from "../material/Gold"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
-import { AgeHelper } from "./helpers/AgeHelper"
-import { ScoreHelper } from "./helpers/ScoreHelper"
-import { RuleId } from "./RuleId"
+import { isGainTokenIfDying } from "../../material/effects/6_AgeEffects"
+import { WhichUnit } from "../../material/effects/Effect"
+import { goldMoney } from "../../material/Gold"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { AgeHelper } from "../helpers/AgeHelper"
+import { ScoreHelper } from "../helpers/ScoreHelper"
+import { RuleId } from "../RuleId"
 
 
 export class AgeEffects extends MaterialRulesPart {

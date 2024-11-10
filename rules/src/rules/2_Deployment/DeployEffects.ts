@@ -1,15 +1,15 @@
 import { MaterialItem, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
-import { ageMoney } from "../material/Age"
-import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../material/effects/2_DeploymentEffects"
-import { Effect, WhichBuilding, WhichUnit } from "../material/effects/Effect"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
-import { unitCardCaracteristics, UnitPattern } from "../material/UnitCaracteristics"
-import { BuildHelper } from "./helpers/BuildHelper"
-import { ScoreHelper } from "./helpers/ScoreHelper"
-import { Memory } from "./Memory"
+import { ageMoney } from "../../material/Age"
+import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../../material/effects/2_DeploymentEffects"
+import { Effect, WhichBuilding, WhichUnit } from "../../material/effects/Effect"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { unitCardCaracteristics, UnitPattern } from "../../material/UnitCaracteristics"
+import { BuildHelper } from "../helpers/BuildHelper"
+import { ScoreHelper } from "../helpers/ScoreHelper"
+import { Memory } from "../Memory"
 
-import { RuleId } from "./RuleId"
+import { RuleId } from "../RuleId"
 
 
 export class DeployEffects extends SimultaneousRule {

@@ -1,11 +1,11 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isRelicEffect } from "../material/effects/7_EndGameEffects"
-import { Effect } from "../material/effects/Effect"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
-import { unitCardCaracteristics, UnitPattern } from "../material/UnitCaracteristics"
-import { AgeHelper } from "./helpers/AgeHelper"
-import { ScoreHelper } from "./helpers/ScoreHelper"
+import { isRelicEffect } from "../../material/effects/7_EndGameEffects"
+import { Effect } from "../../material/effects/Effect"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { unitCardCaracteristics, UnitPattern } from "../../material/UnitCaracteristics"
+import { AgeHelper } from "../helpers/AgeHelper"
+import { ScoreHelper } from "../helpers/ScoreHelper"
 
 export class EndGame extends MaterialRulesPart {
 

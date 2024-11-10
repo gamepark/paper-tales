@@ -11,9 +11,9 @@ import wood from '../images/ressources/ressources_bois.png'
 import food from '../images/ressources/ressources_viande.png'
 import diamond from '../images/ressources/ressources_minerai.png'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
-import { War } from '@gamepark/paper-tales/rules/War'
 import shield from '../images/tokens/bouclier_rouge.png'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
+import { War } from '@gamepark/paper-tales/rules/3_War/War'
 
 type PaperTalesPlayerPanelProps = {
   player: Player,

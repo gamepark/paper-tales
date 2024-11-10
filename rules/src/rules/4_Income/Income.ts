@@ -1,12 +1,12 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { IncomeEffect, isIncomeType } from "../material/effects/4_IncomeEffects"
-import { Effect, EffectType } from "../material/effects/Effect"
-import { goldMoney } from "../material/Gold"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
-import { unitCardCaracteristics } from "../material/UnitCaracteristics"
-import { ResourcesHelper } from "./helpers/ResourcesHelper"
-import { RuleId } from "./RuleId"
+import { IncomeEffect, isIncomeType } from "../../material/effects/4_IncomeEffects"
+import { Effect, EffectType } from "../../material/effects/Effect"
+import { goldMoney } from "../../material/Gold"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
+import { unitCardCaracteristics } from "../../material/UnitCaracteristics"
+import { ResourcesHelper } from "../helpers/ResourcesHelper"
+import { RuleId } from "../RuleId"
 
 export class Income extends MaterialRulesPart {
 

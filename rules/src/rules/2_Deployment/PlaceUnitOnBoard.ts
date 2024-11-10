@@ -1,11 +1,11 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
-import { MaterialType } from "../material/MaterialType";
-import { LocationType } from "../material/LocationType";
-import { RuleId } from "./RuleId";
-import { Memory } from "./Memory";
+import { MaterialType } from "../../material/MaterialType";
+import { LocationType } from "../../material/LocationType";
+import { RuleId } from "../RuleId";
+import { Memory } from "../Memory";
 import { DiscardRemainingUnits } from "./DiscardRemainingUnits";
-import { unitCardCaracteristics } from "../material/UnitCaracteristics";
-import { ageMoney } from "../material/Age";
+import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
+import { ageMoney } from "../../material/Age";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 

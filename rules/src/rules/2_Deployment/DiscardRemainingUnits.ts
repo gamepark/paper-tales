@@ -1,8 +1,8 @@
 import { MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
-import { MaterialType } from "../material/MaterialType";
-import { LocationType } from "../material/LocationType";
-import { RuleId } from "./RuleId";
-import { Memory } from "./Memory";
+import { MaterialType } from "../../material/MaterialType";
+import { LocationType } from "../../material/LocationType";
+import { RuleId } from "../RuleId";
+import { Memory } from "../Memory";
 
 export class DiscardRemainingUnits extends SimultaneousRule {
 

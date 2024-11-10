@@ -1,8 +1,8 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { LocationType } from "../material/LocationType"
-import { MaterialType } from "../material/MaterialType"
+import { LocationType } from "../../material/LocationType"
+import { MaterialType } from "../../material/MaterialType"
 
-import { RuleId } from "./RuleId"
+import { RuleId } from "../RuleId"
 
 
 export class NextTurn extends MaterialRulesPart {

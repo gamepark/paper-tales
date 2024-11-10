@@ -1,8 +1,8 @@
 import { CustomMove, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
-import { CustomMoveType } from "./CustomMoveType"
-import { AgeHelper } from "./helpers/AgeHelper"
-import { Memory } from "./Memory"
-import { RuleId } from "./RuleId"
+import { CustomMoveType } from "../CustomMoveType"
+import { AgeHelper } from "../helpers/AgeHelper"
+import { Memory } from "../Memory"
+import { RuleId } from "../RuleId"
 
 export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
