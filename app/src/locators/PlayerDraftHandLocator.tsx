@@ -1,7 +1,6 @@
-import { LocationType } from "@gamepark/paper-tales/material/LocationType";
-import { MaterialType } from "@gamepark/paper-tales/material/MaterialType";
+
 import { getRelativePlayerIndex, HandLocator, ItemContext } from "@gamepark/react-game";
-import { Location, MaterialItem } from "@gamepark/rules-api";
+import { Location } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 
 export class PlayerDraftHandLocator extends HandLocator {
@@ -24,11 +23,7 @@ export class PlayerDraftHandLocator extends HandLocator {
       }
     }
 
-    getItemIndex(item: MaterialItem, context: ItemContext): number {
-        const cards = context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(context.player).getItems()
-        cards.sort((a, b) => a.id !== b.id ? a.id - b.id : a.location.x! - b.location.x!)
-        return cards.findIndex(i => i.location.x === item.location.x)
-      }
+
 
 
 
