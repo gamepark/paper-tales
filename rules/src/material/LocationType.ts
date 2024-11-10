@@ -13,5 +13,6 @@ export enum LocationType {
     Deck,
     Time,
     ScoreBoard,
+    OnCard,
 
 }
