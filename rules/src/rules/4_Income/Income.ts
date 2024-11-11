@@ -5,6 +5,7 @@ import { goldMoney } from "../../material/Gold"
 import { LocationType } from "../../material/LocationType"
 import { MaterialType } from "../../material/MaterialType"
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics"
+import { BuildHelper } from "../helpers/BuildHelper"
 import { ResourcesHelper } from "../helpers/ResourcesHelper"
 import { RuleId } from "../RuleId"
 
@@ -26,17 +27,26 @@ export class Income extends MaterialRulesPart {
     }
 
     getPlayerIncome(playerId:number){
+        console.log("player : ", playerId, "get from buildings : ", this.getIncomeFromBuilding(playerId))
         return this.getIncomeUnits(playerId).getItems().reduce((acc, cur) => 
             acc + (unitCardCaracteristics[cur.id].effect as IncomeEffect[])
                 .reduce((cardIncome, cardEff) => 
                 cardIncome + this.getIncomeByEffect(playerId, cardEff, cur.location.x!, cur.location.y!),0)
-        , 2)
+        , 2) + this.getIncomeFromBuilding(playerId)
     }
 
     getIncomeUnits(playerId:number){
         return this.getPlayerBoard(playerId)
             .filter(item => unitCardCaracteristics[item.id].effect !== undefined 
                 && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isIncomeType(eff)))
+    }
+
+    getIncomeFromBuilding(playerId:number):number{
+        const buildHelper =  new BuildHelper(this.game, playerId)
+        const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId).filter(isIncomeType)
+        return effects.length === 0 
+            ? 0
+            : effects.reduce((acc, cur) => acc + this.getIncomeByEffect(playerId, cur, 0,0), 0)
     }
 
     getIncomeByEffect(playerId:number, effect:IncomeEffect, x:number, y:number){

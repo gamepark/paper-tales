@@ -1,5 +1,6 @@
 import { MaterialGame, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api";
 import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
+import { Effect } from "../../material/effects/Effect";
 import { goldMoney } from "../../material/Gold";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
@@ -18,7 +19,7 @@ export class BuildHelper extends MaterialRulesPart {
     }
 
     getPlayerGold(playerId:number){
-        return this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).getQuantity()
+        return goldMoney.count(this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId))
     }
 
     getPlayerBuildingPlayed(playerId:number){
@@ -84,6 +85,21 @@ export class BuildHelper extends MaterialRulesPart {
             && playerWood >= woodCost 
             && playerFood >= FoodCost 
             && playerDiamond >= DiamondCost
+    }
+
+    getPlayerBuildingsDone(playerId:number){
+        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
+    }
+
+    getPlayerIncomeBuildingEffects(playerId:number):Effect[]{
+        const effectsToReturn: Effect[] = []
+        this.getPlayerBuildingsDone(playerId).getItems().forEach(item => {
+            if (item.location.rotation === true){
+                effectsToReturn.push(...buildingCardCaracteristics[item.id].effect2)
+            } 
+            effectsToReturn.push(...buildingCardCaracteristics[item.id].effect1)
+        })
+        return effectsToReturn
     }
 
 

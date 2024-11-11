@@ -17,6 +17,7 @@ export enum EffectType {
     AddWarPower,
     WarFromBacklane,
     CantWar,
+    ScoreAtWar,
     Income, 
     IncomePerResource,
     IncomeIfAgeToken,
