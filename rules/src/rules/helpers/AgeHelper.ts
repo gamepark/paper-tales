@@ -45,7 +45,7 @@ export class AgeHelper extends MaterialRulesPart {
         const specialDyingEffect = effects.find(isSpecialDyingCondition)
         const unitsSavedByMysticEffect:number[] = this.remind(Memory.UnitSavedWithMystic, player)
 
-        if (unitsSavedByMysticEffect.includes(unit.id)){
+        if (unitsSavedByMysticEffect !== undefined && unitsSavedByMysticEffect.includes(unit.id)){
             return false
         }
         
@@ -66,7 +66,7 @@ export class AgeHelper extends MaterialRulesPart {
 
     // Effects
 
-    getUnitsWithAgeEffects(player: number) {
+    getUnitsWithAgeEffects(player: number):Material<number, number, number> {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).filter(material => 
             unitCardCaracteristics[material.id].effect !== undefined && (unitCardCaracteristics[material.id].effect as Effect[]).some(eff => isAgeEffect(eff))
         )

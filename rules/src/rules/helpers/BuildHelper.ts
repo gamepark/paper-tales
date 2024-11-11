@@ -1,4 +1,6 @@
-import { MaterialGame, MaterialRulesPart } from "@gamepark/rules-api";
+import { MaterialGame, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api";
+import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
+import { goldMoney } from "../../material/Gold";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { Resources } from "../../material/Resources";
@@ -33,6 +35,37 @@ export class BuildHelper extends MaterialRulesPart {
 
     getPlayerBuildingUnplayed(playerId:number){
         return this.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(playerId)
+    }
+
+    getGoldInBuildingCost(cost:Resources[]):number{
+        return cost.filter(res => res === Resources.Gold).length
+    }
+
+    hasAlternateCost(buildingId:number, level:number):boolean{
+        return level === 1 
+            ? buildingCardCaracteristics[buildingId].cost1Alternate !== undefined
+            : buildingCardCaracteristics[buildingId].cost2Alternate !== undefined
+    }
+
+    /**
+     * Retourne les moves de dépense de gold lors de la construction d'une étape de bâtiment
+     * Attention, cette fonction peut renvoyer des résultats étranges si le bâtiment ne peut être construit. 
+     * @see canBuildCost() pour vérifier si une étape est constructible.
+     * @param playerId  - L'ID du joueur qui a joué le coup,
+     * @param buildingId - Le bâtiment joué,
+     * @param level - L'étape du bâtiment que l'on considère,
+     * @returns - Un tableau contenant le move dépensant l'or.
+     */
+    getGoldToPayCostMove(playerId:number, buildingId:number, level:number):MaterialMove[]{
+        console.log(buildingId)
+        const moves : MaterialMove[] = []
+        const cost = level === 1 ? buildingCardCaracteristics[buildingId].cost1 : buildingCardCaracteristics[buildingId].cost2
+        const costAlternate = level === 1 ? buildingCardCaracteristics[buildingId].cost1Alternate : buildingCardCaracteristics[buildingId].cost2Alternate
+        const goldToPay = this.canBuildCost(playerId,cost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
+        
+        goldToPay > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : playerId}, -goldToPay))
+
+        return moves
     }
 
     canBuildCost(playerId:number, cost:Resources[]){
