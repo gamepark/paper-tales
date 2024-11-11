@@ -25,7 +25,7 @@ export class Build extends SimultaneousRule {
             || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2Alternate))
             ).moveItems({rotation:true}))
         
-        if(buildHelper.getPlayerGold(playerId) >= this.getFieldCost(playerId)){
+        if(buildHelper.hasIgnoreFieldCostEffect(playerId) || buildHelper.getPlayerGold(playerId) >= this.getFieldCost(playerId)){
             // Achats au niveau 1 
             moves.push(
                 ...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => 

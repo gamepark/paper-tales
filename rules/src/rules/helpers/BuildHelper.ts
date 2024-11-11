@@ -2,11 +2,13 @@ import { MaterialGame, MaterialMove, MaterialRulesPart } from "@gamepark/rules-a
 import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
 import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from "../../material/effects/3_WarEffects";
 import { IncomeEffect, isIncomeType } from "../../material/effects/4_IncomeEffects";
+import { BuildEffect, isBuildEffect, isIgnoreFieldCost, isReplaceResourceByGold, ReplaceResourceByGold } from "../../material/effects/5_Build";
 import { Effect } from "../../material/effects/Effect";
 import { goldMoney } from "../../material/Gold";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { Resources } from "../../material/Resources";
+import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
 import { War } from "../3_War/War";
 import { Income } from "../4_Income/Income";
 import { ResourcesHelper } from "./ResourcesHelper";
@@ -85,8 +87,12 @@ export class BuildHelper extends MaterialRulesPart {
         const playerFood = playerResources.filter(resources => resources === Resources.Food).length
         const playerDiamond = playerResources.filter(resources => resources === Resources.Diamond).length
 
+        // const canReplaceWoodByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Wood))
+        // const canReplaceFoodByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Food))
+        // const canReplaceDiamondByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Diamond))
+
         return playerGold >= goldCost 
-            && playerWood >= woodCost 
+            && playerWood >=  woodCost  
             && playerFood >= FoodCost 
             && playerDiamond >= DiamondCost
     }
@@ -153,6 +159,22 @@ export class BuildHelper extends MaterialRulesPart {
         } else {
             return buildEffect.amount
         }
+    }
+
+    getPlayerBuildEffect(playerId:number):BuildEffect[]{
+        const result:BuildEffect[] = []
+        this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).getItems().forEach(item => {
+            unitCardCaracteristics[item.id].effect !== undefined && result.push(...unitCardCaracteristics[item.id].effect.filter(isBuildEffect)) 
+        })
+        return result
+    }
+
+    hasIgnoreFieldCostEffect(playerId:number):boolean{
+        return this.getPlayerBuildEffect(playerId).find(isIgnoreFieldCost) !== undefined
+    }
+
+    getReplaceResourceByGoldEffects(playerId:number):ReplaceResourceByGold[]{
+        return this.getPlayerBuildEffect(playerId).filter(isReplaceResourceByGold)
     }
 
 }
