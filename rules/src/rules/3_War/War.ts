@@ -9,6 +9,7 @@ import { ResourcesHelper } from "../helpers/ResourcesHelper"
 import { ScoreHelper } from "../helpers/ScoreHelper"
 import { Income } from "../4_Income/Income"
 import { RuleId } from "../RuleId"
+import { BuildHelper } from "../helpers/BuildHelper"
 
 export class War extends MaterialRulesPart {
 
@@ -18,8 +19,8 @@ export class War extends MaterialRulesPart {
         const playerPower = players.map(player => this.getPlayerPower(player))
         
         players.forEach((player, index) => {
-
             this.logAllPlayerUnitPower(player)
+            const buildHelper = new BuildHelper(this.game, player)
             const scoreHelper =  new ScoreHelper(this.game, player)
             const myPower = playerPower[index]
 
@@ -49,7 +50,14 @@ export class War extends MaterialRulesPart {
                 }
             }
 
-            console.log("Score gagné par le joueur ", player, " : ", warScoring)
+            console.log("Score gagné par le joueur ",player, " par les guerres gagnées : ", warScoring)
+
+            // Effets scoring peu importe la victoire
+            warScoring += buildHelper.getPlayerScoreAtWarBuildingEffects(player).reduce((acc, cur) => 
+                acc + buildHelper.getScoreFromBuilding(player, cur), 0
+            )
+
+            console.log("Score gagné par le joueur ",player, " Après application des bâtiments : ", warScoring)
             warScoring !==0 && moves.push(scoreHelper.gainOrLoseScore(player, warScoring))
 
         })
@@ -192,6 +200,7 @@ export class War extends MaterialRulesPart {
     }
 
     getPlayerPower(player:number){
+        const buildHelper = new BuildHelper(this.game, player)
         return this.getPlayerBoard(player).getItems()
             .reduce((acc, cur) => acc 
                 + (
@@ -205,7 +214,7 @@ export class War extends MaterialRulesPart {
                     ? this.getUnitPower(player, cur) 
                     : 0
                 )
-            ,0)
+            ,0) + buildHelper.getPlayerAddPowerBuildingEffects(player).reduce((acc, cur) => acc + buildHelper.getPowerAddedFromBuilding(player, cur), 0)
     }
 
     logAllPlayerUnitPower(player:number){

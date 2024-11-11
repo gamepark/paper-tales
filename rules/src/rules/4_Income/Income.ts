@@ -43,7 +43,7 @@ export class Income extends MaterialRulesPart {
 
     getIncomeFromBuilding(playerId:number):number{
         const buildHelper =  new BuildHelper(this.game, playerId)
-        const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId).filter(isIncomeType)
+        const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId)
         return effects.length === 0 
             ? 0
             : effects.reduce((acc, cur) => acc + this.getIncomeByEffect(playerId, cur, 0,0), 0)

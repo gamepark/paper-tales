@@ -1,10 +1,14 @@
 import { MaterialGame, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api";
 import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
+import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from "../../material/effects/3_WarEffects";
+import { IncomeEffect, isIncomeType } from "../../material/effects/4_IncomeEffects";
 import { Effect } from "../../material/effects/Effect";
 import { goldMoney } from "../../material/Gold";
 import { LocationType } from "../../material/LocationType";
 import { MaterialType } from "../../material/MaterialType";
 import { Resources } from "../../material/Resources";
+import { War } from "../3_War/War";
+import { Income } from "../4_Income/Income";
 import { ResourcesHelper } from "./ResourcesHelper";
 
 export class BuildHelper extends MaterialRulesPart {
@@ -91,7 +95,7 @@ export class BuildHelper extends MaterialRulesPart {
         return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
     }
 
-    getPlayerIncomeBuildingEffects(playerId:number):Effect[]{
+    getPlayerBuildingEffects(playerId:number):Effect[]{
         const effectsToReturn: Effect[] = []
         this.getPlayerBuildingsDone(playerId).getItems().forEach(item => {
             if (item.location.rotation === true){
@@ -102,8 +106,53 @@ export class BuildHelper extends MaterialRulesPart {
         return effectsToReturn
     }
 
+    getPlayerIncomeBuildingEffects(playerId:number):IncomeEffect[]{
+        return this.getPlayerBuildingEffects(playerId).filter(isIncomeType)
+    }
 
+    getPlayerWarBuildingEffects(playerId:number):WarEffect[]{
+        return this.getPlayerBuildingEffects(playerId).filter(isWarType)
+    }
 
+    getPlayerAddPowerBuildingEffects(playerId:number):AddWarPower[]{
+        return this.getPlayerWarBuildingEffects(playerId).filter(isAddWarPower)
+    }
 
+    getPlayerScoreAtWarBuildingEffects(playerId:number):ScoreAtWar[]{
+        return this.getPlayerWarBuildingEffects(playerId).filter(isScoreAtWar)
+    }
+
+    getPowerAddedFromBuilding(playerId:number, buildEffect:AddWarPower):number{
+        let add = 0
+        if (buildEffect.perAgeToken){
+            // No existing case, maybe for later
+        } else if (buildEffect.perResource) {
+            const resourcesHelper =  new ResourcesHelper(this.game, playerId)
+            buildEffect.perResource.forEach(resource => {
+                const ressources = resourcesHelper.getPlayerOneTypeResource(playerId, resource)
+                add += ressources * buildEffect.powerAdded
+            })
+        } else if (buildEffect.perGoldOnIncomePhase){
+            const incomeHelper = new Income(this.game)
+            const income = incomeHelper.getPlayerIncome(playerId)
+            add += income * buildEffect.powerAdded
+        } else {
+            add += buildEffect.powerAdded
+        }
+
+        return add
+    }
+
+    getScoreFromBuilding(playerId:number, buildEffect:ScoreAtWar):number{
+        if (buildEffect.perResource){
+            return buildEffect.amount * this.getPlayerResources(playerId).filter(res => res === buildEffect.perResource).length
+        } else if (buildEffect.perUnitStrongerThan){
+            const warHelper = new War(this.game)
+            const matchingUnitsQuantity = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).filter(item => warHelper.getUnitPower(playerId, item) >= buildEffect.perUnitStrongerThan!).getQuantity()
+            return buildEffect.amount * matchingUnitsQuantity
+        } else {
+            return buildEffect.amount
+        }
+    }
 
 }
