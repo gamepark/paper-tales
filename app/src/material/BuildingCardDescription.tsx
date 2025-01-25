@@ -1,10 +1,19 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { CardDescription } from '@gamepark/react-game'
-import Mine from '../images/buildings/en/level1/MineL1.jpg'
-import Barracks from '../images/buildings/en/level1/BarracksL1.jpg'
-import Tavern from '../images/buildings/en/level1/TavernL1.jpg'
-import Temple from '../images/buildings/en/level1/TempleL1.jpg'
-import Town from '../images/buildings/en/level1/TownL1.jpg'
+import { CardDescription, ItemContext } from '@gamepark/react-game'
+import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
+import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
+import Tavern1 from '../images/buildings/en/level1/TavernL1.jpg'
+import Temple1 from '../images/buildings/en/level1/TempleL1.jpg'
+import Town1 from '../images/buildings/en/level1/TownL1.jpg'
+import Mine2 from '../images/buildings/en/level2/MineL2.jpg'
+import Barracks2 from '../images/buildings/en/level2/BarracksL2.jpg'
+import Tavern2 from '../images/buildings/en/level2/TavernL2.jpg'
+import Temple2 from '../images/buildings/en/level2/TempleL2.jpg'
+import Town2 from '../images/buildings/en/level2/TownL2.jpg'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { isMoveItem, MaterialMove } from '@gamepark/rules-api'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+
 
 
 export class BuildingCardDescription extends CardDescription {
@@ -14,15 +23,32 @@ export class BuildingCardDescription extends CardDescription {
   
   
   //Image en EN.
+
+  backImages = {
+    [Building.Mine] : Mine2,
+    [Building.Barracks] : Barracks2,
+    [Building.Tavern] : Tavern2,
+    [Building.Temple] : Temple2,
+    [Building.Town] : Town2,
+  }
+
     images = {
-      [Building.Mine] : Mine,
-      [Building.Barracks] : Barracks,
-      [Building.Tavern] : Tavern,
-      [Building.Temple] : Temple,
-      [Building.Town] : Town,
+      [Building.Mine] : Mine1,
+      [Building.Barracks] : Barracks1,
+      [Building.Tavern] : Tavern1,
+      [Building.Temple] : Temple1,
+      [Building.Town] : Town1,
 
     }
-  
+
+    canDrag(move: MaterialMove, context: ItemContext): boolean {
+      const isFaceDown = isMoveItem(move) && move.itemType === MaterialType.Building && move.location.type === LocationType.PlayerBuildingHand && move.location.rotation
+      if (isFaceDown && !context.rules.material(MaterialType.Building).getItem(move.itemIndex).location.rotation) {
+        return false
+      }
+      return super.canDrag(move, context)
+    }
+    
   }
   
   export const buildingCardDescription = new BuildingCardDescription()
