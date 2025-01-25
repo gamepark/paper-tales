@@ -18,19 +18,22 @@ export class Build extends SimultaneousRule {
 
         const moves:MaterialMove[] = []
         const buildHelper =  new BuildHelper(this.game, playerId)
+        const fieldCost = buildHelper.hasIgnoreFieldCostEffect(playerId) ? 0 : this.getFieldCost(playerId)
 
         // Passages aux niveaux 2
         moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(item => 
-               buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2)
-            || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2Alternate))
+               buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2,0)
+            || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2Alternate,0))
             ).moveItems({rotation:true}))
+        
+        // Achats à partir de rien
         
         if(buildHelper.hasIgnoreFieldCostEffect(playerId) || buildHelper.getPlayerGold(playerId) >= this.getFieldCost(playerId)){
             // Achats au niveau 1 
             moves.push(
                 ...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => 
-                       buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1)
-                    || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1Alternate))
+                       buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1, fieldCost)
+                    || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1Alternate, fieldCost))
                     ).moveItems({
                         type:LocationType.PlayerBuildingBoard, 
                         player:playerId, 
@@ -40,10 +43,10 @@ export class Build extends SimultaneousRule {
             )
             // Achats au niveau 2
             moves.push(...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => 
-                   buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2])
-                || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2]))
-                || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2Alternate]))
-                || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2Alternate]))
+                   buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2], fieldCost)
+                || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2], fieldCost))
+                || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2Alternate], fieldCost))
+                || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2Alternate], fieldCost))
             ).moveItems({
                     type:LocationType.PlayerBuildingBoard, 
                     player:playerId, 
@@ -64,7 +67,7 @@ export class Build extends SimultaneousRule {
         if (isMoveItemType(MaterialType.Building)(move)){
             const buildHelper =  new BuildHelper(this.game, move.location.player!)
 
-            if (this.getFieldCost(move.location.player!) > 0){
+            if (this.getFieldCost(move.location.player!) > 0 && buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === false){
                 moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : move.location.player!}, -this.getFieldCost(move.location.player!)))
             }
 
@@ -73,19 +76,22 @@ export class Build extends SimultaneousRule {
             const buildingId = this.material(MaterialType.Building).index((index) => index === move.itemIndex).getItem()
 
             if (move.location.rotation === false){
-                moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1))
+                moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0))
             } else {
                 // Cas difficile : comment distinguer un build direct lvl 2 ou juste un passage lvl1 à lvl2 ?
                 // On suppose qu'on peut le faire avant le material move, à vérifier en test
-                const isComingFromHand = this.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(move.location.player!).getItem(item => item.id === buildingId!.id) !== undefined
+                const isComingFromHand = this.material(MaterialType.Building)
+                                             .location(LocationType.PlayerBuildingHand)
+                                             .player(move.location.player!)
+                                             .getItem(item => item.id === buildingId!.id) !== undefined
                 if (isComingFromHand){
                     // On doit checker les deux coûts
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1))
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2))
+                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0))
+                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0))
 
                 } else {
                     // On en check que le cout lvl 2
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2))
+                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0))
                 }
             }
 
@@ -98,7 +104,7 @@ export class Build extends SimultaneousRule {
 
         const moves:MaterialMove[] = []
         if (isMoveItemType(MaterialType.Building)(move)){
-            moves.push(this.endPlayerTurn(move.location.player!))
+            // moves.push(this.endPlayerTurn(move.location.player!))
         }
         return moves
         

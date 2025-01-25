@@ -63,19 +63,25 @@ export class BuildHelper extends MaterialRulesPart {
      * @param level - L'étape du bâtiment que l'on considère,
      * @returns - Un tableau contenant le move dépensant l'or.
      */
-    getGoldToPayCostMove(playerId:number, buildingId:number, level:number):MaterialMove[]{
+    getGoldToPayCostMove(playerId:number, buildingId:number, level:number, fieldCost:number):MaterialMove[]{
         console.log(buildingId)
         const moves : MaterialMove[] = []
         const cost = level === 1 ? buildingCardCaracteristics[buildingId].cost1 : buildingCardCaracteristics[buildingId].cost2
         const costAlternate = level === 1 ? buildingCardCaracteristics[buildingId].cost1Alternate : buildingCardCaracteristics[buildingId].cost2Alternate
-        const goldToPay = this.canBuildCost(playerId,cost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
+        const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
         
         goldToPay > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : playerId}, -goldToPay))
 
         return moves
     }
-
-    canBuildCost(playerId:number, cost:Resources[]){
+    /**
+     * Retourne un booléen indiquant si le bâtiment peut être construit ou non.
+     * @param playerId - L'Id du joueur
+     * @param cost - le coût du bâtiment
+     * @param fieldCost - Le coût du terrain
+     * @returns Un booléen indiquand si le bâtiment peut être construit
+     */
+    canBuildCost(playerId:number, cost:Resources[], fieldCost:number):boolean{
         const goldCost = cost.filter(resource => resource === Resources.Gold).length
         const woodCost = cost.filter(resource => resource === Resources.Wood).length
         const FoodCost = cost.filter(resource => resource === Resources.Food).length
@@ -91,7 +97,7 @@ export class BuildHelper extends MaterialRulesPart {
         // const canReplaceFoodByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Food))
         // const canReplaceDiamondByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Diamond))
 
-        return playerGold >= goldCost 
+        return playerGold >= (goldCost + fieldCost) 
             && playerWood >=  woodCost  
             && playerFood >= FoodCost 
             && playerDiamond >= DiamondCost
@@ -105,9 +111,9 @@ export class BuildHelper extends MaterialRulesPart {
         const effectsToReturn: Effect[] = []
         this.getPlayerBuildingsDone(playerId).getItems().forEach(item => {
             if (item.location.rotation === true){
-                effectsToReturn.push(...buildingCardCaracteristics[item.id].effect2)
+                buildingCardCaracteristics[item.id].effect2 !== undefined && effectsToReturn.push(...buildingCardCaracteristics[item.id].effect2)
             } 
-            effectsToReturn.push(...buildingCardCaracteristics[item.id].effect1)
+            buildingCardCaracteristics[item.id].effect1 !== undefined && effectsToReturn.push(...buildingCardCaracteristics[item.id].effect1)
         })
         return effectsToReturn
     }
