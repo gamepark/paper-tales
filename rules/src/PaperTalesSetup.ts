@@ -5,7 +5,7 @@ import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { RuleId } from './rules/RuleId'
-import { theRealDeck } from './material/Unit'
+import { theRealDeck, Unit } from './material/Unit'
 import { Gold } from './material/Gold'
 import { buildings } from './material/Building'
 
@@ -38,7 +38,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       this.material(MaterialType.Gold).createItem({
         id: Gold.Gold1,
         location: { type: LocationType.PlayerGoldStock, player },
-        quantity:3
+        quantity:10
       })
 
       const items = buildings.map(building => ({
@@ -50,20 +50,20 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
 
       // For testing
       //const testCard1 = theRealDeck.find(item => item === Unit.ForestSpirit)
-      //const testCard2 = theRealDeck.find(item => item === Unit.Farmer)
-      //const testArray = [testCard1, testCard2]
-      //const testItems = testArray.map((unit, index) => ({
-      //  id:unit,
-      //  location: { type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:index, y:0 }
-      //}))
-      //this.material(MaterialType.Unit).createItems(testItems)
+      const testCard2 = theRealDeck.find(item => item === Unit.WoodMerchant)
+      const testArray = [testCard2]
+      const testItems = testArray.map((unit, index) => ({
+        id:unit,
+        location: { type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:index, y:0 }
+      }))
+      this.material(MaterialType.Unit).createItems(testItems)
       
     })
 
   }
 
   start() {
-    this.startPlayerTurn(RuleId.Deal, this.game.players[0])
-    // this.startSimultaneousRule(RuleId.Build)
+    //this.startPlayerTurn(RuleId.Deal, this.game.players[0])
+     this.startSimultaneousRule(RuleId.Build)
   }
 }

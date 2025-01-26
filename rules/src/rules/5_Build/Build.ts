@@ -7,6 +7,7 @@ import { MaterialType } from "../../material/MaterialType";
 import { AgeHelper } from "../helpers/AgeHelper";
 import { BuildHelper } from "../helpers/BuildHelper";
 import { RuleId } from "../RuleId";
+import { BuildWithSubstitution } from "./BuildWithSubstitution";
 
 export class Build extends SimultaneousRule {
 
@@ -18,26 +19,35 @@ export class Build extends SimultaneousRule {
 
         const moves:MaterialMove[] = []
         const buildHelper =  new BuildHelper(this.game, playerId)
-        const fieldCost = buildHelper.hasIgnoreFieldCostEffect(playerId) ? 0 : this.getFieldCost(playerId)
+        const fieldCost = buildHelper.hasIgnoreFieldCostEffect(playerId) ? 0 : buildHelper.getFieldCost(playerId)
+        const buildWithSubstitution = new BuildWithSubstitution(this.game)
 
         // Passages aux niveaux 2
         moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(item => 
                buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2,0)
             || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2Alternate,0))
             ).moveItems({rotation:true}))
+
+        moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(buildItem => 
+            buildHelper.canBuildCost(playerId, buildingCardCaracteristics[buildItem.id].cost2,0)
+            || (buildHelper.hasAlternateCost(buildItem.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[buildItem.id].cost2Alternate,0))
+            || buildWithSubstitution.canBuildWithSubstitution(playerId, buildingCardCaracteristics[buildItem.id].cost2, 0)
+        ).moveItems({rotation:true}))
         
         // Achats à partir de rien
         
-        if(buildHelper.hasIgnoreFieldCostEffect(playerId) || buildHelper.getPlayerGold(playerId) >= this.getFieldCost(playerId)){
+        if(buildHelper.getPlayerGold(playerId) >= fieldCost){
             // Achats au niveau 1 
             moves.push(
                 ...buildHelper.getPlayerBuildingUnplayed(playerId).filter(item => 
                        buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1, fieldCost)
                     || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost1Alternate, fieldCost))
+                    
+                    || (buildWithSubstitution.canBuildWithSubstitution(playerId, buildingCardCaracteristics[item.id].cost1, fieldCost))
                     ).moveItems({
                         type:LocationType.PlayerBuildingBoard, 
                         player:playerId, 
-                        y:this.getPlayerBuildingQuantity(playerId), 
+                        y:buildHelper.getPlayerBuildingQuantity(playerId), 
                         rotation:false
                     })
             )
@@ -47,13 +57,19 @@ export class Build extends SimultaneousRule {
                 || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2], fieldCost))
                 || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2Alternate], fieldCost))
                 || (buildHelper.hasAlternateCost(item.id, 1) && buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2Alternate], fieldCost))
+                
+                || (buildWithSubstitution.canBuildWithSubstitution(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2], fieldCost))
+                || (buildHelper.hasAlternateCost(item.id, 1) && buildWithSubstitution.canBuildWithSubstitution(playerId, [...buildingCardCaracteristics[item.id].cost1Alternate, ...buildingCardCaracteristics[item.id].cost2], fieldCost))
+                || (buildHelper.hasAlternateCost(item.id, 2) && buildWithSubstitution.canBuildWithSubstitution(playerId, [...buildingCardCaracteristics[item.id].cost1, ...buildingCardCaracteristics[item.id].cost2Alternate], fieldCost))
+
             ).moveItems({
                     type:LocationType.PlayerBuildingBoard, 
                     player:playerId, 
-                    y:this.getPlayerBuildingQuantity(playerId), 
+                    y:buildHelper.getPlayerBuildingQuantity(playerId), 
                     rotation:true
             }))
         }
+
         // Passer sans construire
         moves.push(this.endPlayerTurn(playerId))
    
@@ -67,8 +83,8 @@ export class Build extends SimultaneousRule {
         if (isMoveItemType(MaterialType.Building)(move)){
             const buildHelper =  new BuildHelper(this.game, move.location.player!)
 
-            if (this.getFieldCost(move.location.player!) > 0 && buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === false){
-                moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : move.location.player!}, -this.getFieldCost(move.location.player!)))
+            if (buildHelper.getFieldCost(move.location.player!) > 0 && buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === false){
+                moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : move.location.player!}, -buildHelper.getFieldCost(move.location.player!)))
             }
 
             // Comment s'assurer que le joueur paye de l'or s'il le doit ?
@@ -132,14 +148,6 @@ export class Build extends SimultaneousRule {
             return [this.startRule(RuleId.AgeEffects)]
         }
 
-    }
-
-    getFieldCost(playerId:number){
-        return this.getPlayerBuildingQuantity(playerId) * 2
-    }
-
-    getPlayerBuildingQuantity(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
     }
 
     getPlayerBoard(playerId:number){

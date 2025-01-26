@@ -358,7 +358,11 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.WoodMerchant]: { 
         cost: 0, 
-        power: 1
+        power: 1,
+        effect:[{
+            type:EffectType.ReplaceResourceByGold,
+            resource:[Resources.Wood]
+        }]
     },
     [Unit.Strategist]: { 
         cost: 3, 

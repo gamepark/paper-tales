@@ -93,10 +93,6 @@ export class BuildHelper extends MaterialRulesPart {
         const playerFood = playerResources.filter(resources => resources === Resources.Food).length
         const playerDiamond = playerResources.filter(resources => resources === Resources.Diamond).length
 
-        // const canReplaceWoodByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Wood))
-        // const canReplaceFoodByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Food))
-        // const canReplaceDiamondByGold = this.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Diamond))
-
         return playerGold >= (goldCost + fieldCost) 
             && playerWood >=  woodCost  
             && playerFood >= FoodCost 
@@ -181,6 +177,14 @@ export class BuildHelper extends MaterialRulesPart {
 
     getReplaceResourceByGoldEffects(playerId:number):ReplaceResourceByGold[]{
         return this.getPlayerBuildEffect(playerId).filter(isReplaceResourceByGold)
+    }
+
+    getFieldCost(playerId:number){
+        return this.getPlayerBuildingQuantity(playerId) * 2
+    }
+
+    getPlayerBuildingQuantity(playerId:number){
+        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
     }
 
 }
