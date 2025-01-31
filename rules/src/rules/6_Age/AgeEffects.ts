@@ -29,7 +29,6 @@ export class AgeEffects extends MaterialRulesPart {
 
                         switch(eff.whoDies){
                             case WhichUnit.Myself: 
-                            console.log("coucou : ", eff)
                                 if (ageHelper.isUnitDying(player, unit)){
 
                                     if (eff.perAgeToken){

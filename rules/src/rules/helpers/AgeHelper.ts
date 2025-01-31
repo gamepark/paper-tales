@@ -1,4 +1,5 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
+import { ageMoney } from "../../material/Age";
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from "../../material/effects/6_AgeEffects";
 import { Effect } from "../../material/effects/Effect";
 import { LocationType } from "../../material/LocationType";
@@ -12,14 +13,14 @@ export class AgeHelper extends MaterialRulesPart {
       super(game)
     }
 
-    howManyAgeTokenOnCoord(playerId:number, x:number, y:number):number{
-        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(playerId).filter(item => item.location.x === x && item.location.y === y).getQuantity()
+    howManyAgeTokenOnIndex(targetIndex:number):number{
+        return ageMoney.count(this.material(MaterialType.Age).location(LocationType.OnCard).parent(targetIndex))
     }
 
-    getAgeTokenOnCoord(playerId:number, x:number, y:number):Material<number, number, number>{
+    getAgeTokenOnIndex(targetIndex:number):Material<number, number, number>{
         return this.material(MaterialType.Age)
-            .location(loc => loc.type === LocationType.PlayerUnitBoard && loc.x === x && loc.y === y)
-            .player(playerId)
+            .location(LocationType.OnCard)
+            .parent(targetIndex)
     }
 
     getPlayerAgingUnits(playerId:number){
@@ -61,7 +62,7 @@ export class AgeHelper extends MaterialRulesPart {
     }
 
     getPlayerDyingUnits(playerId:number){
-        return this.getPlayerUnits(playerId).filter(item => this.howManyAgeTokenOnCoord(playerId, item.location.x!, item.location.y!) > 0)
+        return this.getPlayerUnits(playerId).filter((_item, index) => this.howManyAgeTokenOnIndex(index) > 0)
     }
 
     // Effects

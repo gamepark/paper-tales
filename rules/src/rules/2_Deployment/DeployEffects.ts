@@ -1,4 +1,4 @@
-import { MaterialItem, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
+import { Material, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
 import { ageMoney } from "../../material/Age"
 import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../../material/effects/2_DeploymentEffects"
 import { Effect, WhichBuilding, WhichUnit } from "../../material/effects/Effect"
@@ -29,7 +29,7 @@ export class DeployEffects extends SimultaneousRule {
             let scoreToAdd = 0
             let manuelEffectToDo = false
 
-            playerUnitBoard.forEach(unit => {
+            for (const [index, unit] of playerUnitBoard.entries){
                 const unitCaracs:UnitPattern = unitCardCaracteristics[unit.id]
                 if (unitCaracs.effect !== undefined){
                     const unitEffects:Effect[] = unitCardCaracteristics[unit.id].effect
@@ -45,19 +45,23 @@ export class DeployEffects extends SimultaneousRule {
                                         // No case in base game, but should consider Djinn for later
                                     }
 
-
                                 } else if (isShapeshifter(eff)){
                                     // TODO : How to manage this fucking unit
                                 } else if (isGainAgeToken(eff)){
                                     if (eff.whichUnit === WhichUnit.Myself){
-                                        moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.PlayerUnitBoard, x:unit.location.x!, y:unit.location.y!, player}, eff.amount))
+                                        console.log("index : ", index)
+                                        moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.OnCard, parent:index}, eff.amount))
                                     } else if (eff.whichUnit === WhichUnit.All){
                                         // No case in whole game
                                     } else if (eff.whichUnit === WhichUnit.Others){
-                                        const spaceToFill = this.getBoardSpacesCoordinates(player).filter(space => space.x !== unit.location.x || space.y !== unit.location.y)
-                                        spaceToFill.forEach(space => {
-                                            moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.PlayerUnitBoard, x:space.x, y:space.y, player}, eff.amount))
-                                        })
+
+                                        for (const entry of playerUnitBoard.entries){
+                                            const spaceIndex = entry[0]
+                                            if (spaceIndex !== index){
+                                                moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.OnCard, parent:spaceIndex}, eff.amount))
+                                            }
+                                        }
+
                                     }
 
                                 } else if (isGainTokenOnDeploy(eff)){
@@ -79,7 +83,7 @@ export class DeployEffects extends SimultaneousRule {
                         }
                     })
                 }
-            })
+            }
 
             if (manuelEffectToDo === false){
                 moves.push(this.endPlayerTurn(player))
@@ -108,8 +112,8 @@ export class DeployEffects extends SimultaneousRule {
         return [this.startRule(RuleId.War)]
     }
 
-    getPlayerUnits(player:number):MaterialItem<number, number, any>[]{
-        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).getItems()
+    getPlayerUnits(player:number):Material<number, number, number>{
+        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
     }
 
     getBoardSpacesCoordinates(player: number) {
@@ -121,7 +125,7 @@ export class DeployEffects extends SimultaneousRule {
     }
 
     getManuelDeploymentEffects(player:number){
-        return this.getPlayerUnits(player).filter(item => item.id !== undefined && isManualDeploymentEffect(unitCardCaracteristics[item.id].effect))
+        return this.getPlayerUnits(player).getItems().filter(item => item.id !== undefined && isManualDeploymentEffect(unitCardCaracteristics[item.id].effect))
     }
 
 }

@@ -14,18 +14,18 @@ export class AgeUnitsAge extends MaterialRulesPart {
         // Dying Phase
         players.forEach(player => {
             const ageHelper = new AgeHelper(this.game, player)
-
-            ageHelper.getPlayerAgingUnits(player).getItems().forEach(item => {
+            const ageUnitsEntries = ageHelper.getPlayerAgingUnits(player).entries
+            for (const entry of ageUnitsEntries){
+                const index = entry[0]
                 moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {
-                    type:LocationType.PlayerUnitBoard,
+                    type:LocationType.OnCard,
                     player,
-                    x:item.location.x!,
-                    y:item.location.y!}, 1
+                    parent:index}, 1
                 ))
-            })
+            }
         })
-        moves.push(this.getTurn() === 4 ? this.startRule(RuleId.EndGame) : this.startRule(RuleId.NextTurn))
 
+        moves.push(this.getTurn() === 4 ? this.startRule(RuleId.EndGame) : this.startRule(RuleId.NextTurn))
         return moves
     }
 

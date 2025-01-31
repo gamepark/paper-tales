@@ -14,19 +14,18 @@ export class AgeUnitsDie extends MaterialRulesPart {
         players.forEach(player => {
             const ageHelper = new AgeHelper(this.game, player)
             const dyingUnits = ageHelper.getPlayerDyingUnits(player)
-            moves.push(...dyingUnits.moveItems({type : LocationType.Discard}))
-
-            dyingUnits.getItems().forEach(item => {
-                const ageTokensToDiscard = ageHelper.getAgeTokenOnCoord(player, item.location.x!, item.location.y!)
+            for (const [index, _item] of dyingUnits.entries){
+                const ageTokensToDiscard = ageHelper.getAgeTokenOnIndex(index)
                 moves.push(...ageMoney.createOrDelete(ageTokensToDiscard, 
-                    {type:LocationType.PlayerUnitBoard, player, x:item.location.x, y:item.location.y},
+                    {type:LocationType.OnCard, player, parent:index},
                     -ageMoney.count(ageTokensToDiscard)))
-            })
+            }
+
+            moves.push(...dyingUnits.moveItems({type : LocationType.Discard}))
 
         })
 
         moves.push(this.startRule(RuleId.AgeUnitsAge))
-
         return moves
     }
 
