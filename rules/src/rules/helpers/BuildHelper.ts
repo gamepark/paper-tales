@@ -11,6 +11,7 @@ import { Resources } from "../../material/Resources";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
 import { War } from "../3_War/War";
 import { Income } from "../4_Income/Income";
+import { BuildWithSubstitution } from "../5_Build/BuildWithSubstitution";
 import { ResourcesHelper } from "./ResourcesHelper";
 
 export class BuildHelper extends MaterialRulesPart {
@@ -64,11 +65,34 @@ export class BuildHelper extends MaterialRulesPart {
      * @returns - Un tableau contenant le move dépensant l'or.
      */
     getGoldToPayCostMove(playerId:number, buildingId:number, level:number, fieldCost:number):MaterialMove[]{
-        console.log(buildingId)
         const moves : MaterialMove[] = []
+        const buildWithSubstitution = new BuildWithSubstitution(this.game)
         const cost = level === 1 ? buildingCardCaracteristics[buildingId].cost1 : buildingCardCaracteristics[buildingId].cost2
         const costAlternate = level === 1 ? buildingCardCaracteristics[buildingId].cost1Alternate : buildingCardCaracteristics[buildingId].cost2Alternate
-        const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
+        let goldToPay = 0
+
+        if (costAlternate === undefined){
+            if (this.canBuildCost(playerId,cost, fieldCost) === false){
+                // Substitution
+                goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(cost, playerId).length
+            }
+            goldToPay += this.getGoldInBuildingCost(cost)
+            // Cas nominal
+        } else {
+            // Cas du temple
+            if (this.canBuildCost(playerId,cost, fieldCost) === true){
+                goldToPay = this.getGoldInBuildingCost(cost)
+            } else {
+                // On préfèrera toujours payer le coût en substitution plutôt que le coût alternatif.
+                if (buildWithSubstitution.canBuildWithSubstitution(playerId, cost, fieldCost) === true){
+                    goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(cost, playerId).length
+                } else {
+                    goldToPay = this.getGoldInBuildingCost(costAlternate)
+                }
+            }
+        }
+
+        // const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
         
         goldToPay > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : playerId}, -goldToPay))
 

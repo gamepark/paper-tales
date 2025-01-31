@@ -24,13 +24,13 @@ export class BuildingCardDescription extends CardDescription {
   
   //Image en EN.
 
-  backImages = {
-    [Building.Mine] : Mine2,
-    [Building.Barracks] : Barracks2,
-    [Building.Tavern] : Tavern2,
-    [Building.Temple] : Temple2,
-    [Building.Town] : Town2,
-  }
+    backImages = {
+      [Building.Mine] : Mine2,
+      [Building.Barracks] : Barracks2,
+      [Building.Tavern] : Tavern2,
+      [Building.Temple] : Temple2,
+      [Building.Town] : Town2,
+    }
 
     images = {
       [Building.Mine] : Mine1,

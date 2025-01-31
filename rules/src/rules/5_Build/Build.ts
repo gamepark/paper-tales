@@ -79,35 +79,44 @@ export class Build extends SimultaneousRule {
     beforeItemMove(move: ItemMove<number, number, number>, _context?: PlayMoveContext | undefined): MaterialMove<number, number, number>[] {
         const moves:MaterialMove[] = []
 
-
         if (isMoveItemType(MaterialType.Building)(move)){
             const buildHelper =  new BuildHelper(this.game, move.location.player!)
+            const fieldCost = buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === true ? 0 : buildHelper.getFieldCost(move.location.player!)
+            const buildingId = this.material(MaterialType.Building).index((index) => index === move.itemIndex).getItem()
+            const isComingFromHand = this.material(MaterialType.Building)
+                .location(LocationType.PlayerBuildingHand)
+                .player(move.location.player!)
+                .getItem(item => item.id === buildingId!.id) !== undefined
 
-            if (buildHelper.getFieldCost(move.location.player!) > 0 && buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === false){
-                moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : move.location.player!}, -buildHelper.getFieldCost(move.location.player!)))
-            }
+            // Vient de la main --> Cout de terrain
+            if (isComingFromHand === true){
+                if ( fieldCost > 0){
+                    moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : move.location.player!}, -buildHelper.getFieldCost(move.location.player!)))
+                }
+            } 
 
             // Comment s'assurer que le joueur paye de l'or s'il le doit ?
             // Cas facile : niveau 1, ça vient forcément de sa main
-            const buildingId = this.material(MaterialType.Building).index((index) => index === move.itemIndex).getItem()
 
             if (move.location.rotation === false){
-                moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0))
+                const goldToPayMove = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0)
+                goldToPayMove.length !== 0 && moves.push(...goldToPayMove)
+                
             } else {
                 // Cas difficile : comment distinguer un build direct lvl 2 ou juste un passage lvl1 à lvl2 ?
                 // On suppose qu'on peut le faire avant le material move, à vérifier en test
-                const isComingFromHand = this.material(MaterialType.Building)
-                                             .location(LocationType.PlayerBuildingHand)
-                                             .player(move.location.player!)
-                                             .getItem(item => item.id === buildingId!.id) !== undefined
+
                 if (isComingFromHand){
                     // On doit checker les deux coûts
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0))
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0))
+                    const goldToPayMove1 = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0)
+                    const goldToPayMove2 = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0)
+                    goldToPayMove1.length !== 0 && moves.push(...goldToPayMove1)
+                    goldToPayMove2.length !== 0 && moves.push(...goldToPayMove2)
 
                 } else {
                     // On en check que le cout lvl 2
-                    moves.push(...buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0))
+                    const goldToPayMove = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0)
+                    goldToPayMove.length !== 0 && moves.push(...goldToPayMove)
                 }
             }
 
@@ -120,7 +129,7 @@ export class Build extends SimultaneousRule {
 
         const moves:MaterialMove[] = []
         if (isMoveItemType(MaterialType.Building)(move)){
-            // moves.push(this.endPlayerTurn(move.location.player!))
+            moves.push(this.endPlayerTurn(move.location.player!))
         }
         return moves
         
