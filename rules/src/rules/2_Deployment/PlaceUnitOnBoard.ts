@@ -49,6 +49,29 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         return moves
     }
 
+    beforeItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
+        const moves: MaterialMove[] = []
+
+
+        if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard){
+
+            const myCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard)
+
+            console.log(myCards.getIndexes(), move.itemIndex) 
+
+            const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
+            const theMove = ageMoney.createOrDelete(ageTokens,
+                {type:LocationType.OnCard, parent:move.itemIndex},
+                -ageTokens.getQuantity()
+            )
+            console.log(theMove)
+            moves.push(...theMove)
+
+        }
+
+        return moves
+    }
+
     afterItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
 
         const moves: MaterialMove[] = []
@@ -59,18 +82,16 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
                 cardsPlayedIndexes.push(move.itemIndex)
                 this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
             } else if (move.location.type === LocationType.Discard){
-
-                this.game.players.forEach(player => {
-                    this.getRemainingSpaces(player).forEach(space => {
-                        const ageTokens = this.getAgeTokensOnSpot(player, space.x, space.y)
-                        if (ageTokens.length > 0){
-                            moves.push(...ageMoney.createOrDelete(ageTokens, 
-                                {type:LocationType.PlayerUnitBoard, player, x:space.x, y:space.y},
-                                -ageMoney.count(ageTokens)
-                            ))
-                        }
-                    })
-                })
+                const discardedUnit = this.material(MaterialType.Unit).location(LocationType.Discard)
+                for (const [index, _item] of discardedUnit.entries){
+                    const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(index)
+                    if(this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity() > 0){
+    
+                        moves.push(...ageMoney.createOrDelete(ageTokens, 
+                            {type:LocationType.OnCard, parent:index},
+                            -ageTokens.getQuantity()))
+                    }
+                }
             }
         } 
 
