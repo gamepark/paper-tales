@@ -27,6 +27,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         const goldRemainingToSpend = playerGold - goldAlreadyToSpend
         const playerHand = this.getPlayerHand(playerId)
         const playerHandPlayable = playerHand.filter(item => unitCardCaracteristics[item.id].cost <= goldRemainingToSpend)
+        const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).index((index) => !placedIndexes.includes(index))
 
         moves.push(...remainingSpaces.flatMap((space) => {
             return [
@@ -39,7 +40,19 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
             ]
         }))
 
-        moves.push(...this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).index((index) => !placedIndexes.includes(index)).moveItems({
+
+        moves.push(...remainingSpaces.flatMap((space) => {
+            return[
+                ...playerUnitsAlreadyPlayed.moveItems({
+                    type: LocationType.PlayerUnitBoard,
+                    player: playerId,
+                    x: space.x, y: space.y,
+                    rotation: false
+                })
+            ]
+        }))
+
+        moves.push(...playerUnitsAlreadyPlayed.moveItems({
             type: LocationType.Discard
         }))
 
@@ -53,20 +66,20 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         const moves: MaterialMove[] = []
 
 
-        if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard){
+        if (isMoveItemType(MaterialType.Unit)(move)){
+            if (move.location.type === LocationType.Discard){
+                const myCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard)
 
-            const myCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard)
-
-            console.log(myCards.getIndexes(), move.itemIndex) 
-
-            const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
-            const theMove = ageMoney.createOrDelete(ageTokens,
-                {type:LocationType.OnCard, parent:move.itemIndex},
-                -ageTokens.getQuantity()
-            )
-            console.log(theMove)
-            moves.push(...theMove)
-
+                console.log(myCards.getIndexes(), move.itemIndex) 
+    
+                const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
+                const theMove = ageMoney.createOrDelete(ageTokens,
+                    {type:LocationType.OnCard, parent:move.itemIndex},
+                    -ageTokens.getQuantity()
+                )
+                console.log(theMove)
+                moves.push(...theMove)
+            } 
         }
 
         return moves
@@ -77,29 +90,18 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         const moves: MaterialMove[] = []
 
         if (isMoveItemType(MaterialType.Unit)(move)){
-            if (move.location.type === LocationType.PlayerUnitBoard){
+            if (move.location.type === LocationType.PlayerUnitBoard && move.location.rotation === true){
                 const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
                 cardsPlayedIndexes.push(move.itemIndex)
                 this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
-            } else if (move.location.type === LocationType.Discard){
-                const discardedUnit = this.material(MaterialType.Unit).location(LocationType.Discard)
-                for (const [index, _item] of discardedUnit.entries){
-                    const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(index)
-                    if(this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity() > 0){
-    
-                        moves.push(...ageMoney.createOrDelete(ageTokens, 
-                            {type:LocationType.OnCard, parent:index},
-                            -ageTokens.getQuantity()))
-                    }
-                }
-            }
+            } 
         } 
 
         return moves
 
     }
 
-    getMovesAfterPlayersDone(): MaterialMove[] {
+    getMovesAfterPlayersDone(): MaterialMove[] {  
         return [this.startRule(RuleId.RevealBoards)]
     }
 
