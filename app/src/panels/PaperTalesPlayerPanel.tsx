@@ -64,7 +64,8 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
 
   {
     image: gold, 
-    value: buildHelper.getPlayerGold(player.id)
+    value: buildHelper.getPlayerGold(player.id),
+    imageCss:css`border-radius:100%;`
   },
 
   {
