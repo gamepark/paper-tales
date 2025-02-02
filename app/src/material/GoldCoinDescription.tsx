@@ -2,6 +2,7 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { ComponentSize, MoneyDescription } from '@gamepark/react-game'
 import Gold1 from '../images/tokens/Gold1.jpg'
 import Gold5 from '../images/tokens/Gold5.jpg'
+import { GoldCoinHelp } from './help/GoldCoinHelp'
 
 class GoldCoinDescription extends MoneyDescription {
   borderRadius = 2
@@ -20,6 +21,8 @@ class GoldCoinDescription extends MoneyDescription {
     { id: 1, quantity: 10, location: this.stockLocation },
     { id: 5, quantity: 5, location: this.stockLocation }
   ]
+
+  help = GoldCoinHelp
 
 }
 
