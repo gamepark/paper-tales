@@ -1,5 +1,4 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { ageMoney } from "../../material/Age"
 import { LocationType } from "../../material/LocationType"
 import { MaterialType } from "../../material/MaterialType"
 import { AgeHelper } from "../helpers/AgeHelper"
@@ -17,11 +16,11 @@ export class AgeUnitsAge extends MaterialRulesPart {
             const ageUnitsEntries = ageHelper.getPlayerAgingUnits(player).entries
             for (const entry of ageUnitsEntries){
                 const index = entry[0]
-                moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {
-                    type:LocationType.OnCard,
-                    player,
-                    parent:index}, 1
-                ))
+
+                moves.push(this.material(MaterialType.Age).createItem({
+                    location: { type: LocationType.OnCard, parent: index },
+                    quantity: 1
+                }))
             }
         })
 

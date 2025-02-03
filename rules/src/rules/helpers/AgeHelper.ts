@@ -1,5 +1,4 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from "@gamepark/rules-api";
-import { ageMoney } from "../../material/Age";
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from "../../material/effects/6_AgeEffects";
 import { Effect } from "../../material/effects/Effect";
 import { LocationType } from "../../material/LocationType";
@@ -14,7 +13,7 @@ export class AgeHelper extends MaterialRulesPart {
     }
 
     howManyAgeTokenOnIndex(targetIndex:number):number{
-        return ageMoney.count(this.material(MaterialType.Age).location(LocationType.OnCard).parent(targetIndex))
+        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(targetIndex).getQuantity()
     }
 
     getAgeTokenOnIndex(targetIndex:number):Material<number, number, number>{

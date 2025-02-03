@@ -5,7 +5,6 @@ import { RuleId } from "../RuleId";
 import { Memory } from "../Memory";
 import { DiscardRemainingUnits } from "./DiscardRemainingUnits";
 import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
-import { ageMoney } from "../../material/Age";
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
 
@@ -65,20 +64,13 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     beforeItemMove(move: ItemMove): MaterialMove<number, number, number>[] {
         const moves: MaterialMove[] = []
 
-
         if (isMoveItemType(MaterialType.Unit)(move)){
-            if (move.location.type === LocationType.Discard){
-                const myCards = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard)
-
-                console.log(myCards.getIndexes(), move.itemIndex) 
-    
+            if (move.location.type === LocationType.Discard){    
                 const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
-                const theMove = ageMoney.createOrDelete(ageTokens,
-                    {type:LocationType.OnCard, parent:move.itemIndex},
-                    -ageTokens.getQuantity()
-                )
-                console.log(theMove)
-                moves.push(...theMove)
+                console.log("Message de guerre : ", ageTokens)
+                ageTokens.getQuantity() > 0 && moves.push(ageTokens.deleteItem(
+                    ageTokens.getQuantity()
+                ))
             } 
         }
 

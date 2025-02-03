@@ -1,5 +1,4 @@
 import { Material, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
-import { ageMoney } from "../../material/Age"
 import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../../material/effects/2_DeploymentEffects"
 import { Effect, WhichBuilding, WhichUnit } from "../../material/effects/Effect"
 import { LocationType } from "../../material/LocationType"
@@ -49,16 +48,20 @@ export class DeployEffects extends SimultaneousRule {
                                     // TODO : How to manage this fucking unit
                                 } else if (isGainAgeToken(eff)){
                                     if (eff.whichUnit === WhichUnit.Myself){
-                                        console.log("index : ", index)
-                                        moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.OnCard, parent:index}, eff.amount))
+                                        moves.push(this.material(MaterialType.Age).createItem({
+                                                location: { type: LocationType.OnCard, parent: index },
+                                                quantity: eff.amount
+                                            }))
                                     } else if (eff.whichUnit === WhichUnit.All){
                                         // No case in whole game
                                     } else if (eff.whichUnit === WhichUnit.Others){
-
                                         for (const entry of playerUnitBoard.entries){
                                             const spaceIndex = entry[0]
                                             if (spaceIndex !== index){
-                                                moves.push(...ageMoney.createOrDelete(this.material(MaterialType.Age), {type:LocationType.OnCard, parent:spaceIndex}, eff.amount))
+                                                moves.push(this.material(MaterialType.Age).createItem({
+                                                    location: { type: LocationType.OnCard, parent: spaceIndex },
+                                                    quantity: eff.amount
+                                                }))
                                             }
                                         }
 

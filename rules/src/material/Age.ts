@@ -1,7 +1,7 @@
-import { getEnumValues, Money } from "@gamepark/rules-api";
+import { getEnumValues } from '@gamepark/rules-api'
 
-export enum Age{
-    Age1 = 1,
+export enum Age {
+    Age1 = 1
 }
 
-export const ageMoney = new Money(getEnumValues(Age))
+export const buildings = getEnumValues(Age)
