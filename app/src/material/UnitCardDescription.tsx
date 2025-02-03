@@ -1,5 +1,5 @@
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { CardDescription, ItemContext } from '@gamepark/react-game'
+import { CardDescription } from '@gamepark/react-game'
 import Commander from '../images/units/en/Commander.jpg'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -43,9 +43,6 @@ import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 import CardBack from '../images/units/en/CardBack.jpg'
-import { MaterialItem, MaterialMoveBuilder } from '@gamepark/rules-api'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import displayLocationHelp = MaterialMoveBuilder.displayLocationHelp
 import { PaperTalesCardHelp } from './help/UnitCardHelp'
 
 
@@ -101,11 +98,6 @@ export class UnitCardDescription extends CardDescription {
     [Unit.Veteran]: Veteran,
     [Unit.Woodcutter]: Woodcutter,
     [Unit.WoodMerchant]: WoodMerchant,
-  }
-
-  displayHelp(item: MaterialItem, context: ItemContext) {
-    if (item.location.type === LocationType.Discard) return displayLocationHelp(item.location)
-    return super.displayHelp(item, context)
   }
 
   help = PaperTalesCardHelp
