@@ -3,7 +3,7 @@ import { css } from '@emotion/react'
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons/faRotateRight'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { pointerCursorCss, useAnimation, useLegalMove, usePlay, useRules } from '@gamepark/react-game'
+import { pointerCursorCss, useAnimation, usePlay, useRules } from '@gamepark/react-game'
 import { isMoveItemType, Location } from '@gamepark/rules-api'
 import { FC, useCallback } from 'react'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
@@ -18,10 +18,9 @@ export const CardRotateButton: FC<{ location: Location }> = ({ location }) => {
     event.preventDefault()
     play(card.rotateItem(!rotation), { local: true })
   }, [rotation])
-  const canRotate = useLegalMove((move) => isMoveItemType(MaterialType.Building)(move) && move.location.rotation)
   const animation = useAnimation((animation) =>
     isMoveItemType(MaterialType.Building)(animation.move) && animation.move.itemIndex === location.parent)
-  if (animation || !canRotate) return null
+  if (animation) return null
   return (
     <>
       <div css={[button]} onClick={flip}>

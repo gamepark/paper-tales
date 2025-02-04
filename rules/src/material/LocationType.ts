@@ -15,5 +15,6 @@ export enum LocationType {
     ScoreBoard,
     OnCard,
     CardRotate,
+    Building,
 
 }
