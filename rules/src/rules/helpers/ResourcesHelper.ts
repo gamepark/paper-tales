@@ -16,8 +16,11 @@ export class ResourcesHelper extends MaterialRulesPart {
         return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     }
 
-    getAgeOnUnit(playerId:number, unit:MaterialItem){
-        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(playerId).filter(item => item.location.x! === unit.location.x && item.location.y! === unit.location.y)
+    getAgeOnUnit(playerId:number, unit:MaterialItem):number{
+        const index = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
+            .filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y)
+            .getIndex()
+        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).length
     }
 
     getPlayerResources(playerId:number){
@@ -48,9 +51,9 @@ export class ResourcesHelper extends MaterialRulesPart {
                 if (resourceObject.condition.onLane !== undefined){
                     return unit.location.y === resourceObject.condition.onLane && resourceObject.type
                 } else if (resourceObject.condition.perAgeToken !== undefined){
-                    return [...Array(this.getAgeOnUnit(playerId, unit).length).keys()].flatMap(_ => resourceObject.type[0])
+                    return [...Array(this.getAgeOnUnit(playerId, unit)).keys()].flatMap(_ => resourceObject.type[0])
                 } else if (resourceObject.condition.ifAgeToken !== undefined){
-                    return this.getAgeOnUnit(playerId, unit).length > 0 ? resourceObject.type : []
+                    return this.getAgeOnUnit(playerId, unit) > 0 ? resourceObject.type : []
                 }
             } else {
                 return resourceObject.type
