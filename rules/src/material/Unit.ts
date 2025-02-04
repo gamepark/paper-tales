@@ -94,3 +94,7 @@ export const theRealDeck = [
     Unit.Monkey, Unit.Monkey,
 
 ]
+
+export function howManyCardCopies(unit:Unit):number{
+    return theRealDeck.filter(u => u === unit).length
+}
