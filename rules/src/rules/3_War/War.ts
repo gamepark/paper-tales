@@ -122,7 +122,6 @@ export class War extends MaterialRulesPart {
     }
 
     getUnitPower(player:number, unitMaterial:MaterialItem<number, number, any>){
-        
         if (unitMaterial.id === undefined){
             return 0
         }
@@ -190,11 +189,15 @@ export class War extends MaterialRulesPart {
     }
 
     getAgeOnUnit(player:number, unit:MaterialItem){
-        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(player).filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y).length
+        const index = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
+            .filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y)
+            .getIndex()
+        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).length
     }
 
     getAgeInPlayerRealm(player:number){
-        return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(player).length
+        const indexes = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).getIndexes()
+        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(item => indexes.includes(item!)).length
     }
 
     getFrontLanePower(player:number){
