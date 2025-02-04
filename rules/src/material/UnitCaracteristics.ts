@@ -151,7 +151,11 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.Shapeshifter]: { 
         cost: 0, 
-        power:0 
+        power:0,
+        effect:[{
+            type:EffectType.Shapeshifter,
+            onDeployment:true
+        }]
     },
     [Unit.CaveSpirit]: { 
         cost: 1, 

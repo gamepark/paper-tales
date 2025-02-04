@@ -67,7 +67,6 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         if (isMoveItemType(MaterialType.Unit)(move)){
             if (move.location.type === LocationType.Discard){    
                 const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
-                console.log("Message de guerre : ", ageTokens)
                 ageTokens.getQuantity() > 0 && moves.push(ageTokens.deleteItem(
                     ageTokens.getQuantity()
                 ))

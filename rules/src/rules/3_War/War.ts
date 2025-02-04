@@ -10,6 +10,7 @@ import { ScoreHelper } from "../helpers/ScoreHelper"
 import { Income } from "../4_Income/Income"
 import { RuleId } from "../RuleId"
 import { BuildHelper } from "../helpers/BuildHelper"
+import { Memory } from "../Memory"
 
 export class War extends MaterialRulesPart {
 
@@ -17,8 +18,9 @@ export class War extends MaterialRulesPart {
         const moves:MaterialMove[] = []
         const players = this.game.players
         const playerPower = players.map(player => this.getPlayerPower(player))
-        
+
         players.forEach((player, index) => {
+            this.forget(Memory.PlayedCardsDuringDeployment, player)
             this.logAllPlayerUnitPower(player)
             const buildHelper = new BuildHelper(this.game, player)
             const scoreHelper =  new ScoreHelper(this.game, player)
