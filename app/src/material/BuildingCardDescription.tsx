@@ -1,5 +1,5 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { CardDescription, ItemContext } from '@gamepark/react-game'
+import { CardDescription, ItemContext, MaterialContext } from '@gamepark/react-game'
 import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
 import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
 import Tavern1 from '../images/buildings/en/level1/TavernL1.jpg'
@@ -11,7 +11,7 @@ import Tavern2 from '../images/buildings/en/level2/TavernL2.jpg'
 import Temple2 from '../images/buildings/en/level2/TempleL2.jpg'
 import Town2 from '../images/buildings/en/level2/TownL2.jpg'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { isMoveItem, MaterialMove } from '@gamepark/rules-api'
+import { isMoveItem, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 
 
@@ -47,6 +47,10 @@ export class BuildingCardDescription extends CardDescription {
         return false
       }
       return super.canDrag(move, context)
+    }
+
+    isFlippedOnTable(item: Partial<MaterialItem>, context: MaterialContext): boolean {
+      return item.location?.rotation || super.isFlippedOnTable(item, context)
     }
     
   }
