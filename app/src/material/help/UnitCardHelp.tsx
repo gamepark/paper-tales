@@ -4,7 +4,7 @@ import { Effect, EffectType, WhichUnit } from '@gamepark/paper-tales/material/ef
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import { unitCardCaracteristics, UnitPattern } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { ResourcesCondition, unitCardCaracteristics, UnitPattern } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import {
   MaterialHelpProps,
@@ -65,9 +65,18 @@ const VisibleCard: FC<MaterialHelpProps> = (props) => {
                 <strong/>
               </Trans>
             </span>
+            <span>
+              <Trans defaults="card.power" values={{ power: howManyCardCopies(characteristic.power) }}>
+                <strong/>
+              </Trans>
+            </span>
           </p>
+          {characteristic.resources !== undefined && 
+            <ResourcesHelp _i18nKey="card.effect.resources" resources={characteristic.resources.type} conditions={characteristic.resources.condition} />
+          }
         </>
       )}
+
 
       {effects !== undefined && (
         <EffectList i18nKey="card.effect.title" effects={effects} getDescription={getEffectDescription}/>
@@ -75,6 +84,37 @@ const VisibleCard: FC<MaterialHelpProps> = (props) => {
 
     </>
 
+  )
+}
+
+const ResourcesHelp: FC<{_i18nKey: string, resources: Resources[], conditions:ResourcesCondition | undefined}> = (props) => {
+  const { resources, conditions } = props
+  const isIfAgeToken = conditions?.ifAgeToken === true
+  const isOnLane = conditions?.onLane !== undefined
+  const isPerAgeToken = conditions?.perAgeToken === true
+  console.log(isIfAgeToken, isOnLane, isPerAgeToken)
+  const resourcesPictures = resources.map((res, i) => {
+    switch (res) {
+      case Resources.Diamond:
+        return <Picture key={i} css={mini} src={diamond}/> 
+      case Resources.Food:
+        return <Picture key={i} css={mini} src={food}/>
+      case Resources.Wood:
+        return <Picture key={i} css={mini} src={wood}/>
+      default:
+        return <Picture key={i} css={mini} src={gold}/>
+    }
+  })
+  return (
+    <>
+      <p>
+        <Trans defaults="card.resources"></Trans> &nbsp;
+
+        {resourcesPictures.map((pict) => (
+            <span>{pict}</span> 
+        ))}
+      </p>
+    </>
   )
 }
 
@@ -265,6 +305,12 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.ImproveBuilding:
       return (
         <>
+        </>
+      )
+    case EffectType.Income:
+      return (
+        <>
+          <Trans defaults="card.effect.income.base" values={{income:effect.amount}} />
         </>
       )
     case EffectType.IncomeIfAgeToken:

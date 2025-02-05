@@ -9,14 +9,15 @@ export type UnitPattern = {
     // effects?:Effect[]
     resources?: {
         type : Resources[],
-        condition?:{
-            onLane?:LaneType,
-            perAgeToken?:boolean,
-            ifAgeToken?:boolean,
-        }
+        condition?:ResourcesCondition
     },
     effect? : Effect[]
+}
 
+export type ResourcesCondition = {
+    onLane?:LaneType,
+    perAgeToken?:boolean,
+    ifAgeToken?:boolean,
 }
 
 export enum LaneType {
