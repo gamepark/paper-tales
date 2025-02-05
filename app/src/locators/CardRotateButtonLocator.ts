@@ -4,18 +4,18 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { LocationContext, LocationDescription, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location } from '@gamepark/rules-api'
-import { buildingLocator } from './BuildingLocator'
 import { CardRotateButton } from './component/CardRotateButton'
+import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
 
 
 
 class CardRotateButtonLocator extends Locator {
   locationDescription = new CardRotateButtonDescription()
 
-  coordinates = { x: 2.5, z: 5 }
+  coordinates = { x: -6.9, y:-1, z: 5 }
 
   getLocations(context: MaterialContext) {
-    const { rules} = context
+    const {rules} = context
 
     const buildingCards = rules.material(MaterialType.Building).location(LocationType.PlayerBuildingHand)
     return buildingCards.getIndexes()
@@ -29,7 +29,7 @@ class CardRotateButtonLocator extends Locator {
     const { rules } = context
     const card = rules.material(MaterialType.Building).getItem(location.parent!)!
     return [
-      ...buildingLocator.placeItem(card, { ...context, type: MaterialType.Building, index: location.parent!, displayIndex: location.parent! }),
+      ...playerBuildingHandLocator.placeItem(card, { ...context, type: MaterialType.Building, index: location.parent!, displayIndex: location.parent! }),
       ...super.placeLocation(location, context)
     ]
   }
