@@ -72,12 +72,12 @@ export class BuildHelper extends MaterialRulesPart {
         let goldToPay = 0
 
         if (costAlternate === undefined){
+            // Cas nominal
             if (this.canBuildCost(playerId,cost, fieldCost) === false){
                 // Substitution
                 goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(cost, playerId).length
             }
             goldToPay += this.getGoldInBuildingCost(cost)
-            // Cas nominal
         } else {
             // Cas du temple
             if (this.canBuildCost(playerId,cost, fieldCost) === true){
@@ -116,6 +116,8 @@ export class BuildHelper extends MaterialRulesPart {
         const playerWood = playerResources.filter(resources => resources === Resources.Wood).length
         const playerFood = playerResources.filter(resources => resources === Resources.Food).length
         const playerDiamond = playerResources.filter(resources => resources === Resources.Diamond).length
+
+        console.log("canBuildCost : ", cost, woodCost, playerWood)
 
         return playerGold >= (goldCost + fieldCost) 
             && playerWood >=  woodCost  

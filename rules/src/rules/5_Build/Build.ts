@@ -47,7 +47,6 @@ export class Build extends SimultaneousRule {
                     ).moveItems({
                         type:LocationType.PlayerBuildingBoard, 
                         player:playerId, 
-                        y:buildHelper.getPlayerBuildingQuantity(playerId), 
                         rotation:false
                     })
             )
@@ -65,21 +64,21 @@ export class Build extends SimultaneousRule {
             ).moveItems({
                     type:LocationType.PlayerBuildingBoard, 
                     player:playerId, 
-                    y:buildHelper.getPlayerBuildingQuantity(playerId), 
                     rotation:true
             }))
         }
 
         // Passer sans construire
         moves.push(this.endPlayerTurn(playerId))
+
+        console.log("LegalMoves : ", moves)
    
         return moves
     }
 
     beforeItemMove(move: ItemMove<number, number, number>, _context?: PlayMoveContext | undefined): MaterialMove<number, number, number>[] {
         const moves:MaterialMove[] = []
-
-        if (isMoveItemType(MaterialType.Building)(move)){
+        if (isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard){
             const buildHelper =  new BuildHelper(this.game, move.location.player!)
             const fieldCost = buildHelper.hasIgnoreFieldCostEffect(move.location.player!) === true ? 0 : buildHelper.getFieldCost(move.location.player!)
             const buildingId = this.material(MaterialType.Building).index((index) => index === move.itemIndex).getItem()
@@ -108,7 +107,7 @@ export class Build extends SimultaneousRule {
 
                 if (isComingFromHand){
                     // On doit checker les deux coûts
-                    const goldToPayMove1 = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0)
+                    const goldToPayMove1 = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 1, 0)
                     const goldToPayMove2 = buildHelper.getGoldToPayCostMove(move.location.player!, buildingId!.id, 2, 0)
                     goldToPayMove1.length !== 0 && moves.push(...goldToPayMove1)
                     goldToPayMove2.length !== 0 && moves.push(...goldToPayMove2)
@@ -128,7 +127,7 @@ export class Build extends SimultaneousRule {
     afterItemMove(move: ItemMove): MaterialMove[] {
 
         const moves:MaterialMove[] = []
-        if (isMoveItemType(MaterialType.Building)(move)){
+        if (isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard){
             moves.push(this.endPlayerTurn(move.location.player!))
         }
         return moves

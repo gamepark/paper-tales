@@ -1,25 +1,17 @@
-import { Locator } from "@gamepark/react-game";
+import { ListLocator } from "@gamepark/react-game";
 import { getRelativePlayerIndex, MaterialContext } from "@gamepark/react-game";
-import { Location } from "@gamepark/rules-api";
+import { Location  } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 import { buildingCardDescription } from "../material/BuildingCardDescription";
 
 
 
-export class PlayerBuildingBoardLocator extends Locator {
+export class PlayerBuildingBoardLocator extends ListLocator {
 
-
+    gap = {y:buildingCardDescription.height + 0.2}
+    maxCount = 5
 
     getCoordinates(location: Location, context: MaterialContext) {
-        const { x, y } = this.getBaseCoordinates(location, context)
-        return {
-            x: x,
-            y: y + location.y! * (buildingCardDescription.height + 0.2)
-        }
-    }
-
-
-    getBaseCoordinates(location: Location, context: MaterialContext) {
         const playerIndex = getRelativePlayerIndex(context, location.player)
         const position = playerPositions[context.rules.players.length - 2][playerIndex]
         const players = context.rules.players.length
@@ -38,6 +30,9 @@ export class PlayerBuildingBoardLocator extends Locator {
     }
 
 }
+
+
+
 
 
 export const playerBuldingBoard = new PlayerBuildingBoardLocator()

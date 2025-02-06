@@ -27,8 +27,6 @@ export const CardRotateButton: FC<{ location: Location }> = ({ location }) => {
         <FontAwesomeIcon icon={faRotateRight} css={[pointerCursorCss, css`font-size: 1.2em`]}/>
       </div>
     </>
-
-
   )
 }
 

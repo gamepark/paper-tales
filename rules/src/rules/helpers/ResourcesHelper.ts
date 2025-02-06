@@ -24,13 +24,23 @@ export class ResourcesHelper extends MaterialRulesPart {
     }
 
     getPlayerResources(playerId:number){
-        const buildHelper =  new BuildHelper(this.game, playerId)
-        const buildingResources = [
-            ...buildHelper.getPlayerBuildingPlayedLevel1(playerId).getItems(item => buildingCardCaracteristics[item.id].resources1 !== undefined).flatMap(item => buildingCardCaracteristics[item.id].resources1),
-            ...buildHelper.getPlayerBuildingPlayedLevel2(playerId).getItems(item => buildingCardCaracteristics[item.id].resources2 !== undefined).flatMap(item => buildingCardCaracteristics[item.id].resources2)
-        ]
+        const buildingResources = this.getPlayerBuildingResources(playerId)
         const unitResources = this.getPlayerBoard(playerId).getItems().flatMap(unit => this.getUnitResource(playerId, unit))
         return [...buildingResources, ...unitResources]
+    }
+
+    getPlayerBuildingResources(playerId:number):Resources[]{
+        const buildHelper =  new BuildHelper(this.game, playerId)
+        const buildingResources = [
+            ...buildHelper.getPlayerBuildingPlayedLevel1(playerId).getItems(item => buildingCardCaracteristics[item.id].resources1 !== undefined)
+                .flatMap(item => buildingCardCaracteristics[item.id].resources1),
+            ...buildHelper.getPlayerBuildingPlayedLevel2(playerId).getItems(item => buildingCardCaracteristics[item.id].resources1 !== undefined)
+                .flatMap(item => buildingCardCaracteristics[item.id].resources1),
+            ...buildHelper.getPlayerBuildingPlayedLevel2(playerId).getItems(item => buildingCardCaracteristics[item.id].resources2 !== undefined)
+                .flatMap(item => buildingCardCaracteristics[item.id].resources2)
+        ]
+
+        return buildingResources
     }
 
     getPlayerOneTypeResource(playerId:number, resource:Resources){

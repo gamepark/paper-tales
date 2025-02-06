@@ -42,15 +42,16 @@ export class BuildingCardDescription extends CardDescription {
     }
 
     canDrag(move: MaterialMove, context: ItemContext): boolean {
-      const isFaceDown = isMoveItem(move) && move.itemType === MaterialType.Building && move.location.type === LocationType.PlayerBuildingHand && move.location.rotation
+      const isFaceDown = isMoveItem(move) && move.itemType === MaterialType.Building 
+        && move.location.type === LocationType.PlayerBuildingBoard && move.location.rotation
       if (isFaceDown && !context.rules.material(MaterialType.Building).getItem(move.itemIndex).location.rotation) {
         return false
       }
       return super.canDrag(move, context)
     }
 
-    isFlippedOnTable(item: Partial<MaterialItem>, context: MaterialContext): boolean {
-      return item.location?.rotation || super.isFlippedOnTable(item, context)
+    isFlipped(item: Partial<MaterialItem>, context: MaterialContext): boolean {
+      return item.location?.rotation || super.isFlipped(item, context)
     }
     
   }
