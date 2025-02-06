@@ -29,6 +29,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       id:unit,
       location: { type: LocationType.Deck }
     }))
+
     this.material(MaterialType.Unit).createItems(items)
     this.material(MaterialType.Unit).location(LocationType.Deck).shuffle()
   }
@@ -38,7 +39,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       this.material(MaterialType.Gold).createItem({
         id: Gold.Gold1,
         location: { type: LocationType.PlayerGoldStock, player },
-        quantity:6
+        quantity:3
       })
 
       const items = buildings.map(building => ({
@@ -63,7 +64,7 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
   }
 
   start() {
-    //this.startPlayerTurn(RuleId.Deal, this.game.players[0])
-    this.startSimultaneousRule(RuleId.Build)
+    this.startPlayerTurn(RuleId.Deal, this.game.players[0])
+    //this.startSimultaneousRule(RuleId.Build)
   }
 }
