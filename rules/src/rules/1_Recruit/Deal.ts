@@ -7,13 +7,15 @@ export class Deal extends PlayerTurnRule {
 
   onRuleStart(): MaterialMove[] {
 
+    const cardsPerPlayer = this.game.players.length === 2 ? 9 : 5
+
     const moves:MaterialMove[] = []
     const deck = this.material(MaterialType.Unit).location(LocationType.Deck).deck()
-    const missingCardsTotal = (this.game.players.length * 5) - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getQuantity()
+    const missingCardsTotal = (this.game.players.length * cardsPerPlayer) - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getQuantity()
 
     // Distribution
     this.game.players.forEach(player => {
-      const missingCards = 5 - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).getQuantity()
+      const missingCards = cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).getQuantity()
       missingCards > 0 && moves.push(...deck.deal({type:LocationType.PlayerDraftHand, player}, missingCards))
     })
 
