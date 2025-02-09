@@ -117,8 +117,6 @@ export class BuildHelper extends MaterialRulesPart {
         const playerFood = playerResources.filter(resources => resources === Resources.Food).length
         const playerDiamond = playerResources.filter(resources => resources === Resources.Diamond).length
 
-        console.log("canBuildCost : ", cost, woodCost, playerWood)
-
         return playerGold >= (goldCost + fieldCost) 
             && playerWood >=  woodCost  
             && playerFood >= FoodCost 

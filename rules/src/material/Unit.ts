@@ -104,3 +104,7 @@ export const testDeck = [
 export function howManyCardCopies(unit:Unit):number{
     return theRealDeck.filter(u => u === unit).length
 }
+
+export function isChooseWherePlacingAgeTokenUnit(unit:Unit):boolean{
+    return unit === Unit.MasterAlchemist || unit === Unit.TimeMaster
+}

@@ -1,5 +1,5 @@
-import { Resource } from "i18next"
 import { MaterialType } from "../MaterialType"
+import { Resources } from "../Resources"
 import { Effect, EffectType, WhichBuilding, WhichUnit } from "./Effect"
 
 export type DeploymentEffect = Shapeshifter | GainTokenOnDeploy | ImproveBuilding | GainAgeToken | GainAgeTokenOnChosenUnit
@@ -40,7 +40,7 @@ export type GainAgeTokenOnChosenUnit = {
     type:EffectType.GainAgeTokenOnChosenUnit,
     onDeployment:boolean,
     amount: number,
-    perResource?:Resource
+    perResource?:Resources
 }
 
 // Typechecks

@@ -79,9 +79,6 @@ export class BuildWithSubstitution extends SimultaneousRule {
         const deltaFood = foodCost - playerFood
         const deltaDiamond = diamondCost - playerDiamond
 
-        console.log("missing res, cost : ", buildCost)
-        console.log("missing res : ", deltaWood, deltaFood, deltaDiamond)
-
         const missingWood = deltaWood > 0 ? [...Array(deltaWood).fill(Resources.Wood)] : []
         const missingFood = deltaFood> 0 ? [...Array(deltaFood).fill(Resources.Food)] : []
         const missingDiamond = deltaDiamond > 0 ? [...Array(deltaDiamond).fill(Resources.Diamond)] : []
@@ -99,15 +96,9 @@ export class BuildWithSubstitution extends SimultaneousRule {
         const canReplaceFoodByGold = buildHelper.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Food))
         const canReplaceDiamondByGold = buildHelper.getReplaceResourceByGoldEffects(playerId).some(eff => eff.resource.some(res => res === Resources.Diamond))
 
-        console.log("missing res : ", missingResources)
-        console.log(missingResources.some(res => res === Resources.Wood) === true, canReplaceWoodByGold)
-        console.log(missingResources.some(res => res === Resources.Food) === true, canReplaceFoodByGold)
-        console.log(missingResources.some(res => res === Resources.Diamond) === true, canReplaceDiamondByGold)
-
         if ((missingResources.some(res => res === Resources.Wood) === true && canReplaceWoodByGold === false)
         || (missingResources.some(res => res === Resources.Food) === true && canReplaceFoodByGold === false)
         || (missingResources.some(res => res === Resources.Diamond) === true && canReplaceDiamondByGold === false)){
-            console.log("coucou")
             return false
         } else {
             if (canReplaceWoodByGold === true){

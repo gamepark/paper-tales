@@ -1,5 +1,5 @@
 import { isMoveItemType, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from "@gamepark/rules-api"
-import { isDeploymentType, isGainAgeToken, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../../material/effects/2_DeploymentEffects"
+import { isDeploymentType, isGainAgeToken, isGainAgeTokenOnChosenUnit, isGainTokenOnDeploy, isImproveBuilding, isManualDeploymentEffect, isShapeshifter } from "../../material/effects/2_DeploymentEffects"
 import { Effect, WhichBuilding, WhichUnit } from "../../material/effects/Effect"
 import { LocationType } from "../../material/LocationType"
 import { MaterialType } from "../../material/MaterialType"
@@ -107,7 +107,6 @@ export class DeployEffects extends SimultaneousRule {
                             }
     
                         } else {
-                            console.log("Appel avec l'effet :", eff)
                             moves.push(...this.getUnitDeployEffectMoves(unitCardItem!,unitCardItem!.location.player! , move.itemIndex, eff))
                         }
     
@@ -130,6 +129,29 @@ export class DeployEffects extends SimultaneousRule {
         return moves
     }
     getMovesAfterPlayersDone(): MaterialMove<number, number, number>[] {
+
+        let goToChooseRule = false
+
+        this.game.players.forEach(player => {
+            const deployedUnits:number[] = this.remind(Memory.PlayedCardsDuringDeployment, player)
+            const unitPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player) 
+
+            const chooseWherePlacingAgeTokenIndexes:number[] = unitPlayed.filter((item, index) => unitCardCaracteristics[item.id].effect !== undefined 
+                && (unitCardCaracteristics[item.id].effect as Effect[]).find(isGainAgeTokenOnChosenUnit) !== undefined
+                && ((unitCardCaracteristics[item.id].effect as Effect[]).find(isGainAgeTokenOnChosenUnit)!.onDeployment === false || deployedUnits.includes(index)))
+                .getIndexes()
+
+            if (chooseWherePlacingAgeTokenIndexes.length > 0){
+                this.memorize(Memory.PlacingAgeTokenUnitsIndexes, chooseWherePlacingAgeTokenIndexes, player)
+                goToChooseRule = true
+            }
+
+        })
+        
+        if (goToChooseRule){
+            return [this.startSimultaneousRule(RuleId.ChooseWherePlacingAgeToken)]
+        } 
+        
         return [this.startRule(RuleId.War)]
     }
 

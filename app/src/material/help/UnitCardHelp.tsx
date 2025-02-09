@@ -9,6 +9,8 @@ import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import {
   MaterialHelpProps,
   Picture,
+  PlayMoveButton,
+  useLegalMove,
   usePlayerId,
   usePlayerName,
   useRules,
@@ -23,22 +25,31 @@ import diamond from '../../images/ressources/ressources_minerai.png'
 import scoreIcon from '../../images/score/scoreIcon.png'
 import ageToken from '../../images/tokens/Age.jpg'
 import { howManyCardCopies } from '@gamepark/paper-tales/material/Unit'
+import { isCustomMoveType } from '@gamepark/rules-api'
+import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 
 export const PaperTalesCardHelp: FC<MaterialHelpProps> = (props) => {
   const { t } = useTranslation()
   const { item } = props
-  const player = usePlayerId()
+  const player = usePlayerId()  
+  const unitIndex = props.itemIndex!
   const isFlipped = !!item.location?.rotation 
   || item.location?.type === LocationType.Deck 
   || item.location?.type === LocationType.Discard
   || (item.location?.player !== player && (item.location?.type === LocationType.PlayerDraftHand || item.location?.type === LocationType.PlayerUnitHand))
   //const buy = useLegalMoves(move => !isFlipped && isMoveItemType(MaterialType.Unit)(move) && move.itemIndex === itemIndex && move.location.type === LocationType.PlayerDraftHand && !move.location.rotation)
+  
+  console.log("index : ", unitIndex)
+
+  const chooseWhereToPlaceTokenMove = useLegalMove((move) => isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move) && move.data.unitIndex === unitIndex)
+  console.log(chooseWhereToPlaceTokenMove)
 
   return (
     <>
       <h2 css={titleCss}>{isFlipped ? t('card.face-down') : t(`card.${item.id}`)}</h2>
       {!isFlipped && <VisibleCard {...props} />}
       <CardLocation {...props} />
+      <PlayMoveButton move={chooseWhereToPlaceTokenMove}></PlayMoveButton>
     </>
   )
 }

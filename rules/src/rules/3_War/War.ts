@@ -179,6 +179,8 @@ export class War extends MaterialRulesPart {
                 }
             }
 
+            console.log("Puissance de l'unité n°", unitMaterial.id, " : ", unit.power + add)
+
             return unit.power + add
 
         }
@@ -192,7 +194,8 @@ export class War extends MaterialRulesPart {
         const index = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
             .filter(item => item.location.x === unit.location.x && item.location.y === unit.location.y)
             .getIndex()
-        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).length
+
+        return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity()
     }
 
     getAgeInPlayerRealm(player:number){

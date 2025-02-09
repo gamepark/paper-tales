@@ -33,7 +33,6 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             type:EffectType.GainTokenIfWinWar,
             token:MaterialType.ScoreToken,
             amount:1,
-        
         }]
     },
     [Unit.Militiaman]: { 
@@ -47,7 +46,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     },
     [Unit.TimeMaster]: { 
         cost: 0, 
-        power: 1 
+        power: 1,
+        effect:[{
+            type:EffectType.GainAgeTokenOnChosenUnit,
+            amount:2,
+            onDeployment:true
+        }]
     },
     [Unit.Peddler]: { 
         cost: 1, 
@@ -200,6 +204,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
             token:MaterialType.ScoreToken,
             perResource:[Resources.Diamond],
             amount:1
+        },
+        {
+            type:EffectType.GainAgeTokenOnChosenUnit,
+            amount:2,
+            onDeployment:true,
+            perResource:Resources.Food
         }
         ]
     },

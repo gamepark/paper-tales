@@ -19,6 +19,7 @@ import { AgeUnitsAge } from './rules/6_Age/AgeUnitsAge'
 import { AgeUnitsDie } from './rules/6_Age/AgeUnitsDie'
 import { SaveUnitsWithMysticEffect } from './rules/6_Age/SaveUnitsWithMysticEffect'
 import { DeployEffects } from './rules/2_Deployment/DeployEffects'
+import { ChooseWherePlacingAgeToken } from './rules/2_Deployment/ChooseWherePlacingAgeToken'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
   implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
@@ -39,6 +40,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
     [RuleId.AgeUnitsDie]:AgeUnitsDie,
     [RuleId.NextTurn]:NextTurn,
     [RuleId.EndGame]:EndGame,
+    [RuleId.ChooseWherePlacingAgeToken]:ChooseWherePlacingAgeToken,
   }
 
   locationsStrategies = {
