@@ -43,7 +43,7 @@ export class BuildingCardDescription extends CardDescription {
 
     canDrag(move: MaterialMove, context: ItemContext): boolean {
       const isFaceDown = isMoveItem(move) && move.itemType === MaterialType.Building 
-        && move.location.type === LocationType.PlayerBuildingBoard && move.location.rotation
+        && move.location.type === LocationType.PlayerBuildingBoard && move.location.rotation 
       if (isFaceDown && !context.rules.material(MaterialType.Building).getItem(move.itemIndex).location.rotation) {
         return false
       }

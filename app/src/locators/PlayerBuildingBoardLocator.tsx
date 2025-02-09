@@ -31,11 +31,7 @@ export class PlayerBuildingBoardLocator extends ListLocator {
 
 }
 
-
-
-
-
-export const playerBuldingBoard = new PlayerBuildingBoardLocator()
+export const playerBuildingBoardLocator = new PlayerBuildingBoardLocator()
 
 
 
