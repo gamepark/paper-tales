@@ -37,8 +37,5 @@ export class PlayerBuildingHandLocator extends HandLocator {
   }
 }
 
-
-
-
 export const playerBuildingHandLocator = new PlayerBuildingHandLocator()
 

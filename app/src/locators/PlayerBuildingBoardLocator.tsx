@@ -1,6 +1,6 @@
 import { ListLocator } from "@gamepark/react-game";
 import { getRelativePlayerIndex, MaterialContext } from "@gamepark/react-game";
-import { Location  } from "@gamepark/rules-api";
+import { Location } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 import { buildingCardDescription } from "../material/BuildingCardDescription";
 
@@ -8,7 +8,7 @@ import { buildingCardDescription } from "../material/BuildingCardDescription";
 
 export class PlayerBuildingBoardLocator extends ListLocator {
 
-    gap = {y:buildingCardDescription.height + 0.2}
+    gap = { y: buildingCardDescription.height + 0.2 }
     maxCount = 5
 
     getCoordinates(location: Location, context: MaterialContext) {

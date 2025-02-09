@@ -12,10 +12,10 @@ import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
 class CardRotateButtonLocator extends Locator {
   locationDescription = new CardRotateButtonDescription()
 
-  coordinates = { x: -6.9, y:-1, z: 5 }
+  coordinates = { x: -6.9, y: -1, z: 5 }
 
   getLocations(context: MaterialContext) {
-    const {rules} = context
+    const { rules } = context
 
     const buildingCards = rules.material(MaterialType.Building).location(LocationType.PlayerBuildingHand)
     return buildingCards.getIndexes()

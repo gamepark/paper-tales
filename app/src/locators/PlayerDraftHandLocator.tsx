@@ -23,10 +23,6 @@ export class PlayerDraftHandLocator extends HandLocator {
       }
     }
 
-
-
-
-
 }
 
 export const playerDraftHandLocator = new PlayerDraftHandLocator()

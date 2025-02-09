@@ -33,7 +33,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.ScoreBoard]: scoreBoardLocator,
     [LocationType.PlayerScore]: scoreTokenLocator,
     [LocationType.Time]: roundTokenLocator,
-    [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit , radius: 1, positionOnParent: { x: 50, y: 40 } }),
+    [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit, radius: 1, positionOnParent: { x: 50, y: 40 } }),
     [LocationType.CardRotate]: cardRotateButtonLocator,
 
 
