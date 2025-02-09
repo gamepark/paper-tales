@@ -27,7 +27,12 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
     getNextPlayer(player:number) {
       const players = this.game.players
       const playerIndex = players.findIndex(item => item === player)
-      return playerIndex + 1 === players.length ? players[0] : players[playerIndex + 1]
+      const round = this.material(MaterialType.Time).getItem()!.location.x!
+      if (round % 2 === 1){
+        return playerIndex + 1 === players.length ? players[0] : players[playerIndex + 1]
+      } else {
+        return playerIndex - 1 === -1 ? players[players.length-1] : players[playerIndex - 1]
+      }
     }
   
   }
