@@ -6,10 +6,7 @@ import { playerPositions, Position } from "./TableauLocator";
 
 
 
-
-
 export class PlayerBuildingHandLocator extends HandLocator {
-
 
 
   getCoordinates(location: Location, context: ItemContext) {
@@ -22,7 +19,7 @@ export class PlayerBuildingHandLocator extends HandLocator {
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return players === 3 ? { x: 20, y: -40 }  :  { x: -48, y: -9 }    // TDB
+        return players === 3 ? { x: 20, y: -40 } : { x: -48, y: -9 }    // TDB
       case Position.BottomLeft:
         return players === 2 ? { x: -40, y: 15, z: 0 } : players === 3 ? { x: -40, y: 15 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
@@ -30,22 +27,14 @@ export class PlayerBuildingHandLocator extends HandLocator {
     }
   }
 
-
   locationDescription = new DropAreaDescription({ width: 20, height: 8, borderRadius: 0.4 })
   radius = 80
 
   getItemIndex(item: MaterialItem, context: ItemContext): number {
-
     const cards = context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(context.player).getItems().map(item => item.id)
     cards.sort((a, b) => a - b)
     return cards.indexOf(item.id)
-
   }
-
-
-
-
-
 }
 
 
