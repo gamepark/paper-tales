@@ -8,7 +8,7 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
     onRuleStart(): MaterialMove[] {
       const moves = []
       const remainingUnits = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getItems().length
-      
+
       if (remainingUnits === 0){
         moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
       } else {
@@ -16,8 +16,10 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
         players.forEach(player => {
           
           const playerRemainingUnits = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player)
-          moves.push(...playerRemainingUnits.moveItems({type:LocationType.PlayerDraftHand, player:this.getNextPlayer(player)}))
+          moves.push(playerRemainingUnits.moveItemsAtOnce({type:LocationType.PlayerDraftHand, player:this.getNextPlayer(player)}))
+
         })
+
         moves.push(this.startSimultaneousRule(RuleId.Draft))
       }
       return moves
