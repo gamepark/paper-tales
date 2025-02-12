@@ -10,9 +10,7 @@ import Barracks2 from '../images/buildings/en/level2/BarracksL2.jpg'
 import Tavern2 from '../images/buildings/en/level2/TavernL2.jpg'
 import Temple2 from '../images/buildings/en/level2/TempleL2.jpg'
 import Town2 from '../images/buildings/en/level2/TownL2.jpg'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { isMoveItem, MaterialItem, MaterialMove } from '@gamepark/rules-api'
-import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { BuildingHelp } from './help/BuildingHelp'
 
 
@@ -42,12 +40,8 @@ export class BuildingCardDescription extends CardDescription {
 
     }
 
+
     canDrag(move: MaterialMove, context: ItemContext): boolean {
-      const isFaceDown = isMoveItem(move) && move.itemType === MaterialType.Building 
-        && move.location.type === LocationType.PlayerBuildingBoard && move.location.rotation 
-      if (isFaceDown && !context.rules.material(MaterialType.Building).getItem(move.itemIndex).location.rotation) {
-        return false
-      }
       return super.canDrag(move, context)
     }
 
