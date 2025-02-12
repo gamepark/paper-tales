@@ -9,7 +9,7 @@ import { FC, useCallback } from 'react'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 
 
-export const CardRotateButton: FC<{ location: Location }> = ({ location }) => {
+export const CardBoardRotateButton: FC<{ location: Location }> = ({ location }) => {
   const play = usePlay()
   const rules = useRules<PaperTalesRules>()!
   const card = rules.material(MaterialType.Building).index(location.parent!)
