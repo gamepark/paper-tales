@@ -99,11 +99,7 @@ const VisibleCard: FC<MaterialHelpProps> = (props) => {
 }
 
 const ResourcesHelp: FC<{_i18nKey: string, resources: Resources[], conditions:ResourcesCondition | undefined}> = (props) => {
-  const { resources, conditions } = props
-  const isIfAgeToken = conditions?.ifAgeToken === true
-  const isOnLane = conditions?.onLane !== undefined
-  const isPerAgeToken = conditions?.perAgeToken === true
-  console.log(isIfAgeToken, isOnLane, isPerAgeToken)
+  const { resources } = props
   const resourcesPictures = resources.map((res, i) => {
     switch (res) {
       case Resources.Diamond:
@@ -122,7 +118,7 @@ const ResourcesHelp: FC<{_i18nKey: string, resources: Resources[], conditions:Re
         <Trans defaults="card.resources"></Trans> &nbsp;
 
         {resourcesPictures.map((pict) => (
-            <span>{pict}</span> 
+            <span>{pict} </span> 
         ))}
       </p>
     </>
