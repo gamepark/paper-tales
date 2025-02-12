@@ -7,6 +7,7 @@ import { pointerCursorCss, useAnimation, usePlay, useRules } from '@gamepark/rea
 import { isMoveItemType, Location } from '@gamepark/rules-api'
 import { FC, useCallback } from 'react'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
+import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 
 
 export const CardBoardRotateButton: FC<{ location: Location }> = ({ location }) => {
@@ -20,11 +21,13 @@ export const CardBoardRotateButton: FC<{ location: Location }> = ({ location }) 
   }, [rotation])
   const animation = useAnimation((animation) =>
     isMoveItemType(MaterialType.Building)(animation.move) && animation.move.itemIndex === location.parent)
-  if (animation) return null
+  const rulesId = rules.game.rule?.id
+  const buildId = RuleId.Build
+  if (animation || rulesId !== buildId ) return null
   return (
     <>
       <div css={[button]} onClick={flip}>
-        <FontAwesomeIcon icon={faRotateRight} css={[pointerCursorCss, css`font-size: 1.2em`]}/>
+        <FontAwesomeIcon icon={faRotateRight} css={[pointerCursorCss, css`font-size: 1.2em`]} />
       </div>
     </>
   )
