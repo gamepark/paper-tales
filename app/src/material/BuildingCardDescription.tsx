@@ -13,6 +13,7 @@ import Town2 from '../images/buildings/en/level2/TownL2.jpg'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { isMoveItem, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { BuildingHelp } from './help/BuildingHelp'
 
 
 
@@ -53,6 +54,8 @@ export class BuildingCardDescription extends CardDescription {
     isFlipped(item: Partial<MaterialItem>, context: MaterialContext): boolean {
       return item.location?.rotation || super.isFlipped(item, context)
     }
+
+    help = BuildingHelp
     
   }
   
