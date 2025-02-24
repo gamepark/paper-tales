@@ -21,7 +21,10 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
     this.game.players.forEach(player => {
       this.material(MaterialType.ScoreToken).createItem({id:player, location:{type:LocationType.PlayerScore, player:player, x:0}})
     })
-    this.material(MaterialType.Time).createItem({id:1, location:{type:LocationType.Time, x:1}})
+    this.material(MaterialType.Time).createItem({id:4, location:{type:LocationType.Time}})
+    this.material(MaterialType.Time).createItem({id:3, location:{type:LocationType.Time}})
+    this.material(MaterialType.Time).createItem({id:2, location:{type:LocationType.Time}})
+    this.material(MaterialType.Time).createItem({id:1, location:{type:LocationType.Time}})
   }
 
   setupDeck() {
