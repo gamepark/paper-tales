@@ -373,10 +373,10 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.WarFromBacklane:
       return (
         <>
-                  <Trans defaults="card.effect.war.from.backlane" />
+          <Trans defaults="card.effect.war.from.backlane" />
         </>
       )
   }
-  return <></>
+
 }
 
