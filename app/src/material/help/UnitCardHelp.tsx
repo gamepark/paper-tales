@@ -345,12 +345,6 @@ const getEffectDescription = (effect: Effect): ReactElement => {
         <>
         </>
       )
-    case EffectType.ReplaceResourceByGold:
-      return (
-        <>
-
-        </>
-      )
     case EffectType.ScoreAtWar:
       const scoreAtWarBaseText = <Trans defaults="card.effect.score.at.war" />
       const scoringConditionText = effect.perResource !== undefined
