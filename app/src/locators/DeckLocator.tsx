@@ -7,7 +7,7 @@ export class UnitDeckLocator extends DeckLocator {
 
   getCoordinates(_location: Location, context: ItemContext) {
     const players = context.rules.players.length
-    return players === 2 ? { x: -6, y: -30 } : players === 3 ? { x: -20, y: -35 } : { x: 58, y: -9 }    // TD > 4
+    return players === 2 ? { x: -6, y: -36 } : players === 3 ? { x: -20, y: -35 } : { x: 58, y: -9 }    // TD > 4
   }
 }
 

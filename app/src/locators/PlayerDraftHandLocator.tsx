@@ -1,6 +1,6 @@
 
 import { getRelativePlayerIndex, HandLocator, ItemContext } from "@gamepark/react-game";
-import { Location } from "@gamepark/rules-api";
+import { Location, MaterialItem } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 
 export class PlayerDraftHandLocator extends HandLocator {
@@ -17,12 +17,15 @@ export class PlayerDraftHandLocator extends HandLocator {
         case Position.TopRight:
           return { x: 50, y: -25 }    // TDB
         case Position.BottomLeft:
-          return players === 2 ? { x: -50, y: 30 } : players === 3 ? { x: -50, y: 30 } : { x: -48, y: -9 }    // TDB > 2
+          return players === 2 ? { x: -46, y: 8 } : players === 3 ? { x: -50, y: 30 } : { x: -48, y: -9 }    // TDB > 2
         case Position.BottomRight:
-          return players === 2 ? { x: 50, y: 30 } : players === 3 ? { x: 50, y: 30 } : { x: 58, y: -9 }    // TD > 2
+          return players === 2 ? { x: 46, y: 8 } : players === 3 ? { x: 50, y: 30 } : { x: 58, y: -9 }    // TD > 2
       }
     }
 
+    getHoverTransform(_item: MaterialItem<number, number>, _context: ItemContext<number, number, number>): string[] {
+      return ['translateZ(10em)', "translateY(-5em)","rotateZ(0".concat(this.rotationUnit, ")"), 'scale(2)'];
+    }
 }
 
 export const playerDraftHandLocator = new PlayerDraftHandLocator()

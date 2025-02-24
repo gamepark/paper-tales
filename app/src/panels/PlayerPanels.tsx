@@ -16,7 +16,7 @@ export const PlayerPanels: FC<any> = () => {
   return createPortal(
     <>
       {players.map((player, index) =>
-        <PaperTalesPlayerPanel key={player.id} player={player} index={index} color={playerColorCode[player.id]} css={[absolute, positionCss[players.length - 2][index]]}/>
+        <PaperTalesPlayerPanel key={player.id} player={player} index={index} color={playerColorCode[player.id as PlayerColor]} css={[absolute, positionCss[players.length - 2][index]]}/>
       )}
     </>,
     root
@@ -27,13 +27,15 @@ const absolute = css`
 `
 
 const topLeft = css`
-  left: 2em;
-  top: 15em;
+  right: 120em;
+  bottom: 2em;
+  width:55em;
 `
 
 const topRight = css`
-  right: 2em;
-  top: 10em;
+  left: 120em;
+  bottom: 2em;
+  width:55em;
 `
 
 const bottomLeft = css`

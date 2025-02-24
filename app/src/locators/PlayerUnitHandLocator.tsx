@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 import { DropAreaDescription, getRelativePlayerIndex, HandLocator, ItemContext } from "@gamepark/react-game";
-import { Location } from "@gamepark/rules-api";
+import { Location, MaterialItem } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 
 export class PlayerUnitHandLocator extends HandLocator {
 
-  locationDescription = new DropAreaDescription({ width: 20, height: 8, borderRadius: 0.4 })
+  locationDescription = new DropAreaDescription({ width: 20, height:14, borderRadius: 1 })
 
   getCoordinates(location: Location, context: ItemContext) {
     const playerIndex = getRelativePlayerIndex(context, location.player)
@@ -19,10 +19,14 @@ export class PlayerUnitHandLocator extends HandLocator {
       case Position.TopRight:
         return { x: 50, y: -40 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -25, y: 30 } : players === 3 ? { x: -25, y: 30 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -20, y: 8 } : players === 3 ? { x: -25, y: 30 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 25, y: 30 } : players === 3 ? { x: 25, y: 30 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 20, y: 8 } : players === 3 ? { x: 25, y: 30 } : { x: 58, y: -9 }    // TD > 2
     }
+  }
+
+  getHoverTransform(_item: MaterialItem<number, number>, _context: ItemContext<number, number, number>): string[] {
+    return ['translateZ(10em)', "translateY(-5em)","rotateZ(0".concat(this.rotationUnit, ")"), 'scale(2)'];
   }
 
 }
