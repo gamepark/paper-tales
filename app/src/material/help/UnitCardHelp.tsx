@@ -312,10 +312,10 @@ const getEffectDescription = (effect: Effect): ReactElement => {
         </>
       )
     case EffectType.ImproveBuilding:
-      const isImproveBuildingOnDeploy = effect.onDeployment === true &&  <Trans defaults="card.effect.improve.building.on.deploy" />
+      const isImproveBuildingOnDeploy = effect.onDeployment === true && <Trans defaults="card.effect.improve.building.on.deploy" />
       return (
         <>
-        {isImproveBuildingOnDeploy}
+          {isImproveBuildingOnDeploy}
         </>
       )
     case EffectType.Income:
@@ -337,6 +337,7 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.MysticEffect:
       return (
         <>
+          <Trans defaults="card.effect.mystic.effect" />
         </>
       )
     case EffectType.RelicEffect:
@@ -347,6 +348,7 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.ReplaceResourceByGold:
       return (
         <>
+
         </>
       )
     case EffectType.ScoreAtWar:
