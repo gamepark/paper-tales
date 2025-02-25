@@ -23,7 +23,7 @@ export class PlayerBuildingBoardLocator extends ListLocator {
             case Position.TopRight:
                 return { x: 58, y: -40 }    // TDB
             case Position.BottomLeft:
-                return players === 2 ? { x: -58, y: -38 } : players === 3 ? { x: -60, y: -30 } : { x: -48, y: -9 }    // TDB > 2
+                return players === 2 ? { x: -57, y: -38 } : players === 3 ? { x: -60, y: -30 } : { x: -48, y: -9 }    // TDB > 2
             case Position.BottomRight:
                 return players === 2 ? { x: 57, y: -38 } : players === 3 ? { x: 60, y: -30 } : { x: 58, y: -9 }    // TD > 2
         }
