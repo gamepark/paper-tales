@@ -78,7 +78,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
       onClick={focusPlayer}
       player={player}
       counters={counters}
-      countersPerLine={6}
+      countersPerLine={2}
       css={[canClick, colorBG(color)]}
       timerOnRight={false}
       {...rest}

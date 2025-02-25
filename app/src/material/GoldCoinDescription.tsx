@@ -18,8 +18,8 @@ class GoldCoinDescription extends MoneyDescription {
   stockLocation = { type: LocationType.GoldStock }
 
   staticItems = [
-    { id: 1, quantity: 15, location: this.stockLocation },
-    { id: 5, quantity: 8, location: this.stockLocation }
+    { id: 1, quantity: 30, location: this.stockLocation },
+    { id: 5, quantity: 14, location: this.stockLocation }
   ]
 
   help = GoldCoinHelp

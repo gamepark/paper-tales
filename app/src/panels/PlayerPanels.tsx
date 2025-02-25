@@ -27,15 +27,15 @@ const absolute = css`
 `
 
 const topLeft = css`
-  right: 120em;
+  left: 1em;
   bottom: 2em;
-  width:55em;
+  width:25em;
 `
 
 const topRight = css`
-  left: 120em;
+  right: 1em;
   bottom: 2em;
-  width:55em;
+  width:25em;
 `
 
 const bottomLeft = css`

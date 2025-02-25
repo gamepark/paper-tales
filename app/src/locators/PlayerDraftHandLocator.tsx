@@ -1,9 +1,13 @@
 
-import { getRelativePlayerIndex, HandLocator, ItemContext } from "@gamepark/react-game";
+import { getRelativePlayerIndex, HandLocator, ItemContext, MaterialContext } from "@gamepark/react-game";
 import { Location, MaterialItem } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
+import { MaterialType } from "@gamepark/paper-tales/material/MaterialType";
+import { LocationType } from "@gamepark/paper-tales/material/LocationType";
 
 export class PlayerDraftHandLocator extends HandLocator {
+
+  
 
     getCoordinates(location: Location, context: ItemContext) {
       const playerIndex = getRelativePlayerIndex(context, location.player)
@@ -17,15 +21,21 @@ export class PlayerDraftHandLocator extends HandLocator {
         case Position.TopRight:
           return { x: 50, y: -25 }    // TDB
         case Position.BottomLeft:
-          return players === 2 ? { x: -46, y: 8 } : players === 3 ? { x: -50, y: 30 } : { x: -48, y: -9 }    // TDB > 2
+          return players === 2 ? { x: -36 , y: 6 } : players === 3 ? { x: -50, y: 30 } : { x: -48, y: -9 }    // TDB > 2
         case Position.BottomRight:
-          return players === 2 ? { x: 46, y: 8 } : players === 3 ? { x: 50, y: 30 } : { x: 58, y: -9 }    // TD > 2
+          return players === 2 ? { x: 36 , y: 6 } : players === 3 ? { x: 50, y: 30 } : { x: 58, y: -9 }    // TD > 2
       }
     }
 
     getHoverTransform(_item: MaterialItem<number, number>, _context: ItemContext<number, number, number>): string[] {
       return ['translateZ(10em)', "translateY(-5em)","rotateZ(0".concat(this.rotationUnit, ")"), 'scale(2)'];
     }
+
+    getRadius(location: Location<number, number>, context: MaterialContext): number {
+      const handLength:number = context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(location.player).getQuantity()
+      return handLength === 0 ? 100 : Math.min((7.5/handLength) * 70, 90)
+    }
+
 }
 
 export const playerDraftHandLocator = new PlayerDraftHandLocator()

@@ -10,7 +10,7 @@ type GameDisplayProps = {
 
 export const GameDisplay: FC<GameDisplayProps> = () => {
   return <>
-    <GameTable xMin={-65} xMax={65} yMin={-45} yMax={30}
+    <GameTable xMin={-57} xMax={57} yMin={-45} yMax={16}
                css={process.env.NODE_ENV === 'development' && css`border: 1px solid white;`}>
       <GameTableNavigation/>
       <PlayerPanels/>

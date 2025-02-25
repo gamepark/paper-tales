@@ -21,9 +21,9 @@ export class PlayerBuildingHandLocator extends HandLocator {
       case Position.TopRight:
         return players === 3 ? { x: 20, y: -40 } : { x: -48, y: -9 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -33, y: -7 } : players === 3 ? { x: -40, y: 15 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -25, y: -7 } : players === 3 ? { x: -40, y: 15 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 33, y: -7 } : players === 3 ? { x: 40, y: 15 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 25, y: -7 } : players === 3 ? { x: 40, y: 15 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 
