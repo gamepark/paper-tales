@@ -16,7 +16,12 @@ export const PlayerPanels: FC<any> = () => {
   return createPortal(
     <>
       {players.map((player, index) =>
-        <PaperTalesPlayerPanel key={player.id} player={player} index={index} color={playerColorCode[player.id as PlayerColor]} css={[absolute, positionCss[players.length - 2][index]]}/>
+        <PaperTalesPlayerPanel 
+          key={player.id} 
+          player={player} 
+          index={index} 
+          color={playerColorCode[player.id as PlayerColor]} 
+          css={[absolute, positionCss(players.length)[index]]}/>
       )}
     </>,
     root
@@ -26,41 +31,49 @@ const absolute = css`
   position: absolute;
 `
 
-const topLeft = css`
-  left: 1em;
-  bottom: 2em;
+const bottomLeft = (players:number) => css`
+  left: ${players === 2 ? 1 : 1}em;
+  bottom: ${players === 2 ? 2 : 60}em;
   width:25em;
 `
 
-const topRight = css`
-  right: 1em;
-  bottom: 2em;
+const bottomRight = (players:number) => css`
+  right: ${players === 2 ? 1 : 1}em;
+  bottom: ${players === 2 ? 2 : 1}em;
   width:25em;
 `
 
-const bottomLeft = css`
+const topLeft = (_players:number) => css`
   left: 2em;
   bottom: 2em;
 `
 
-const bottomRight = css`
+const topRight = (_players:number) => css`
   right: 2em;
-  bottom: 2em;
+  bottom: 65em;
 `
 
-const topCenter = css`
+const topCenter = (_players:number) => css`
   left: 50%;
   top: 10em;
   transform: translateX(-32em);
 `
 
 
-const positionCss = [
-  [topLeft, topRight], // 2 players
-  [bottomLeft, topRight, bottomRight], // 3 players
-  [bottomLeft, topLeft, topRight, bottomRight], // 4 players
-  [bottomLeft, topLeft, topCenter, topRight, bottomRight] // 5 players
-]
+function positionCss (players:number) {
+  switch (players){
+    case 2:
+      return [bottomLeft(players), bottomRight(players)] // 2 players
+    case 3:
+      return [bottomLeft(players), bottomRight(players), topRight(players)] // 3 players
+    case 4:
+      return [bottomLeft(players), bottomRight(players), topLeft(players), topRight(players)] // 4 players
+    case 5:
+    default:
+      return [bottomLeft(players), bottomRight(players), topLeft(players), topRight(players), topCenter(players)] // 5 players
+  }
+
+} 
 
 export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',

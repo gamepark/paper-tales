@@ -51,71 +51,48 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       }))
       
       this.material(MaterialType.Building).createItems(items)
-
-      // For testing
       const testCard1 = theRealDeck.find(item => item === Unit.ForestSpirit)
+
+      const itemsDiscardArray = [{
+        id:testCard1,
+        location:{type: LocationType.Discard}
+      }]
 
       const itemsArray = [{
         id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[1], x:0, y:0}
+        location:{type: LocationType.PlayerUnitBoard, player, x:0, y:0}
       },{
         id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[1], x:1, y:0}
+        location:{type: LocationType.PlayerUnitBoard, player, x:1, y:0}
       },{
         id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[1], x:2, y:0}
+        location:{type: LocationType.PlayerUnitBoard, player, x:2, y:0}
       },{
         id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[1], x:0, y:1}
+        location:{type: LocationType.PlayerUnitBoard, player, x:0, y:1}
       },{
         id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[1], x:1, y:1}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:0, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:1, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:2, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:0, y:1}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player:this.game.players[0], x:1, y:1}
+        location:{type: LocationType.PlayerUnitBoard, player, x:1, y:1}
       }]
-
       const buildTestCard = buildings.find(item => item === Building.Town)
       const buildingArray = [{
         id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[0], x:0}
+        location:{type:LocationType.PlayerBuildingBoard, player}
       },{
         id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[0], x:1}
+        location:{type:LocationType.PlayerBuildingBoard, player}
       },{
         id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[0], x:2}
+        location:{type:LocationType.PlayerBuildingBoard, player}
       },{
         id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[0], x:3}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[1], x:0}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[1], x:1}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[1], x:2}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player:this.game.players[1], x:3}
+        location:{type:LocationType.PlayerBuildingBoard, player}
       }]
 
       this.material(MaterialType.Unit).createItems(itemsArray) 
       this.material(MaterialType.Building).createItems(buildingArray)
+      this.material(MaterialType.Unit).createItems(itemsDiscardArray)
+
       
     })
 
