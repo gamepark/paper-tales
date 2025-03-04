@@ -17,5 +17,6 @@ export enum LocationType {
     CardBoardRotate,
     CardHandRotate,
     Building,
+    ShieldIcon,
 
 }

@@ -17,6 +17,7 @@ import { scoreTokenLocator } from './ScoreTokenLocator'
 import { roundTokenLocator } from './RoundTokenLocator'
 import { cardBoardRotateButtonLocator } from './CardBoardRotateButtonLocator'
 import { cardHandRotateButtonLocator } from './CardHandRotateButtonLocator'
+import { shieldLocator } from './ShieldLocator'
 
 
 
@@ -38,6 +39,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit, radius: 1, positionOnParent: { x: 50, y: 40 } }),
     [LocationType.CardBoardRotate]: cardBoardRotateButtonLocator,
     [LocationType.CardHandRotate]: cardHandRotateButtonLocator,
+    [LocationType.ShieldIcon]:shieldLocator
 
 
 
