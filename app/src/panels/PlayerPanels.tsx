@@ -29,17 +29,18 @@ export const PlayerPanels: FC<any> = () => {
 }
 const absolute = css`
   position: absolute;
+  font-size:0.8em;
 `
 
 const bottomLeft = (players:number) => css`
-  left: ${players === 2 ? 1 : 1}em;
-  bottom: ${players === 2 ? 2 : 60}em;
+  left: ${players === 2 ? 1 : 2}em;
+  bottom: ${players === 2 ? 2 :11}em;
   width:25em;
 `
 
 const bottomRight = (players:number) => css`
-  right: ${players === 2 ? 1 : 1}em;
-  bottom: ${players === 2 ? 2 : 1}em;
+  right: ${players === 2 ? 1 : 2}em;
+  bottom: ${players === 2 ? 2 : 40}em;
   width:25em;
 `
 
@@ -49,8 +50,9 @@ const topLeft = (_players:number) => css`
 `
 
 const topRight = (_players:number) => css`
-  right: 2em;
-  bottom: 65em;
+  left: 2em;
+  bottom: 40em;
+  width:25em;
 `
 
 const topCenter = (_players:number) => css`

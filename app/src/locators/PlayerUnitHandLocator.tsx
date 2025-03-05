@@ -20,11 +20,11 @@ export class PlayerUnitHandLocator extends HandLocator {
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return { x: 80, y: -16 }   // TDB
+        return { x: -40, y: -42 }   // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -11, y: 7 } : players === 3 ? { x: -35, y: 22 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -11, y: 7 } : players === 3 ? { x: 40, y: 18 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 11, y: 7 } : players === 3 ? { x: 80, y: 0 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 11, y: 7 } : players === 3 ? { x: 40, y: -42 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 
@@ -42,11 +42,11 @@ export class PlayerUnitHandLocator extends HandLocator {
           case Position.TopCenter:
             return 0    // TDB 
           case Position.TopRight:
-            return -90    // TDB
+            return -180    // TDB
           case Position.BottomLeft:
             return 0
           case Position.BottomRight:
-            return players === 2 ? 0 : players === 3 ? -90 : 0    // TD > 2
+            return players === 2 ? 0 : players === 3 ? -180 : 0    // TD > 2
         }
         
       }

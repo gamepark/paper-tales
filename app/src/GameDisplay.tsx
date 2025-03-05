@@ -33,7 +33,7 @@ function getGameTableSize(players:number):gameTableSizes{
     case 2:
       return {xMin:-70, xMax:70, yMin:-45, yMax:16}
     case 3:
-      return {xMin:-82, xMax:95, yMin:-45, yMax:30}
+      return {xMin:-80, xMax:80, yMin:-38, yMax:33}
     case 4:
       return {xMin:-70, xMax:70, yMin:-45, yMax:16}
     case 5:
