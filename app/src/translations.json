@@ -119,6 +119,8 @@
     "fr": {
         "translation": {
             "Name": "Paper Tales",
+            "card.player.draft.you": "Cette carte se situe dans votre main.",
+            "card.player.draft.them": "Cette carte se situe dans la main de {player}",
             "card.effect.replace.wood.by.gold": "Vous pouvez payer 1 or au lieu de bois, autant de fois que souhaité.",
             "choose.card": "Vous devez choisir une carte",
             "Menu": "Menu",
