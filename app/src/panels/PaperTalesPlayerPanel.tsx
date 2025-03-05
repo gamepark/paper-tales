@@ -17,17 +17,17 @@ import { War } from '@gamepark/paper-tales/rules/3_War/War'
 
 type PaperTalesPlayerPanelProps = {
   player: Player,
-  index: number
+  index: number,
+  color:string, 
 } & HTMLAttributes<HTMLDivElement>
 
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => {
-  const { player, index, ...rest } = props
+  const { player, index, color, ...rest } = props
   const rules = useRules<PaperTalesRules>()!
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player.id), [rules.game, player.id])
   const ressourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player.id), [rules.game, player.id])
   const buildHelper = useMemo(() => new BuildHelper(rules.game, player.id), [rules.game, player.id])
   const war = useMemo(() => new War(rules.game), [rules.game, player.id])
-
 
   const { setFocus } = useFocusContext()
   const isBottomPlayers = rules.players.length === 5 ? (index === 0 || index === 4) : (rules.players.length === 4 ? (index === 0 || index === 3) : index === 0)
@@ -61,13 +61,11 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
     image: diamond,
     value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Diamond) 
   },
-
   {
     image: gold, 
     value: buildHelper.getPlayerGold(player.id),
     imageCss:css`border-radius:100%;`
   },
-
   {
     image: shield, 
     value: war.getPlayerPower(player.id)
@@ -80,9 +78,9 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
       onClick={focusPlayer}
       player={player}
       counters={counters}
-      backgroundImage={panelBackgrounds[player.id]}
-      countersPerLine={3}
-      css={canClick}
+      countersPerLine={2}
+      css={[canClick, colorBG(color)]}
+      timerOnRight={false}
       {...rest}
     />
   )
@@ -92,5 +90,17 @@ const canClick = css`
   cursor: pointer;
 `
 
-const panelBackgrounds = {
+const colorBG = (color:string) => css`
+  background-color: rgba(${getColor(color)})
+`
+
+function getColor(color:string):string {
+ switch (color){
+  case 'yellow':
+    return "248, 210, 22, 0.8"
+
+  case 'black':
+    return "0, 0, 0,0.6"
+ }
+ return ""
 }

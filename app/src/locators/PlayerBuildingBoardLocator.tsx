@@ -1,6 +1,6 @@
 import { ListLocator } from "@gamepark/react-game";
 import { getRelativePlayerIndex, MaterialContext } from "@gamepark/react-game";
-import { Location } from "@gamepark/rules-api";
+import { Coordinates, Location } from "@gamepark/rules-api";
 import { playerPositions, Position } from "./TableauLocator";
 import { buildingCardDescription } from "../material/BuildingCardDescription";
 
@@ -8,8 +8,29 @@ import { buildingCardDescription } from "../material/BuildingCardDescription";
 
 export class PlayerBuildingBoardLocator extends ListLocator {
 
-    gap = { y: buildingCardDescription.height + 0.2 }
-    maxCount = 5
+    getGap(location: Location, context: MaterialContext): Partial<Coordinates> {
+        const players = context.rules.players.length
+        const playerIndex = getRelativePlayerIndex(context, location.player)
+        const position = playerPositions[context.rules.players.length - 2][playerIndex]
+        if (players === 2) {
+            return { y: buildingCardDescription.height + 0.05 }
+        } else {
+            return position === Position.BottomLeft 
+                ? { y: buildingCardDescription.height + 0.05 } 
+                : { y: -buildingCardDescription.height + 0.05 }
+        }
+    }
+
+    getMaxCount(location: Location<number, number>, context: MaterialContext): number | undefined {
+        const players = context.rules.players.length
+        const playerIndex = getRelativePlayerIndex(context, location.player)
+        const position = playerPositions[context.rules.players.length - 2][playerIndex]
+        if (players === 2) {
+            return 4
+        } else {
+            return position === Position.BottomLeft ? 4 : 3
+        }
+    }    
 
     getCoordinates(location: Location, context: MaterialContext) {
         const playerIndex = getRelativePlayerIndex(context, location.player)
@@ -21,11 +42,11 @@ export class PlayerBuildingBoardLocator extends ListLocator {
             case Position.TopCenter:
                 return { x: -7, y: -40 }    // TDB 
             case Position.TopRight:
-                return { x: 58, y: -40 }    // TDB
+                return { x: 63, y: -18 }    // TDB
             case Position.BottomLeft:
-                return players === 2 ? { x: -60, y: -30 } : players === 3 ? { x: -60, y: -30 } : { x: -48, y: -9 }    // TDB > 2
+                return players === 2 ? { x: -60, y: -38 } : players === 3 ? { x: -53, y: -38 } : { x: -48, y: -9 }    // TDB > 2
             case Position.BottomRight:
-                return players === 2 ? { x: 60, y: -30 } : players === 3 ? { x: 60, y: -30 } : { x: 58, y: -9 }    // TD > 2
+                return players === 2 ? { x: 60, y: -38 } : players === 3 ? { x: 63, y: 20 } : { x: 58, y: -9 }    // TD > 2
         }
     }
 

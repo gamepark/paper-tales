@@ -4,8 +4,8 @@ import { Location, MaterialItem } from '@gamepark/rules-api'
 import { playerPositions, Position } from './TableauLocator'
 
 class PlayerGoldStockLocator extends PileLocator {
-  radius = 1
-  limit = 1000
+  radius = {x:2, y:2}
+  limit = 100
 
   getCoordinates(location: Location, context: ItemContext) {
     const playerIndex = getRelativePlayerIndex(context, location.player)
@@ -17,11 +17,11 @@ class PlayerGoldStockLocator extends PileLocator {
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return { x: 0, y: -40 }    // TDB
+        return { x: 30, y: -22 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -60, y: 20 } : players === 3 ? { x: -60, y: 20 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -16, y: -7 } : players === 3 ? { x: -20, y: -20 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 60, y: 20 } : players === 3 ? { x: 60, y: 20 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 16, y: -7 } : players === 3 ? { x: 30, y: 15 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 
