@@ -19,7 +19,7 @@ export class GoldStockLocator extends PileLocator {
 
   getCoordinates(_location: Location, context: ItemContext) {
     const players = context.rules.players.length
-    return players === 2 ? { x: -9, y: -30 } : players === 3 ? { x: 0, y: -32 } : { x: 58, y: -9 }    // TD > 4
+    return players === 2 ? { x: -9, y: -30 } : players === 3 ? { x: 0, y: -33 } : { x: 58, y: -9 }    // TD > 4
   }
 
 }

@@ -30,7 +30,7 @@ class PlayerUnitBoard extends Locator {
       case Position.TopRight:
         return { x: -50, y: -25 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -47, y:-36 } : players === 3 ? { x: -5, y: -6 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -47, y:-36 } : players === 3 ? { x: -5, y: -4 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
         return players === 2 ? { x: 47, y: -36 } : players === 3 ? { x: 50, y: -25 } : { x: 58, y: -9 }    // TD > 2
     }
