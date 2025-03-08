@@ -6,23 +6,20 @@ import { FC, useMemo } from 'react'
 import shieldIcon from '../../images/tokens/bouclier_rouge.png'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 
 export const ShieldIcon: FC<{ location: Location }> = ({ location }) => {
   const rules = useRules<PaperTalesRules>()!
   const unit:MaterialItem | undefined = rules.material(MaterialType.Unit).filter((_i, index) => index === location.parent).getItem()
-  const unitId:number = unit?.id
-  const power = unitCardCaracteristics[unitId].power
   const player = usePlayerId()
   const war = useMemo(() => new War(rules.game), [rules.game, player])
-  const unitPower = unit === undefined || player === undefined ? undefined : war.getUnitPower(player, unit)
+  const unitPower = unit === undefined || player === undefined || unit.id === undefined ? undefined : war.getUnitPower(player, unit)
 
-  const powerToDisplay = unitPower === undefined ? power : unitPower
+  const powerToDisplay = unitPower === undefined ? undefined : unitPower
 
-  console.log(power)
+  console.log(powerToDisplay)
 
-  if (false) return null
+  if (powerToDisplay === undefined) return null
   return (
     <>
       <Picture src={shieldIcon} css={[pointerCursorCss, shieldCss]} />

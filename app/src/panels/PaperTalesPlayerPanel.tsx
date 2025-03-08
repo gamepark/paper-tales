@@ -98,9 +98,18 @@ function getColor(color:string):string {
  switch (color){
   case 'yellow':
     return "248, 210, 22, 0.8"
-
   case 'black':
     return "0, 0, 0,0.6"
+  case 'blue':
+    return "26, 94, 170, 0.8"
+  case 'red':
+    return "228, 3, 44, 0.8"
+  case 'green':
+    return "0, 153, 88, 0.8"
+  case 'purple':
+    return "118, 37, 131, 0.8"
+  case 'white' : 
+    return "240, 240, 240, 0.8" 
  }
  return ""
 }
