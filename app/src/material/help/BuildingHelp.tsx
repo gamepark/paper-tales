@@ -31,14 +31,6 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       <GetLocationText {...props} />
       {isBuilt && <p><Trans defaults={isLevel2 ? 'build.lvl2' : 'build.lvl1.player'} /></p>}
 
-      {caracteristics.resources1 !== undefined &&
-        <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.resources1} />
-      }
-
-      {caracteristics.resources2 !== undefined &&
-        <ResourcesHelp _i18nKey="card.effect.resources2" resources={caracteristics.resources2} />
-      }
-
 
       {mine && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.resources1} />}
       {/* {mine && TODO Construction N1} */}
@@ -48,25 +40,64 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
 
       {/* {mine && TODO Symbole Phase 3} */}
       {/* {mine && TODO Symbole 2 PV} */}
-      {mine && <Trans defaults="level.two.effect.one" />}
+      {mine && <Trans defaults="level.two.effect.one.mine" />}
       {/* {mine && TODO Symbole diamant} */}
-      {mine && <Trans defaults="level.two.effect.two" />}
+      {mine && <Trans defaults="level.two.effect.two.mine" />}
+
+
+      {/* {temple && TODO Construction N1} */}
+      {temple && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.cost1} />}
+      {/* TODO : Diamant OU Or (cost) */}
+      {/* {temple && TODO Construction N2} */}
+
+      {temple && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.cost2} />}
+      {/* {temple && phase 4 */}
+      {/* {temple && 2 or} */}
+      {/* {temple && phase 3 */}
+      {/* {temple && 2PV */}
 
 
 
-      {temple &&
-        <Trans defaults="build.temple" />
-      }
 
-      {tavern &&
-        <Trans defaults="build.tavern" />
-      }
-      {town &&
-        <Trans defaults="build.town" />
-      }
-      {barracks &&
-        <Trans defaults="build.barracks" />
-      }
+      {/* {tavern && TODO Construction N1} */}
+      {tavern && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
+      {/* {tavern && TODO Construction N2} */}
+      {tavern && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
+      {/* {tavern && Phase 4 } */}
+      {/* {tavern && 1 or } */}
+      {tavern && <Trans defaults="effect.one.tavern" />}
+      {/* {tavern && viande} */}
+      {tavern && <Trans defaults="effect.two.tavern" />}
+      {/* {tavern && phase 3} */}
+      {/* {tavern && 1 PV } */}
+      {tavern && <Trans defaults="effect.one.tavern" />}
+      {/* {tavern && viande} */}
+      {tavern && <Trans defaults="effect.two.tavern" />}
+
+
+      {/* {town && TODO Construction N1} */}
+      {town && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
+      {/* {town && TODO Construction N2} */}
+      {town && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
+      {town && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.resources1} />}
+      {town && <ResourcesHelp _i18nKey="card.effect.resources2" resources={caracteristics.resources2} />}
+
+
+
+      {/* {barracks && TODO Construction N1} */}
+      {barracks && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
+      {/* {barracks && TODO Construction N2} */}
+      {barracks && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
+      {/* {barrack && Phase 3 } */}
+      {/* {barracks && 1 atk } */}
+      {barracks && <Trans defaults="effect.one.barracks" />}
+      {/* {barracks && bois} */}
+      {barracks && <Trans defaults="effect.two.barracks" />}
+      {/* {barracks && phase 3} */}
+      {/* {barracks && 1 PV } */}
+      {barracks && <Trans defaults="effect.three.barracks" />}
+      {/* {barracks && combat 3+} */}
+      {barracks && <Trans defaults="effect.four.barracks" />}
 
 
     </>
