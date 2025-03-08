@@ -13,15 +13,15 @@ export class PlayerBuildingHandLocator extends HandLocator {
     const players = context.rules.players.length
     switch (position) {
       case Position.TopLeft:
-        return { x: -48, y: -40 }   // TDB
+        return players === 4 ? { x: -16, y: -15 } : { x: -48, y: -40 }   // TDB
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return players === 3 ? { x: -44, y: 3 } : { x: -48, y: -15 }    // TDB
+        return players === 3 ? { x: -44, y: 3 } : players === 4 ? { x: 16, y: -15 } : { x: -48, y: -15 }    // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -36, y: -7 } : players === 3 ? { x: 4, y: 24 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -36, y: -7 } : players === 3 ? { x: 4, y: 24 } : players === 4 ? { x: -37, y: 2 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 36, y: -7 } : players === 3 ? { x: 44, y: 3 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 36, y: -7 } : players === 3 ? { x: 44, y: 3 } : players === 4 ? { x: 37, y: 2 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 

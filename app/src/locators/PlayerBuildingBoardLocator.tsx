@@ -38,15 +38,15 @@ export class PlayerBuildingBoardLocator extends ListLocator {
         const players = context.rules.players.length
         switch (position) {
             case Position.TopLeft:
-                return { x: -48, y: -40 }   // TDB
+                return players === 4 ? { x: -61, y: -12 } : { x: -48, y: -40 }   // TDB
             case Position.TopCenter:
                 return { x: -7, y: -40 }    // TDB 
             case Position.TopRight:
-                return { x: -63, y: -7 }    // TDB
+                return players === 3 ? { x: -63, y: -7 } : players === 4 ? { x: 61, y: -12 } : { x: -63, y: -7 }   // TDB
             case Position.BottomLeft:
-                return players === 2 ? { x: -60, y: -38 } : players === 3 ? { x: -20, y: -6 } : { x: -48, y: -9 }    // TDB > 2
+                return players === 2 ? { x: -60, y: -38 } : players === 3 ? { x: -20, y: -6 } : players === 4 ? { x: -61, y: 2 } : { x: -48, y: -9 }    // TDB > 2
             case Position.BottomRight:
-                return players === 2 ? { x: 60, y: -38 } : players === 3 ? { x: 63, y:-7 } : { x: 58, y: -9 }    // TD > 2
+                return players === 2 ? { x: 60, y: -38 } : players === 3 ? { x: 63, y:-7 } : players === 4 ? { x: 61, y: 31 } : { x: 58, y: -9 }    // TD > 2
         }
     }
 

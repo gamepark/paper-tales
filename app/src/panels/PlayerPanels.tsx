@@ -21,7 +21,7 @@ export const PlayerPanels: FC<any> = () => {
           player={player} 
           index={index} 
           color={playerColorCode[player.id as PlayerColor]} 
-          css={[absolute, positionCss(players.length)[index]]}/>
+          css={[absolute, panelWidth(players.length), positionCss(players.length)[index]]}/>
       )}
     </>,
     root
@@ -32,35 +32,9 @@ const absolute = css`
   font-size:0.8em;
 `
 
-const bottomLeft = (players:number) => css`
-  left: ${players === 2 ? 1 : 2}em;
-  bottom: ${players === 2 ? 2 :11}em;
-  width:25em;
+const panelWidth = (players:number) => css`
+  width: ${players === 2 ? 25 : players === 3 ? 25 : players === 4 ? 30 : 25}em;
 `
-
-const bottomRight = (players:number) => css`
-  right: ${players === 2 ? 1 : 2}em;
-  bottom: ${players === 2 ? 2 : 40}em;
-  width:25em;
-`
-
-const topLeft = (_players:number) => css`
-  left: 2em;
-  bottom: 2em;
-`
-
-const topRight = (_players:number) => css`
-  left: 2em;
-  bottom: 40em;
-  width:25em;
-`
-
-const topCenter = (_players:number) => css`
-  left: 50%;
-  top: 10em;
-  transform: translateX(-32em);
-`
-
 
 function positionCss (players:number) {
   switch (players){
@@ -69,13 +43,39 @@ function positionCss (players:number) {
     case 3:
       return [bottomLeft(players), bottomRight(players), topRight(players)] // 3 players
     case 4:
-      return [bottomLeft(players), bottomRight(players), topLeft(players), topRight(players)] // 4 players
+      return [bottomLeft(players), topLeft(players), topRight(players), bottomRight(players)] // 4 players
     case 5:
     default:
       return [bottomLeft(players), bottomRight(players), topLeft(players), topRight(players), topCenter(players)] // 5 players
   }
 
 } 
+
+const bottomLeft = (players:number) => css`
+  left: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 0}em;
+  bottom: ${players === 2 ? 2 : players === 3 ? 11 : players === 4 ? 7 : 0}em;
+`
+
+const bottomRight = (players:number) => css`
+  right: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 0}em;
+  bottom: ${players === 2 ? 2 : players === 3 ? 2 : players === 4 ? 7 : 0}em;
+`
+
+const topLeft = (players:number) => css`
+  left: ${players === 3 ? 2 : players === 4 ? 2 : 0}em;
+  top: ${players === 3 ? 2 : players === 4 ? 12 : 0}em;
+`
+
+const topRight = (players:number) => css`
+  right: ${players === 3 ? 2 : players === 4 ? 2 : 0}em;
+  top: ${players === 3 ? 40 : players === 4 ? 12 : 0}em; 
+`
+
+const topCenter = (_players:number) => css`
+  left: 50%;
+  top: 10em;
+  transform: translateX(-32em);
+`
 
 export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',

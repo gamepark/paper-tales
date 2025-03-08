@@ -16,15 +16,15 @@ export class PlayerUnitHandLocator extends HandLocator {
     //const delta = (context.rules.players.length === 2 ? 9 : 5) - handLength 
     switch (position) {
       case Position.TopLeft:
-        return { x: -48, y: -40 }   // TDB
+        return players === 4 ? { x: -85, y: -10 } : { x: -48, y: -40 }   // TDB
       case Position.TopCenter:
         return { x: -7, y: -40 }    // TDB 
       case Position.TopRight:
-        return { x: -40, y: -42 }   // TDB
+        return players === 3 ? { x: -40, y: -42 } : { x: 85, y: -10}   // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -11, y: 7 } : players === 3 ? { x: 40, y: 18 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -11, y: 7 } : players === 3 ? { x: 40, y: 18 } : players === 4 ? { x: 16, y: 30 } : { x: -48, y: -9 }    // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 11, y: 7 } : players === 3 ? { x: 40, y: -42 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 11, y: 7 } : players === 3 ? { x: 40, y: -42 } : players === 4 ? { x: 85, y: 10 } : { x: 58, y: -9 }    // TD > 2
     }
   }
 
@@ -38,15 +38,15 @@ export class PlayerUnitHandLocator extends HandLocator {
         const players = context.rules.players.length
         switch (position) {
           case Position.TopLeft:
-            return 0  // TDB
+            return players === 4 ? 90 : 0  // TDB
           case Position.TopCenter:
             return 0    // TDB 
           case Position.TopRight:
-            return -180    // TDB
+            return players === 3 ? -180 : players === 4 ? -90 : 0    // TDB
           case Position.BottomLeft:
             return 0
           case Position.BottomRight:
-            return players === 2 ? 0 : players === 3 ? -180 : 0    // TD > 2
+            return players === 2 ? 0 : players === 3 ? -180 : players === 4 ? -90 : 0    // TD > 2
         }
         
       }
