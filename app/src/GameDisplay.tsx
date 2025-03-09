@@ -38,7 +38,7 @@ function getGameTableSize(players:number):gameTableSizes{
       return {xMin:-93, xMax:93, yMin:-40, yMax:42}
     case 5:
     default:
-      return {xMin:-70, xMax:70, yMin:-45, yMax:16}
+      return {xMin:-100, xMax:100, yMin:-50, yMax:50}
 
   }
 }

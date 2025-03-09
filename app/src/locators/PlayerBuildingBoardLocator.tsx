@@ -15,9 +15,16 @@ export class PlayerBuildingBoardLocator extends ListLocator {
         if (players === 2) {
             return { y: buildingCardDescription.height + 0.05 }
         } else {
-            return position === Position.BottomLeft 
+            if (players !== 5){
+                return position === Position.BottomLeft 
                 ? { y: buildingCardDescription.height + 0.05 } 
                 : { y: -buildingCardDescription.height + 0.05 }
+            } else {
+                return position === Position.BottomCenter
+                ? { y: -buildingCardDescription.height + 0.05 }
+                : { y: buildingCardDescription.height + 0.05 } 
+            }
+
         }
     }
 
@@ -28,7 +35,11 @@ export class PlayerBuildingBoardLocator extends ListLocator {
         if (players === 2) {
             return 4
         } else {
-            return position === Position.BottomLeft ? 4 : 3
+            if (players !== 5){
+                return position === Position.BottomLeft ? 4 : 3
+            } else {
+                return position === Position.BottomCenter ? 4 : 3
+            }
         }
     }    
 
@@ -38,15 +49,15 @@ export class PlayerBuildingBoardLocator extends ListLocator {
         const players = context.rules.players.length
         switch (position) {
             case Position.TopLeft:
-                return players === 4 ? { x: -61, y: -12 } : { x: -48, y: -40 }   // TDB
-            case Position.TopCenter:
-                return { x: -7, y: -40 }    // TDB 
+                return players === 4 ? { x: -61, y: -12 } : { x: -53, y: -40 }  // TDB
+            case Position.BottomCenter:
+                return { x: -20, y: 42 }    // TDB 
             case Position.TopRight:
-                return players === 3 ? { x: -63, y: -7 } : players === 4 ? { x: 61, y: -12 } : { x: -63, y: -7 }   // TDB
+                return players === 3 ? { x: -63, y: -7 } : players === 4 ? { x: 61, y: -12 } : { x: 53, y: -40 }  // TDB
             case Position.BottomLeft:
-                return players === 2 ? { x: -60, y: -38 } : players === 3 ? { x: -20, y: -6 } : players === 4 ? { x: -61, y: 2 } : { x: -48, y: -9 }    // TDB > 2
+                return players === 2 ? { x: -60, y: -38 } : players === 3 ? { x: -20, y: -6 } : players === 4 ? { x: -61, y: 2 } : { x: -74, y: 3 }    // TDB > 2
             case Position.BottomRight:
-                return players === 2 ? { x: 60, y: -38 } : players === 3 ? { x: 63, y:-7 } : players === 4 ? { x: 61, y: 31 } : { x: 58, y: -9 }    // TD > 2
+                return players === 2 ? { x: 60, y: -38 } : players === 3 ? { x: 63, y:-7 } : players === 4 ? { x: 61, y: 31 } : { x: 74, y: 3 }     // TD > 2
         }
     }
 

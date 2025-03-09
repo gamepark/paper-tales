@@ -13,15 +13,15 @@ export class PlayerBuildingHandLocator extends HandLocator {
     const players = context.rules.players.length
     switch (position) {
       case Position.TopLeft:
-        return players === 4 ? { x: -16, y: -15 } : { x: -48, y: -40 }   // TDB
-      case Position.TopCenter:
-        return { x: -7, y: -40 }    // TDB 
+        return players === 4 ? { x: -16, y: -15 } : { x: -12, y: -22 }   // TDB
+      case Position.BottomCenter:
+        return { x: 4, y: 42 }    // TDB 
       case Position.TopRight:
-        return players === 3 ? { x: -44, y: 3 } : players === 4 ? { x: 16, y: -15 } : { x: -48, y: -15 }    // TDB
+        return players === 3 ? { x: -44, y: 3 } : players === 4 ? { x: 16, y: -15 } : { x: 12, y: -22 }   // TDB
       case Position.BottomLeft:
-        return players === 2 ? { x: -36, y: -7 } : players === 3 ? { x: 4, y: 24 } : players === 4 ? { x: -37, y: 2 } : { x: -48, y: -9 }    // TDB > 2
+        return players === 2 ? { x: -36, y: -7 } : players === 3 ? { x: 4, y: 24 } : players === 4 ? { x: -37, y: 2 } : { x: -65, y: -8 }  // TDB > 2
       case Position.BottomRight:
-        return players === 2 ? { x: 36, y: -7 } : players === 3 ? { x: 44, y: 3 } : players === 4 ? { x: 37, y: 2 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 36, y: -7 } : players === 3 ? { x: 44, y: 3 } : players === 4 ? { x: 37, y: 2 } : { x: 65, y: -8 }    // TD > 2
     }
   }
 
@@ -31,11 +31,11 @@ export class PlayerBuildingHandLocator extends HandLocator {
     const players = context.rules.players.length
     switch (position) {
       case Position.TopLeft:
-        return 1000   // TDB
-      case Position.TopCenter:
+        return players === 5 ? 500 : 1000   // TDB
+      case Position.BottomCenter:
         return 1000    // TDB 
       case Position.TopRight:
-        return players === 3 ? 500 : 1000    // TDB
+        return (players === 3 || players === 5) ? 500 : 1000    // TDB
       case Position.BottomLeft:
         return players === 2 ? 1000 : players === 3 ? 1000 : 1000    // TDB > 2
       case Position.BottomRight:
@@ -50,7 +50,7 @@ export class PlayerBuildingHandLocator extends HandLocator {
     switch (position) {
       case Position.TopLeft:
         return 0
-      case Position.TopCenter:
+      case Position.BottomCenter:
         return 0
       case Position.TopRight:
         return players === 3 ? 0 : 0

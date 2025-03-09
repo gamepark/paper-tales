@@ -12,7 +12,7 @@ export class GoldStockLocator extends PileLocator {
     } else if (players === 4){
       return {x:3, y:4}
     } else {
-      return {x:1, y:1}
+      return {x:10, y:0.5}
     }
   }
 
@@ -23,7 +23,7 @@ export class GoldStockLocator extends PileLocator {
 
   getCoordinates(_location: Location, context: ItemContext) {
     const players = context.rules.players.length
-    return players === 2 ? { x: -9, y: -30 } : players === 3 ? { x: 0, y: -33 } : players === 4 ? { x: -13, y: 14 } : { x: 58, y: -9 }    // TD > 4
+    return players === 2 ? { x: -9, y: -30 } : players === 3 ? { x: 0, y: -33 } : players === 4 ? { x: -13, y: 14 } : { x: 0, y: -12 } 
   }
 
 }

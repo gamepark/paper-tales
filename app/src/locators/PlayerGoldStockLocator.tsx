@@ -13,15 +13,15 @@ class PlayerGoldStockLocator extends PileLocator {
     const players = context.rules.players.length
     switch (position) {
       case Position.TopLeft:
-        return players === 4 ? { x: 15, y: -30 } : { x: -48, y: -40 }   // TDB
-      case Position.TopCenter:
-        return { x: -7, y: -40 }    // TDB 
+        return players === 4 ? { x: 15, y: -30 } : { x: -10, y: -36 }
+      case Position.BottomCenter:
+        return { x: 14, y: 30 } 
       case Position.TopRight:
-        return players === 3 ? { x: -60, y: 3 } : players === 4 ? { x: -15, y: -30 } : { x: -60, y: 3 }    // TDB
+        return players === 3 ? { x: -60, y: 3 } : players === 4 ? { x: -15, y: -30 } : { x: 10, y: -36 }
       case Position.BottomLeft:
-        return players === 2 ? { x: -16, y: -7 } : players === 3 ? { x: 15, y: 10 } : players === 4 ? { x: -80, y: 15 } : { x: -48, y: -9 }   // TDB > 2
+        return players === 2 ? { x: -16, y: -7 } : players === 3 ? { x: 15, y: 10 } : players === 4 ? { x: -80, y: 15 } : { x: -40, y: 20 }
       case Position.BottomRight:
-        return players === 2 ? { x: 16, y: -7 } : players === 3 ? { x: 60, y: 3 } : players === 4 ? { x: 73, y: 15 } : { x: 58, y: -9 }    // TD > 2
+        return players === 2 ? { x: 16, y: -7 } : players === 3 ? { x: 60, y: 3 } : players === 4 ? { x: 73, y: 15 } : { x: 40, y: 20 }
     }
   }
 

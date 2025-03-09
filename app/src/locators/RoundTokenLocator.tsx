@@ -13,7 +13,7 @@ export class RoundTokenLocator extends Locator {
         return {x:0, y:14}
       case 5 :
       default :
-        return {x:0, y:-24}
+        return {x:0, y:-3}
     }
   }
 

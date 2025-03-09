@@ -46,34 +46,34 @@ function positionCss (players:number) {
       return [bottomLeft(players), topLeft(players), topRight(players), bottomRight(players)] // 4 players
     case 5:
     default:
-      return [bottomLeft(players), bottomRight(players), topLeft(players), topRight(players), topCenter(players)] // 5 players
+      return [bottomCenter(players), bottomRight(players), topRight(players), topLeft(players), bottomLeft(players)] // 5 players
   }
 
 } 
 
 const bottomLeft = (players:number) => css`
-  left: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 0}em;
-  bottom: ${players === 2 ? 2 : players === 3 ? 11 : players === 4 ? 7 : 0}em;
+  left: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 2}em;
+  bottom: ${players === 2 ? 2 : players === 3 ? 11 : players === 4 ? 7 : 2}em;
 `
 
 const bottomRight = (players:number) => css`
-  right: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 0}em;
-  bottom: ${players === 2 ? 2 : players === 3 ? 2 : players === 4 ? 7 : 0}em;
+  right: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 2}em;
+  bottom: ${players === 2 ? 2 : players === 3 ? 2 : players === 4 ? 7 : 2}em;
 `
 
 const topLeft = (players:number) => css`
-  left: ${players === 3 ? 2 : players === 4 ? 2 : 0}em;
-  top: ${players === 3 ? 2 : players === 4 ? 12 : 0}em;
+  left: ${players === 3 ? 2 : players === 4 ? 2 : 2}em;
+  top: ${players === 3 ? 2 : players === 4 ? 12 : 12}em;
 `
 
 const topRight = (players:number) => css`
-  right: ${players === 3 ? 2 : players === 4 ? 2 : 0}em;
-  top: ${players === 3 ? 40 : players === 4 ? 12 : 0}em; 
+  right: ${players === 3 ? 2 : players === 4 ? 2 : 2}em;
+  top: ${players === 3 ? 40 : players === 4 ? 12 : 12}em; 
 `
 
-const topCenter = (_players:number) => css`
-  left: 50%;
-  top: 10em;
+const bottomCenter = (_players:number) => css`
+  right: 10em;
+  bottom: 2em;
   transform: translateX(-32em);
 `
 
