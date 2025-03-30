@@ -5,9 +5,9 @@ import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { RuleId } from './rules/RuleId'
-import { theRealDeck, Unit } from './material/Unit'
+import { theRealDeck } from './material/Unit'
 import { Gold } from './material/Gold'
-import { Building, buildings } from './material/Building'
+import { buildings } from './material/Building'
 
 /**
  * This class creates a new Game based on the game options
@@ -51,48 +51,6 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
       }))
       
       this.material(MaterialType.Building).createItems(items)
-      const testCard1 = theRealDeck.find(item => item === Unit.ForestSpirit)
-
-      const itemsDiscardArray = [{
-        id:testCard1,
-        location:{type: LocationType.Discard}
-      }]
-
-      const itemsArray = [{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player, x:0, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player, x:1, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player, x:2, y:0}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player, x:0, y:1}
-      },{
-        id:testCard1,
-        location:{type: LocationType.PlayerUnitBoard, player, x:1, y:1}
-      }]
-      const buildTestCard = buildings.find(item => item === Building.Town)
-      const buildingArray = [{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player}
-      },{
-        id:buildTestCard,
-        location:{type:LocationType.PlayerBuildingBoard, player}
-      }]
-
-      this.material(MaterialType.Unit).createItems(itemsArray) 
-      this.material(MaterialType.Building).createItems(buildingArray)
-      this.material(MaterialType.Unit).createItems(itemsDiscardArray)
-
       
     })
 

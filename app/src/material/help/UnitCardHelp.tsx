@@ -39,17 +39,14 @@ export const PaperTalesCardHelp: FC<MaterialHelpProps> = (props) => {
     || (item.location?.player !== player && (item.location?.type === LocationType.PlayerDraftHand || item.location?.type === LocationType.PlayerUnitHand))
   //const buy = useLegalMoves(move => !isFlipped && isMoveItemType(MaterialType.Unit)(move) && move.itemIndex === itemIndex && move.location.type === LocationType.PlayerDraftHand && !move.location.rotation)
 
-  console.log("index : ", unitIndex)
-
   const chooseWhereToPlaceTokenMove = useLegalMove((move) => isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move) && move.data.unitIndex === unitIndex)
-  console.log(chooseWhereToPlaceTokenMove)
 
   return (
     <>
       <h2 css={titleCss}>{isFlipped ? t('card.face-down') : t(`card.${item.id}`)}</h2>
       {!isFlipped && <VisibleCard {...props} />}
       <CardLocation {...props} />
-      <PlayMoveButton move={chooseWhereToPlaceTokenMove}></PlayMoveButton>
+      {chooseWhereToPlaceTokenMove && <PlayMoveButton move={chooseWhereToPlaceTokenMove}></PlayMoveButton>} 
     </>
   )
 }
@@ -275,13 +272,38 @@ const getEffectDescription = (effect: Effect): ReactElement => {
       )
 
     case EffectType.GainAgeTokenOnChosenUnit:
+      const tokenAmount = effect.amount
+      const onDeployment = effect.onDeployment === true ? <Trans defaults="card.effect.gain.age.on.choosen.unit.deploy" /> : undefined
+      const perResource = effect.perResource ? <Trans defaults="card.effect.gain.age.on.choosen.unit.per.resource" values={{ score: tokenAmount }} /> : undefined
+      const gainAgeOnChoosenUnitBaseText1 = <Trans defaults="card.effect.gain.age.on.choosen.unit.base1"/>
+      const gainAgeOnChoosenUnitBaseText2 = <Trans defaults="card.effect.gain.age.on.choosen.unit.base2"/>
+
+      const agePicture = <Picture css={mini} src={ageToken} />
+
       return (
         <>
+          {onDeployment} {gainAgeOnChoosenUnitBaseText1} {perResource} {agePicture} {gainAgeOnChoosenUnitBaseText2}
         </>
       )
     case EffectType.GainTokenIfDying:
+      const tokenPicture = effect.tokenGain === MaterialType.Gold ? <Picture css={mini} src={gold} /> : <Picture css={mini} src={scoreIcon} />
+      const tokenCountWon = effect.amount
+      const gainTokenIfDyingBaseText1 = tokenCountWon > 0 
+        ? <Trans defaults="card.effect.gain.token.if.dying.base1"/>
+        : <Trans defaults="card.effect.lose.token.if.dying.base1"/>
+      const ifAgeToken = effect.ifAgeToken === true && <Trans defaults="card.effect.gain.token.if.dying.if.token" />
+      const perToken = effect.perAgeToken === true && <Trans defaults="card.effect.gain.token.if.dying.per.token" />
+      const whoDies = effect.whoDies === WhichUnit.All 
+        ? <Trans defaults="card.effect.gain.token.if.dying.all.units"/>
+        : effect.whoDies === WhichUnit.Myself
+          ? <Trans defaults="card.effect.gain.token.if.dying.me"/>
+          : <Trans defaults="card.effect.gain.token.if.dying.others"/>
+
       return (
         <>
+          {gainTokenIfDyingBaseText1} {tokenCountWon} {tokenPicture} 
+          {ifAgeToken} {perToken}
+          {whoDies}
         </>
       )
     case EffectType.GainTokenIfWinWar:
@@ -343,6 +365,8 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.RelicEffect:
       return (
         <>
+          <Trans defaults="card.effect.relic.never.dies" />
+          <Trans defaults="card.effect.relic.scoring" values={{ score: effect.amount }} />
         </>
       )
     case EffectType.ScoreAtWar:
