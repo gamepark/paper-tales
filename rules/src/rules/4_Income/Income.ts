@@ -1,69 +1,80 @@
-import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { IncomeEffect, isIncomeType } from "../../material/effects/4_IncomeEffects"
-import { Effect, EffectType } from "../../material/effects/Effect"
-import { goldMoney } from "../../material/Gold"
-import { LocationType } from "../../material/LocationType"
-import { MaterialType } from "../../material/MaterialType"
-import { unitCardCaracteristics } from "../../material/UnitCaracteristics"
-import { BuildHelper } from "../helpers/BuildHelper"
-import { ResourcesHelper } from "../helpers/ResourcesHelper"
-import { RuleId } from "../RuleId"
+import { MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import sumBy from 'lodash/sumBy'
+import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
+import { Effect, EffectType } from '../../material/effects/Effect'
+import { goldMoney } from '../../material/Gold'
+import { LocationType } from '../../material/LocationType'
+import { MaterialType } from '../../material/MaterialType'
+import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
+import { BuildHelper } from '../helpers/BuildHelper'
+import { ResourcesHelper } from '../helpers/ResourcesHelper'
+import { RuleId } from '../RuleId'
 
 export class Income extends MaterialRulesPart {
 
-    onRuleStart(): MaterialMove[] {
-        const moves:MaterialMove[] = []
-        const players = this.game.players
-        players.forEach(player => {
-            moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player}, this.getPlayerIncome(player)))
-        })
-        moves.push(this.startSimultaneousRule(RuleId.Build))
+  onRuleStart(): MaterialMove[] {
+    const moves: MaterialMove[] = []
+    const players = this.game.players
+    players.forEach(player => {
+      moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), { type: LocationType.PlayerGoldStock, player }, this.getPlayerIncome(player)))
+    })
+    moves.push(this.startSimultaneousRule(RuleId.Build))
 
-        return moves
-    }
+    return moves
+  }
 
-    getPlayerBoard(playerId:number){
-        return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
-    }
+  getPlayerBoard(playerId: number) {
+    return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
+  }
 
-    getPlayerIncome(playerId:number){
-        console.log("player : ", playerId, "get from buildings : ", this.getIncomeFromBuilding(playerId))
-        return this.getIncomeUnits(playerId).getItems().reduce((acc, cur) => 
-            acc + (unitCardCaracteristics[cur.id].effect as IncomeEffect[])
-                .reduce((cardIncome, cardEff) => 
-                cardIncome + this.getIncomeByEffect(playerId, cardEff, cur.location.x!, cur.location.y!),0)
-        , 2) + this.getIncomeFromBuilding(playerId)
-    }
+  getPlayerIncome(playerId: number) {
+    return sumBy(this.getIncomeUnits(playerId).getItems(), this.getUnitIncome) + this.getIncomeFromBuilding(playerId)
+  }
 
-    getIncomeUnits(playerId:number){
-        return this.getPlayerBoard(playerId)
-            .filter(item => unitCardCaracteristics[item.id].effect !== undefined 
-                && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isIncomeType(eff)))
-    }
+  getUnitIncome(unit: MaterialItem) {
+    return sumBy(unitCardCaracteristics[unit.id].effect as IncomeEffect[], (e) => this.getEffectIncomes(unit.location.player!, e, unit.location.x!, unit.location.y!))
+  }
 
-    getIncomeFromBuilding(playerId:number):number{
-        const buildHelper =  new BuildHelper(this.game, playerId)
-        const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId)
-        return effects.length === 0 
-            ? 0
-            : effects.reduce((acc, cur) => acc + this.getIncomeByEffect(playerId, cur, 0,0), 0)
-    }
-
-    getIncomeByEffect(playerId:number, effect:IncomeEffect, x:number, y:number){
-        switch(effect.type){
-            case EffectType.Income:
-                return effect.amount
-            case EffectType.IncomePerResource:
-                const resourcesHelper =  new ResourcesHelper(this.game, playerId)
-                return resourcesHelper.getPlayerOneTypeResource(playerId, effect.resource) * effect.amount
-            case EffectType.IncomeIfAgeToken:
-                return this.material(MaterialType.Age).location(LocationType.PlayerUnitBoard).player(playerId)
-                    .filter(item => item.location.x! === x && item.location.y! === y).getQuantity() > 0
-                    ? effect.amount
-                    : 0
-            default:
-                return 0
+  getIncomeUnits(playerId: number) {
+    return this.getPlayerBoard(playerId)
+      .filter(item => {
+        if (item.location.rotation) {
+          console.error('The item must not be hidden at that moment', item.id, JSON.stringify(item), JSON.stringify(this.game.rule))
         }
+        return unitCardCaracteristics[item.id].effect !== undefined
+          && (unitCardCaracteristics[item.id].effect as Effect[]).some(eff => isIncomeType(eff))
+      })
+  }
+
+  getIncomeFromBuilding(playerId: number): number {
+    const buildHelper = new BuildHelper(this.game, playerId)
+    const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId)
+    return sumBy(effects, (e) => this.getEffectIncomes(playerId, e, 0, 0))
+  }
+
+  getEffectIncomes(playerId: number, effect: IncomeEffect, x: number, y: number) {
+    switch (effect.type) {
+      case EffectType.Income:
+        return effect.amount
+      case EffectType.IncomePerResource:
+        return new ResourcesHelper(this.game, playerId).getResource(effect.resource) * effect.amount
+      case EffectType.IncomeIfAgeToken:
+        const index = this
+          .material(MaterialType.Unit)
+          .location((l) => l.type === LocationType.PlayerUnitBoard && l.x === x && l.y === y)
+          .player(playerId)
+          .getIndex()
+
+        const hasAgeToken = this
+          .material(MaterialType.Age)
+          .location(LocationType.OnCard)
+          .parent(index)
+          .length > 0
+
+        return hasAgeToken ? effect.amount : 0
+      default:
+        return 0
     }
+  }
 
 }

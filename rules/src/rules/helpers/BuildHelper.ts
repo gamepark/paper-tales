@@ -1,18 +1,18 @@
-import { MaterialGame, MaterialMove, MaterialRulesPart } from "@gamepark/rules-api";
-import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
-import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from "../../material/effects/3_WarEffects";
-import { IncomeEffect, isIncomeType } from "../../material/effects/4_IncomeEffects";
-import { BuildEffect, isBuildEffect, isIgnoreFieldCost, isReplaceResourceByGold, ReplaceResourceByGold } from "../../material/effects/5_Build";
-import { Effect } from "../../material/effects/Effect";
-import { goldMoney } from "../../material/Gold";
-import { LocationType } from "../../material/LocationType";
-import { MaterialType } from "../../material/MaterialType";
-import { Resources } from "../../material/Resources";
-import { unitCardCaracteristics } from "../../material/UnitCaracteristics";
-import { War } from "../3_War/War";
-import { Income } from "../4_Income/Income";
-import { BuildWithSubstitution } from "../5_Build/BuildWithSubstitution";
-import { ResourcesHelper } from "./ResourcesHelper";
+import { MaterialGame, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
+import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from '../../material/effects/3_WarEffects'
+import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
+import { BuildEffect, isBuildEffect, isIgnoreFieldCost, isReplaceResourceByGold, ReplaceResourceByGold } from '../../material/effects/5_Build'
+import { Effect } from '../../material/effects/Effect'
+import { goldMoney } from '../../material/Gold'
+import { LocationType } from '../../material/LocationType'
+import { MaterialType } from '../../material/MaterialType'
+import { Resources } from '../../material/Resources'
+import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
+import { War } from '../3_War/War'
+import { Income } from '../4_Income/Income'
+import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
+import { ResourcesHelper } from './ResourcesHelper'
 
 export class BuildHelper extends MaterialRulesPart {
 
@@ -161,8 +161,8 @@ export class BuildHelper extends MaterialRulesPart {
         } else if (buildEffect.perResource) {
             const resourcesHelper =  new ResourcesHelper(this.game, playerId)
             buildEffect.perResource.forEach(resource => {
-                const ressources = resourcesHelper.getPlayerOneTypeResource(playerId, resource)
-                add += ressources * buildEffect.powerAdded
+                const resources = resourcesHelper.getResource(resource)
+                add += resources * buildEffect.powerAdded
             })
         } else if (buildEffect.perGoldOnIncomePhase){
             const incomeHelper = new Income(this.game)

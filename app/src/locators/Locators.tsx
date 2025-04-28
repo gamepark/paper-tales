@@ -11,7 +11,7 @@ import { playerUnitHandLocator } from './PlayerUnitHandLocator'
 import { playerGoldStockLocator } from './PlayerGoldStockLocator'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
 import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
-import { playerUnitBoard } from './PlayerUnitBoard'
+import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
 import { scoreBoardLocator } from './ScoreBoardLocator'
 import { scoreTokenLocator } from './ScoreTokenLocator'
 import { roundTokenLocator } from './RoundTokenLocator'
@@ -32,7 +32,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.PlayerGoldStock]: playerGoldStockLocator,
     [LocationType.PlayerBuildingBoard]: playerBuildingBoardLocator,
     [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
-    [LocationType.PlayerUnitBoard]: playerUnitBoard,
+    [LocationType.PlayerUnitBoard]: playerUnitBoardLocator,
     [LocationType.ScoreBoard]: scoreBoardLocator,
     [LocationType.PlayerScore]: scoreTokenLocator,
     [LocationType.Time]: roundTokenLocator,

@@ -4,6 +4,7 @@ import { PaperTalesRules } from './PaperTalesRules'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
+import { Memory } from './rules/Memory'
 import { RuleId } from './rules/RuleId'
 import { theRealDeck } from './material/Unit'
 import { Gold } from './material/Gold'
@@ -21,10 +22,8 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
     this.game.players.forEach(player => {
       this.material(MaterialType.ScoreToken).createItem({id:player, location:{type:LocationType.PlayerScore, player:player, x:0}})
     })
-    this.material(MaterialType.Time).createItem({id:4, location:{type:LocationType.Time}})
-    this.material(MaterialType.Time).createItem({id:3, location:{type:LocationType.Time}})
-    this.material(MaterialType.Time).createItem({id:2, location:{type:LocationType.Time}})
-    this.material(MaterialType.Time).createItem({id:1, location:{type:LocationType.Time}})
+
+    this.memorize(Memory.Time, 1)
   }
 
   setupDeck() {

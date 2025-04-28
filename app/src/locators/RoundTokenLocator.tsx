@@ -1,22 +1,13 @@
-import { Locator, MaterialContext, } from '@gamepark/react-game'
-import { Coordinates, Location } from '@gamepark/rules-api'
+import { ItemContext, Locator } from '@gamepark/react-game'
+import { Location } from '../../../../rules-api/src'
 
 export class RoundTokenLocator extends Locator {
+  coordinates = { x: -20, y: -19 }
 
-  getCoordinates(_location: Location, context: MaterialContext): Partial<Coordinates> {
-    switch (context.rules.players.length){
-      case 2 :
-        return {x:0, y:-24}
-      case 3 :
-        return {x:0, y:-24}
-      case 4 :
-        return {x:0, y:14}
-      case 5 :
-      default :
-        return {x:0, y:-3}
-    }
+  getCoordinates(_location: Location, context: ItemContext) {
+    if (context.rules.players.length === 2) return { x: 28, y: -11.5 }
+    return this.coordinates
   }
-
 }
 
 export const roundTokenLocator = new RoundTokenLocator()

@@ -1,8 +1,8 @@
-import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { LocationType } from "../../material/LocationType"
-import { MaterialType } from "../../material/MaterialType"
-import { AgeHelper } from "../helpers/AgeHelper"
-import { RuleId } from "../RuleId"
+import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { LocationType } from '../../material/LocationType'
+import { MaterialType } from '../../material/MaterialType'
+import { AgeHelper } from '../helpers/AgeHelper'
+import { RuleId } from '../RuleId'
 
 export class AgeUnitsDie extends MaterialRulesPart {
 
@@ -12,7 +12,7 @@ export class AgeUnitsDie extends MaterialRulesPart {
         
         players.forEach(player => {
             const ageHelper = new AgeHelper(this.game, player)
-            const dyingUnits = ageHelper.getPlayerDyingUnits(player)
+            const dyingUnits = ageHelper.dyingUnits
             for (const [index, _item] of dyingUnits.entries){
                 const ageTokensToDiscard = ageHelper.getAgeTokenOnIndex(index)
                 moves.push(this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).deleteItem(
@@ -26,17 +26,6 @@ export class AgeUnitsDie extends MaterialRulesPart {
 
         moves.push(this.startRule(RuleId.AgeUnitsAge))
         return moves
-    }
-
-
-
-
-
-
-
-
-    getTurn(){
-        return this.material(MaterialType.Time).location(LocationType.Time).getItem()?.location.x!
     }
 
 }

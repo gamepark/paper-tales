@@ -17,7 +17,7 @@ export const ShieldIcon: FC<{ location: Location }> = ({ location }) => {
 
   const powerToDisplay = unitPower === undefined ? undefined : unitPower
 
-  console.log(powerToDisplay)
+  //console.log(powerToDisplay)
 
   if (powerToDisplay === undefined) return null
   return (

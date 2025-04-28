@@ -1,6 +1,7 @@
 import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
 import { MaterialType } from "../../material/MaterialType"
 import { LocationType } from "../../material/LocationType"
+import { Memory } from '../Memory'
 import { RuleId } from "../RuleId"
 
 export class GiveDraftToNeighbor extends MaterialRulesPart {
@@ -29,7 +30,7 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
     getNextPlayer(player:number) {
       const players = this.game.players
       const playerIndex = players.findIndex(item => item === player)
-      const round = this.material(MaterialType.Time).getItem()!.location.x!
+      const round = this.remind(Memory.Time)
       if (round % 2 === 1){
         return playerIndex + 1 === players.length ? players[0] : players[playerIndex + 1]
       } else {

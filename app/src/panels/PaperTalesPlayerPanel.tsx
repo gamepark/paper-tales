@@ -1,24 +1,27 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
-import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
+import { War } from '@gamepark/paper-tales/rules/3_War/War'
+import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
+import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
 import { Player } from '@gamepark/react-client'
 import { CounterProps, StyledPlayerPanel, useFocusContext, useRules } from '@gamepark/react-game'
 import { FC, HTMLAttributes, useCallback, useMemo } from 'react'
-import gold from '../images/tokens/Gold1.jpg'
 import wood from '../images/ressources/ressources_bois.png'
-import food from '../images/ressources/ressources_viande.png'
 import diamond from '../images/ressources/ressources_minerai.png'
-import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
+import food from '../images/ressources/ressources_viande.png'
 import shield from '../images/tokens/bouclier_rouge.png'
-import { Resources } from '@gamepark/paper-tales/material/Resources'
-import { War } from '@gamepark/paper-tales/rules/3_War/War'
+import gold from '../images/tokens/Gold1.jpg'
+import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 
 type PaperTalesPlayerPanelProps = {
   player: Player,
   index: number,
-  color:string, 
+  color: string,
 } & HTMLAttributes<HTMLDivElement>
 
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => {
@@ -27,50 +30,53 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player.id), [rules.game, player.id])
   const ressourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player.id), [rules.game, player.id])
   const buildHelper = useMemo(() => new BuildHelper(rules.game, player.id), [rules.game, player.id])
-  const war = useMemo(() => new War(rules.game), [rules.game, player.id])
-
+  const war = useMemo(() => new War(rules.game), [rules.game])
   const { setFocus } = useFocusContext()
-  const isBottomPlayers = rules.players.length === 5 ? (index === 0 || index === 4) : (rules.players.length === 4 ? (index === 0 || index === 3) : index === 0)
   const focusPlayer = useCallback(() => {
     setFocus({
-      materials: [],
+      materials: [
+        rules.material(MaterialType.Unit).player(player.id),
+        rules.material(MaterialType.Unit).location(LocationType.Deck),
+        rules.material(MaterialType.Building).player(player.id)
+      ],
       staticItems: [],
       locations: [],
       margin: {
-        left: (!isBottomPlayers && rules.players.length === 5) ? 17 : 0,
-        top: rules.players.length === 2 ? 6 : 1,
-        bottom: 1
+        left: 2,
+        right: 2,
+        top: 2,
+        bottom: 2
       },
       animationTime: 500
     })
-  }, [rules, player, setFocus])
+  }, [setFocus, rules, player.id])
 
   const counters: CounterProps[] = [{
-    image: '',
+    image: scoreTokenDescription.images[player.id],
     value: scoreHelper.getScore(player.id)
   },
-  {
-    image: wood,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Wood) 
-  },
-  {
-    image: food,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Food) 
-  },
-  {
-    image: diamond,
-    value: ressourcesHelper.getPlayerOneTypeResource(player.id, Resources.Diamond) 
-  },
-  {
-    image: gold, 
-    value: buildHelper.getPlayerGold(player.id),
-    imageCss:css`border-radius:100%;`
-  },
-  {
-    image: shield, 
-    value: war.getPlayerPower(player.id)
-  }
-]
+    {
+      image: wood,
+      value: ressourcesHelper.getResource(Resources.Wood)
+    },
+    {
+      image: food,
+      value: ressourcesHelper.getResource(Resources.Food)
+    },
+    {
+      image: diamond,
+      value: ressourcesHelper.getResource(Resources.Diamond)
+    },
+    {
+      image: gold,
+      value: buildHelper.getPlayerGold(player.id),
+      imageCss: css`border-radius: 100%;`
+    },
+    {
+      image: shield,
+      value: war.getPlayerPower(player.id)
+    }
+  ]
 
   return (
     <StyledPlayerPanel
@@ -90,26 +96,26 @@ const canClick = css`
   cursor: pointer;
 `
 
-const colorBG = (color:string) => css`
+const colorBG = (color: string) => css`
   background-color: rgba(${getColor(color)})
 `
 
-function getColor(color:string):string {
- switch (color){
-  case 'yellow':
-    return "248, 210, 22, 0.8"
-  case 'black':
-    return "0, 0, 0,0.6"
-  case 'blue':
-    return "26, 94, 170, 0.8"
-  case 'red':
-    return "228, 3, 44, 0.8"
-  case 'green':
-    return "0, 153, 88, 0.8"
-  case 'purple':
-    return "118, 37, 131, 0.8"
-  case 'white' : 
-    return "240, 240, 240, 0.8" 
- }
- return ""
+function getColor(color: string): string {
+  switch (color) {
+    case 'yellow':
+      return '248, 210, 22, 0.8'
+    case 'black':
+      return '0, 0, 0, 1'
+    case 'blue':
+      return '26, 94, 170, 0.8'
+    case 'red':
+      return '228, 3, 44, 0.8'
+    case 'green':
+      return '0, 153, 88, 0.8'
+    case 'purple':
+      return '118, 37, 131, 0.8'
+    case 'white' :
+      return '240, 240, 240, 0.8'
+  }
+  return ''
 }

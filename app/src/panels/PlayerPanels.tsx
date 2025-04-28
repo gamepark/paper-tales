@@ -1,14 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { usePlayers } from '@gamepark/react-game'
+import { useMaterialContext, usePlayers } from '@gamepark/react-game'
 import { FC } from 'react'
 import { createPortal } from 'react-dom'
+import { getPlayerIndex } from '../position/position.utils'
 import { PaperTalesPlayerPanel } from './PaperTalesPlayerPanel'
 
 export const PlayerPanels: FC<any> = () => {
   const players = usePlayers({ sortFromMe: true })
   const root = document.getElementById('root')
+  const context = useMaterialContext()
   if (!root) {
     return null
   }
@@ -21,7 +23,7 @@ export const PlayerPanels: FC<any> = () => {
           player={player} 
           index={index} 
           color={playerColorCode[player.id as PlayerColor]} 
-          css={[absolute, panelWidth(players.length), positionCss(players.length)[index]]}/>
+          css={[absolute,panelPosition(players.length, getPlayerIndex(context, player.id)), player.id === PlayerColor.Black && black]}/>
       )}
     </>,
     root
@@ -29,53 +31,96 @@ export const PlayerPanels: FC<any> = () => {
 }
 const absolute = css`
   position: absolute;
-  font-size:0.8em;
-`
+  font-size: 0.8em;
+  width: 25em;
 
-const panelWidth = (players:number) => css`
-  width: ${players === 2 ? 25 : players === 3 ? 25 : players === 4 ? 30 : 25}em;
-`
-
-function positionCss (players:number) {
-  switch (players){
-    case 2:
-      return [bottomLeft(players), bottomRight(players)] // 2 players
-    case 3:
-      return [bottomLeft(players), bottomRight(players), topRight(players)] // 3 players
-    case 4:
-      return [bottomLeft(players), topLeft(players), topRight(players), bottomRight(players)] // 4 players
-    case 5:
-    default:
-      return [bottomCenter(players), bottomRight(players), topRight(players), topLeft(players), bottomLeft(players)] // 5 players
+  > div > div > span {
+    font-size: 2.5em;
   }
-
-} 
-
-const bottomLeft = (players:number) => css`
-  left: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 2}em;
-  bottom: ${players === 2 ? 2 : players === 3 ? 11 : players === 4 ? 7 : 2}em;
 `
 
-const bottomRight = (players:number) => css`
-  right: ${players === 2 ? 1 : players === 3 ? 2 : players === 4 ? 2 : 2}em;
-  bottom: ${players === 2 ? 2 : players === 3 ? 2 : players === 4 ? 7 : 2}em;
+const black = css`
+  > div > div > span, > div > span, h2 {
+    background-color: #ffffff50;
+  }
 `
 
-const topLeft = (players:number) => css`
-  left: ${players === 3 ? 2 : players === 4 ? 2 : 2}em;
-  top: ${players === 3 ? 2 : players === 4 ? 12 : 12}em;
+const panelPosition = (players: number, index: number) => css`
+  border: 0;
+  ${getPanelPosition(players, index)};
 `
 
-const topRight = (players:number) => css`
-  right: ${players === 3 ? 2 : players === 4 ? 2 : 2}em;
-  top: ${players === 3 ? 40 : players === 4 ? 12 : 12}em; 
+const bottomRight = css`
+  bottom: 1em;
+  right: 1em;
 `
 
-const bottomCenter = (_players:number) => css`
-  right: 10em;
-  bottom: 2em;
-  transform: translateX(-32em);
+const bottomLeft = css`
+  bottom: 1em;
+  left: 1em;
 `
+
+const topRight = css`
+  top: 11em;
+  right: 1em;
+`
+
+const topLeft = css`
+  top: 11em;
+  left: 1em;
+`
+
+const topCenter = css`
+  top: 8.5em;
+  left: calc(50dvw - 26em);
+`
+
+const bottomCenter = css`
+  bottom: 1em;
+  left: calc(50dvw - 26em);
+`
+
+const topCenterLeft = css`
+  top: 8.5em;
+  left: calc(40dvw - 26em);
+`
+
+const topCenterRight = css`
+  top: 8.5em;
+  left: calc(67dvw - 14em);
+`
+
+const bottomCenterLeft = css`
+  bottom: 1em;
+  left: calc(40dvw - 14em);
+`
+
+const bottomCenterRight = css`
+  bottom: 1em;
+  left: calc(67dvw - 14em);
+`
+
+const getPanelPosition = (players: number, index: number) => {
+  switch (index) {
+    case 0:
+      return players < 3 ? topLeft : bottomLeft
+    case 1:
+      return players < 3 ? topRight : topLeft
+    case 2:
+      return players < 5 ? topRight : players < 7 ? topCenter : topCenterLeft
+    case 3:
+      return players < 7 ? topRight : topCenterRight
+    case 4:
+      return topRight
+    case 5:
+      return bottomRight
+    case 6:
+      return players < 7 ? bottomRight : bottomCenterRight
+    case 7:
+    default:
+      return players < 5 ? bottomRight : players < 7 ? bottomCenter : bottomCenterLeft
+  }
+}
 
 export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',

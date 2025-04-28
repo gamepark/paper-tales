@@ -1,14 +1,16 @@
-import { ItemContext, PileLocator } from '@gamepark/react-game'
+import { DeckLocator, ItemContext } from '@gamepark/react-game'
 import { Location } from '@gamepark/rules-api'
+import { unitCardDescription } from '../material/UnitCardDescription'
+import { unitDeckLocator } from './DeckLocator'
 
-export class DiscardLocator extends PileLocator {
-  delta = { x: -0.05, y: -0.05, z: 0.1 }
+export class DiscardLocator extends DeckLocator {
 
-  maxAngle = 10
+  limit = 15
 
-  getCoordinates(_location: Location, context: ItemContext) {
-    const players = context.rules.players.length
-    return players === 2 ? { x: 0, y: -21 } : players === 3 ? { x: 15, y: -21 } : players === 4 ? { x: 6, y: 0 } : { x: 15, y: -3 }    // TD > 4
+  getCoordinates(location: Location, context: ItemContext) {
+    const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
+    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width + 1, y: y }
+    return { x, y: y + unitCardDescription.height + 0.5 }
   }
 
 }

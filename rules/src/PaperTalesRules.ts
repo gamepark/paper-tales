@@ -1,4 +1,5 @@
 import { hideItemId, hideItemIdToOthers, HidingStrategy, MaterialGame, MaterialItem, MaterialMove, PositiveSequenceStrategy, SecretMaterialRules, TimeLimit } from '@gamepark/rules-api'
+import { CompetitiveScore } from '../../../rules-api'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
@@ -22,7 +23,8 @@ import { DeployEffects } from './rules/2_Deployment/DeployEffects'
 import { ChooseWherePlacingAgeToken } from './rules/2_Deployment/ChooseWherePlacingAgeToken'
 
 export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
-  implements TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
+  implements CompetitiveScore<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor>,
+    TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
   rules = {
     [RuleId.Draft]: Draft,
     [RuleId.Deal]: Deal,
@@ -66,7 +68,7 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
   }
 
   getScore(player:number){
-    return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player)
+    return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player).getItem()!.location.x!
   }
   
 

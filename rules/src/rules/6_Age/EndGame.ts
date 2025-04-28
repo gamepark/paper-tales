@@ -1,11 +1,11 @@
-import { MaterialMove, MaterialRulesPart } from "@gamepark/rules-api"
-import { isRelicEffect } from "../../material/effects/7_EndGameEffects"
-import { Effect } from "../../material/effects/Effect"
-import { LocationType } from "../../material/LocationType"
-import { MaterialType } from "../../material/MaterialType"
-import { unitCardCaracteristics, UnitPattern } from "../../material/UnitCaracteristics"
-import { AgeHelper } from "../helpers/AgeHelper"
-import { ScoreHelper } from "../helpers/ScoreHelper"
+import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { isRelicEffect } from '../../material/effects/7_EndGameEffects'
+import { Effect } from '../../material/effects/Effect'
+import { LocationType } from '../../material/LocationType'
+import { MaterialType } from '../../material/MaterialType'
+import { unitCardCaracteristics, UnitPattern } from '../../material/UnitCaracteristics'
+import { AgeHelper } from '../helpers/AgeHelper'
+import { ScoreHelper } from '../helpers/ScoreHelper'
 
 export class EndGame extends MaterialRulesPart {
 
@@ -24,18 +24,18 @@ export class EndGame extends MaterialRulesPart {
                     const unitEffects:Effect[] = unitCardCaracteristics[item.id].effect
                     unitEffects.forEach(eff => {
                         if (isRelicEffect(eff)){
-                            const coeff = ageHelper.getAgeTokenOnUnit(player, item)
-                            scoreToAdd += coeff * eff.amount
+                            scoreToAdd += ageHelper.getAgeTokenOnUnit(item) * eff.amount
                         }
                     })
                 }
 
             })
 
-            moves.push(scoreHelper.gainOrLoseScore(player, scoreToAdd))
+            moves.push(...scoreHelper.gainOrLoseScore(player, scoreToAdd))
 
         })
 
+        moves.push(this.endGame())
         return moves
     }
 }

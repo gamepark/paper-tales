@@ -5,7 +5,7 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { LocationContext, LocationDescription, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location } from '@gamepark/rules-api'
 import { ShieldIcon } from './component/Shield'
-import { playerUnitBoard } from './PlayerUnitBoard'
+import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
 
 class ShieldLocator extends Locator {
   locationDescription = new ShieldDescription()
@@ -27,7 +27,7 @@ class ShieldLocator extends Locator {
     const { rules } = context
     const card = rules.material(MaterialType.Unit).getItem(location.parent!)!
     return [
-      ...playerUnitBoard.placeItem(card, { ...context, type: MaterialType.Unit, index: location.parent!, displayIndex: location.parent! }),
+      ...playerUnitBoardLocator.placeItem(card, { ...context, type: MaterialType.Unit, index: location.parent!, displayIndex: location.parent! }),
       ...super.placeLocation(location, context)
     ]
   }

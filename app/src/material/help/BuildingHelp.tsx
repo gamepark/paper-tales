@@ -151,8 +151,8 @@ const ResourcesHelp: FC<{ _i18nKey: string, resources: Resources[] }> = (props) 
       <p>
         <Trans defaults="card.resources"></Trans> &nbsp;
 
-        {resourcesPictures.map((pict) => (
-          <span>{pict} </span>
+        {resourcesPictures.map((pict, index) => (
+          <span key={index}>{pict} </span>
         ))}
       </p>
     </>

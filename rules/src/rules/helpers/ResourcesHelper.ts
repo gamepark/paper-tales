@@ -43,8 +43,8 @@ export class ResourcesHelper extends MaterialRulesPart {
         return buildingResources
     }
 
-    getPlayerOneTypeResource(playerId:number, resource:Resources){
-        return this.getPlayerResources(playerId).filter(r => r === resource).length
+    getResource(resource:Resources){
+        return this.getPlayerResources(this.player).filter(r => r === resource).length
     }
 
     getUnitResource(playerId:number, unit: MaterialItem):Resources[] {

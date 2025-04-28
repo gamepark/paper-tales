@@ -1,13 +1,13 @@
-import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from "@gamepark/rules-api"
-import { buildingCardCaracteristics } from "../../material/BuildingCaracteristics";
-import { isMysticEffect } from "../../material/effects/6_AgeEffects";
-import { goldMoney } from "../../material/Gold";
-import { LocationType } from "../../material/LocationType";
-import { MaterialType } from "../../material/MaterialType";
-import { AgeHelper } from "../helpers/AgeHelper";
-import { BuildHelper } from "../helpers/BuildHelper";
-import { RuleId } from "../RuleId";
-import { BuildWithSubstitution } from "./BuildWithSubstitution";
+import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
+import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
+import { isMysticEffect } from '../../material/effects/6_AgeEffects'
+import { goldMoney } from '../../material/Gold'
+import { LocationType } from '../../material/LocationType'
+import { MaterialType } from '../../material/MaterialType'
+import { AgeHelper } from '../helpers/AgeHelper'
+import { BuildHelper } from '../helpers/BuildHelper'
+import { RuleId } from '../RuleId'
+import { BuildWithSubstitution } from './BuildWithSubstitution'
 
 export class Build extends SimultaneousRule {
 
@@ -26,13 +26,13 @@ export class Build extends SimultaneousRule {
         moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(item => 
                buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2,0)
             || (buildHelper.hasAlternateCost(item.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[item.id].cost2Alternate,0))
-            ).moveItems({rotation:true}))
+            ).rotateItems(true))
 
         moves.push(...buildHelper.getPlayerBuildingPlayedLevel1(playerId).filter(buildItem => 
             buildHelper.canBuildCost(playerId, buildingCardCaracteristics[buildItem.id].cost2,0)
             || (buildHelper.hasAlternateCost(buildItem.id, 2) && buildHelper.canBuildCost(playerId, buildingCardCaracteristics[buildItem.id].cost2Alternate,0))
             || buildWithSubstitution.canBuildWithSubstitution(playerId, buildingCardCaracteristics[buildItem.id].cost2, 0)
-        ).moveItems({rotation:true}))
+        ).rotateItems(true))
         
         // Achats à partir de rien
         
@@ -71,7 +71,7 @@ export class Build extends SimultaneousRule {
         // Passer sans construire
         moves.push(this.endPlayerTurn(playerId))
 
-        console.log("LegalMoves : ", moves)
+        //console.log("LegalMoves : ", moves)
    
         return moves
     }
@@ -142,7 +142,7 @@ export class Build extends SimultaneousRule {
             const ageHelper = new AgeHelper(this.game, player)
             const unitswithAgeEffects = ageHelper.getUnitsWithAgeEffects(player)
             unitswithAgeEffects.getItems().forEach(unit => {
-                ageHelper.getUnitAgeEffects(player, unit).forEach(eff => {
+                ageHelper.getUnitAgeEffects(unit).forEach(eff => {
                     if (isMysticEffect(eff)){
                         startMysticRule = true
                     }
