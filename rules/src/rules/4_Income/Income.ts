@@ -28,7 +28,7 @@ export class Income extends MaterialRulesPart {
   }
 
   getPlayerIncome(playerId: number) {
-    return sumBy(this.getIncomeUnits(playerId).getItems(), this.getUnitIncome) + this.getIncomeFromBuilding(playerId)
+    return sumBy(this.getIncomeUnits(playerId).getItems(), (u) => this.getUnitIncome(u)) + this.getIncomeFromBuilding(playerId)
   }
 
   getUnitIncome(unit: MaterialItem) {

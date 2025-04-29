@@ -18,6 +18,7 @@ export class AgeUnitsAge extends MaterialRulesPart {
         const index = entry[0]
 
         moves.push(this.material(MaterialType.Age).createItem({
+          id: 1,
           location: { type: LocationType.OnCard, parent: index },
           quantity: 1
         }))

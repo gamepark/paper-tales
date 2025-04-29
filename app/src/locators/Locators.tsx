@@ -2,23 +2,20 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { Locator, PileLocator } from '@gamepark/react-game'
-import { unitDeckLocator } from './DeckLocator'
-import { goldStockLocator } from './GoldStockLocator'
-import { discardLocator } from './DiscardLocator'
-import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 import { ageStockLocator } from './AgeStockLocator'
-import { playerUnitHandLocator } from './PlayerUnitHandLocator'
-import { playerGoldStockLocator } from './PlayerGoldStockLocator'
+import { unitDeckLocator } from './DeckLocator'
+import { discardLocator } from './DiscardLocator'
+import { goldStockLocator } from './GoldStockLocator'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
 import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
+import { playerDraftHandLocator } from './PlayerDraftHandLocator'
+import { playerGoldStockLocator } from './PlayerGoldStockLocator'
 import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
+import { playerUnitHandLocator } from './PlayerUnitHandLocator'
+import { roundTokenLocator } from './RoundTokenLocator'
 import { scoreBoardLocator } from './ScoreBoardLocator'
 import { scoreTokenLocator } from './ScoreTokenLocator'
-import { roundTokenLocator } from './RoundTokenLocator'
-import { cardBoardRotateButtonLocator } from './CardBoardRotateButtonLocator'
-import { cardHandRotateButtonLocator } from './CardHandRotateButtonLocator'
 import { shieldLocator } from './ShieldLocator'
-
 
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
@@ -37,8 +34,6 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
     [LocationType.PlayerScore]: scoreTokenLocator,
     [LocationType.Time]: roundTokenLocator,
     [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit, radius: 1, positionOnParent: { x: 50, y: 40 } }),
-    [LocationType.CardBoardRotate]: cardBoardRotateButtonLocator,
-    [LocationType.CardHandRotate]: cardHandRotateButtonLocator,
     [LocationType.ShieldIcon]:shieldLocator
 
 

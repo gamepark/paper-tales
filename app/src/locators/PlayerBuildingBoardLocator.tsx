@@ -6,8 +6,8 @@ import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 
 
 export class PlayerBuildingBoardLocator extends ListLocator {
-  maxGap = { y: -15 }
-  gap = { y: -3 }
+  maxGap = { y: -18 }
+  gap = { y: -10.5 }
 
   getCoordinates(location: Location, context: MaterialContext) {
     let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)

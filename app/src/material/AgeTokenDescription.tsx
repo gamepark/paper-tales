@@ -7,7 +7,7 @@ class AgeTokenDescription extends RoundTokenDescription {
   image = AgeToken
   diameter = 2
 
-  stockLocation = { type: LocationType.AgeStock}
+  stockLocation = { type: LocationType.AgeStock }
 
   staticItems = [
     { id: 1, quantity: 40, location: this.stockLocation },

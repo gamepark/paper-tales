@@ -1,12 +1,23 @@
+import { css } from '@emotion/react'
+import { faArrowsToDot } from '@fortawesome/free-solid-svg-icons/faArrowsToDot'
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons/faTrashCan'
+import { faHand } from '@fortawesome/free-solid-svg-icons/faHand'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { CardDescription } from '@gamepark/react-game'
-import Commander from '../images/units/en/Commander.jpg'
+import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
+import { CardDescription, ItemContext, ItemMenuButton, pointerCursorCss } from '@gamepark/react-game'
+import { isCustomMove, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
+import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
 import Blacksmith from '../images/units/en/Blacksmith.jpg'
+import CardBack from '../images/units/en/CardBack.jpg'
 import CaveSpirit from '../images/units/en/CaveSpirit.jpg'
 import Cerberus from '../images/units/en/Cerberus.jpg'
 import Colossus from '../images/units/en/Colossus.jpg'
+import Commander from '../images/units/en/Commander.jpg'
 import Cook from '../images/units/en/Cook.jpg'
 import Demon from '../images/units/en/Demon.jpg'
 import Dragon from '../images/units/en/Dragon.jpg'
@@ -42,9 +53,7 @@ import Treefolk from '../images/units/en/Treefolk.jpg'
 import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
-import CardBack from '../images/units/en/CardBack.jpg'
 import { PaperTalesCardHelp } from './help/UnitCardHelp'
-
 
 
 export class UnitCardDescription extends CardDescription {
@@ -101,6 +110,51 @@ export class UnitCardDescription extends CardDescription {
   }
 
   help = PaperTalesCardHelp
+
+  menuAlwaysVisible = true
+
+  getItemMenu(_item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
+
+    const age = legalMoves.find((move) => isCustomMove(move) && move.type === CustomMoveType.GainAgeTokenOnChosenUnitEffect
+      && move.data.unitIndex === context.index)
+
+    const discard = legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index)
+    const draft = legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index)
+
+    const items = []
+    if (draft) {
+      items.push(
+        <ItemMenuButton move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
+          <FontAwesomeIcon
+            icon={faHand}
+            css={[pointerCursorCss, css`font-size: 1.2em`]}
+          />
+        </ItemMenuButton>
+      )
+    }
+    if (discard) {
+      items.push(
+        <ItemMenuButton move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
+          <FontAwesomeIcon
+            icon={faTrashCan}
+            css={[pointerCursorCss, css`font-size: 1.2em`]}
+          />
+        </ItemMenuButton>
+      )
+    }
+    if (age) {
+      items.push(
+        <ItemMenuButton move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={"right"}>
+          <FontAwesomeIcon
+            icon={faArrowsToDot}
+            css={[pointerCursorCss, css`font-size: 1.2em`]}
+          />
+        </ItemMenuButton>
+      )
+    }
+
+    return items
+  }
 
 
 }
