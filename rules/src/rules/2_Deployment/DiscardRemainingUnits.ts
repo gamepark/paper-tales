@@ -5,24 +5,27 @@ import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 
 export class DiscardRemainingUnits extends SimultaneousRule {
-
-  onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove<number, number, number>[] {
-    this.game.players.forEach(player => {
+  onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove[] {
+    this.game.players.forEach((player) => {
       this.memorize(Memory.PlayedCardsDuringDeployment, [], player)
     })
     return []
   }
 
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
-
     const moves = []
-    const playerHand = this.getPlayerHand(playerId)
+    const hand = this.getPlayerHand(playerId)
 
-    moves.push(...playerHand.moveItems({
-      type: LocationType.Discard
-    }))
+    moves.push(
+      ...hand.moveItems({
+        type: LocationType.Discard
+      })
+    )
 
-    playerHand.getQuantity() <= 1 && moves.push(this.endPlayerTurn(playerId))
+    if (!hand.length) {
+      moves.push(this.endPlayerTurn(playerId))
+    }
+
     return moves
   }
 
@@ -33,5 +36,4 @@ export class DiscardRemainingUnits extends SimultaneousRule {
   getPlayerHand(playerId: number) {
     return this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(playerId)
   }
-
 }

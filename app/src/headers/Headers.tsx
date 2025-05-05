@@ -26,12 +26,9 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.War]: WarHeader,
   [RuleId.Income]: IncomeHeader,
   [RuleId.Build]: BuildHeader,
-  [RuleId.NextTurn]: NextTurnHeader, 
+  [RuleId.NextTurn]: NextTurnHeader,
   [RuleId.EndGame]: EndGameHeader,
   [RuleId.AgeUnitsAge]: AgeUnitsAgeHeader,
   [RuleId.AgeEffects]: AgeEffectsHeader,
-  [RuleId.AgeUnitsDie]: AgeUnitsDieHeader,
-
-
-
+  [RuleId.AgeUnitsDie]: AgeUnitsDieHeader
 }

@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import { goldMoney } from '@gamepark/paper-tales/material/Gold'
+import { golds } from '@gamepark/paper-tales/material/Gold'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
@@ -21,12 +21,18 @@ export const GoldCoinHelp: FC<MaterialHelpProps> = (props) => {
       <h2 css={titleCss}>{t('gold.help.title')}</h2>
       <p>
         <Trans defaults="gold.help.text" values={{ place: item.location!.id }}>
-          <strong/>
+          <strong />
         </Trans>
       </p>
       {location?.type === LocationType.PlayerGoldStock && (
         <p>
-          <Trans defaults={itsMe ? 'gold.help.you' : 'gold.help.player'} values={{ player: name, gold: goldMoney.count(rules.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(item.location?.player)) }}/>
+          <Trans
+            defaults={itsMe ? 'gold.help.you' : 'gold.help.player'}
+            values={{
+              player: name,
+              gold: rules.material(MaterialType.Gold).player(item.location?.player).money(golds).count
+            }}
+          />
         </p>
       )}
     </>

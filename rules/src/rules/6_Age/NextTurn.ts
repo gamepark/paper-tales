@@ -10,4 +10,3 @@ export class NextTurn extends MaterialRulesPart {
     return moves
   }
 }
-

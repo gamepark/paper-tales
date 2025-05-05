@@ -12,14 +12,23 @@ type GameDisplayProps = {
 export const GameDisplay: FC<GameDisplayProps> = ({ players }) => {
   if (!players) return null
   const tableSize = getTableSize(players)
-  return <>
-    <GameTable {...tableSize}
-               verticalCenter
-               css={process.env.NODE_ENV === 'development' && css`border: 1px solid white;`}>
-      <GameTableNavigation css={gameNavigationCss}/>
-      <PlayerPanels/>
-    </GameTable>
-  </>
+  return (
+    <>
+      <GameTable
+        {...tableSize}
+        verticalCenter
+        css={
+          process.env.NODE_ENV === 'development' &&
+          css`
+            border: 1px solid white;
+          `
+        }
+      >
+        <GameTableNavigation css={gameNavigationCss} />
+        <PlayerPanels />
+      </GameTable>
+    </>
+  )
 }
 
 const gameNavigationCss = css`

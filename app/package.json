@@ -38,7 +38,8 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "deploy": "yarn build && rclone sync build paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read"
+    "deploy": "yarn build && rclone sync build paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read",
+    "lint": "eslint --fix"
   },
   "eslintConfig": {
     "extends": [

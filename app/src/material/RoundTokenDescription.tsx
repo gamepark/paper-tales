@@ -8,7 +8,6 @@ import timebook4 from '../images/time/time4.png'
 
 import { TimeTokenHelp } from './help/TimeTokenHelp'
 
-
 class RoundTokenDescription extends BoardDescription {
   width = 7
   ratio = 1.2
@@ -23,14 +22,15 @@ class RoundTokenDescription extends BoardDescription {
 
   getStaticItems(context: MaterialContext) {
     const { rules } = context
-    return [{
-      id: rules.remind(Memory.Time),
-      location: { type: LocationType.Time },
-    }]
+    return [
+      {
+        id: rules.remind(Memory.Time),
+        location: { type: LocationType.Time }
+      }
+    ]
   }
 
   help = TimeTokenHelp
-
 }
 
 export const roundTokenDescription = new RoundTokenDescription()

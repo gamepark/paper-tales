@@ -6,22 +6,23 @@ import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 
 export class AgeUnitsAge extends MaterialRulesPart {
-
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
     const players = this.game.players
 
     // Dying Phase
-    players.forEach(player => {
+    players.forEach((player) => {
       const ageHelper = new AgeHelper(this.game, player)
       for (const entry of ageHelper.agingUnits.entries) {
         const index = entry[0]
 
-        moves.push(this.material(MaterialType.Age).createItem({
-          id: 1,
-          location: { type: LocationType.OnCard, parent: index },
-          quantity: 1
-        }))
+        moves.push(
+          this.material(MaterialType.Age).createItem({
+            id: 1,
+            location: { type: LocationType.OnCard, parent: index },
+            quantity: 1
+          })
+        )
       }
     })
 
@@ -32,5 +33,4 @@ export class AgeUnitsAge extends MaterialRulesPart {
   getTurn() {
     return this.remind(Memory.Time)
   }
-
 }

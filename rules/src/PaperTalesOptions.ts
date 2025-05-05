@@ -24,7 +24,7 @@ export const PaperTalesOptionsSpec: OptionsSpec<PaperTalesOptions> = {
     id: {
       label: (t: TFunction) => t('Player color'),
       values: playerColors,
-      valueSpec: color => ({ label: t => getPlayerName(color, t) })
+      valueSpec: (color) => ({ label: (t) => getPlayerName(color, t) })
     }
   }
 }

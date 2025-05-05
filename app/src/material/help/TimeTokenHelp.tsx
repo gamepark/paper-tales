@@ -12,7 +12,7 @@ export const TimeTokenHelp: FC<MaterialHelpProps> = (props) => {
       <h2 css={titleCss}>{t('time.help.title')}</h2>
       <p>
         <Trans defaults="time.help.text" values={{ place: item.location!.id }}>
-          <strong/>
+          <strong />
         </Trans>
       </p>
     </>

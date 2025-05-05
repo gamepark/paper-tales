@@ -4,24 +4,20 @@ import { Location, XYCoordinates } from '@gamepark/rules-api'
 import { scoreBoardDescription } from '../material/ScoreBoardDescription'
 
 export class ScoreTokenLocator extends Locator {
-
   parentItemType = MaterialType.ScoreBoard
 
   getPositionOnParent(location: Location) {
     return scoreCasesCoordinates[location.x!]
   }
 
-  getParentItem = (_location: Location) => scoreBoardDescription.getPlayerScoreBoard()
+  getParentItem = (_location: Location) =>
+    scoreBoardDescription.getPlayerScoreBoard()
 }
-
 
 export const scoreTokenLocator = new ScoreTokenLocator()
 
-
-
-
 export const scoreCasesCoordinates: XYCoordinates[] = [
-  { x: 9, y: 8 }, // 0 
+  { x: 9, y: 8 }, // 0
   { x: 21, y: 8 }, // 1
   { x: 30, y: 8 }, // 2
   { x: 40, y: 8 }, // 3
@@ -81,9 +77,5 @@ export const scoreCasesCoordinates: XYCoordinates[] = [
   { x: 38, y: 76 }, // 57
   { x: 28, y: 76 }, // 58
   { x: 18, y: 76 }, // 59
-  { x: 8, y: 77 }, // 60
+  { x: 8, y: 77 } // 60
 ]
-
-
-
-

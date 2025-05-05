@@ -14,7 +14,6 @@ class ScoreTokenDescription extends TokenDescription {
   ratio = 0.77
   location = { type: LocationType.PlayerScore }
 
-
   images = {
     [PlayerColor.Yellow]: pawn_yellow,
     [PlayerColor.Blue]: pawn_blue,
@@ -22,11 +21,8 @@ class ScoreTokenDescription extends TokenDescription {
     [PlayerColor.White]: pawn_white,
     [PlayerColor.Black]: pawn_black,
     [PlayerColor.Purple]: pawn_purple,
-    [PlayerColor.Red]: pawn_red,
-
+    [PlayerColor.Red]: pawn_red
   }
-
-
 }
 
 export const scoreTokenDescription = new ScoreTokenDescription()

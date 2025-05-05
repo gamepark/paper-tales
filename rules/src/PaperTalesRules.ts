@@ -1,4 +1,14 @@
-import { hideItemId, hideItemIdToOthers, HidingStrategy, MaterialGame, MaterialItem, MaterialMove, PositiveSequenceStrategy, SecretMaterialRules, TimeLimit } from '@gamepark/rules-api'
+import {
+  hideItemId,
+  hideItemIdToOthers,
+  HidingStrategy,
+  MaterialGame,
+  MaterialItem,
+  MaterialMove,
+  PositiveSequenceStrategy,
+  SecretMaterialRules,
+  TimeLimit
+} from '@gamepark/rules-api'
 import { CompetitiveScore } from '../../../rules-api'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
@@ -22,55 +32,57 @@ import { SaveUnitsWithMysticEffect } from './rules/6_Age/SaveUnitsWithMysticEffe
 import { DeployEffects } from './rules/2_Deployment/DeployEffects'
 import { ChooseWherePlacingAgeToken } from './rules/2_Deployment/ChooseWherePlacingAgeToken'
 
-export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
-  implements CompetitiveScore<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor>,
-    TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor> {
+export class PaperTalesRules
+  extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
+  implements
+    CompetitiveScore<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor>,
+    TimeLimit<MaterialGame<PlayerColor, MaterialType, LocationType>, MaterialMove<PlayerColor, MaterialType, LocationType>, PlayerColor>
+{
   rules = {
     [RuleId.Draft]: Draft,
     [RuleId.Deal]: Deal,
     [RuleId.GiveDraftToNeighbor]: GiveDraftToNeighbor,
     [RuleId.PlaceUnitOnBoard]: PlaceUnitOnBoard,
     [RuleId.RevealBoards]: RevealBoards,
-    [RuleId.PayDeployedUnits]:PayDeployedUnits,
-    [RuleId.DeployEffects]:DeployEffects,
+    [RuleId.PayDeployedUnits]: PayDeployedUnits,
+    [RuleId.DeployEffects]: DeployEffects,
     [RuleId.War]: War,
-    [RuleId.Income]:Income,
-    [RuleId.Build]:Build,
-    [RuleId.SaveUnitsWithMysticEffect]:SaveUnitsWithMysticEffect,
-    [RuleId.AgeEffects]:AgeEffects,
-    [RuleId.AgeUnitsAge]:AgeUnitsAge,
-    [RuleId.AgeUnitsDie]:AgeUnitsDie,
-    [RuleId.NextTurn]:NextTurn,
-    [RuleId.EndGame]:EndGame,
-    [RuleId.ChooseWherePlacingAgeToken]:ChooseWherePlacingAgeToken,
+    [RuleId.Income]: Income,
+    [RuleId.Build]: Build,
+    [RuleId.SaveUnitsWithMysticEffect]: SaveUnitsWithMysticEffect,
+    [RuleId.AgeEffects]: AgeEffects,
+    [RuleId.AgeUnitsAge]: AgeUnitsAge,
+    [RuleId.AgeUnitsDie]: AgeUnitsDie,
+    [RuleId.NextTurn]: NextTurn,
+    [RuleId.EndGame]: EndGame,
+    [RuleId.ChooseWherePlacingAgeToken]: ChooseWherePlacingAgeToken
   }
 
   locationsStrategies = {
-    [MaterialType.Unit]:{
+    [MaterialType.Unit]: {
       [LocationType.Deck]: new PositiveSequenceStrategy(),
       [LocationType.Discard]: new PositiveSequenceStrategy(),
       [LocationType.PlayerDraftHand]: new PositiveSequenceStrategy(),
-      [LocationType.PlayerUnitHand]: new PositiveSequenceStrategy(),
+      [LocationType.PlayerUnitHand]: new PositiveSequenceStrategy()
     },
-    [MaterialType.Building]:{
-      [LocationType.PlayerBuildingBoard]: new PositiveSequenceStrategy("y")
+    [MaterialType.Building]: {
+      [LocationType.PlayerBuildingBoard]: new PositiveSequenceStrategy('y')
     }
   }
 
   hidingStrategies = {
-    [MaterialType.Unit]:{
-      [LocationType.Deck]:hideItemId,
-      [LocationType.PlayerDraftHand]:hideItemIdToOthers,
-      [LocationType.PlayerUnitHand]:hideItemIdToOthers,
-      [LocationType.Discard]:hideItemId,
-      [LocationType.PlayerUnitBoard]:hideRotatedCardToOthers,
+    [MaterialType.Unit]: {
+      [LocationType.Deck]: hideItemId,
+      [LocationType.PlayerDraftHand]: hideItemIdToOthers,
+      [LocationType.PlayerUnitHand]: hideItemIdToOthers,
+      [LocationType.Discard]: hideItemId,
+      [LocationType.PlayerUnitBoard]: hideRotatedCardToOthers
     }
   }
 
-  getScore(player:number){
+  getScore(player: number) {
     return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player).getItem()!.location.x!
   }
-  
 
   giveTime(): number {
     return 60
@@ -79,5 +91,3 @@ export class PaperTalesRules extends SecretMaterialRules<PlayerColor, MaterialTy
 
 export const hideRotatedCardToOthers: HidingStrategy = (item: MaterialItem<number, LocationType>, player?: number) =>
   item.location.rotation && item.location.player !== player ? ['id'] : []
-
-

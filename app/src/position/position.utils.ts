@@ -2,7 +2,10 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { getRelativePlayerIndex, MaterialContext } from '@gamepark/react-game'
 import { Coordinates } from '@gamepark/rules-api'
 
-export const getPlayerBoardPosition = (context: MaterialContext, player?: number): Partial<Coordinates> => {
+export const getPlayerBoardPosition = (
+  context: MaterialContext,
+  player?: number
+): Partial<Coordinates> => {
   const index = getPlayerIndex(context, player)
   const players = context.rules.players.length
   switch (index) {
@@ -10,7 +13,7 @@ export const getPlayerBoardPosition = (context: MaterialContext, player?: number
       return { x: 0, y: -35 }
     case 2:
       if (players === 2) return { y: -7, x: 61 }
-      return { y: -35, x: players < 5? 65: 55 }
+      return { y: -35, x: players < 5 ? 65 : 55 }
     case 3:
       return { y: -35, x: 110 }
     case 4:
@@ -20,12 +23,11 @@ export const getPlayerBoardPosition = (context: MaterialContext, player?: number
     case 6:
       return { x: 110 }
     case 7:
-      return { x: players < 5? 65: 55 }
+      return { x: players < 5 ? 65 : 55 }
   }
 
   return {}
 }
-
 
 export const getPlayerIndex = (context: MaterialContext, player?: number) => {
   switch (context.rules.players.length) {
@@ -41,13 +43,13 @@ export const getPlayerIndex = (context: MaterialContext, player?: number) => {
   }
 }
 
-
 export const isTopPlayer = (context: MaterialContext, player?: PlayerColor) => {
   return [1, 2, 3].includes(getPlayerIndex(context, player))
 }
 
-
-export const getTableSize = (players: number): { xMin: number, xMax: number, yMin: number, yMax: number } => {
+export const getTableSize = (
+  players: number
+): { xMin: number; xMax: number; yMin: number; yMax: number } => {
   switch (players) {
     case 3:
     case 4:

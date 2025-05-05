@@ -4,19 +4,20 @@ import { MaterialType } from '../../material/MaterialType'
 import { RuleId } from '../RuleId'
 
 export class Deal extends PlayerTurnRule {
-
   onRuleStart(): MaterialMove[] {
-
     const cardsPerPlayer = this.game.players.length === 2 ? 9 : 5
 
     const moves: MaterialMove[] = []
     const deck = this.material(MaterialType.Unit).location(LocationType.Deck).deck()
-    const missingCardsTotal = (this.game.players.length * cardsPerPlayer) - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getQuantity()
+    const missingCardsTotal = this.game.players.length * cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getQuantity()
 
-    // Distribution
-    this.game.players.forEach(player => {
+    // Distribution y
+    this.game.players.forEach((player) => {
       const missingCards = cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).getQuantity()
-      missingCards > 0 && moves.push(deck.dealAtOnce({ type: LocationType.PlayerDraftHand, player }, missingCards))
+
+      if (missingCards) {
+        moves.push(deck.dealAtOnce({ type: LocationType.PlayerDraftHand, player }, missingCards))
+      }
     })
 
     // Cas de la défausse vide : on mélange et on reprend la distribution
@@ -27,13 +28,10 @@ export class Deal extends PlayerTurnRule {
         this.startPlayerTurn(RuleId.Deal, this.game.players[0])
       )
     } else {
-      moves.push(
-        this.startSimultaneousRule(RuleId.Draft)
-      )
+      moves.push(this.startSimultaneousRule(RuleId.Draft))
     }
 
     return moves
-
   }
 
   getPlayerMoves() {

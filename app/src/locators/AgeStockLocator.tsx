@@ -8,8 +8,9 @@ export class AgeStockLocator extends PileLocator {
 
   getCoordinates(location: Location, context: ItemContext) {
     const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
-    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width * 3 + 3, y: y - 3.5 }
-    return { x: x, y:  y - unitCardDescription.height * 2.3 + 0.5 }
+    if (context.rules.players.length === 2)
+      return { x: x + unitCardDescription.width * 3 + 3, y: y - 3.5 }
+    return { x: x, y: y - unitCardDescription.height * 2.3 + 0.5 }
   }
 }
 

@@ -1,16 +1,13 @@
 /** @jsxImportSource @emotion/react */
 
-
-import { useTranslation } from "react-i18next"
+import { useTranslation } from 'react-i18next'
 
 export const NextTurnHeader = () => {
-    const { t } = useTranslation()
+  const { t } = useTranslation()
 
-
-    return <>
-
-        <div>{t('next.turn')}</div>
-
+  return (
+    <>
+      <div>{t('next.turn')}</div>
     </>
-
+  )
 }

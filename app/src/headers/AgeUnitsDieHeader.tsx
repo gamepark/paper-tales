@@ -1,16 +1,13 @@
 /** @jsxImportSource @emotion/react */
 
-
-import { useTranslation } from "react-i18next"
+import { useTranslation } from 'react-i18next'
 
 export const AgeUnitsDieHeader = () => {
-    const { t } = useTranslation()
+  const { t } = useTranslation()
 
-
-    return <>
-
-        <div>{t('age.effects')}</div>
-
+  return (
+    <>
+      <div>{t('age.effects')}</div>
     </>
-
+  )
 }

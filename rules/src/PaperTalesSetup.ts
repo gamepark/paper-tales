@@ -19,16 +19,19 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
   setupMaterial() {
     this.setupDeck()
     this.setupPlayers()
-    this.game.players.forEach(player => {
-      this.material(MaterialType.ScoreToken).createItem({id:player, location:{type:LocationType.PlayerScore, player:player, x:0}})
+    this.game.players.forEach((player) => {
+      this.material(MaterialType.ScoreToken).createItem({
+        id: player,
+        location: { type: LocationType.PlayerScore, player: player, x: 0 }
+      })
     })
 
     this.memorize(Memory.Time, 1)
   }
 
   setupDeck() {
-    const items = theRealDeck.map(unit => ({
-      id:unit,
+    const items = theRealDeck.map((unit) => ({
+      id: unit,
       location: { type: LocationType.Deck }
     }))
 
@@ -37,22 +40,20 @@ export class PaperTalesSetup extends MaterialGameSetup<PlayerColor, MaterialType
   }
 
   setupPlayers() {
-    this.players.forEach(player => {
+    this.players.forEach((player) => {
       this.material(MaterialType.Gold).createItem({
         id: Gold.Gold1,
         location: { type: LocationType.PlayerGoldStock, player },
-        quantity:3
+        quantity: 3
       })
 
-      const items = buildings.map(building => ({
-        id:building,
-        location: { type: LocationType.PlayerBuildingHand, player}
+      const items = buildings.map((building) => ({
+        id: building,
+        location: { type: LocationType.PlayerBuildingHand, player }
       }))
-      
-      this.material(MaterialType.Building).createItems(items)
-      
-    })
 
+      this.material(MaterialType.Building).createItems(items)
+    })
   }
 
   start() {

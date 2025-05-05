@@ -1,13 +1,15 @@
-import { MaterialGame, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { MaterialGame, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { Building } from '../../material/Building'
 import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
 import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from '../../material/effects/3_WarEffects'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
 import { BuildEffect, isBuildEffect, isIgnoreFieldCost, isReplaceResourceByGold, ReplaceResourceByGold } from '../../material/effects/5_Build'
 import { Effect } from '../../material/effects/Effect'
-import { goldMoney } from '../../material/Gold'
+import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
+import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { War } from '../3_War/War'
 import { Income } from '../4_Income/Income'
@@ -15,200 +17,285 @@ import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
 import { ResourcesHelper } from './ResourcesHelper'
 
 export class BuildHelper extends MaterialRulesPart {
+  private buildWithSubstitution: BuildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
+  private myResources: Resources[] = []
+  constructor(
+    game: MaterialGame,
+    readonly player: number
+  ) {
+    super(game)
+    this.myResources = this.resources
+  }
 
-    constructor(game: MaterialGame, readonly player: number) {
-      super(game)
-    }
+  get resources() {
+    const resourcesHelper = new ResourcesHelper(this.game, this.player)
+    return resourcesHelper.resources
+  }
 
-    getPlayerResources(playerId:number){
-        const resourcesHelper =  new ResourcesHelper(this.game, playerId)
-        return resourcesHelper.getPlayerResources(playerId)
-    }
+  get gold() {
+    return this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(this.player).money(golds).count
+  }
 
-    getPlayerGold(playerId:number){
-        return goldMoney.count(this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId))
-    }
+  getLevel(building: MaterialItem): number {
+    return building.location.rotation as number
+  }
 
-    getPlayerBuildingPlayed(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
-    }
+  get builtBuildings() {
+    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(this.player)
+  }
 
-    getPlayerBuildingPlayedLevel1(playerId:number){
-        return this.getPlayerBuildingPlayed(playerId).filter(item => item.location.rotation === false)
-    }
+  get builtLevel1Buildings() {
+    return this.builtBuildings.rotation((r) => !r)
+  }
 
-    getPlayerBuildingPlayedLevel2(playerId:number){
-        return this.getPlayerBuildingPlayed(playerId).filter(item => item.location.rotation === true)
-    }
+  get buildLevel2Buildings() {
+    return this.builtBuildings.rotation(true)
+  }
 
-    getPlayerBuildingUnplayed(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(playerId)
-    }
+  get availableBuildings() {
+    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(this.player)
+  }
 
-    getGoldInBuildingCost(cost:Resources[]):number{
-        return cost.filter(res => res === Resources.Gold).length
-    }
+  getGoldInBuildingCost(cost: Resources[]): number {
+    return cost.filter((res) => res === Resources.Gold).length
+  }
 
-    hasAlternateCost(buildingId:number, level:number):boolean{
-        return level === 1 
-            ? buildingCardCaracteristics[buildingId].cost1Alternate !== undefined
-            : buildingCardCaracteristics[buildingId].cost2Alternate !== undefined
-    }
+  hasAlternateCost(buildingId: Building, level: number): boolean {
+    const characteristics = buildingCardCaracteristics[buildingId]
+    return level === 1 ? characteristics.cost1Alternate !== undefined : characteristics.cost2Alternate !== undefined
+  }
 
-    /**
-     * Retourne les moves de dépense de gold lors de la construction d'une étape de bâtiment
-     * Attention, cette fonction peut renvoyer des résultats étranges si le bâtiment ne peut être construit. 
-     * @see canBuildCost() pour vérifier si une étape est constructible.
-     * @param playerId  - L'ID du joueur qui a joué le coup,
-     * @param buildingId - Le bâtiment joué,
-     * @param level - L'étape du bâtiment que l'on considère,
-     * @returns - Un tableau contenant le move dépensant l'or.
-     */
-    getGoldToPayCostMove(playerId:number, buildingId:number, level:number, fieldCost:number):MaterialMove[]{
-        const moves : MaterialMove[] = []
-        const buildWithSubstitution = new BuildWithSubstitution(this.game)
-        const cost = level === 1 ? buildingCardCaracteristics[buildingId].cost1 : buildingCardCaracteristics[buildingId].cost2
-        const costAlternate = level === 1 ? buildingCardCaracteristics[buildingId].cost1Alternate : buildingCardCaracteristics[buildingId].cost2Alternate
-        let goldToPay = 0
+  get buildableLevel1Buildings() {
+    const fieldCost = this.fieldCost
+    return this.availableBuildings.filter((item: MaterialItem) => this.canBuildLevel1(item.id as Building, fieldCost))
+  }
 
-        if (costAlternate === undefined){
-            // Cas nominal
-            if (this.canBuildCost(playerId,cost, fieldCost) === false){
-                // Substitution
-                goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(cost, playerId).length
-            }
-            goldToPay += this.getGoldInBuildingCost(cost)
+  get buildableLevel2Buildings() {
+    const fieldCost = this.fieldCost
+    return this.availableBuildings.filter<Building>((item: MaterialItem) => this.canBuildLevel2(item.id as Building, fieldCost))
+  }
+
+  get upgradableBuildings() {
+    return this.builtLevel1Buildings.filter((item: MaterialItem) => this.canUpgrade(item.id as Building))
+  }
+
+  get fieldCost() {
+    return this.hasIgnoreFieldCostEffect(this.player) ? 0 : this.getFieldCost(this.player)
+  }
+
+  canBuildLevel1(buildingId: Building, fieldCost: number): boolean {
+    const characteristics = buildingCardCaracteristics[buildingId]
+    const cost1 = characteristics.cost1
+    const cost1Alternate = characteristics.cost1Alternate ?? []
+    return this.canPay(buildingId, cost1, cost1Alternate, fieldCost)
+  }
+
+  canBuildLevel2(buildingId: Building, fieldCost: number): boolean {
+    const cost1 = buildingCardCaracteristics[buildingId].cost1
+    const cost1Alternate = buildingCardCaracteristics[buildingId].cost1Alternate ?? []
+    const cost2 = buildingCardCaracteristics[buildingId].cost2
+    const cost2Alternate = buildingCardCaracteristics[buildingId].cost2Alternate ?? []
+
+    const canPayDirectly =
+      this.canPay(buildingId, cost1, cost2, fieldCost) ||
+      (this.hasAlternateCost(buildingId, 1) && this.canPay(buildingId, cost1Alternate, cost2, fieldCost)) ||
+      (this.hasAlternateCost(buildingId, 2) && this.canPay(buildingId, cost1, cost2Alternate, fieldCost)) ||
+      (this.hasAlternateCost(buildingId, 1) && this.hasAlternateCost(buildingId, 2) && this.canPay(buildingId, cost1Alternate, cost2Alternate, fieldCost))
+
+    const canPayWithSubstitution =
+      this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2], fieldCost) ||
+      (this.hasAlternateCost(buildingId, 1) &&
+        this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1Alternate, ...cost2], fieldCost)) ||
+      (this.hasAlternateCost(buildingId, 2) && this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2Alternate], fieldCost))
+
+    return canPayDirectly || canPayWithSubstitution
+  }
+
+  canPay(buildingId: Building, cost: Resources[], alternateCost: Resources[], fieldCost: number): boolean {
+    const buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
+    return (
+      this.canBuildCost(cost, fieldCost) ||
+      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost(alternateCost, fieldCost)) ||
+      buildWithSubstitution.canBuildWithSubstitution(this.myResources, cost, fieldCost)
+    )
+  }
+
+  canUpgrade(buildingId: Building): boolean {
+    const characteristics = buildingCardCaracteristics[buildingId]
+    const cost2 = characteristics.cost2
+    const cost2Alternate = characteristics.cost2Alternate ?? []
+    return this.canBuildCost(cost2, 0) || (this.hasAlternateCost(buildingId, 2) && this.canBuildCost(cost2Alternate, 0))
+  }
+
+  /**
+   * Retourne les moves de dépense de gold lors de la construction d'une étape de bâtiment
+   * Attention, cette fonction peut renvoyer des résultats étranges si le bâtiment ne peut être construit.
+   * @see canBuildCost() pour vérifier si une étape est constructible.
+   * @param buildingId - Le bâtiment joué,
+   * @param level - L'étape du bâtiment que l'on considère,
+   * @returns - Un tableau contenant le move dépensant l'or.
+   */
+  getGoldToPayCostMove(buildingId: Building, level: number, ignoreFieldCost?: boolean): MaterialMove[] {
+    const moves: MaterialMove[] = []
+    const fieldCost = ignoreFieldCost ? 0 : this.fieldCost
+    const buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
+    const cost1: Resources[] = buildingCardCaracteristics[buildingId].cost1
+    const cost1Alternate = buildingCardCaracteristics[buildingId].cost1Alternate ?? []
+    const cost2: Resources[] = buildingCardCaracteristics[buildingId].cost2
+    const cost2Alternate = buildingCardCaracteristics[buildingId].cost2Alternate ?? []
+
+    const cost: Resources[] = level === 1 ? cost1 : cost2
+    const costAlternate = level === 1 ? cost1Alternate : cost2Alternate
+    let goldToPay = 0
+    const playerResources = this.resources
+    if (!costAlternate.length) {
+      // Cas nominal
+      if (!this.canBuildCost(cost, fieldCost)) {
+        // Substitution
+        goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(playerResources, cost).length
+      }
+      goldToPay += this.getGoldInBuildingCost(cost)
+    } else {
+      // Cas du temple
+      if (this.canBuildCost(cost, fieldCost)) {
+        goldToPay = this.getGoldInBuildingCost(cost)
+      } else {
+        // On préfèrera toujours payer le coût en substitution plutôt que le coût alternatif.
+        if (buildWithSubstitution.canBuildWithSubstitution(playerResources, cost, fieldCost)) {
+          goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(playerResources, cost).length
         } else {
-            // Cas du temple
-            if (this.canBuildCost(playerId,cost, fieldCost) === true){
-                goldToPay = this.getGoldInBuildingCost(cost)
-            } else {
-                // On préfèrera toujours payer le coût en substitution plutôt que le coût alternatif.
-                if (buildWithSubstitution.canBuildWithSubstitution(playerId, cost, fieldCost) === true){
-                    goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(cost, playerId).length
-                } else {
-                    goldToPay = this.getGoldInBuildingCost(costAlternate)
-                }
-            }
+          goldToPay = this.getGoldInBuildingCost(costAlternate)
+        }
+      }
+    }
+
+    // const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
+
+    if (goldToPay) {
+      moves.push(...this.material(MaterialType.Gold).money(golds).removeMoney(goldToPay, { type: LocationType.PlayerGoldStock, player: this.player }))
+    }
+    return moves
+  }
+  /**
+   * Retourne un booléen indiquant si le bâtiment peut être construit ou non.
+   * @param playerId - L'Id du joueur
+   * @param cost - le coût du bâtiment
+   * @param fieldCost - Le coût du terrain
+   * @returns Un booléen indiquand si le bâtiment peut être construit
+   */
+  canBuildCost(cost: Resources[], fieldCost: number): boolean {
+    const goldCost = cost.filter((resource) => resource === Resources.Gold).length
+    const woodCost = cost.filter((resource) => resource === Resources.Wood).length
+    const FoodCost = cost.filter((resource) => resource === Resources.Food).length
+    const DiamondCost = cost.filter((resource) => resource === Resources.Diamond).length
+
+    const playerGold = this.gold
+    const playerWood = this.myResources.filter((resources) => resources === Resources.Wood).length
+    const playerFood = this.myResources.filter((resources) => resources === Resources.Food).length
+    const playerDiamond = this.myResources.filter((resources) => resources === Resources.Diamond).length
+
+    return playerGold >= goldCost + fieldCost && playerWood >= woodCost && playerFood >= FoodCost && playerDiamond >= DiamondCost
+  }
+
+  getPlayerBuildingsDone(playerId: number) {
+    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
+  }
+
+  getPlayerBuildingEffects(playerId: number): Effect[] {
+    const effectsToReturn: Effect[] = []
+    this.getPlayerBuildingsDone(playerId)
+      .getItems()
+      .forEach((item) => {
+        const id = item.id as Building
+        const building = buildingCardCaracteristics[id]
+        const effect1 = building.effect1
+        const effect2 = building.effect2
+        if (item.location.rotation) {
+          if (effect2 !== undefined) effectsToReturn.push(...effect2)
         }
 
-        // const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
-        
-        goldToPay > 0 && moves.push(...goldMoney.createOrDelete(this.material(MaterialType.Gold), {type:LocationType.PlayerGoldStock, player : playerId}, -goldToPay))
+        if (effect1 !== undefined) effectsToReturn.push(...effect1)
+      })
+    return effectsToReturn
+  }
 
-        return moves
-    }
-    /**
-     * Retourne un booléen indiquant si le bâtiment peut être construit ou non.
-     * @param playerId - L'Id du joueur
-     * @param cost - le coût du bâtiment
-     * @param fieldCost - Le coût du terrain
-     * @returns Un booléen indiquand si le bâtiment peut être construit
-     */
-    canBuildCost(playerId:number, cost:Resources[], fieldCost:number):boolean{
-        const goldCost = cost.filter(resource => resource === Resources.Gold).length
-        const woodCost = cost.filter(resource => resource === Resources.Wood).length
-        const FoodCost = cost.filter(resource => resource === Resources.Food).length
-        const DiamondCost = cost.filter(resource => resource === Resources.Diamond).length
+  getPlayerIncomeBuildingEffects(playerId: number): IncomeEffect[] {
+    return this.getPlayerBuildingEffects(playerId).filter(isIncomeType)
+  }
 
-        const playerResources = this.getPlayerResources(playerId)
-        const playerGold = this.getPlayerGold(playerId)
-        const playerWood = playerResources.filter(resources => resources === Resources.Wood).length
-        const playerFood = playerResources.filter(resources => resources === Resources.Food).length
-        const playerDiamond = playerResources.filter(resources => resources === Resources.Diamond).length
+  getPlayerWarBuildingEffects(playerId: number): WarEffect[] {
+    return this.getPlayerBuildingEffects(playerId).filter(isWarType)
+  }
 
-        return playerGold >= (goldCost + fieldCost) 
-            && playerWood >=  woodCost  
-            && playerFood >= FoodCost 
-            && playerDiamond >= DiamondCost
-    }
+  getPlayerAddPowerBuildingEffects(playerId: number): AddWarPower[] {
+    return this.getPlayerWarBuildingEffects(playerId).filter(isAddWarPower)
+  }
 
-    getPlayerBuildingsDone(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
-    }
+  getPlayerScoreAtWarBuildingEffects(playerId: number): ScoreAtWar[] {
+    return this.getPlayerWarBuildingEffects(playerId).filter(isScoreAtWar)
+  }
 
-    getPlayerBuildingEffects(playerId:number):Effect[]{
-        const effectsToReturn: Effect[] = []
-        this.getPlayerBuildingsDone(playerId).getItems().forEach(item => {
-            if (item.location.rotation === true){
-                buildingCardCaracteristics[item.id].effect2 !== undefined && effectsToReturn.push(...buildingCardCaracteristics[item.id].effect2)
-            } 
-            buildingCardCaracteristics[item.id].effect1 !== undefined && effectsToReturn.push(...buildingCardCaracteristics[item.id].effect1)
-        })
-        return effectsToReturn
+  getPowerAddedFromBuilding(playerId: number, buildEffect: AddWarPower): number {
+    let add = 0
+    if (buildEffect.perAgeToken) {
+      // No existing case, maybe for later
+    } else if (buildEffect.perResource) {
+      const resourcesHelper = new ResourcesHelper(this.game, playerId)
+      buildEffect.perResource.forEach((resource) => {
+        const resources = resourcesHelper.getResource(resource)
+        add += resources * buildEffect.powerAdded
+      })
+    } else if (buildEffect.perGoldOnIncomePhase) {
+      const incomeHelper = new Income(this.game)
+      const income = incomeHelper.getPlayerIncome(playerId)
+      add += income * buildEffect.powerAdded
+    } else {
+      add += buildEffect.powerAdded
     }
 
-    getPlayerIncomeBuildingEffects(playerId:number):IncomeEffect[]{
-        return this.getPlayerBuildingEffects(playerId).filter(isIncomeType)
+    return add
+  }
+
+  getScoreFromBuilding(playerId: number, buildEffect: ScoreAtWar): number {
+    if (buildEffect.perResource) {
+      return buildEffect.amount * this.myResources.filter((res) => res === buildEffect.perResource).length
+    } else if (buildEffect.perUnitStrongerThan) {
+      const warHelper = new War(this.game)
+      const matchingUnitsQuantity = this.material(MaterialType.Unit)
+        .location(LocationType.PlayerUnitBoard)
+        .player(playerId)
+        .filter((item, index) => warHelper.getUnitPower(item, index) >= buildEffect.perUnitStrongerThan!)
+        .getQuantity()
+      return buildEffect.amount * matchingUnitsQuantity
+    } else {
+      return buildEffect.amount
     }
+  }
 
-    getPlayerWarBuildingEffects(playerId:number):WarEffect[]{
-        return this.getPlayerBuildingEffects(playerId).filter(isWarType)
-    }
+  getPlayerBuildEffect(playerId: number): BuildEffect[] {
+    return this.material(MaterialType.Unit)
+      .location(LocationType.PlayerUnitBoard)
+      .player(playerId)
+      .getItems<Unit>()
+      .flatMap((item) => {
+        const unit = unitCardCaracteristics[item.id]
+        return unit.effect !== undefined ? unit.effect.filter(isBuildEffect) : []
+      })
+  }
 
-    getPlayerAddPowerBuildingEffects(playerId:number):AddWarPower[]{
-        return this.getPlayerWarBuildingEffects(playerId).filter(isAddWarPower)
-    }
+  hasIgnoreFieldCostEffect(playerId: number): boolean {
+    return this.getPlayerBuildEffect(playerId).find(isIgnoreFieldCost) !== undefined
+  }
 
-    getPlayerScoreAtWarBuildingEffects(playerId:number):ScoreAtWar[]{
-        return this.getPlayerWarBuildingEffects(playerId).filter(isScoreAtWar)
-    }
+  getReplaceResourceByGoldEffects(playerId: number): ReplaceResourceByGold[] {
+    return this.getPlayerBuildEffect(playerId).filter(isReplaceResourceByGold)
+  }
 
-    getPowerAddedFromBuilding(playerId:number, buildEffect:AddWarPower):number{
-        let add = 0
-        if (buildEffect.perAgeToken){
-            // No existing case, maybe for later
-        } else if (buildEffect.perResource) {
-            const resourcesHelper =  new ResourcesHelper(this.game, playerId)
-            buildEffect.perResource.forEach(resource => {
-                const resources = resourcesHelper.getResource(resource)
-                add += resources * buildEffect.powerAdded
-            })
-        } else if (buildEffect.perGoldOnIncomePhase){
-            const incomeHelper = new Income(this.game)
-            const income = incomeHelper.getPlayerIncome(playerId)
-            add += income * buildEffect.powerAdded
-        } else {
-            add += buildEffect.powerAdded
-        }
+  getFieldCost(playerId: number) {
+    return this.getPlayerBuildingQuantity(playerId) * 2
+  }
 
-        return add
-    }
-
-    getScoreFromBuilding(playerId:number, buildEffect:ScoreAtWar):number{
-        if (buildEffect.perResource){
-            return buildEffect.amount * this.getPlayerResources(playerId).filter(res => res === buildEffect.perResource).length
-        } else if (buildEffect.perUnitStrongerThan){
-            const warHelper = new War(this.game)
-            const matchingUnitsQuantity = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).filter(item => warHelper.getUnitPower(playerId, item) >= buildEffect.perUnitStrongerThan!).getQuantity()
-            return buildEffect.amount * matchingUnitsQuantity
-        } else {
-            return buildEffect.amount
-        }
-    }
-
-    getPlayerBuildEffect(playerId:number):BuildEffect[]{
-        const result:BuildEffect[] = []
-        this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId).getItems().forEach(item => {
-            unitCardCaracteristics[item.id].effect !== undefined && result.push(...unitCardCaracteristics[item.id].effect.filter(isBuildEffect)) 
-        })
-        return result
-    }
-
-    hasIgnoreFieldCostEffect(playerId:number):boolean{
-        return this.getPlayerBuildEffect(playerId).find(isIgnoreFieldCost) !== undefined
-    }
-
-    getReplaceResourceByGoldEffects(playerId:number):ReplaceResourceByGold[]{
-        return this.getPlayerBuildEffect(playerId).filter(isReplaceResourceByGold)
-    }
-
-    getFieldCost(playerId:number){
-        return this.getPlayerBuildingQuantity(playerId) * 2
-    }
-
-    getPlayerBuildingQuantity(playerId:number){
-        return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
-    }
-
+  getPlayerBuildingQuantity(playerId: number) {
+    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
+  }
 }

@@ -7,8 +7,18 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
-import { CardDescription, ItemContext, ItemMenuButton, pointerCursorCss } from '@gamepark/react-game'
-import { isCustomMove, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
+import {
+  CardDescription,
+  ItemContext,
+  ItemMenuButton,
+  pointerCursorCss
+} from '@gamepark/react-game'
+import {
+  isCustomMove,
+  isMoveItemType,
+  MaterialItem,
+  MaterialMove
+} from '@gamepark/rules-api'
 import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -55,7 +65,6 @@ import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 import { PaperTalesCardHelp } from './help/UnitCardHelp'
 
-
 export class UnitCardDescription extends CardDescription {
   height = 14
   width = 10
@@ -63,7 +72,7 @@ export class UnitCardDescription extends CardDescription {
 
   backImage = CardBack
 
-//Image en EN.
+  //Image en EN.
   images = {
     [Unit.Commander]: Commander,
     [Unit.Adventurer]: Adventurer,
@@ -106,48 +115,94 @@ export class UnitCardDescription extends CardDescription {
     [Unit.Treefolk]: Treefolk,
     [Unit.Veteran]: Veteran,
     [Unit.Woodcutter]: Woodcutter,
-    [Unit.WoodMerchant]: WoodMerchant,
+    [Unit.WoodMerchant]: WoodMerchant
   }
 
   help = PaperTalesCardHelp
 
   menuAlwaysVisible = true
 
-  getItemMenu(_item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
+  getItemMenu(
+    _item: MaterialItem,
+    context: ItemContext,
+    legalMoves: MaterialMove[]
+  ) {
+    const age = legalMoves.find(
+      (move) =>
+        isCustomMove(move) &&
+        move.type === CustomMoveType.GainAgeTokenOnChosenUnitEffect &&
+        move.data.unitIndex === context.index
+    )
 
-    const age = legalMoves.find((move) => isCustomMove(move) && move.type === CustomMoveType.GainAgeTokenOnChosenUnitEffect
-      && move.data.unitIndex === context.index)
-
-    const discard = legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index)
-    const draft = legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index)
+    const discard = legalMoves.find(
+      (move) =>
+        isMoveItemType(MaterialType.Unit)(move) &&
+        move.location.type === LocationType.Discard &&
+        move.itemIndex === context.index
+    )
+    const draft = legalMoves.find(
+      (move) =>
+        isMoveItemType(MaterialType.Unit)(move) &&
+        move.location.type === LocationType.PlayerUnitHand &&
+        move.itemIndex === context.index
+    )
 
     const items = []
     if (draft) {
       items.push(
-        <ItemMenuButton move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
+        <ItemMenuButton
+          move={draft}
+          radius={8}
+          angle={-150 + _item.location.x! * 1.5}
+        >
           <FontAwesomeIcon
             icon={faHand}
-            css={[pointerCursorCss, css`font-size: 1.2em`]}
+            css={[
+              pointerCursorCss,
+              css`
+                font-size: 1.2em;
+              `
+            ]}
           />
         </ItemMenuButton>
       )
     }
     if (discard) {
       items.push(
-        <ItemMenuButton move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
+        <ItemMenuButton
+          move={discard}
+          radius={8}
+          angle={-40 + _item.location.x! * 1.5}
+        >
           <FontAwesomeIcon
             icon={faTrashCan}
-            css={[pointerCursorCss, css`font-size: 1.2em`]}
+            css={[
+              pointerCursorCss,
+              css`
+                font-size: 1.2em;
+              `
+            ]}
           />
         </ItemMenuButton>
       )
     }
     if (age) {
       items.push(
-        <ItemMenuButton move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={"right"}>
+        <ItemMenuButton
+          move={age}
+          label={<Trans defaults="move.add.age" />}
+          angle={260}
+          radius={3.7}
+          labelPosition={'right'}
+        >
           <FontAwesomeIcon
             icon={faArrowsToDot}
-            css={[pointerCursorCss, css`font-size: 1.2em`]}
+            css={[
+              pointerCursorCss,
+              css`
+                font-size: 1.2em;
+              `
+            ]}
           />
         </ItemMenuButton>
       )
@@ -155,8 +210,6 @@ export class UnitCardDescription extends CardDescription {
 
     return items
   }
-
-
 }
 
 export const unitCardDescription = new UnitCardDescription()

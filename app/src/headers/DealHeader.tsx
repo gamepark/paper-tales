@@ -1,16 +1,13 @@
 /** @jsxImportSource @emotion/react */
 
-
-import { useTranslation } from "react-i18next"
+import { useTranslation } from 'react-i18next'
 
 export const DealHeader = () => {
-    const { t } = useTranslation()
+  const { t } = useTranslation()
 
-
-    return <>
-
-        <div>{t('deal.cards')}</div>
-
+  return (
+    <>
+      <div>{t('deal.cards')}</div>
     </>
-
+  )
 }

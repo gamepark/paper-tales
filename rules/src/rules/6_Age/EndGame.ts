@@ -8,35 +8,35 @@ import { AgeHelper } from '../helpers/AgeHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 
 export class EndGame extends MaterialRulesPart {
+  onRuleStart(): MaterialMove[] {
+    const moves: MaterialMove[] = []
 
-    onRuleStart(): MaterialMove[] {
-        const moves:MaterialMove[] = []
+    const players = this.game.players
+    players.forEach((player) => {
+      let scoreToAdd = 0
+      const ageHelper = new AgeHelper(this.game, player)
+      const scoreHelper = new ScoreHelper(this.game, player)
 
-        const players = this.game.players
-        players.forEach(player => {
-            let scoreToAdd = 0
-            const ageHelper = new AgeHelper(this.game, player)
-            const scoreHelper = new ScoreHelper(this.game, player)
-
-            this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).getItems().forEach(item => {
-                const unitCaracs:UnitPattern = unitCardCaracteristics[item.id]
-                if (unitCaracs.effect !== undefined){
-                    const unitEffects:Effect[] = unitCardCaracteristics[item.id].effect
-                    unitEffects.forEach(eff => {
-                        if (isRelicEffect(eff)){
-                            scoreToAdd += ageHelper.getAgeTokenOnUnit(item) * eff.amount
-                        }
-                    })
-                }
-
+      this.material(MaterialType.Unit)
+        .location(LocationType.PlayerUnitBoard)
+        .player(player)
+        .getItems()
+        .forEach((item) => {
+          const unitCaracs: UnitPattern = unitCardCaracteristics[item.id]
+          if (unitCaracs.effect !== undefined) {
+            const unitEffects: Effect[] = unitCardCaracteristics[item.id].effect
+            unitEffects.forEach((eff) => {
+              if (isRelicEffect(eff)) {
+                scoreToAdd += ageHelper.getAgeTokenOnUnit(item) * eff.amount
+              }
             })
-
-            moves.push(...scoreHelper.gainOrLoseScore(player, scoreToAdd))
-
+          }
         })
 
-        moves.push(this.endGame())
-        return moves
-    }
-}
+      moves.push(...scoreHelper.gainOrLoseScore(player, scoreToAdd))
+    })
 
+    moves.push(this.endGame())
+    return moves
+  }
+}

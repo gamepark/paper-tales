@@ -12,7 +12,9 @@ class GoldCoinDescription extends MoneyDescription {
   }
 
   getSize(itemId: number): ComponentSize {
-    return itemId === 5 ? { width: 2.6, height: 2.6 } : { width: 1.9, height: 1.9 }
+    return itemId === 5
+      ? { width: 2.6, height: 2.6 }
+      : { width: 1.9, height: 1.9 }
   }
 
   stockLocation = { type: LocationType.GoldStock }
@@ -23,7 +25,6 @@ class GoldCoinDescription extends MoneyDescription {
   ]
 
   help = GoldCoinHelp
-
 }
 
 export const goldCoinDescription = new GoldCoinDescription()

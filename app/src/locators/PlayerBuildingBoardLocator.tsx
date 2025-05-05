@@ -4,13 +4,15 @@ import { unitCardDescription } from '../material/UnitCardDescription'
 import { isTopPlayer } from '../position/position.utils'
 import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 
-
 export class PlayerBuildingBoardLocator extends ListLocator {
   maxGap = { y: -18 }
   gap = { y: -10.5 }
 
   getCoordinates(location: Location, context: MaterialContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
+    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(
+      location,
+      context
+    )
     const isTop = isTopPlayer(context, location.player)
     x += 18
 
@@ -25,11 +27,3 @@ export class PlayerBuildingBoardLocator extends ListLocator {
 }
 
 export const playerBuildingBoardLocator = new PlayerBuildingBoardLocator()
-
-
-
-
-
-
-
-

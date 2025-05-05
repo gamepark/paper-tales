@@ -9,12 +9,9 @@ class AgeTokenDescription extends RoundTokenDescription {
 
   stockLocation = { type: LocationType.AgeStock }
 
-  staticItems = [
-    { id: 1, quantity: 40, location: this.stockLocation },
-  ]
+  staticItems = [{ id: 1, quantity: 40, location: this.stockLocation }]
 
   help = AgeTokenHelp
-
 }
 
 export const ageTokenDescription = new AgeTokenDescription()

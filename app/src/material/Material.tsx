@@ -6,13 +6,10 @@ import { ageTokenDescription } from './AgeTokenDescription'
 import { buildingCardDescription } from './BuildingCardDescription'
 import { roundTokenDescription } from './RoundTokenDescription'
 
-
 export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
-
-    [MaterialType.Unit]: unitCardDescription,
-    [MaterialType.Gold]: goldCoinDescription,
-    [MaterialType.Age]: ageTokenDescription,
-    [MaterialType.Building]: buildingCardDescription,
-    [MaterialType.Time]:roundTokenDescription
-
+  [MaterialType.Unit]: unitCardDescription,
+  [MaterialType.Gold]: goldCoinDescription,
+  [MaterialType.Age]: ageTokenDescription,
+  [MaterialType.Building]: buildingCardDescription,
+  [MaterialType.Time]: roundTokenDescription
 }

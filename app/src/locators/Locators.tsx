@@ -17,30 +17,26 @@ import { scoreBoardLocator } from './ScoreBoardLocator'
 import { scoreTokenLocator } from './ScoreTokenLocator'
 import { shieldLocator } from './ShieldLocator'
 
-
-export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
-
-    [LocationType.Deck]: unitDeckLocator,
-    [LocationType.GoldStock]: goldStockLocator,
-    [LocationType.Discard]: discardLocator,
-    [LocationType.PlayerDraftHand]: playerDraftHandLocator,
-    [LocationType.AgeStock]: ageStockLocator,
-    [LocationType.PlayerUnitHand]: playerUnitHandLocator,
-    [LocationType.PlayerGoldStock]: playerGoldStockLocator,
-    [LocationType.PlayerBuildingBoard]: playerBuildingBoardLocator,
-    [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
-    [LocationType.PlayerUnitBoard]: playerUnitBoardLocator,
-    [LocationType.ScoreBoard]: scoreBoardLocator,
-    [LocationType.PlayerScore]: scoreTokenLocator,
-    [LocationType.Time]: roundTokenLocator,
-    [LocationType.OnCard]: new PileLocator({ parentItemType: MaterialType.Unit, radius: 1, positionOnParent: { x: 50, y: 40 } }),
-    [LocationType.ShieldIcon]:shieldLocator
-
-
-
-
-
-
-
+export const Locators: Partial<
+  Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>
+> = {
+  [LocationType.Deck]: unitDeckLocator,
+  [LocationType.GoldStock]: goldStockLocator,
+  [LocationType.Discard]: discardLocator,
+  [LocationType.PlayerDraftHand]: playerDraftHandLocator,
+  [LocationType.AgeStock]: ageStockLocator,
+  [LocationType.PlayerUnitHand]: playerUnitHandLocator,
+  [LocationType.PlayerGoldStock]: playerGoldStockLocator,
+  [LocationType.PlayerBuildingBoard]: playerBuildingBoardLocator,
+  [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
+  [LocationType.PlayerUnitBoard]: playerUnitBoardLocator,
+  [LocationType.ScoreBoard]: scoreBoardLocator,
+  [LocationType.PlayerScore]: scoreTokenLocator,
+  [LocationType.Time]: roundTokenLocator,
+  [LocationType.OnCard]: new PileLocator({
+    parentItemType: MaterialType.Unit,
+    radius: 1,
+    positionOnParent: { x: 50, y: 40 }
+  }),
+  [LocationType.ShieldIcon]: shieldLocator
 }
-
