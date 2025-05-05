@@ -1,5 +1,7 @@
 import { isMoveItemType, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
 import {
+  GainAgeToken,
+  ImproveBuilding,
   isDeploymentType,
   isGainAgeToken,
   isGainAgeTokenOnChosenUnit,
@@ -31,31 +33,24 @@ export class DeployEffects extends SimultaneousRule {
       const buildHelper = new BuildHelper(this.game, player)
       const scoreHelper = new ScoreHelper(this.game, player)
       let scoreToAdd = 0
-      const manuelEffectToDo = false
 
-      for (const index of playerUnitBoard.getIndexes()) {
-        const unit = playerUnitBoard.getItem<Unit>(index)
-        const characteristics: UnitPattern = unitCardCaracteristics[unit.id]
-        const effects = characteristics.effect
-        if (effects !== undefined) {
-          effects.forEach((eff) => {
-            if (isGainTokenOnDeploy(eff) && eff.token === MaterialType.ScoreToken) {
-              if (!eff.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unit.id)) {
-                const factor = eff.perLevel2Builds ? buildHelper.buildLevel2Buildings.length : 1
-                scoreToAdd = eff.amount * factor
-              }
-            } else {
-              moves.push(...this.getUnitDeployEffectMoves(unit, player, index, eff))
+      for (const [unitIndex, unit] of playerUnitBoard.entries) {
+        const unitId = unit.id as Unit
+        const characteristics: UnitPattern = unitCardCaracteristics[unitId]
+        const effects = characteristics.effect ?? []
+        for (const effect of effects) {
+          if (isGainTokenOnDeploy(effect) && effect.token === MaterialType.ScoreToken) {
+            if (!effect.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unit.id)) {
+              const factor = effect.perLevel2Builds ? buildHelper.buildLevel2Buildings.length : 1
+              scoreToAdd = effect.amount * factor
             }
-          })
+          } else {
+            moves.push(...this.getUnitDeployEffectMoves(unit, unitIndex, player, effect))
+          }
         }
       }
 
-      if (!manuelEffectToDo) {
-        moves.push(this.endPlayerTurn(player))
-      } else {
-      }
-      moves.push(...scoreHelper.gainOrLoseScore(player, scoreToAdd))
+      moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
     })
 
     return moves
@@ -66,56 +61,55 @@ export class DeployEffects extends SimultaneousRule {
 
     if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
       let scoreToAdd = 0
-      const unitCard = this.material(MaterialType.Unit).index((index) => index === move.itemIndex)
-      const unitCardItem = unitCard.getItem()
-      const playerMove = unitCardItem!.location.player!
+      const unitCard = this.material(MaterialType.Unit).index(move.itemIndex)
+      const unit = unitCard.getItem()!
+      const player = move.location.player!
+      const unitId = unit.id as Unit
 
       const shapeShifterCard = this.material(MaterialType.Unit)
         .location(LocationType.PlayerUnitBoard)
-        .player(playerMove)
+        .player(player)
         .filter((item) => item.id === Unit.Shapeshifter)
-      if (unitCardCaracteristics[unitCardItem!.id].cost < 1) {
+      if (unitCardCaracteristics[unitId].cost < 1) {
         moves.push(unitCard.moveItem({ type: LocationType.Discard }))
         moves.push(
           this.material(MaterialType.Unit).location(LocationType.Deck).deck().dealOne({
             type: LocationType.PlayerUnitBoard,
-            player: unitCardItem?.location.player,
-            x: unitCardItem?.location.x,
-            y: unitCardItem?.location.y
+            player: unit.location.player,
+            x: unit.location.x,
+            y: unit.location.y
           })
         )
       } else {
-        const effects: Effect[] | undefined = unitCardCaracteristics[unitCardItem!.id].effect
-        const deployedUnitsIndexes = this.remind(Memory.PlayedCardsDuringDeployment, playerMove)
-        const deployedUnits = this.material(MaterialType.Unit)
-          .index((index) => deployedUnitsIndexes.includes(index))
-          .getItems()
-        const buildHelper = new BuildHelper(this.game, playerMove)
-        const scoreHelper = new ScoreHelper(this.game, playerMove)
+        const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
+        const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
+        const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes).getItems()
+        const buildHelper = new BuildHelper(this.game, player)
+        const scoreHelper = new ScoreHelper(this.game, player)
 
-        const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
+        const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, player)
         cardsPlayedIndexes.push(move.itemIndex)
-        this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
+        this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, player)
 
         if (effects !== undefined) {
           effects.forEach((eff) => {
             if (isGainTokenOnDeploy(eff) && eff.token === MaterialType.ScoreToken) {
-              if (!eff.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unitCardItem!.id)) {
+              if (!eff.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unitId)) {
                 const coeff = eff.perLevel2Builds ? buildHelper.buildLevel2Buildings.getQuantity() : 1
                 scoreToAdd = eff.amount * coeff
               }
             } else {
-              moves.push(...this.getUnitDeployEffectMoves(unitCardItem!, unitCardItem!.location.player!, move.itemIndex, eff))
+              moves.push(...this.getUnitDeployEffectMoves(unit, move.itemIndex, player, eff))
             }
 
-            moves.push(...scoreHelper.gainOrLoseScore(playerMove, scoreToAdd))
+            moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
           })
         }
 
         moves.push(shapeShifterCard.moveItem({ type: LocationType.Discard }))
         moves.push(
           this.material(MaterialType.Age).createItem({
-            location: { type: LocationType.OnCard, parent: move.itemIndex },
+            location: { type: LocationType.OnCard, parent: move.itemIndex, player: player },
             quantity: 1
           })
         )
@@ -132,14 +126,14 @@ export class DeployEffects extends SimultaneousRule {
   getMovesAfterPlayersDone(): MaterialMove[] {
     let goToChooseRule = false
 
-    this.game.players.forEach((player) => {
+    for (const player of this.game.players) {
       const unitWithPlaceAgeToken: number[] = this.getUnitsWithPlaceAgeToken(player).getIndexes()
 
       if (unitWithPlaceAgeToken.length > 0) {
         this.memorize(Memory.PlacingAgeTokenUnitsIndexes, unitWithPlaceAgeToken, player)
         goToChooseRule = true
       }
-    })
+    }
 
     if (goToChooseRule) {
       return [this.startSimultaneousRule(RuleId.ChooseWherePlacingAgeToken, this.playersPlacingAgeTokenUnits)]
@@ -152,9 +146,11 @@ export class DeployEffects extends SimultaneousRule {
     const units = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
     const deployedUnits: number[] = this.remind(Memory.PlayedCardsDuringDeployment, player)
     return units.filter((item, index) => {
-      if (unitCardCaracteristics[item.id].effect === undefined) return false
-      const gainAgeTokenOnChosenUnit = unitCardCaracteristics[item.id].effect!.find(isGainAgeTokenOnChosenUnit)
-      if (gainAgeTokenOnChosenUnit === undefined) return false
+      const unitId = item.id as Unit
+      const effects = unitCardCaracteristics[unitId].effect
+      if (!effects?.length) return false
+      const gainAgeTokenOnChosenUnit = effects.find(isGainAgeTokenOnChosenUnit)
+      if (!gainAgeTokenOnChosenUnit) return false
       return !gainAgeTokenOnChosenUnit.onDeployment || deployedUnits.includes(index)
     })
   }
@@ -163,61 +159,23 @@ export class DeployEffects extends SimultaneousRule {
     return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
   }
 
-  getUnitDeployEffectMoves(unit: MaterialItem, player: number, unitIndex: number, eff: Effect): MaterialMove[] {
+  getUnitDeployEffectMoves(unit: MaterialItem, unitIndex: number, player: PlayerColor, eff: Effect): MaterialMove[] {
     const moves: MaterialMove[] = []
-    const deployedUnitsIndexes = this.remind(Memory.PlayedCardsDuringDeployment, player)
-    const deployedUnits = this.material(MaterialType.Unit)
-      .index((index) => deployedUnitsIndexes.includes(index))
-      .getItems()
-    const buildHelper = new BuildHelper(this.game, player)
-    const playerUnitBoard = this.getPlayerUnits(player)
+    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
+    const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes)
 
-    if (isDeploymentType(eff)) {
-      if (!eff.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unit.id)) {
-        if (isImproveBuilding(eff)) {
-          if (eff.whichBuilding === WhichBuilding.All) {
-            const buildingLevel1 = buildHelper.builtLevel1Buildings
-            moves.push(...buildingLevel1.moveItems({ rotation: true }))
-          } else if (eff.whichBuilding === WhichBuilding.Choice) {
-            // No case in base game, but should consider Djinn for later
-          }
-        } else if (isShapeshifter(eff)) {
-          moves.push(
-            this.material(MaterialType.Unit).location(LocationType.Deck).deck().dealOne({
-              type: LocationType.PlayerUnitBoard,
-              player,
-              x: unit.location.x,
-              y: unit.location.y
-            })
-          )
-        } else if (isGainAgeToken(eff)) {
-          if (eff.whichUnit === WhichUnit.Myself) {
-            moves.push(
-              this.material(MaterialType.Age).createItem({
-                location: { type: LocationType.OnCard, parent: unitIndex },
-                quantity: eff.amount
-              })
-            )
-          } else if (eff.whichUnit === WhichUnit.All) {
-            // No case in whole game
-          } else if (eff.whichUnit === WhichUnit.Others) {
-            for (const entry of playerUnitBoard.entries) {
-              const spaceIndex = entry[0]
-              if (spaceIndex !== unitIndex) {
-                moves.push(
-                  this.material(MaterialType.Age).createItem({
-                    location: { type: LocationType.OnCard, parent: spaceIndex },
-                    quantity: eff.amount
-                  })
-                )
-              }
-            }
-          }
-        } else if (isGainTokenOnDeploy(eff)) {
-          if (eff.token === MaterialType.Gold) {
-            // No case in base game
-          }
-        }
+    if (!isDeploymentType(eff)) return moves
+    if (eff.onDeployment && !deployedUnits.id(unit.id).length) return moves
+
+    if (isImproveBuilding(eff)) {
+      moves.push(...this.onImproveBuilding(player, eff))
+    } else if (isShapeshifter(eff)) {
+      moves.push(...this.onShapeShifter(player, unit))
+    } else if (isGainAgeToken(eff)) {
+      moves.push(...this.onGainAgeToken(player, eff, unitIndex))
+    } else if (isGainTokenOnDeploy(eff)) {
+      if (eff.token === MaterialType.Gold) {
+        // No case in base game
       }
     }
 
@@ -226,5 +184,65 @@ export class DeployEffects extends SimultaneousRule {
 
   get playersPlacingAgeTokenUnits(): PlayerColor[] {
     return this.game.players.filter((player) => this.remind(Memory.PlacingAgeTokenUnitsIndexes, player) !== undefined)
+  }
+
+  private onImproveBuilding(player: PlayerColor, eff: ImproveBuilding) {
+    if (eff.whichBuilding === WhichBuilding.All) {
+      const buildHelper = new BuildHelper(this.game, player)
+      const buildingLevel1 = buildHelper.builtLevel1Buildings
+      return buildingLevel1.moveItems({ rotation: true })
+    } else {
+      return []
+      // TODO: No case in base game, but should consider Djinn for later
+    }
+  }
+
+  private onShapeShifter(player: number, unit: MaterialItem): MaterialMove[] {
+    const deck = this.deck
+    if (!deck.length) return []
+    return [
+      deck.dealOne({
+        type: LocationType.PlayerUnitBoard,
+        player,
+        x: unit.location.x,
+        y: unit.location.y
+      })
+    ]
+  }
+
+  get deck() {
+    return this.material(MaterialType.Unit).location(LocationType.Deck).deck()
+  }
+
+  private onGainAgeToken(player: number, eff: GainAgeToken, unitIndex: number) {
+    const playerUnitBoard = this.getPlayerUnits(player)
+    if (eff.whichUnit === WhichUnit.Myself) {
+      return [
+        this.material(MaterialType.Age).createItem({
+          location: { type: LocationType.OnCard, parent: unitIndex, player: player },
+          quantity: eff.amount
+        })
+      ]
+    } else if (eff.whichUnit === WhichUnit.All) {
+      // No case in whole game
+      //} else if (eff.whichUnit === WhichUnit.Others) {
+    } else {
+      const moves: MaterialMove[] = []
+      for (const entry of playerUnitBoard.entries) {
+        const spaceIndex = entry[0]
+        if (spaceIndex !== unitIndex) {
+          moves.push(
+            this.material(MaterialType.Age).createItem({
+              location: { type: LocationType.OnCard, parent: spaceIndex, player: player },
+              quantity: eff.amount
+            })
+          )
+        }
+      }
+
+      return moves
+    }
+
+    return []
   }
 }

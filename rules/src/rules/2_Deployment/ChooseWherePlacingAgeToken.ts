@@ -29,35 +29,35 @@ export class ChooseWherePlacingAgeToken extends SimultaneousRule {
 
   onCustomMove(move: CustomMove): MaterialMove[] {
     const moves: MaterialMove[] = []
-    if (isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) {
-      const data: GainAgeTokenOnChosenUnitEffect = move.data
-      const chosenUnitIndex = data.unitIndex
-      const placeAgeTokenUnitIndex: number = this.remind<number>(Memory.PlacingAgeTokenUnitsIndexes, data.player)[0]
+    if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return []
+    const data: GainAgeTokenOnChosenUnitEffect = move.data
+    const chosenUnitIndex = data.unitIndex
+    const placeAgeTokenUnitIndex: number = this.remind<number>(Memory.PlacingAgeTokenUnitsIndexes, data.player)[0]
 
-      const placeAgeTokenUnitId = this.material(MaterialType.Unit).getItem(placeAgeTokenUnitIndex).id as Unit
+    const placeAgeTokenUnitId = this.material(MaterialType.Unit).getItem(placeAgeTokenUnitIndex).id as Unit
 
-      const unitEffect = unitCardCaracteristics[placeAgeTokenUnitId].effect!.find(isGainAgeTokenOnChosenUnit)!
+    const unitEffect = unitCardCaracteristics[placeAgeTokenUnitId].effect!.find(isGainAgeTokenOnChosenUnit)!
 
-      const resourcesHelper = new ResourcesHelper(this.game, data.player)
+    const resourcesHelper = new ResourcesHelper(this.game, data.player)
 
-      const quantityOfAgeTokens: number =
-        unitEffect.perResource === undefined ? unitEffect.amount : unitEffect.amount * resourcesHelper.getResource(unitEffect.perResource)
+    const quantityOfAgeTokens: number =
+      unitEffect.perResource === undefined ? unitEffect.amount : unitEffect.amount * resourcesHelper.getResource(unitEffect.perResource)
 
-      // Ajout des jetons
-      moves.push(
-        this.material(MaterialType.Age).createItem({
-          location: {
-            type: LocationType.OnCard,
-            parent: chosenUnitIndex
-          },
-          quantity: quantityOfAgeTokens
-        })
-      )
+    // Ajout des jetons
+    moves.push(
+      this.material(MaterialType.Age).createItem({
+        location: {
+          type: LocationType.OnCard,
+          parent: chosenUnitIndex,
+          player: data.player
+        },
+        quantity: quantityOfAgeTokens
+      })
+    )
 
-      // MaJ des effets à traiter
-      if (!this.remainsPlaceAgeToken(move.data.player)) {
-        moves.push(this.endPlayerTurn(move.data.player))
-      }
+    // MaJ des effets à traiter
+    if (!this.remainsPlaceAgeToken(data.player)) {
+      moves.push(this.endPlayerTurn(data.player))
     }
 
     return moves
@@ -66,13 +66,15 @@ export class ChooseWherePlacingAgeToken extends SimultaneousRule {
   remainsPlaceAgeToken(player: PlayerColor): boolean {
     this.memorize(
       Memory.PlacingAgeTokenUnitsIndexes,
-      (indexes: number[]) => {
+      (indexes: number[] = []) => {
         indexes.shift()
         return indexes
       },
       player
     )
-    return this.remind(Memory.PlacingAgeTokenUnitsIndexes, player)?.length > 0
+
+    const placingAgeIndexes: number[] = this.remind<number[] | undefined>(Memory.PlacingAgeTokenUnitsIndexes, player) ?? []
+    return placingAgeIndexes.length > 0
   }
 
   getMovesAfterPlayersDone(): MaterialMove[] {

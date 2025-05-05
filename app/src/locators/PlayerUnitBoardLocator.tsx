@@ -1,12 +1,7 @@
 import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import {
-  DropAreaDescription,
-  FlexLocator,
-  ItemContext,
-  MaterialContext
-} from '@gamepark/react-game'
+import { DropAreaDescription, FlexLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { isTopPlayer } from '../position/position.utils'
@@ -14,10 +9,7 @@ import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 
 class PlayerUnitBoardLocator extends FlexLocator {
   getCoordinates(location: Location, context: ItemContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(
-      location,
-      context
-    )
+    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
     const isTopPlayers = isTopPlayer(context, location.player)
     const factor = isTopPlayers ? -1 : 1
     x += 5
@@ -37,18 +29,8 @@ class PlayerUnitBoardLocator extends FlexLocator {
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
     if (item.location.y === 0 && context.player === item.location.player)
-      return [
-        'translateZ(10em)',
-        `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
-        'scale(2)',
-        'translateY(15%)'
-      ]
-    return [
-      'translateZ(10em)',
-      `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
-      'scale(2)',
-      'translateY(-25%)'
-    ]
+      return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(15%)']
+    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
   }
 
   getLocations(context: MaterialContext) {
@@ -80,24 +62,11 @@ export class PlayerUnitBoardDescription extends DropAreaDescription {
 
   getExtraCss(location: Location, context: ItemContext) {
     const hasLevel2Building =
-      context.rules
-        .material(MaterialType.Building)
-        .location(LocationType.PlayerBuildingBoard)
-        .player(location.player)
-        .rotation(true).length > 0
+      context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(location.player).rotation(true).length > 0
 
     if (!hasLevel2Building && location.y === 0 && location.x === 2) {
       return css`
-        background-image: linear-gradient(
-          45deg,
-          #ffffff30 25%,
-          #ffffff00 25%,
-          #ffffff00 50%,
-          #ffffff30 50%,
-          #ffffff30 75%,
-          #ffffff00 75%,
-          #ffffff00 100%
-        );
+        background-image: linear-gradient(45deg, #ffffff30 25%, #ffffff00 25%, #ffffff00 50%, #ffffff30 50%, #ffffff30 75%, #ffffff00 75%, #ffffff00 100%);
         background-size: 57px 57px;
       `
     }

@@ -12,13 +12,7 @@ export const AgeTokenHelp: FC<MaterialHelpProps> = (props) => {
   const { item } = props
   const { t } = useTranslation()
   const onUnit = item.location?.parent
-  const howManyTokensOnUnit = onUnit
-    ? rules
-        .material(MaterialType.Age)
-        .location(LocationType.OnCard)
-        .parent(onUnit)
-        .getQuantity()
-    : -1
+  const howManyTokensOnUnit = onUnit ? rules.material(MaterialType.Age).location(LocationType.OnCard).parent(onUnit).getQuantity() : -1
   //console.log("help age : ",onUnit, howManyTokensOnUnit)
   return (
     <>
@@ -30,10 +24,7 @@ export const AgeTokenHelp: FC<MaterialHelpProps> = (props) => {
       </p>
       {howManyTokensOnUnit > 0 && (
         <p>
-          <Trans
-            defaults={'age.on.unit.count'}
-            values={{ ageCount: howManyTokensOnUnit }}
-          />
+          <Trans defaults={'age.on.unit.count'} values={{ ageCount: howManyTokensOnUnit }} />
         </p>
       )}
     </>

@@ -1,24 +1,14 @@
 import { css } from '@emotion/react'
 import { faArrowsToDot } from '@fortawesome/free-solid-svg-icons/faArrowsToDot'
-import { faTrashCan } from '@fortawesome/free-solid-svg-icons/faTrashCan'
 import { faHand } from '@fortawesome/free-solid-svg-icons/faHand'
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons/faTrashCan'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
-import {
-  CardDescription,
-  ItemContext,
-  ItemMenuButton,
-  pointerCursorCss
-} from '@gamepark/react-game'
-import {
-  isCustomMove,
-  isMoveItemType,
-  MaterialItem,
-  MaterialMove
-} from '@gamepark/rules-api'
+import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-tales/rules/CustomMoveType'
+import { CardDescription, ItemContext, ItemMenuButton, pointerCursorCss } from '@gamepark/react-game'
+import { isCustomMoveType, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -122,39 +112,24 @@ export class UnitCardDescription extends CardDescription {
 
   menuAlwaysVisible = true
 
-  getItemMenu(
-    _item: MaterialItem,
-    context: ItemContext,
-    legalMoves: MaterialMove[]
-  ) {
-    const age = legalMoves.find(
-      (move) =>
-        isCustomMove(move) &&
-        move.type === CustomMoveType.GainAgeTokenOnChosenUnitEffect &&
-        move.data.unitIndex === context.index
-    )
+  getItemMenu(_item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
+    const age = legalMoves.find((move) => {
+      if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
+      const data: GainAgeTokenOnChosenUnitEffect = move.data
+      return data.unitIndex === context.index
+    })
 
     const discard = legalMoves.find(
-      (move) =>
-        isMoveItemType(MaterialType.Unit)(move) &&
-        move.location.type === LocationType.Discard &&
-        move.itemIndex === context.index
+      (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index
     )
     const draft = legalMoves.find(
-      (move) =>
-        isMoveItemType(MaterialType.Unit)(move) &&
-        move.location.type === LocationType.PlayerUnitHand &&
-        move.itemIndex === context.index
+      (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index
     )
 
     const items = []
     if (draft) {
       items.push(
-        <ItemMenuButton
-          move={draft}
-          radius={8}
-          angle={-150 + _item.location.x! * 1.5}
-        >
+        <ItemMenuButton move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
           <FontAwesomeIcon
             icon={faHand}
             css={[
@@ -169,11 +144,7 @@ export class UnitCardDescription extends CardDescription {
     }
     if (discard) {
       items.push(
-        <ItemMenuButton
-          move={discard}
-          radius={8}
-          angle={-40 + _item.location.x! * 1.5}
-        >
+        <ItemMenuButton move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
           <FontAwesomeIcon
             icon={faTrashCan}
             css={[
@@ -188,13 +159,7 @@ export class UnitCardDescription extends CardDescription {
     }
     if (age) {
       items.push(
-        <ItemMenuButton
-          move={age}
-          label={<Trans defaults="move.add.age" />}
-          angle={260}
-          radius={3.7}
-          labelPosition={'right'}
-        >
+        <ItemMenuButton move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
           <FontAwesomeIcon
             icon={faArrowsToDot}
             css={[

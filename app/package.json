@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.7",
+    "eslint-plugin-react": "^7.37.4",
     "image-minimizer-webpack-plugin": "^3.8.3",
     "imagemin": "^8.0.1",
     "imagemin-webp": "^8.0.0",

@@ -1,7 +1,8 @@
-import { CustomMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
-import { CustomMoveType } from '../CustomMoveType'
+import { CustomMove, isCustomMoveType, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { PlayerColor } from '../../PlayerColor'
+import { CustomMoveType, MysticEffectType } from '../CustomMoveType'
 import { AgeHelper } from '../helpers/AgeHelper'
-import { Memory } from '../Memory'
+import { Memory, UnitSavedWithMysticType } from '../Memory'
 import { RuleId } from '../RuleId'
 
 export class SaveUnitsWithMysticEffect extends SimultaneousRule {
@@ -11,13 +12,9 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     const moves: MaterialMove[] = []
     const players = this.game.players
     players.forEach((player) => {
-      const ageHelper = new AgeHelper(this.game, player)
-      const alreadySavedUnits = this.remind(Memory.UnitSavedWithMystic, player)
-      const saveableUnits = ageHelper.units.filter(
-        (item, index) => ageHelper.howManyAgeTokenOnIndex(index) === 1 && (alreadySavedUnits as number[]).find((unitId) => unitId === item.id) === undefined
-      )
+      const unitsToSave = this.getUnitToSave(player)
 
-      if (!ageHelper.mysticalEffects || !saveableUnits.length) {
+      if (!new AgeHelper(this.game, player).mysticalEffectsCount || !unitsToSave.length) {
         moves.push(this.endPlayerTurn(player))
       }
     })
@@ -25,22 +22,23 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     return moves
   }
 
-  getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
+  getUnitToSave(player: PlayerColor) {
+    const ageHelper = new AgeHelper(this.game, player)
+    const alreadySavedUnits = this.remind<number[]>(Memory.UnitSavedWithMystic, player)
+    return ageHelper.units.filter((_, unitIndex) => ageHelper.howManyAgeTokenOnIndex(unitIndex) === 1 && !alreadySavedUnits.includes(unitIndex))
+  }
+
+  getActivePlayerLegalMoves(playerId: PlayerColor): MaterialMove[] {
     const moves: MaterialMove[] = []
-    const ageHelper = new AgeHelper(this.game, playerId)
+    const unitsToSave = this.getUnitToSave(playerId)
 
-    const alreadySavedUnits = this.remind(Memory.UnitSavedWithMystic, playerId)
+    // unitsToSave is different of 0 thanks to the pre work in onRuleStart
 
-    const saveableUnits = ageHelper.units.filter(
-      (item) => ageHelper.howManyAgeTokenOnIndex(item) === 1 && (alreadySavedUnits as number[]).find((unitId) => unitId === item.id) === undefined
-    )
-
-    // saveableUnits is different of 0 thanks to the pre work in onRuleStart
-
-    saveableUnits.getItems().forEach((item) => {
+    unitsToSave.getIndexes().forEach((unitIndex) => {
       moves.push(
         this.customMove(CustomMoveType.MysticEffect, {
-          unitId: item.id,
+          unitIndex: unitIndex,
+          //unitId: item.id,
           player: playerId
         })
       )
@@ -51,15 +49,23 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
   onCustomMove(move: CustomMove): MaterialMove[] {
     const moves: MaterialMove[] = []
-    const ageHelper = new AgeHelper(this.game, move.data.player)
+    if (!isCustomMoveType(CustomMoveType.MysticEffect)(move)) return []
+    const data = move.data as MysticEffectType
+    const player: PlayerColor = data.player
+    const ageHelper = new AgeHelper(this.game, player)
+    this.memorize(
+      Memory.UnitSavedWithMystic,
+      (indexes: number[] = []) => {
+        indexes.push(data.unitIndex)
+        return indexes
+      },
+      player
+    )
+    const unitsAlreadySaved = this.remind<UnitSavedWithMysticType>(Memory.UnitSavedWithMystic)
+    this.memorize(Memory.UnitSavedWithMystic, unitsAlreadySaved, player)
 
-    if (move.type === CustomMoveType.MysticEffect) {
-      const unitsAlreadySaved = this.remind(Memory.UnitSavedWithMystic, move.data.player).push(move.data.unitId)
-      this.memorize(Memory.UnitSavedWithMystic, unitsAlreadySaved, move.data.player)
-
-      if (ageHelper.getMysticalEffects(move.data.player) === unitsAlreadySaved.length + 1) {
-        moves.push(this.endPlayerTurn(move.data.player))
-      }
+    if (ageHelper.mysticalEffectsCount === unitsAlreadySaved.length + 1) {
+      moves.push(this.endPlayerTurn(player))
     }
 
     return moves

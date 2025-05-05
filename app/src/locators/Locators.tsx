@@ -17,9 +17,7 @@ import { scoreBoardLocator } from './ScoreBoardLocator'
 import { scoreTokenLocator } from './ScoreTokenLocator'
 import { shieldLocator } from './ShieldLocator'
 
-export const Locators: Partial<
-  Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>
-> = {
+export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
   [LocationType.Deck]: unitDeckLocator,
   [LocationType.GoldStock]: goldStockLocator,
   [LocationType.Discard]: discardLocator,

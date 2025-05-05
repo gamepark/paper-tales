@@ -2,12 +2,7 @@
 import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import {
-  LocationContext,
-  LocationDescription,
-  Locator,
-  MaterialContext
-} from '@gamepark/react-game'
+import { LocationContext, LocationDescription, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location } from '@gamepark/rules-api'
 import { CardBoardRotateButton } from './component/CardBoardRotateButton'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
@@ -20,9 +15,7 @@ class CardBoardRotateButtonLocator extends Locator {
   getLocations(context: MaterialContext) {
     const { rules } = context
 
-    const buildingCards = rules
-      .material(MaterialType.Building)
-      .location(LocationType.PlayerBuildingBoard)
+    const buildingCards = rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard)
     return buildingCards.getIndexes().map((index) => ({
       type: LocationType.CardBoardRotate,
       parent: index
@@ -31,9 +24,7 @@ class CardBoardRotateButtonLocator extends Locator {
 
   placeLocation(location: Location, context: LocationContext): string[] {
     const { rules } = context
-    const card = rules
-      .material(MaterialType.Building)
-      .getItem(location.parent!)!
+    const card = rules.material(MaterialType.Building).getItem(location.parent!)
     return [
       ...playerBuildingBoardLocator.placeItem(card, {
         ...context,

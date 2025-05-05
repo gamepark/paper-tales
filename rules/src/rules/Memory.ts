@@ -5,3 +5,5 @@ export enum Memory {
   PlacingAgeTokenUnitsIndexes,
   Time
 }
+
+export type UnitSavedWithMysticType = number[]

@@ -2,10 +2,7 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { getRelativePlayerIndex, MaterialContext } from '@gamepark/react-game'
 import { Coordinates } from '@gamepark/rules-api'
 
-export const getPlayerBoardPosition = (
-  context: MaterialContext,
-  player?: number
-): Partial<Coordinates> => {
+export const getPlayerBoardPosition = (context: MaterialContext, player?: number): Partial<Coordinates> => {
   const index = getPlayerIndex(context, player)
   const players = context.rules.players.length
   switch (index) {
@@ -47,9 +44,7 @@ export const isTopPlayer = (context: MaterialContext, player?: PlayerColor) => {
   return [1, 2, 3].includes(getPlayerIndex(context, player))
 }
 
-export const getTableSize = (
-  players: number
-): { xMin: number; xMax: number; yMin: number; yMax: number } => {
+export const getTableSize = (players: number): { xMin: number; xMax: number; yMin: number; yMax: number } => {
   switch (players) {
     case 3:
     case 4:

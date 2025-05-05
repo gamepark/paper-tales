@@ -1,40 +1,24 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import {
-  Effect,
-  EffectType,
-  WhichUnit
-} from '@gamepark/paper-tales/material/effects/Effect'
+import { Effect, EffectType, WhichUnit } from '@gamepark/paper-tales/material/effects/Effect'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import {
-  ResourcesCondition,
-  unitCardCaracteristics,
-  UnitPattern
-} from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { howManyCardCopies, Unit } from '@gamepark/paper-tales/material/Unit'
+import { ResourcesCondition, unitCardCaracteristics, UnitPattern } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
-import {
-  MaterialHelpProps,
-  Picture,
-  PlayMoveButton,
-  useLegalMove,
-  usePlayerId,
-  usePlayerName,
-  useRules
-} from '@gamepark/react-game'
+import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-tales/rules/CustomMoveType'
+import { MaterialHelpProps, Picture, PlayMoveButton, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
+import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactElement } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-
-import gold from '../../images/tokens/Gold1.jpg'
 import wood from '../../images/ressources/ressources_bois.png'
-import food from '../../images/ressources/ressources_viande.png'
 import diamond from '../../images/ressources/ressources_minerai.png'
+import food from '../../images/ressources/ressources_viande.png'
 import scoreIcon from '../../images/score/scoreIcon.png'
 import ageToken from '../../images/tokens/Age.jpg'
-import { howManyCardCopies } from '@gamepark/paper-tales/material/Unit'
-import { isCustomMoveType } from '@gamepark/rules-api'
-import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
+
+import gold from '../../images/tokens/Gold1.jpg'
 
 export const PaperTalesCardHelp: FC<MaterialHelpProps> = (props) => {
   const { t } = useTranslation()
@@ -45,27 +29,21 @@ export const PaperTalesCardHelp: FC<MaterialHelpProps> = (props) => {
     !!item.location?.rotation ||
     item.location?.type === LocationType.Deck ||
     item.location?.type === LocationType.Discard ||
-    (item.location?.player !== player &&
-      (item.location?.type === LocationType.PlayerDraftHand ||
-        item.location?.type === LocationType.PlayerUnitHand))
+    (item.location?.player !== player && (item.location?.type === LocationType.PlayerDraftHand || item.location?.type === LocationType.PlayerUnitHand))
   //const buy = useLegalMoves(move => !isFlipped && isMoveItemType(MaterialType.Unit)(move) && move.itemIndex === itemIndex && move.location.type === LocationType.PlayerDraftHand && !move.location.rotation)
 
-  const chooseWhereToPlaceTokenMove = useLegalMove(
-    (move) =>
-      isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move) &&
-      move.data.unitIndex === unitIndex
-  )
+  const chooseWhereToPlaceTokenMove = useLegalMove((move: MaterialMove) => {
+    if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
+    const data: GainAgeTokenOnChosenUnitEffect = move.data
+    return data.unitIndex === unitIndex
+  })
 
   return (
     <>
-      <h2 css={titleCss}>
-        {isFlipped ? t('card.face-down') : t(`card.${item.id}`)}
-      </h2>
+      <h2 css={titleCss}>{isFlipped ? t('card.face-down') : t(`card.${item.id}`)}</h2>
       {!isFlipped && <VisibleCard {...props} />}
       <CardLocation {...props} />
-      {chooseWhereToPlaceTokenMove && (
-        <PlayMoveButton move={chooseWhereToPlaceTokenMove}></PlayMoveButton>
-      )}
+      {chooseWhereToPlaceTokenMove && <PlayMoveButton move={chooseWhereToPlaceTokenMove}></PlayMoveButton>}
     </>
   )
 }
@@ -73,58 +51,38 @@ export const PaperTalesCardHelp: FC<MaterialHelpProps> = (props) => {
 const VisibleCard: FC<MaterialHelpProps> = (props) => {
   //const { t } = useTranslation()
   const { item } = props
-  if (item.id === undefined) return null
-  const characteristic: UnitPattern = unitCardCaracteristics[item.id]
+  const itemId: Unit | undefined = item.id
+  if (!itemId) return null
+  const characteristic: UnitPattern = unitCardCaracteristics[itemId]
   const effects = characteristic.effect
 
   return (
     <>
-      {characteristic.cost !== undefined && (
-        <>
-          <p>
-            <span>
-              <Trans
-                defaults="card.cost"
-                values={{ cost: characteristic.cost }}
-              >
-                <strong />
-              </Trans>
-            </span>{' '}
-            &nbsp;
-            <span>
-              <Trans
-                defaults="card.copies.number"
-                values={{ copies: howManyCardCopies(item.id) }}
-              >
-                <strong />
-              </Trans>
-            </span>
-            <span>
-              <Trans
-                defaults="card.power"
-                values={{ power: howManyCardCopies(characteristic.power) }}
-              >
-                <strong />
-              </Trans>
-            </span>
-          </p>
-          {characteristic.resources !== undefined && (
-            <ResourcesHelp
-              _i18nKey="card.effect.resources"
-              resources={characteristic.resources.type}
-              conditions={characteristic.resources.condition}
-            />
-          )}
-        </>
-      )}
+      <>
+        <p>
+          <span>
+            <Trans defaults="card.cost" values={{ cost: characteristic.cost }}>
+              <strong />
+            </Trans>
+          </span>{' '}
+          &nbsp;
+          <span>
+            <Trans defaults="card.copies.number" values={{ copies: howManyCardCopies(itemId) }}>
+              <strong />
+            </Trans>
+          </span>
+          <span>
+            <Trans defaults="card.power" values={{ power: howManyCardCopies(characteristic.power) }}>
+              <strong />
+            </Trans>
+          </span>
+        </p>
+        {characteristic.resources !== undefined && (
+          <ResourcesHelp _i18nKey="card.effect.resources" resources={characteristic.resources.type} conditions={characteristic.resources.condition} />
+        )}
+      </>
 
-      {effects !== undefined && (
-        <EffectList
-          i18nKey="card.effect.title"
-          effects={effects}
-          getDescription={getEffectDescription}
-        />
-      )}
+      {effects !== undefined && <EffectList i18nKey="card.effect.title" effects={effects} getDescription={getEffectDescription} />}
     </>
   )
 }
@@ -162,7 +120,7 @@ const ResourcesHelp: FC<{
 const EffectList: FC<{
   i18nKey: string
   effects: Effect[]
-  getDescription: (effect: Effect) => any
+  getDescription: (effect: Effect) => ReactElement
 }> = (props) => {
   const { i18nKey, effects, getDescription } = props
   return (
@@ -172,9 +130,7 @@ const EffectList: FC<{
           <strong />
         </Trans>
       </p>
-      {effects.length === 1 && (
-        <p css={listCss}>{getDescription(effects[0])}</p>
-      )}
+      {effects.length === 1 && <p css={listCss}>{getDescription(effects[0])}</p>}
       {effects.length > 1 && (
         <ul css={listCss}>
           {effects.map((effect, i) => (
@@ -201,10 +157,7 @@ const CardLocation: FC<MaterialHelpProps> = (props) => {
         <Trans
           defaults="card.deck"
           values={{
-            number: rules
-              .material(MaterialType.Unit)
-              .location(LocationType.Deck)
-              .locationId(location.id).length,
+            number: rules.material(MaterialType.Unit).location(LocationType.Deck).locationId(location.id).length,
             place: location.id
           }}
         >
@@ -215,10 +168,7 @@ const CardLocation: FC<MaterialHelpProps> = (props) => {
         <Trans
           defaults="card.discard"
           values={{
-            number: rules
-              .material(MaterialType.Unit)
-              .location(LocationType.Discard)
-              .locationId(location.id).length,
+            number: rules.material(MaterialType.Unit).location(LocationType.Discard).locationId(location.id).length,
             place: location.id
           }}
         >
@@ -226,12 +176,7 @@ const CardLocation: FC<MaterialHelpProps> = (props) => {
         </Trans>
       )}
       {location?.type === LocationType.PlayerDraftHand && (
-        <Trans
-          defaults={
-            itsMine ? 'card.player.draft.you' : 'card.player.draft.them'
-          }
-          values={{ player: name }}
-        >
+        <Trans defaults={itsMine ? 'card.player.draft.you' : 'card.player.draft.them'} values={{ player: name }}>
           <strong />
         </Trans>
       )}
@@ -247,12 +192,7 @@ const CardLocation: FC<MaterialHelpProps> = (props) => {
         ))}
       {location?.type === LocationType.PlayerUnitHand && (
         <>
-          <Trans
-            defaults={
-              itsMine ? 'card.player.hand.you' : 'card.player.hand.them'
-            }
-            values={{ player: name }}
-          >
+          <Trans defaults={itsMine ? 'card.player.hand.you' : 'card.player.hand.them'} values={{ player: name }}>
             <strong />
           </Trans>
         </>
@@ -321,10 +261,8 @@ const getEffectDescription = (effect: Effect): ReactElement => {
     case EffectType.ChangeWarPower:
       return <></>
 
-    case EffectType.GainAgeToken:
-      const isGainAgeOnDeploy = effect.onDeployment === true && (
-        <Trans defaults="gain.token.on.deploy" />
-      )
+    case EffectType.GainAgeToken: {
+      const isGainAgeOnDeploy = effect.onDeployment && <Trans defaults="gain.token.on.deploy" />
       const whichUnit =
         effect.whichUnit === WhichUnit.Others ? (
           <Trans defaults="gain.token.gain.age.others" />
@@ -333,63 +271,38 @@ const getEffectDescription = (effect: Effect): ReactElement => {
         ) : (
           <Trans defaults="gain.token.gain.age.all" />
         )
-      const ageTokenyPicture = <Picture css={mini} src={ageToken} />
-      const gainAgeTokenBase = (
-        <Trans defaults="gain.token.base" values={{ count: effect.amount }} />
-      )
+      const ageTokenPicture = <Picture css={mini} src={ageToken} />
+      const gainAgeTokenBase = <Trans defaults="gain.token.base" values={{ count: effect.amount }} />
       return (
         <>
-          {isGainAgeOnDeploy} {gainAgeTokenBase} {ageTokenyPicture} {whichUnit}
+          {isGainAgeOnDeploy} {gainAgeTokenBase} {ageTokenPicture} {whichUnit}
         </>
       )
-
-    case EffectType.GainAgeTokenOnChosenUnit:
+    }
+    case EffectType.GainAgeTokenOnChosenUnit: {
       const tokenAmount = effect.amount
-      const onDeployment =
-        effect.onDeployment === true ? (
-          <Trans defaults="card.effect.gain.age.on.choosen.unit.deploy" />
-        ) : undefined
+      const onDeployment = effect.onDeployment ? <Trans defaults="card.effect.gain.age.on.choosen.unit.deploy" /> : undefined
       const perResource = effect.perResource ? (
-        <Trans
-          defaults="card.effect.gain.age.on.choosen.unit.per.resource"
-          values={{ score: tokenAmount }}
-        />
+        <Trans defaults="card.effect.gain.age.on.choosen.unit.per.resource" values={{ score: tokenAmount }} />
       ) : undefined
-      const gainAgeOnChoosenUnitBaseText1 = (
-        <Trans defaults="card.effect.gain.age.on.choosen.unit.base1" />
-      )
-      const gainAgeOnChoosenUnitBaseText2 = (
-        <Trans defaults="card.effect.gain.age.on.choosen.unit.base2" />
-      )
+      const gainAgeOnChoosenUnitBaseText1 = <Trans defaults="card.effect.gain.age.on.choosen.unit.base1" />
+      const gainAgeOnChoosenUnitBaseText2 = <Trans defaults="card.effect.gain.age.on.choosen.unit.base2" />
 
       const agePicture = <Picture css={mini} src={ageToken} />
 
       return (
         <>
-          {onDeployment} {gainAgeOnChoosenUnitBaseText1} {perResource}{' '}
-          {agePicture} {gainAgeOnChoosenUnitBaseText2}
+          {onDeployment} {gainAgeOnChoosenUnitBaseText1} {perResource} {agePicture} {gainAgeOnChoosenUnitBaseText2}
         </>
       )
-    case EffectType.GainTokenIfDying:
-      const tokenPicture =
-        effect.tokenGain === MaterialType.Gold ? (
-          <Picture css={mini} src={gold} />
-        ) : (
-          <Picture css={mini} src={scoreIcon} />
-        )
+    }
+    case EffectType.GainTokenIfDying: {
+      const tokenPicture = effect.tokenGain === MaterialType.Gold ? <Picture css={mini} src={gold} /> : <Picture css={mini} src={scoreIcon} />
       const tokenCountWon = effect.amount
       const gainTokenIfDyingBaseText1 =
-        tokenCountWon > 0 ? (
-          <Trans defaults="card.effect.gain.token.if.dying.base1" />
-        ) : (
-          <Trans defaults="card.effect.lose.token.if.dying.base1" />
-        )
-      const ifAgeToken = effect.ifAgeToken === true && (
-        <Trans defaults="card.effect.gain.token.if.dying.if.token" />
-      )
-      const perToken = effect.perAgeToken === true && (
-        <Trans defaults="card.effect.gain.token.if.dying.per.token" />
-      )
+        tokenCountWon > 0 ? <Trans defaults="card.effect.gain.token.if.dying.base1" /> : <Trans defaults="card.effect.lose.token.if.dying.base1" />
+      const ifAgeToken = effect.ifAgeToken === true && <Trans defaults="card.effect.gain.token.if.dying.if.token" />
+      const perToken = effect.perAgeToken === true && <Trans defaults="card.effect.gain.token.if.dying.per.token" />
       const whoDies =
         effect.whoDies === WhichUnit.All ? (
           <Trans defaults="card.effect.gain.token.if.dying.all.units" />
@@ -406,22 +319,12 @@ const getEffectDescription = (effect: Effect): ReactElement => {
           {whoDies}
         </>
       )
-    case EffectType.GainTokenIfWinWar:
-      const gainTokenIfWinWarPicture = (
-        <Picture
-          css={mini}
-          src={effect.token === MaterialType.Gold ? gold : scoreIcon}
-        />
-      )
-      const gainTokenIfWinWarBaseText = (
-        <Trans defaults="card.effect.gain.if.win.war" />
-      )
-      const gainTokenIfWinWarScoringConditionText = effect.perResource !==
-        undefined && (
-        <Trans
-          defaults="score.at.war.per.resource"
-          values={{ score: effect.amount }}
-        />
+    }
+    case EffectType.GainTokenIfWinWar: {
+      const gainTokenIfWinWarPicture = <Picture css={mini} src={effect.token === MaterialType.Gold ? gold : scoreIcon} />
+      const gainTokenIfWinWarBaseText = <Trans defaults="card.effect.gain.if.win.war" />
+      const gainTokenIfWinWarScoringConditionText = effect.perResource !== undefined && (
+        <Trans defaults="score.at.war.per.resource" values={{ score: effect.amount }} />
       )
       return (
         <>
@@ -429,51 +332,36 @@ const getEffectDescription = (effect: Effect): ReactElement => {
           {gainTokenIfWinWarScoringConditionText}
         </>
       )
-    case EffectType.GainTokenOnDeploy:
-      const isOnDeploy = effect.onDeployment === true && (
-        <Trans defaults="gain.token.on.deploy" />
-      )
-      const isOnLevel2Builds = effect.perLevel2Builds === true && (
-        <Trans defaults="gain.token.on.deploy.on.lvl2.builds" />
-      )
-      const gainTokenOnDeployPicture = (
-        <Picture
-          css={mini}
-          src={effect.token === MaterialType.Gold ? gold : scoreIcon}
-        />
-      )
-      const gainTokenOnDeployBase = (
-        <Trans
-          defaults="gain.token.on.deploy.base"
-          values={{ score: effect.amount }}
-        />
-      )
+    }
+    case EffectType.GainTokenOnDeploy: {
+      const isOnDeploy = effect.onDeployment && <Trans defaults="gain.token.on.deploy" />
+      const isOnLevel2Builds = effect.perLevel2Builds === true && <Trans defaults="gain.token.on.deploy.on.lvl2.builds" />
+      const gainTokenOnDeployPicture = <Picture css={mini} src={effect.token === MaterialType.Gold ? gold : scoreIcon} />
+      const gainTokenOnDeployBase = <Trans defaults="gain.token.on.deploy.base" values={{ score: effect.amount }} />
       return (
         <>
-          {isOnDeploy} {gainTokenOnDeployBase} {gainTokenOnDeployPicture}{' '}
-          {isOnLevel2Builds}
+          {isOnDeploy} {gainTokenOnDeployBase} {gainTokenOnDeployPicture} {isOnLevel2Builds}
         </>
       )
-    case EffectType.IgnoreFieldCost:
+    }
+    case EffectType.IgnoreFieldCost: {
       return (
         <>
           <Trans defaults="card.effect.ignore.field.cost" />
         </>
       )
-    case EffectType.ImproveBuilding:
-      const isImproveBuildingOnDeploy = effect.onDeployment === true && (
-        <Trans defaults="card.effect.improve.building.on.deploy" />
-      )
+    }
+    case EffectType.ImproveBuilding: {
+      const isImproveBuildingOnDeploy = effect.onDeployment && <Trans defaults="card.effect.improve.building.on.deploy" />
       return <>{isImproveBuildingOnDeploy}</>
-    case EffectType.Income:
+    }
+    case EffectType.Income: {
       return (
         <>
-          <Trans
-            defaults="card.effect.income.base"
-            values={{ income: effect.amount }}
-          />
+          <Trans defaults="card.effect.income.base" values={{ income: effect.amount }} />
         </>
       )
+    }
     case EffectType.IncomeIfAgeToken:
       return <></>
     case EffectType.IncomePerResource:
@@ -488,20 +376,14 @@ const getEffectDescription = (effect: Effect): ReactElement => {
       return (
         <>
           <Trans defaults="card.effect.relic.never.dies" />
-          <Trans
-            defaults="card.effect.relic.scoring"
-            values={{ score: effect.amount }}
-          />
+          <Trans defaults="card.effect.relic.scoring" values={{ score: effect.amount }} />
         </>
       )
-    case EffectType.ScoreAtWar:
+    case EffectType.ScoreAtWar: {
       const scoreAtWarBaseText = <Trans defaults="card.effect.score.at.war" />
       const scoringConditionText =
         effect.perResource !== undefined ? (
-          <Trans
-            defaults="score.at.war.per.resource"
-            values={{ score: effect.amount }}
-          />
+          <Trans defaults="score.at.war.per.resource" values={{ score: effect.amount }} />
         ) : effect.perUnitStrongerThan !== undefined ? (
           <Trans
             defaults="score.at.war.stronger.than"
@@ -519,7 +401,7 @@ const getEffectDescription = (effect: Effect): ReactElement => {
           {scoringConditionText}
         </>
       )
-
+    }
     case EffectType.Shapeshifter:
       return (
         <>

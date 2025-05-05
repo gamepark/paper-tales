@@ -1,11 +1,10 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
-import { sum } from 'lodash'
+import sum from 'lodash/sum'
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from '../../material/effects/6_AgeEffects'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
-import { PlayerColor } from '../../PlayerColor'
 import { Memory } from '../Memory'
 
 export class AgeHelper extends MaterialRulesPart {
@@ -17,7 +16,7 @@ export class AgeHelper extends MaterialRulesPart {
   }
 
   howManyAgeTokenOnIndex(unitIndex: number): number {
-    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(unitIndex).getQuantity()
+    return this.getAgeTokenOnIndex(unitIndex).getQuantity()
   }
 
   getAgeTokenOnIndex(targetIndex: number): Material {
@@ -33,19 +32,19 @@ export class AgeHelper extends MaterialRulesPart {
       this.material(MaterialType.Unit)
         .location(LocationType.PlayerUnitBoard)
         .player(this.player)
-        .filter<Unit>((unit) => this.isUnitDying(unit))
+        .filter((unit: MaterialItem, index: number) => this.isUnitDying(unit, index))
         .getIndexes()
         .map((unit) => this.howManyAgeTokenOnIndex(unit))
     )
   }
 
-  isUnitDying(unit: MaterialItem<PlayerColor, LocationType, Unit>): boolean {
+  isUnitDying(unit: MaterialItem, index: number): boolean {
     const effects = this.getUnitAgeEffects(unit)
     const specialDyingEffect = effects.find(isSpecialDyingCondition)
-    const unitsSavedByMysticEffect = this.remind<number[] | undefined>(Memory.UnitSavedWithMystic, this.player) ?? []
+    const unitsSavedByMysticEffect = this.remind<number[]>(Memory.UnitSavedWithMystic, this.player)
 
     const ageTokensOnDyingUnits = this.ageTokensOnDyingUnits
-    if (unitsSavedByMysticEffect.includes(unit.id)) return false
+    if (unitsSavedByMysticEffect.includes(index)) return false
     if (specialDyingEffect === undefined) return ageTokensOnDyingUnits >= 1
     if (specialDyingEffect.dyingFromAmount === 0) return false
     return ageTokensOnDyingUnits >= specialDyingEffect.dyingFromAmount
@@ -61,23 +60,24 @@ export class AgeHelper extends MaterialRulesPart {
     return this.material(MaterialType.Unit)
       .location(LocationType.PlayerUnitBoard)
       .player(this.player)
-      .filter<Unit>((unit) => {
-        const effects = unitCardCaracteristics[unit.id].effect ?? []
+      .filter((unit) => {
+        const effects = unitCardCaracteristics[unit.id as Unit].effect ?? []
         return effects.some((eff) => isAgeEffect(eff))
       })
   }
 
-  get mysticalEffects(): number {
-    return this.unitsWithAgeEffects.filter<Unit | undefined>((item) => {
-      const id = item.id
+  get mysticalEffectsCount(): number {
+    return this.unitsWithAgeEffects.filter((item) => {
+      const id: Unit | undefined = item.id
       if (!id) return false
       return (unitCardCaracteristics[id].effect ?? []).some((eff) => isMysticEffect(eff))
     }).length
   }
 
-  getUnitAgeEffects(unit: MaterialItem<PlayerColor, LocationType, Unit | undefined>): AgeEffect[] {
-    if (!unit.id) return []
-    return (unitCardCaracteristics[unit.id].effect ?? []).filter(isAgeEffect)
+  getUnitAgeEffects(unit: MaterialItem): AgeEffect[] {
+    const unitId: Unit | undefined = unit.id
+    if (!unitId) return []
+    return (unitCardCaracteristics[unitId].effect ?? []).filter(isAgeEffect)
 
     /**this.material(MaterialType.Unit)
       .location(LocationType.PlayerUnitBoard)

@@ -4,13 +4,7 @@ import { faHammer } from '@fortawesome/free-solid-svg-icons/faHammer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Building } from '@gamepark/paper-tales/material/Building'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import {
-  CardDescription,
-  ItemContext,
-  ItemMenuButton,
-  MaterialContext,
-  pointerCursorCss
-} from '@gamepark/react-game'
+import { CardDescription, ItemContext, ItemMenuButton, MaterialContext, pointerCursorCss } from '@gamepark/react-game'
 import { isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
 import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
@@ -48,41 +42,22 @@ export class BuildingCardDescription extends CardDescription {
   }
 
   isFlipped(item: Partial<MaterialItem>, context: MaterialContext): boolean {
-    return item.location?.rotation || super.isFlipped(item, context)
+    return !!item.location?.rotation || super.isFlipped(item, context)
   }
 
   help = BuildingHelp
 
   menuAlwaysVisible = true
 
-  getItemMenu(
-    _item: MaterialItem,
-    context: ItemContext,
-    _legalMoves: MaterialMove[]
-  ) {
-    const flip = _legalMoves.find(
-      (move) =>
-        isMoveItemType(MaterialType.Building)(move) &&
-        move.itemIndex === context.index &&
-        move.location.rotation === true
-    )
+  getItemMenu(_item: MaterialItem, context: ItemContext, _legalMoves: MaterialMove[]) {
+    const flip = _legalMoves.find((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index && move.location.rotation === true)
 
-    const buildAsIs = _legalMoves.find(
-      (move) =>
-        isMoveItemType(MaterialType.Building)(move) &&
-        move.itemIndex === context.index &&
-        !move.location.rotation
-    )
+    const buildAsIs = _legalMoves.find((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index && !move.location.rotation)
 
     const items = []
     if (buildAsIs) {
       items.push(
-        <ItemMenuButton
-          move={buildAsIs}
-          angle={-87}
-          radius={7}
-          css={largeButtonCss}
-        >
+        <ItemMenuButton move={buildAsIs} angle={-87} radius={7} css={largeButtonCss}>
           <div>
             <FontAwesomeIcon icon={faHammer} css={iconCss} /> 1
           </div>

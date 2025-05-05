@@ -9,10 +9,7 @@ export class PlayerBuildingBoardLocator extends ListLocator {
   gap = { y: -10.5 }
 
   getCoordinates(location: Location, context: MaterialContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(
-      location,
-      context
-    )
+    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
     const isTop = isTopPlayer(context, location.player)
     x += 18
 

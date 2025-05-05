@@ -19,7 +19,7 @@ export class AgeUnitsAge extends MaterialRulesPart {
         moves.push(
           this.material(MaterialType.Age).createItem({
             id: 1,
-            location: { type: LocationType.OnCard, parent: index },
+            location: { type: LocationType.OnCard, parent: index, player: player },
             quantity: 1
           })
         )
@@ -31,6 +31,6 @@ export class AgeUnitsAge extends MaterialRulesPart {
   }
 
   getTurn() {
-    return this.remind(Memory.Time)
+    return this.remind<number>(Memory.Time)
   }
 }

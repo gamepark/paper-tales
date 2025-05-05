@@ -1,9 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import {
-  DropAreaDescription,
-  HandLocator,
-  ItemContext
-} from '@gamepark/react-game'
+import { DropAreaDescription, HandLocator, ItemContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { isTopPlayer } from '../position/position.utils'
@@ -17,10 +13,7 @@ export class PlayerUnitHandLocator extends HandLocator {
   })
 
   getCoordinates(location: Location, context: ItemContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(
-      location,
-      context
-    )
+    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
     if (!isDraftRule(context)) return { x: x, y: y, z: 1 }
     x += context.player === location.player ? 36 : 30
 
@@ -41,18 +34,12 @@ export class PlayerUnitHandLocator extends HandLocator {
   radius = 125
 
   getMaxAngle(location: Location, context: ItemContext): number {
-    if (!isDraftRule(context))
-      return context.player === location.player ? 13 : 3
+    if (!isDraftRule(context)) return context.player === location.player ? 13 : 3
     return context.player === location.player ? 3.5 : 1
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext): string[] {
-    return [
-      'translateZ(10em)',
-      `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
-      'scale(2)',
-      'translateY(-25%)'
-    ]
+    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
   }
 }
 

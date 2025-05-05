@@ -9,10 +9,7 @@ class PlayerGoldStockLocator extends PileLocator {
   limit = 100
 
   getCoordinates(location: Location, context: ItemContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(
-      location,
-      context
-    )
+    const { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
 
     return {
       x: x - 15,

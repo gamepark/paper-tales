@@ -18,13 +18,17 @@ import { ResourcesHelper } from './ResourcesHelper'
 
 export class BuildHelper extends MaterialRulesPart {
   private buildWithSubstitution: BuildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
-  private myResources: Resources[] = []
+  private _myResources: Resources[] | undefined = undefined
   constructor(
     game: MaterialGame,
     readonly player: number
   ) {
     super(game)
-    this.myResources = this.resources
+  }
+
+  get myResources() {
+    this._myResources ??= this.resources
+    return this._myResources
   }
 
   get resources() {
@@ -72,7 +76,7 @@ export class BuildHelper extends MaterialRulesPart {
 
   get buildableLevel2Buildings() {
     const fieldCost = this.fieldCost
-    return this.availableBuildings.filter<Building>((item: MaterialItem) => this.canBuildLevel2(item.id as Building, fieldCost))
+    return this.availableBuildings.filter((item: MaterialItem) => this.canBuildLevel2(item.id as Building, fieldCost))
   }
 
   get upgradableBuildings() {

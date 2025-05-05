@@ -7,6 +7,7 @@ import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
+import { PlayerColor } from '../../PlayerColor'
 import { Income } from '../4_Income/Income'
 import { BuildHelper } from '../helpers/BuildHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
@@ -129,11 +130,9 @@ export class War extends MaterialRulesPart {
 
   getUnitPower(unit: MaterialItem, unitIndex: number) {
     const player = unit.location.player!
-    if (unit.id === undefined) {
-      return 0
-    }
+    const unitId = unit.id as Unit | undefined
+    if (!unitId) return 0
 
-    const unitId = unit.id as Unit
     const characteristics = unitCardCaracteristics[unitId]
 
     const effects: Effect[] = characteristics.effect ?? []
@@ -192,11 +191,8 @@ export class War extends MaterialRulesPart {
     return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity()
   }
 
-  getAgeInPlayerRealm(player: number) {
-    const indexes = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).getIndexes()
-    return this.material(MaterialType.Age)
-      .location(LocationType.OnCard)
-      .parent((item) => indexes.includes(item!)).length
+  getAgeInPlayerRealm(player: PlayerColor) {
+    return this.material(MaterialType.Age).location(LocationType.OnCard).player(player).getQuantity()
   }
 
   getPlayerPower(player: number) {
@@ -213,10 +209,10 @@ export class War extends MaterialRulesPart {
   computePower(unit: Material) {
     const item = unit.getItem<Unit | undefined>()!
     if (item.id === undefined) return 0
-    if (this.isAtFrontLane(item)) return this.getUnitPower(unit)
+    if (this.isAtFrontLane(item)) return this.getUnitPower(item, unit.getIndex())
     const effects = unitCardCaracteristics[item.id].effect ?? []
     if (!effects.length || !effects.some((eff) => isWarFromBacklane(eff))) return 0
-    return this.getUnitPower(unit)
+    return this.getUnitPower(item, unit.getIndex())
   }
 
   getNeighbor(players: number[], playerIndex: number, side: 'left' | 'right') {

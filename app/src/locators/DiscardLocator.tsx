@@ -8,8 +8,7 @@ export class DiscardLocator extends DeckLocator {
 
   getCoordinates(location: Location, context: ItemContext) {
     const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
-    if (context.rules.players.length === 2)
-      return { x: x + unitCardDescription.width + 1, y: y }
+    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width + 1, y: y }
     return { x, y: y + unitCardDescription.height + 0.5 }
   }
 }

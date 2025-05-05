@@ -415,7 +415,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     effect: [
       {
         type: EffectType.SpecialDyingCondition,
-        dyingFromAmount: false
+        dyingFromAmount: 0
       },
       {
         type: EffectType.RelicEffect,

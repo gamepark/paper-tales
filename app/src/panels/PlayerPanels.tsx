@@ -7,8 +7,8 @@ import { createPortal } from 'react-dom'
 import { getPlayerIndex } from '../position/position.utils'
 import { PaperTalesPlayerPanel } from './PaperTalesPlayerPanel'
 
-export const PlayerPanels: FC<any> = () => {
-  const players = usePlayers({ sortFromMe: true })
+export const PlayerPanels: FC = () => {
+  const players = usePlayers<PlayerColor>({ sortFromMe: true })
   const root = document.getElementById('root')
   const context = useMaterialContext()
   if (!root) {
@@ -22,12 +22,8 @@ export const PlayerPanels: FC<any> = () => {
           key={player.id}
           player={player}
           index={index}
-          color={playerColorCode[player.id as PlayerColor]}
-          css={[
-            absolute,
-            panelPosition(players.length, getPlayerIndex(context, player.id)),
-            player.id === PlayerColor.Black && black
-          ]}
+          color={playerColorCode[player.id]}
+          css={[absolute, panelPosition(players.length, getPlayerIndex(context, player.id)), player.id === PlayerColor.Black && black]}
         />
       ))}
     </>,
@@ -125,11 +121,7 @@ const getPanelPosition = (players: number, index: number) => {
       return players < 7 ? bottomRight : bottomCenterRight
     case 7:
     default:
-      return players < 5
-        ? bottomRight
-        : players < 7
-          ? bottomCenter
-          : bottomCenterLeft
+      return players < 5 ? bottomRight : players < 7 ? bottomCenter : bottomCenterLeft
   }
 }
 

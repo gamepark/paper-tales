@@ -7,13 +7,5 @@ export const DraftHeader = () => {
   const { t } = useTranslation()
   const legalMoves = useLegalMoves()
 
-  return (
-    <>
-      {legalMoves.length !== 0 ? (
-        <div>{t('choose.card')}</div>
-      ) : (
-        <div>{t('wait.players')}</div>
-      )}
-    </>
-  )
+  return <>{legalMoves.length !== 0 ? <div>{t('choose.card')}</div> : <div>{t('wait.players')}</div>}</>
 }

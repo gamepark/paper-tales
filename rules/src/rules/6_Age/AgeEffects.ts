@@ -4,7 +4,6 @@ import { WhichUnit } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
-import { Unit } from '../../material/Unit'
 import { AgeHelper } from '../helpers/AgeHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 import { RuleId } from '../RuleId'
@@ -20,20 +19,20 @@ export class AgeEffects extends MaterialRulesPart {
       const ageHelper = new AgeHelper(this.game, player)
       const scoreHelper = new ScoreHelper(this.game, player)
 
-      const unitsWithAgeEffects = ageHelper.unitsWithAgeEffects.getItems<Unit>()
+      const unitsWithAgeEffects = ageHelper.unitsWithAgeEffects
 
-      for (const unit of unitsWithAgeEffects) {
+      for (const [index, unit] of unitsWithAgeEffects.entries) {
         const effects = ageHelper.getUnitAgeEffects(unit)
         for (const effect of effects) {
           if (isGainTokenIfDying(effect)) {
             switch (effect.whoDies) {
               case WhichUnit.Myself:
-                if (ageHelper.isUnitDying(unit)) {
+                if (ageHelper.isUnitDying(unit, index)) {
                   if (effect.perAgeToken) {
-                    const gain = this.computeGain(effect, ageHelper.getAgeTokenOnUnit(unit))
+                    const gain = this.computeGain(effect, ageHelper.howManyAgeTokenOnIndex(index))
                     scoreToGain += gain.scoreToGain
                     goldToGain += gain.goldToGain
-                  } else if (!effect.ifAgeToken || ageHelper.getAgeTokenOnUnit(unit) === 1) {
+                  } else if (!effect.ifAgeToken || ageHelper.howManyAgeTokenOnIndex(index)) {
                     const gain = this.computeGain(effect)
                     scoreToGain += gain.scoreToGain
                     goldToGain += gain.goldToGain
@@ -47,7 +46,7 @@ export class AgeEffects extends MaterialRulesPart {
               case WhichUnit.All:
                 // Other effects are not really meaningfull, but I let the door open to do them.
                 if (effect.perAgeToken) {
-                  const ageTokens = ageHelper.getAgeTokensOnDyingUnits(player)
+                  const ageTokens = ageHelper.ageTokensOnDyingUnits
                   const gain = this.computeGain(effect, ageTokens)
                   scoreToGain += gain.scoreToGain
                   goldToGain += gain.goldToGain
@@ -67,7 +66,7 @@ export class AgeEffects extends MaterialRulesPart {
     return moves
   }
 
-  private computeGain(effect: GainTokenIfDying, factor: number = 1) {
+  private computeGain(effect: GainTokenIfDying, factor = 1) {
     const gains = {
       scoreToGain: 0,
       goldToGain: 0

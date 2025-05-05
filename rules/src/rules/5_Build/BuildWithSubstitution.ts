@@ -32,7 +32,7 @@ export class BuildWithSubstitution extends MaterialRulesPart {
 
   canBuildWithSubstitution(playerResources: Resources[], cost: Resources[], fieldCost: number): boolean {
     const buildHelper = new BuildHelper(this.game, this.player)
-    const playerGold = buildHelper.getPlayerGold(this.player)
+    const playerGold = buildHelper.gold
     let additionalGold = 0
 
     const missingResources = this.getMissingResourcesForBuilding(playerResources, cost)

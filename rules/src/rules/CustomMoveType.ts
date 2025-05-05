@@ -10,3 +10,8 @@ export type GainAgeTokenOnChosenUnitEffect = {
   unitIndex: number
   player: PlayerColor
 }
+
+export type MysticEffectType = {
+  unitIndex: number
+  player: PlayerColor
+}

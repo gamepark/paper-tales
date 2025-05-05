@@ -1,21 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
+import { Building } from '@gamepark/paper-tales/material/Building'
+import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import {
-  MaterialHelpProps,
-  Picture,
-  usePlayerId,
-  usePlayerName
-} from '@gamepark/react-game'
+import { MaterialHelpProps, Picture, usePlayerId, usePlayerName } from '@gamepark/react-game'
 import { FC } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import gold from '../../images/tokens/Gold1.jpg'
 import wood from '../../images/ressources/ressources_bois.png'
-import food from '../../images/ressources/ressources_viande.png'
 import diamond from '../../images/ressources/ressources_minerai.png'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
-import { Building } from '@gamepark/paper-tales/material/Building'
+import food from '../../images/ressources/ressources_viande.png'
+import gold from '../../images/tokens/Gold1.jpg'
 
 export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
   //const rules = useRules<PaperTalesRules>()!
@@ -23,12 +18,13 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
   const { t } = useTranslation()
   const isLevel2 = item.location?.rotation === true
   const isBuilt = item.location?.type === LocationType.PlayerBuildingBoard
-  const caracteristics = buildingCardCaracteristics[item.id]
-  const mine = item.id === Building.Mine
-  const temple = item.id === Building.Temple
-  const tavern = item.id === Building.Tavern
-  const town = item.id === Building.Town
-  const barracks = item.id === Building.Barracks
+  const itemId: Building = item.id
+  const caracteristics = buildingCardCaracteristics[itemId]
+  const mine = itemId === Building.Mine
+  const temple = itemId === Building.Temple
+  const tavern = itemId === Building.Tavern
+  const town = itemId === Building.Town
+  const barracks = itemId === Building.Barracks
 
   return (
     <>
@@ -40,20 +36,11 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
         </p>
       )}
 
-      {mine && (
-        <ResourcesHelp
-          _i18nKey="card.effect.resources1"
-          resources={caracteristics.resources1}
-        />
-      )}
+      {mine && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.resources1!} />}
       {/* {mine && TODO Construction N1} */}
-      {mine && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />
-      )}
+      {mine && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
       {/* {mine && TODO Construction N2} */}
-      {mine && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />
-      )}
+      {mine && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
 
       {/* {mine && TODO Symbole Phase 3} */}
       {/* {mine && TODO Symbole 2 PV} */}
@@ -62,34 +49,20 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       {mine && <Trans defaults="level.two.effect.two.mine" />}
 
       {/* {temple && TODO Construction N1} */}
-      {temple && (
-        <ResourcesHelp
-          _i18nKey="card.effect.resources1"
-          resources={caracteristics.cost1}
-        />
-      )}
+      {temple && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.cost1} />}
       {/* TODO : Diamant OU Or (cost) */}
       {/* {temple && TODO Construction N2} */}
 
-      {temple && (
-        <ResourcesHelp
-          _i18nKey="card.effect.resources1"
-          resources={caracteristics.cost2}
-        />
-      )}
+      {temple && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.cost2} />}
       {/* {temple && phase 4 */}
       {/* {temple && 2 or} */}
       {/* {temple && phase 3 */}
       {/* {temple && 2PV */}
 
       {/* {tavern && TODO Construction N1} */}
-      {tavern && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />
-      )}
+      {tavern && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
       {/* {tavern && TODO Construction N2} */}
-      {tavern && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />
-      )}
+      {tavern && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
       {/* {tavern && Phase 4 } */}
       {/* {tavern && 1 or } */}
       {tavern && <Trans defaults="effect.one.tavern" />}
@@ -102,34 +75,16 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       {tavern && <Trans defaults="effect.two.tavern" />}
 
       {/* {town && TODO Construction N1} */}
-      {town && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />
-      )}
+      {town && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
       {/* {town && TODO Construction N2} */}
-      {town && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />
-      )}
-      {town && (
-        <ResourcesHelp
-          _i18nKey="card.effect.resources1"
-          resources={caracteristics.resources1}
-        />
-      )}
-      {town && (
-        <ResourcesHelp
-          _i18nKey="card.effect.resources2"
-          resources={caracteristics.resources2}
-        />
-      )}
+      {town && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
+      {town && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.resources1!} />}
+      {town && <ResourcesHelp _i18nKey="card.effect.resources2" resources={caracteristics.resources2!} />}
 
       {/* {barracks && TODO Construction N1} */}
-      {barracks && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />
-      )}
+      {barracks && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
       {/* {barracks && TODO Construction N2} */}
-      {barracks && (
-        <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />
-      )}
+      {barracks && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
       {/* {barrack && Phase 3 } */}
       {/* {barracks && 1 atk } */}
       {barracks && <Trans defaults="effect.one.barracks" />}
@@ -157,28 +112,20 @@ const GetLocationText: FC<MaterialHelpProps> = (props) => {
     <>
       {location?.type === LocationType.PlayerBuildingHand && (
         <p>
-          <Trans
-            defaults={itsMe ? 'build.hand.you' : 'build.hand.player'}
-            values={{ player: name }}
-          />
+          <Trans defaults={itsMe ? 'build.hand.you' : 'build.hand.player'} values={{ player: name }} />
         </p>
       )}
 
       {location?.type === LocationType.PlayerBuildingBoard && (
         <p>
-          <Trans
-            defaults={itsMe ? 'build.board.you' : 'build.board.player'}
-            values={{ player: name }}
-          />
+          <Trans defaults={itsMe ? 'build.board.you' : 'build.board.player'} values={{ player: name }} />
         </p>
       )}
     </>
   )
 }
 
-const ResourcesHelp: FC<{ _i18nKey: string; resources: Resources[] }> = (
-  props
-) => {
+const ResourcesHelp: FC<{ _i18nKey: string; resources: Resources[] }> = (props) => {
   const { resources } = props
   const resourcesPictures = resources.map((res, i) => {
     switch (res) {

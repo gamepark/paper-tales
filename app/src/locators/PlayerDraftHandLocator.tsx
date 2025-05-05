@@ -22,12 +22,7 @@ export class PlayerDraftHandLocator extends HandLocator {
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
-    return [
-      'translateZ(10em)',
-      `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
-      'scale(2)',
-      'translateY(-25%)'
-    ]
+    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
   }
 
   radius = 125
@@ -44,10 +39,7 @@ export class PlayerDraftHandLocator extends HandLocator {
 
 export const isDraftRule = (context: MaterialContext) => {
   const rule = context.rules.game.rule
-  return (
-    rule &&
-    [RuleId.GiveDraftToNeighbor, RuleId.Draft, RuleId.Deal].includes(rule.id)
-  )
+  return rule && [RuleId.GiveDraftToNeighbor, RuleId.Draft, RuleId.Deal].includes(rule.id)
 }
 
 export const playerDraftHandLocator = new PlayerDraftHandLocator()

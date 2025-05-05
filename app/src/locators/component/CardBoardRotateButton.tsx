@@ -3,43 +3,23 @@ import { css } from '@emotion/react'
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons/faRotateRight'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import {
-  pointerCursorCss,
-  useAnimation,
-  useLegalMove,
-  usePlay,
-  useRules
-} from '@gamepark/react-game'
-import { isMoveItemType, Location } from '@gamepark/rules-api'
-import { FC, useCallback } from 'react'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
+import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
+import { pointerCursorCss, useAnimation, useLegalMove, usePlay, useRules } from '@gamepark/react-game'
+import { isMoveItemType, Location, MaterialMove } from '@gamepark/rules-api'
+import { FC } from 'react'
 
-export const CardBoardRotateButton: FC<{ location: Location }> = ({
-  location
-}) => {
+export const CardBoardRotateButton: FC<{ location: Location }> = ({ location }) => {
   const play = usePlay()
   const rules = useRules<PaperTalesRules>()!
-  const cardIndex = rules
-    .material(MaterialType.Building)
-    .index(location.parent!)
+  const cardIndex = rules.material(MaterialType.Building).index(location.parent)
   const rotation = cardIndex.getItem()!.location.rotation
-  const flip = useCallback(
-    (event) => {
-      event.preventDefault()
-      play(cardIndex.rotateItem(!rotation), { local: true })
-    },
-    [rotation]
+  const flip = () => play(cardIndex.rotateItem(!rotation), { local: true })
+  const animation = useAnimation<MaterialMove, PlayerColor>(
+    (animation) => isMoveItemType(MaterialType.Building)(animation.move) && animation.move.itemIndex === location.parent
   )
-  const animation = useAnimation(
-    (animation) =>
-      isMoveItemType(MaterialType.Building)(animation.move) &&
-      animation.move.itemIndex === location.parent
-  )
-  const canRotate = useLegalMove(
-    (move) =>
-      isMoveItemType(MaterialType.Building)(move) &&
-      move.itemIndex === cardIndex.getIndex() &&
-      move.location.rotation === true
+  const canRotate = useLegalMove<MaterialMove>(
+    (move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === cardIndex.getIndex() && move.location.rotation === true
   )
 
   if (animation || !canRotate) return null

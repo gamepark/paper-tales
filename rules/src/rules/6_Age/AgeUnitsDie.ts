@@ -12,7 +12,7 @@ export class AgeUnitsDie extends MaterialRulesPart {
     players.forEach((player) => {
       const ageHelper = new AgeHelper(this.game, player)
       const dyingUnits = ageHelper.dyingUnits
-      for (const [index, _item] of dyingUnits.entries) {
+      for (const [index] of dyingUnits.entries) {
         const ageTokensToDiscard = ageHelper.getAgeTokenOnIndex(index)
         moves.push(this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).deleteItem(ageTokensToDiscard.getQuantity()))
       }

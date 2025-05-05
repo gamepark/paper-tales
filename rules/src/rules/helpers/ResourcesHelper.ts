@@ -1,4 +1,5 @@
 import { MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
+import { Building } from '../../material/Building'
 import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
@@ -7,8 +8,6 @@ import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { BuildHelper } from './BuildHelper'
 
 export class ResourcesHelper extends MaterialRulesPart {
-  readonly buildHelper: BuildHelper = new BuildHelper(this.game, this.player)
-
   constructor(
     game: MaterialGame,
     readonly player: number
@@ -40,10 +39,12 @@ export class ResourcesHelper extends MaterialRulesPart {
   get buildingResources() {
     const resources: Resources[] = []
 
-    const buildings = this.buildHelper.builtBuildings.getItems()
+    const buildHelper = new BuildHelper(this.game, this.player)
+    const buildings = buildHelper.builtBuildings.getItems()
     for (const building of buildings) {
-      const level = this.buildHelper.getLevel(building)
-      const characteristics = buildingCardCaracteristics[building.id]
+      const level = buildHelper.getLevel(building)
+      const buildingId: Building = building.id
+      const characteristics = buildingCardCaracteristics[buildingId]
       if (characteristics.resources1 !== undefined) resources.push(...characteristics.resources1)
       if (level === 2 && characteristics.resources2 !== undefined) resources.push(...characteristics.resources2)
     }
@@ -57,16 +58,15 @@ export class ResourcesHelper extends MaterialRulesPart {
 
   getUnitResource(unit: MaterialItem): Resources[] {
     // Si l'Id est inaccessible, on renvoie 0
-    if (unit.id === undefined) {
-      return []
-    }
+    const unitId: Building | undefined = unit.id
+    if (!unitId) return []
 
-    const resourceObject = unitCardCaracteristics[unit.id].resources
+    const resourceObject = unitCardCaracteristics[unitId].resources
 
     if (resourceObject !== undefined) {
       if (resourceObject.condition !== undefined) {
         if (resourceObject.condition.onLane !== undefined) {
-          return unit.location.y === resourceObject.condition.onLane && resourceObject.type
+          if (unit.location.y === resourceObject.condition.onLane) return resourceObject.type
         } else if (resourceObject.condition.perAgeToken !== undefined) {
           return [...Array(this.getAgeOnUnit(unit)).keys()].flatMap((_) => resourceObject.type[0])
         } else if (resourceObject.condition.ifAgeToken !== undefined) {

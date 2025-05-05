@@ -10,8 +10,7 @@ export class ScoreTokenLocator extends Locator {
     return scoreCasesCoordinates[location.x!]
   }
 
-  getParentItem = (_location: Location) =>
-    scoreBoardDescription.getPlayerScoreBoard()
+  getParentItem = (_location: Location) => scoreBoardDescription.getPlayerScoreBoard()
 }
 
 export const scoreTokenLocator = new ScoreTokenLocator()

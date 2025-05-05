@@ -10,20 +10,20 @@ export class ScoreHelper extends MaterialRulesPart {
     super(game)
   }
 
-  getScoreMaterial(player: number) {
-    return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player)
+  get scoreToken() {
+    return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(this.player)
   }
 
-  getScore(player: number) {
-    return this.getScoreMaterial(player).getItem()!.location.x!
+  get score() {
+    return this.scoreToken.getItem()!.location.x!
   }
 
-  gainOrLoseScore(player: number, amount: number): MaterialMove[] {
+  gainOrLoseScore(amount: number): MaterialMove[] {
     if (!amount) return []
-    return this.getScoreMaterial(player).moveItems({
+    return this.scoreToken.moveItems({
       type: LocationType.PlayerScore,
-      player,
-      x: this.getScore(player) + amount
+      player: this.player,
+      x: this.score + amount
     })
   }
 }

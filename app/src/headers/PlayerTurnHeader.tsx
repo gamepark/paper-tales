@@ -1,11 +1,11 @@
 /** @jsxImportSource @emotion/react */
 
-import { PlayMoveButton, useLegalMoves } from '@gamepark/react-game'
+import { PlayMoveButton, useLegalMove } from '@gamepark/react-game'
+import { isEndPlayerTurn, MaterialMove } from '@gamepark/rules-api'
 import { useTranslation } from 'react-i18next'
 
 export const PlayerTurnHeader = () => {
-  const legalMoves = useLegalMoves()
-  const endMove = legalMoves.find((move) => move.type === 2)
+  const endMove = useLegalMove<MaterialMove>((move) => isEndPlayerTurn(move))
   const { t } = useTranslation()
 
   return (
