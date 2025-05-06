@@ -38,7 +38,6 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
       moves.push(
         this.customMove(CustomMoveType.MysticEffect, {
           unitIndex: unitIndex,
-          //unitId: item.id,
           player: playerId
         })
       )

@@ -2,11 +2,12 @@ import { css } from '@emotion/react'
 import { faArrowsToDot } from '@fortawesome/free-solid-svg-icons/faArrowsToDot'
 import { faHand } from '@fortawesome/free-solid-svg-icons/faHand'
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons/faTrashCan'
+import { faShield } from '@fortawesome/free-solid-svg-icons/faShield'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-tales/rules/CustomMoveType'
+import { CustomMoveType, GainAgeTokenOnChosenUnitEffect, MysticEffectType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { CardDescription, ItemContext, ItemMenuButton, pointerCursorCss } from '@gamepark/react-game'
 import { isCustomMoveType, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { Trans } from 'react-i18next'
@@ -126,49 +127,36 @@ export class UnitCardDescription extends CardDescription {
       (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index
     )
 
+    const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
+
     const items = []
     if (draft) {
       items.push(
         <ItemMenuButton key="draft" move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
-          <FontAwesomeIcon
-            icon={faHand}
-            css={[
-              pointerCursorCss,
-              css`
-                font-size: 1.2em;
-              `
-            ]}
-          />
+          <FontAwesomeIcon icon={faHand} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )
     }
+
+    if (save) {
+      items.push(
+        <ItemMenuButton key="save" label={'Ossekour'} labelPosition="right" move={save} radius={3} angle={-110}>
+          <FontAwesomeIcon icon={faShield} css={[pointerCursorCss, littleCss]} />
+        </ItemMenuButton>
+      )
+    }
+
     if (discard) {
       items.push(
         <ItemMenuButton key="discard" move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
-          <FontAwesomeIcon
-            icon={faTrashCan}
-            css={[
-              pointerCursorCss,
-              css`
-                font-size: 1.2em;
-              `
-            ]}
-          />
+          <FontAwesomeIcon icon={faTrashCan} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )
     }
     if (age) {
       items.push(
         <ItemMenuButton key="age" move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
-          <FontAwesomeIcon
-            icon={faArrowsToDot}
-            css={[
-              pointerCursorCss,
-              css`
-                font-size: 1.2em;
-              `
-            ]}
-          />
+          <FontAwesomeIcon icon={faArrowsToDot} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )
     }
@@ -176,5 +164,9 @@ export class UnitCardDescription extends CardDescription {
     return items
   }
 }
+
+const littleCss = css`
+  font-size: 1.2em;
+`
 
 export const unitCardDescription = new UnitCardDescription()
