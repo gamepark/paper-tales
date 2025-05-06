@@ -30,5 +30,7 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.EndGame]: EndGameHeader,
   [RuleId.AgeUnitsAge]: AgeUnitsAgeHeader,
   [RuleId.AgeEffects]: AgeEffectsHeader,
-  [RuleId.AgeUnitsDie]: AgeUnitsDieHeader
+  [RuleId.AgeUnitsDie]: AgeUnitsDieHeader,
+  [RuleId.SaveUnitsWithMysticEffect]: () => <>SaveUnitsWithMysticEffect</>,
+  [RuleId.ChooseUnpaidUnits]: () => <>ChooseUnpaidUnits</>
 }
