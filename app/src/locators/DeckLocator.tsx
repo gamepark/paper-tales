@@ -1,5 +1,5 @@
 import { DeckLocator, ItemContext } from '@gamepark/react-game'
-import { Location } from '../../../../rules-api/src'
+import { Location } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 
 export class UnitDeckLocator extends DeckLocator {

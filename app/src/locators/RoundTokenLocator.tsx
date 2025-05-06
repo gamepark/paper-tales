@@ -1,5 +1,5 @@
 import { ItemContext, Locator } from '@gamepark/react-game'
-import { Location } from '../../../../rules-api/src'
+import { Location } from '@gamepark/rules-api'
 
 export class RoundTokenLocator extends Locator {
   coordinates = { x: -20, y: -19 }

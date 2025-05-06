@@ -9,7 +9,7 @@ import {
   SecretMaterialRules,
   TimeLimit
 } from '@gamepark/rules-api'
-import { CompetitiveScore } from '../../../rules-api'
+import { CompetitiveScore } from '@gamepark/rules-api'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'

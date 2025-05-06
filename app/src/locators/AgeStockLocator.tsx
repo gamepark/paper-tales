@@ -1,5 +1,5 @@
 import { ItemContext, PileLocator } from '@gamepark/react-game'
-import { Location } from '../../../../rules-api/src'
+import { Location } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { unitDeckLocator } from './DeckLocator'
 
