@@ -17,7 +17,7 @@ export class Income extends MaterialRulesPart {
     const moves: MaterialMove[] = []
     for (const player of this.game.players) {
       const goldMoney = this.material(MaterialType.Gold).money(golds)
-      moves.push(...goldMoney.addMoney(this.getPlayerIncome(player), { type: LocationType.PlayerGoldStock, player }))
+      moves.push(...goldMoney.addMoney(2 + this.getPlayerIncome(player), { type: LocationType.PlayerGoldStock, player }))
     }
 
     moves.push(this.startSimultaneousRule(RuleId.Build))
