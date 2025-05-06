@@ -1,4 +1,5 @@
 import { Material, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import sum from 'lodash/sum'
 import sumBy from 'lodash/sumBy'
 import { isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from '../../material/effects/3_WarEffects'
 import { AgeLocation, Effect } from '../../material/effects/Effect'
@@ -57,9 +58,9 @@ export class War extends MaterialRulesPart {
       //console.log("Score gagné par le joueur ",player, " par les guerres gagnées : ", warScoring)
 
       // Effets scoring peu importe la victoire
-      warScoring += buildHelper.getPlayerScoreAtWarBuildingEffects(player).reduce((acc, cur) => acc + buildHelper.getScoreFromBuilding(player, cur), 0)
+      warScoring += sum(buildHelper.scoreAtWarBuildingEffects.map((effect) => buildHelper.getScoreFromBuilding(player, effect)))
 
-      moves.push(...scoreHelper.gainOrLoseScore(player, warScoring))
+      moves.push(...scoreHelper.gainOrLoseScore(warScoring))
     })
 
     moves.push(this.startRule(RuleId.Income))
@@ -201,7 +202,7 @@ export class War extends MaterialRulesPart {
     const unitIndexes = units.getIndexes()
     const strength = sumBy(unitIndexes, (index: number) => this.computePower(units.index(index)))
 
-    const buildings = buildHelper.getPlayerAddPowerBuildingEffects(player)
+    const buildings = buildHelper.addPowerBuildingEffects
     const buildingStrength = sumBy(buildings, (building) => buildHelper.getPowerAddedFromBuilding(player, building))
     return strength + buildingStrength
   }

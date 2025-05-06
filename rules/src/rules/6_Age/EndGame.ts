@@ -28,7 +28,7 @@ export class EndGame extends MaterialRulesPart {
         }
       }
 
-      if (scoreToAdd) moves.push(...scoreHelper.gainOrLoseScore(player, scoreToAdd))
+      if (scoreToAdd) moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
     }
 
     moves.push(this.endGame())

@@ -205,9 +205,9 @@ export class BuildHelper extends MaterialRulesPart {
     return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
   }
 
-  getPlayerBuildingEffects(playerId: number): Effect[] {
+  get buildingEffects(): Effect[] {
     const effectsToReturn: Effect[] = []
-    this.getPlayerBuildingsDone(playerId)
+    this.getPlayerBuildingsDone(this.player)
       .getItems()
       .forEach((item) => {
         const id = item.id as Building
@@ -223,20 +223,20 @@ export class BuildHelper extends MaterialRulesPart {
     return effectsToReturn
   }
 
-  getPlayerIncomeBuildingEffects(playerId: number): IncomeEffect[] {
-    return this.getPlayerBuildingEffects(playerId).filter(isIncomeType)
+  get incomeBuildingEffects(): IncomeEffect[] {
+    return this.buildingEffects.filter(isIncomeType)
   }
 
-  getPlayerWarBuildingEffects(playerId: number): WarEffect[] {
-    return this.getPlayerBuildingEffects(playerId).filter(isWarType)
+  get warBuildingEffects(): WarEffect[] {
+    return this.buildingEffects.filter(isWarType)
   }
 
-  getPlayerAddPowerBuildingEffects(playerId: number): AddWarPower[] {
-    return this.getPlayerWarBuildingEffects(playerId).filter(isAddWarPower)
+  get addPowerBuildingEffects(): AddWarPower[] {
+    return this.warBuildingEffects.filter(isAddWarPower)
   }
 
-  getPlayerScoreAtWarBuildingEffects(playerId: number): ScoreAtWar[] {
-    return this.getPlayerWarBuildingEffects(playerId).filter(isScoreAtWar)
+  get scoreAtWarBuildingEffects(): ScoreAtWar[] {
+    return this.warBuildingEffects.filter(isScoreAtWar)
   }
 
   getPowerAddedFromBuilding(playerId: number, buildEffect: AddWarPower): number {

@@ -3,7 +3,6 @@ import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
@@ -11,6 +10,7 @@ import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHe
 import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
 import { Player } from '@gamepark/react-client'
 import { CounterProps, StyledPlayerPanel, useFocusContext, usePlayerId, useRules } from '@gamepark/react-game'
+import { MaterialRules } from '@gamepark/rules-api'
 import { FC, HTMLAttributes, useEffect, useMemo } from 'react'
 import wood from '../images/ressources/ressources_bois.png'
 import diamond from '../images/ressources/ressources_minerai.png'
@@ -27,7 +27,7 @@ type PaperTalesPlayerPanelProps = {
 
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => {
   const { player, color, ...rest } = props
-  const rules = useRules<PaperTalesRules>()!
+  const rules = useRules<MaterialRules>()!
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player.id), [rules.game, player.id])
   const resourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player.id), [rules.game, player.id])
   const buildHelper = useMemo(() => new BuildHelper(rules.game, player.id), [rules.game, player.id])

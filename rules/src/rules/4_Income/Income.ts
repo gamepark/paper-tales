@@ -54,7 +54,7 @@ export class Income extends MaterialRulesPart {
 
   getIncomeFromBuilding(playerId: number): number {
     const buildHelper = new BuildHelper(this.game, playerId)
-    const effects = buildHelper.getPlayerIncomeBuildingEffects(playerId)
+    const effects = buildHelper.incomeBuildingEffects
     return sumBy(effects, (e) => this.getEffectIncomes(playerId, e, 0, 0))
   }
 

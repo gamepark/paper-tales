@@ -51,6 +51,7 @@ export class DeployEffects extends SimultaneousRule {
       }
 
       moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
+      moves.push(this.endPlayerTurn(player))
     })
 
     return moves
