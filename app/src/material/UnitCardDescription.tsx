@@ -140,7 +140,7 @@ export class UnitCardDescription extends CardDescription {
 
     if (save) {
       items.push(
-        <ItemMenuButton key="save" label={'Ossekour'} labelPosition="right" move={save} radius={3} angle={-110}>
+        <ItemMenuButton key="save" label={<Trans defaults="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
           <FontAwesomeIcon icon={faShield} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )
