@@ -1,4 +1,6 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
+import omit from 'lodash/omit'
+import isEqual from 'lodash/isEqual'
 import sumBy from 'lodash/sumBy'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
@@ -21,7 +23,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
     const moves = []
 
-    const placedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, playerId)
+    const placedIndexes: number[] = this.getCardJustDeployed(playerId)
     const remainingSpaces = this.getRemainingSpaces(playerId)
     const playerGold = this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).money(golds).count
     const placedUnits = this.material(MaterialType.Unit).index(placedIndexes).getItems<Unit>()
@@ -29,10 +31,8 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     const goldToSpend = playerGold - goldAlreadySpent
     const playerHand = this.getPlayerHand(playerId)
     const playerHandPlayable = playerHand.filter((item) => unitCardCaracteristics[item.id as Unit].cost <= goldToSpend)
-    const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit)
-      .location(LocationType.PlayerUnitBoard)
-      .player(playerId)
-      .index((index) => !placedIndexes.includes(index))
+    const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
+    //.index((index) => !placedIndexes.includes(index))
 
     moves.push(
       ...remainingSpaces.flatMap((space) => {
@@ -48,16 +48,17 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
       })
     )
 
+    const boardSpaces = this.getBoardSpaces(playerId)
     moves.push(
-      ...remainingSpaces.flatMap((space) => {
+      ...boardSpaces.flatMap((space) => {
         return [
-          ...playerUnitsAlreadyPlayed.moveItems({
+          ...playerUnitsAlreadyPlayed.moveItems((item) => ({
             type: LocationType.PlayerUnitBoard,
             player: playerId,
             x: space.x,
             y: space.y,
-            rotation: false
-          })
+            rotation: item.location.rotation
+          }))
         ]
       })
     )
@@ -74,12 +75,36 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     return moves
   }
 
+  getCardJustDeployed(playerId: number): number[] {
+    return this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, playerId) ?? []
+  }
+
+  removeCardFromDeployment(playerId: number, cardIndex: number) {
+    this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => cards.filter((c) => c !== cardIndex), playerId)
+  }
+
   beforeItemMove(move: ItemMove): MaterialMove[] {
     const moves: MaterialMove[] = []
+    if (!isMoveItemType(MaterialType.Unit)(move)) return []
 
-    if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard) {
+    if (move.location.type === LocationType.Discard) {
+      const card = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
+      this.removeCardFromDeployment(card.location.player!, move.itemIndex)
       const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
       moves.push(...ageTokens.deleteItems())
+    }
+
+    if (move.location.type === LocationType.PlayerUnitBoard) {
+      const location = omit(move.location, 'rotation')
+      const cardOnPlace = this.material(MaterialType.Unit)
+        .index((i) => i !== move.itemIndex)
+        .location((l) => {
+          return isEqual(location, omit(l, 'rotation'))
+        })
+      const movedCard = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
+      if (cardOnPlace.length) {
+        moves.push(cardOnPlace.moveItem((item) => ({ ...movedCard.location, rotation: item.location.rotation })))
+      }
     }
 
     return moves

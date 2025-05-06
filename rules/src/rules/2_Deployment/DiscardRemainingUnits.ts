@@ -22,7 +22,7 @@ export class DiscardRemainingUnits extends SimultaneousRule {
       })
     )
 
-    if (!hand.length) {
+    if (hand.length <= 1) {
       moves.push(this.endPlayerTurn(playerId))
     }
 

@@ -1,5 +1,5 @@
-import { ListLocator, MaterialContext } from '@gamepark/react-game'
-import { Location } from '@gamepark/rules-api'
+import { ItemContext, ListLocator, MaterialContext } from '@gamepark/react-game'
+import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { isTopPlayer } from '../position/position.utils'
 import { playerDraftHandLocator } from './PlayerDraftHandLocator'
@@ -20,6 +20,16 @@ export class PlayerBuildingBoardLocator extends ListLocator {
     }
 
     return { x, y }
+  }
+
+  getHoverTransform(item: MaterialItem, context: ItemContext) {
+    if (item.location.player !== context.player) return super.getHoverTransform(item, context)
+    return [
+      `translateZ(${item.location.rotation ? -20 : 20}em)`,
+      `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
+      'scale(2)',
+      'translateY(-25%)'
+    ]
   }
 }
 

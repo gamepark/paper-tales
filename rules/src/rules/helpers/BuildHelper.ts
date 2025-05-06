@@ -91,7 +91,11 @@ export class BuildHelper extends MaterialRulesPart {
     const characteristics = buildingCardCaracteristics[buildingId]
     const cost1 = characteristics.cost1
     const cost1Alternate = characteristics.cost1Alternate ?? []
-    return this.canPay(buildingId, cost1, cost1Alternate, fieldCost)
+    return (
+      this.canBuildCost(cost1, fieldCost) ||
+      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost(cost1Alternate, fieldCost)) ||
+      this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, cost1, fieldCost)
+    )
   }
 
   canBuildLevel2(buildingId: Building, fieldCost: number): boolean {
@@ -101,11 +105,10 @@ export class BuildHelper extends MaterialRulesPart {
     const cost2Alternate = buildingCardCaracteristics[buildingId].cost2Alternate ?? []
 
     const canPayDirectly =
-      this.canPay(buildingId, cost1, cost2, fieldCost) ||
-      (this.hasAlternateCost(buildingId, 1) && this.canPay(buildingId, cost1Alternate, cost2, fieldCost)) ||
-      (this.hasAlternateCost(buildingId, 2) && this.canPay(buildingId, cost1, cost2Alternate, fieldCost)) ||
-      (this.hasAlternateCost(buildingId, 1) && this.hasAlternateCost(buildingId, 2) && this.canPay(buildingId, cost1Alternate, cost2Alternate, fieldCost))
-
+      this.canBuildCost([...cost1, ...cost2], fieldCost) ||
+      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost([...cost1Alternate, ...cost2], fieldCost)) ||
+      (this.hasAlternateCost(buildingId, 2) && this.canBuildCost([...cost1, ...cost2Alternate], fieldCost)) ||
+      (this.hasAlternateCost(buildingId, 1) && this.hasAlternateCost(buildingId, 2) && this.canBuildCost([...cost1Alternate, ...cost2Alternate], fieldCost))
     const canPayWithSubstitution =
       this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2], fieldCost) ||
       (this.hasAlternateCost(buildingId, 1) &&
@@ -113,15 +116,6 @@ export class BuildHelper extends MaterialRulesPart {
       (this.hasAlternateCost(buildingId, 2) && this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2Alternate], fieldCost))
 
     return canPayDirectly || canPayWithSubstitution
-  }
-
-  canPay(buildingId: Building, cost: Resources[], alternateCost: Resources[], fieldCost: number): boolean {
-    const buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
-    return (
-      this.canBuildCost(cost, fieldCost) ||
-      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost(alternateCost, fieldCost)) ||
-      buildWithSubstitution.canBuildWithSubstitution(this.myResources, cost, fieldCost)
-    )
   }
 
   canUpgrade(buildingId: Building): boolean {

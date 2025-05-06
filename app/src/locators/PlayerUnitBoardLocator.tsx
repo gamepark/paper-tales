@@ -44,7 +44,8 @@ class PlayerUnitBoardLocator extends FlexLocator {
             type: LocationType.PlayerUnitBoard,
             player: player,
             x,
-            y
+            y,
+            z: 0
           })
         }
       }

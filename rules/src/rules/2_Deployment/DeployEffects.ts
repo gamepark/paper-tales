@@ -26,7 +26,7 @@ export class DeployEffects extends SimultaneousRule {
     const moves: MaterialMove[] = []
     const players = this.game.players
 
-    players.forEach((player) => {
+    for (const player of players) {
       const deployedUnitsIndexes = this.remind<number[]>(Memory.PlayedCardsDuringDeployment, player)
       const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes).getItems()
       const playerUnitBoard = this.getPlayerUnits(player)
@@ -52,7 +52,7 @@ export class DeployEffects extends SimultaneousRule {
 
       moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
       moves.push(this.endPlayerTurn(player))
-    })
+    }
 
     return moves
   }

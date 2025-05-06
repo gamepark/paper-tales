@@ -5,6 +5,7 @@ import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
+import { PlayerColor } from '../../PlayerColor'
 import { AgeHelper } from '../helpers/AgeHelper'
 import { BuildHelper } from '../helpers/BuildHelper'
 import { RuleId } from '../RuleId'
@@ -36,7 +37,7 @@ export class Build extends SimultaneousRule {
 
       // Achats au niveau 2
       moves.push(
-        ...buildHelper.buildLevel2Buildings.moveItems({
+        ...buildHelper.buildableLevel2Buildings.moveItems({
           type: LocationType.PlayerBuildingBoard,
           player: playerId,
           rotation: true
@@ -112,15 +113,16 @@ export class Build extends SimultaneousRule {
   }
 
   getMovesAfterPlayersDone(): MaterialMove[] {
-    if (this.hasMysticEffect) {
-      return [this.startSimultaneousRule(RuleId.SaveUnitsWithMysticEffect)]
+    const playersWithMysticEffect = this.playersWithMysticEffect
+    if (playersWithMysticEffect.length) {
+      return [this.startSimultaneousRule(RuleId.SaveUnitsWithMysticEffect, playersWithMysticEffect)]
     } else {
       return [this.startRule(RuleId.AgeEffects)]
     }
   }
 
-  get hasMysticEffect(): boolean {
-    return this.game.players.some((p) => {
+  get playersWithMysticEffect(): PlayerColor[] {
+    return this.game.players.filter((p) => {
       const ageHelper = new AgeHelper(this.game, p)
       return ageHelper.unitsWithAgeEffects
         .getItems<Unit>()

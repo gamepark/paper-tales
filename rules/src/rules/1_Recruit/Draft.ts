@@ -12,7 +12,6 @@ export class Draft extends SimultaneousRule {
     if (draftCards.getQuantity() === this.game.players.length) {
       this.game.players.forEach((player) => {
         moves.push(draftCards.player(player).moveItem({ type: LocationType.PlayerUnitHand, player }))
-        moves.push(this.endPlayerTurn(player))
       })
     }
 

@@ -57,7 +57,7 @@ export class BuildingCardDescription extends CardDescription {
     const items = []
     if (buildAsIs) {
       items.push(
-        <ItemMenuButton move={buildAsIs} angle={-87} radius={7} css={largeButtonCss}>
+        <ItemMenuButton key="build-as-is" move={buildAsIs} angle={-87} radius={7} css={largeButtonCss}>
           <div>
             <FontAwesomeIcon icon={faHammer} css={iconCss} /> 1
           </div>
@@ -67,7 +67,7 @@ export class BuildingCardDescription extends CardDescription {
 
     if (flip) {
       items.push(
-        <ItemMenuButton move={flip} angle={87} radius={7} css={largeButtonCss}>
+        <ItemMenuButton key="flip" move={flip} angle={87} radius={7} css={largeButtonCss}>
           <div>
             <FontAwesomeIcon icon={faHammer} css={iconCss} /> 2
           </div>

@@ -129,7 +129,7 @@ export class UnitCardDescription extends CardDescription {
     const items = []
     if (draft) {
       items.push(
-        <ItemMenuButton move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
+        <ItemMenuButton key="draft" move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
           <FontAwesomeIcon
             icon={faHand}
             css={[
@@ -144,7 +144,7 @@ export class UnitCardDescription extends CardDescription {
     }
     if (discard) {
       items.push(
-        <ItemMenuButton move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
+        <ItemMenuButton key="discard" move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
           <FontAwesomeIcon
             icon={faTrashCan}
             css={[
@@ -159,7 +159,7 @@ export class UnitCardDescription extends CardDescription {
     }
     if (age) {
       items.push(
-        <ItemMenuButton move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
+        <ItemMenuButton key="age" move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
           <FontAwesomeIcon
             icon={faArrowsToDot}
             css={[

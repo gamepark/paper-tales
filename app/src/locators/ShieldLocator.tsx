@@ -1,8 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { LocationContext, LocationDescription, Locator, MaterialContext } from '@gamepark/react-game'
+import { LocationContext, LocationDescription, Locator } from '@gamepark/react-game'
 import { Location } from '@gamepark/rules-api'
 import { ShieldIcon } from './component/Shield'
 import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
@@ -12,7 +11,7 @@ class ShieldLocator extends Locator {
 
   coordinates = { x: 0, y: 3, z: 5 }
 
-  getLocations(context: MaterialContext) {
+  /**getLocations(context: MaterialContext) {
     const { rules } = context
 
     const boardUnit = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard)
@@ -20,7 +19,7 @@ class ShieldLocator extends Locator {
       type: LocationType.ShieldIcon,
       parent: index
     }))
-  }
+  }*/
 
   placeLocation(location: Location, context: LocationContext): string[] {
     const { rules } = context
