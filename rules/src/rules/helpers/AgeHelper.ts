@@ -51,7 +51,7 @@ export class AgeHelper extends MaterialRulesPart {
   }
 
   get dyingUnits() {
-    return this.units.filter((_, index) => this.howManyAgeTokenOnIndex(index) > 0)
+    return this.units.filter((unit, index) => this.isUnitDying(unit, index))
   }
 
   // Effects
