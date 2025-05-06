@@ -5,6 +5,7 @@ import { DropAreaDescription, FlexLocator, ItemContext, MaterialContext } from '
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { isTopPlayer } from '../position/position.utils'
+import { getColor } from '../utils/color'
 import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 
 class PlayerUnitBoardLocator extends FlexLocator {
@@ -64,19 +65,27 @@ export class PlayerUnitBoardDescription extends DropAreaDescription {
     const hasLevel2Building =
       context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(location.player).rotation(true).length > 0
 
+    const color = getColor(location.player!).substring(0, 7)
     if (!hasLevel2Building && location.y === 0 && location.x === 2) {
       return css`
-        background-image: linear-gradient(45deg, #ffffff30 25%, #ffffff00 25%, #ffffff00 50%, #ffffff30 50%, #ffffff30 75%, #ffffff00 75%, #ffffff00 100%);
+        background-image: linear-gradient(
+          45deg,
+          ${color}80 25%,
+          ${color}00 25%,
+          ${color}00 50%,
+          ${color}80 50%,
+          ${color}80 75%,
+          ${color}00 75%,
+          ${color}00 100%
+        );
         background-size: 57px 57px;
       `
     }
 
-    return this.extraCss
+    return css`
+      background-color: ${color}80;
+    `
   }
-
-  extraCss = css`
-    background-color: rgba(255, 255, 255, 0.2);
-  `
 }
 
 export const playerUnitBoardLocator = new PlayerUnitBoardLocator()

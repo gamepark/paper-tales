@@ -78,11 +78,6 @@ const topCenter = css`
   left: calc(50dvw - 26em);
 `
 
-const bottomCenter = css`
-  bottom: 1em;
-  left: calc(50dvw - 26em);
-`
-
 const topCenterLeft = css`
   top: 8.5em;
   left: calc(40dvw - 26em);
@@ -121,14 +116,14 @@ const getPanelPosition = (players: number, index: number) => {
       return players < 7 ? bottomRight : bottomCenterRight
     case 7:
     default:
-      return players < 5 ? bottomRight : players < 7 ? bottomCenter : bottomCenterLeft
+      return players < 5 ? bottomRight : players < 7 ? bottomCenterRight : bottomCenterLeft
   }
 }
 
 export const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',
-  [PlayerColor.Blue]: 'blue',
-  [PlayerColor.Green]: 'green',
+  [PlayerColor.Blue]: '#1e5491',
+  [PlayerColor.Green]: '#017b47',
   [PlayerColor.Yellow]: 'yellow',
   [PlayerColor.Black]: 'black',
   [PlayerColor.Purple]: 'purple',

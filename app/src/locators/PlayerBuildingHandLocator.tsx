@@ -19,7 +19,7 @@ export class PlayerBuildingHandLocator extends ListLocator {
   getGap(location: Location, context: MaterialContext) {
     if (location.player === context.player)
       return {
-        y: this.isPlaying(location, context) ? -(buildingCardDescription.height + 0.5) : -1.5,
+        y: this.isPlaying(location, context) ? -(buildingCardDescription.height + 0.5) : -1.2,
         z: -0.05
       }
 

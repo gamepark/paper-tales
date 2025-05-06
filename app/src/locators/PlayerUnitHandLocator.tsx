@@ -15,11 +15,11 @@ export class PlayerUnitHandLocator extends HandLocator {
   getCoordinates(location: Location, context: ItemContext) {
     let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
     if (!isDraftRule(context)) return { x: x, y: y, z: 1 }
-    x += context.player === location.player ? 36 : 30
+    x += context.player === location.player ? 30 : 30
 
     const isTopPlayers = isTopPlayer(context, location.player)
     if (context.rules.players.length > 3) {
-      y += isTopPlayers ? 15 : -15.5
+      y += isTopPlayers ? 15 : -15
     } else {
       x += isTopPlayers ? -45 : 15
     }
@@ -35,7 +35,7 @@ export class PlayerUnitHandLocator extends HandLocator {
 
   getMaxAngle(location: Location, context: ItemContext): number {
     if (!isDraftRule(context)) return context.player === location.player ? 13 : 3
-    return context.player === location.player ? 3.5 : 1
+    return context.player === location.player ? 3 : 1
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext): string[] {

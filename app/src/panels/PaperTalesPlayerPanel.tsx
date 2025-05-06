@@ -18,15 +18,15 @@ import food from '../images/ressources/ressources_viande.png'
 import shield from '../images/tokens/bouclier_rouge.png'
 import gold from '../images/tokens/Gold1.jpg'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
+import { getColor } from '../utils/color'
 
 type PaperTalesPlayerPanelProps = {
   player: Player<PlayerColor>
   index: number
-  color: string
 } & HTMLAttributes<HTMLDivElement>
 
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => {
-  const { player, color, ...rest } = props
+  const { player, ...rest } = props
   const rules = useRules<MaterialRules>()!
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player.id), [rules.game, player.id])
   const resourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player.id), [rules.game, player.id])
@@ -98,7 +98,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
       player={player}
       counters={counters}
       countersPerLine={2}
-      css={[canClick, colorBG(color)]}
+      css={[canClick, colorBG(player.id)]}
       timerOnRight={false}
       {...rest}
     />
@@ -109,26 +109,6 @@ const canClick = css`
   cursor: pointer;
 `
 
-const colorBG = (color: string) => css`
-  background-color: rgba(${getColor(color)});
+const colorBG = (color: PlayerColor) => css`
+  background-color: ${getColor(color)};
 `
-
-function getColor(color: string): string {
-  switch (color) {
-    case 'yellow':
-      return '248, 210, 22, 0.8'
-    case 'black':
-      return '0, 0, 0, 1'
-    case 'blue':
-      return '26, 94, 170, 0.8'
-    case 'red':
-      return '228, 3, 44, 0.8'
-    case 'green':
-      return '0, 153, 88, 0.8'
-    case 'purple':
-      return '118, 37, 131, 0.8'
-    case 'white':
-      return '240, 240, 240, 0.8'
-  }
-  return ''
-}
