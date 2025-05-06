@@ -24,7 +24,7 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
   getUnitToSave(player: PlayerColor) {
     const ageHelper = new AgeHelper(this.game, player)
-    const alreadySavedUnits = this.remind<number[]>(Memory.UnitSavedWithMystic, player)
+    const alreadySavedUnits = this.remind<number[] | undefined>(Memory.UnitSavedWithMystic, player) ?? []
     return ageHelper.units.filter((_, unitIndex) => ageHelper.howManyAgeTokenOnIndex(unitIndex) === 1 && !alreadySavedUnits.includes(unitIndex))
   }
 
