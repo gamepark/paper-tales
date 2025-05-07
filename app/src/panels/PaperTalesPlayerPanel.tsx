@@ -46,7 +46,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
         { type: LocationType.PlayerUnitBoard, player: player.id, x: 1, y: 1 }
       ],
       margin: {
-        left: mine ? 20 : 2,
+        left: mine ? 18 : 2,
         right: 2,
         top: rules.game.players.length === 2 ? 17 : 2,
         bottom: 2

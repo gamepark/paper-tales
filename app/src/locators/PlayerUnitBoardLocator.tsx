@@ -31,7 +31,8 @@ class PlayerUnitBoardLocator extends FlexLocator {
   getHoverTransform(item: MaterialItem, context: ItemContext) {
     if (item.location.y === 0 && context.player === item.location.player)
       return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(15%)']
-    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
+
+    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)']
   }
 
   getLocations(context: MaterialContext) {

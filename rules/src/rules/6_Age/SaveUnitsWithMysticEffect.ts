@@ -13,6 +13,7 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     const players = this.game.players
     players.forEach((player) => {
       const unitsToSave = this.getUnitToSave(player)
+      console.log(unitsToSave)
 
       if (!new AgeHelper(this.game, player).mysticalEffectsCount || !unitsToSave.length) {
         moves.push(this.endPlayerTurn(player))
@@ -63,7 +64,8 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
     const unitsAlreadySaved = this.remind<UnitSavedWithMysticType>(Memory.UnitSavedWithMystic, player)
 
-    if (ageHelper.mysticalEffectsCount === unitsAlreadySaved.length) {
+    console.log(unitsAlreadySaved.length, ageHelper.mysticalEffectsCount)
+    if (ageHelper.mysticalEffectsCount <= unitsAlreadySaved.length) {
       moves.push(this.endPlayerTurn(player))
     }
 

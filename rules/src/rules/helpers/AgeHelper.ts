@@ -67,6 +67,13 @@ export class AgeHelper extends MaterialRulesPart {
   }
 
   get mysticalEffectsCount(): number {
+    console.log(
+      this.unitsWithAgeEffects.filter((item) => {
+        const id: Unit | undefined = item.id
+        if (!id) return false
+        return (unitCardCaracteristics[id].effect ?? []).some((eff) => isMysticEffect(eff))
+      }).length
+    )
     return this.unitsWithAgeEffects.filter((item) => {
       const id: Unit | undefined = item.id
       if (!id) return false
