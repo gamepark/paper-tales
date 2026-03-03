@@ -41,14 +41,14 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = (props) => 
       materials: [rules.material(MaterialType.Unit).player(player.id), rules.material(MaterialType.Building).player(player.id)],
       staticItems: [],
       locations: [
-        { type: LocationType.PlayerUnitBoard, player: player.id, x: 0, y: 0 },
-        { type: LocationType.PlayerUnitBoard, player: player.id, x: 2, y: 0 },
-        { type: LocationType.PlayerUnitBoard, player: player.id, x: 1, y: 1 }
+        { type: LocationType.PlayerUnitBoard, player: player.id, x: 0, y: 0, z: 0 },
+        { type: LocationType.PlayerUnitBoard, player: player.id, x: 2, y: 0, z: 0 },
+        { type: LocationType.PlayerUnitBoard, player: player.id, x: 1, y: 1, z: 0 }
       ],
       margin: {
         left: mine ? 18 : 2,
         right: 2,
-        top: rules.game.players.length === 2 ? 17 : 2,
+        top: rules.game.players.length === 2 ? 17 : 8,
         bottom: 2
       },
       animationTime: 500
