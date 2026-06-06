@@ -1,5 +1,5 @@
 import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
-import sum from 'lodash/sum'
+import { sum } from 'es-toolkit'
 import { isRelicEffect } from '../../material/effects/7_EndGameEffects'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'

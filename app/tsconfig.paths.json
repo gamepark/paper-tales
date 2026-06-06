@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@gamepark/paper-tales/*": ["../rules/src/*"]
-    }
-  }
-}

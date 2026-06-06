@@ -17,13 +17,14 @@ import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
 import { ResourcesHelper } from './ResourcesHelper'
 
 export class BuildHelper extends MaterialRulesPart {
-  private buildWithSubstitution: BuildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
+  private buildWithSubstitution: BuildWithSubstitution
   private _myResources: Resources[] | undefined = undefined
   constructor(
     game: MaterialGame,
     readonly player: number
   ) {
     super(game)
+    this.buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
   }
 
   get myResources() {

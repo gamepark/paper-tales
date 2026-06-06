@@ -1,6 +1,5 @@
 import { Material, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
-import sum from 'lodash/sum'
-import sumBy from 'lodash/sumBy'
+import { sum, sumBy } from 'es-toolkit'
 import { isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from '../../material/effects/3_WarEffects'
 import { AgeLocation, Effect } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'

@@ -32,7 +32,7 @@ export class ChooseWherePlacingAgeToken extends SimultaneousRule {
     if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return []
     const data: GainAgeTokenOnChosenUnitEffect = move.data
     const chosenUnitIndex = data.unitIndex
-    const placeAgeTokenUnitIndex: number = this.remind<number>(Memory.PlacingAgeTokenUnitsIndexes, data.player)[0]
+    const placeAgeTokenUnitIndex: number = this.remind<number[]>(Memory.PlacingAgeTokenUnitsIndexes, data.player)[0]
 
     const placeAgeTokenUnitId = this.material(MaterialType.Unit).getItem(placeAgeTokenUnitIndex).id as Unit
 

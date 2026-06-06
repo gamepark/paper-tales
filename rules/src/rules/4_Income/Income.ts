@@ -1,5 +1,5 @@
 import { MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
-import sumBy from 'lodash/sumBy'
+import { sumBy } from 'es-toolkit'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
 import { EffectType } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'

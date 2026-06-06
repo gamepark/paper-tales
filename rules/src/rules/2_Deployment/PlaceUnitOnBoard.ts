@@ -1,7 +1,5 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
-import omit from 'lodash/omit'
-import isEqual from 'lodash/isEqual'
-import sumBy from 'lodash/sumBy'
+import { isEqual, omit, sumBy } from 'es-toolkit'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
@@ -95,11 +93,11 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     }
 
     if (move.location.type === LocationType.PlayerUnitBoard) {
-      const location = omit(move.location, 'rotation')
+      const location = omit(move.location, ['rotation'])
       const cardOnPlace = this.material(MaterialType.Unit)
         .index((i) => i !== move.itemIndex)
         .location((l) => {
-          return isEqual(location, omit(l, 'rotation'))
+          return isEqual(location, omit(l, ['rotation']))
         })
       const movedCard = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
       if (cardOnPlace.length) {
