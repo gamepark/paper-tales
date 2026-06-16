@@ -2,10 +2,14 @@
 import { DropAreaDescription, HandLocator, ItemContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { isTopPlayer } from '../position/position.utils'
+import { isNotViewedPlayerItem } from '../view/viewHelpers'
 import { isDraftRule, playerDraftHandLocator } from './PlayerDraftHandLocator'
 
 export class PlayerUnitHandLocator extends HandLocator {
+  hide(item: MaterialItem, context: ItemContext): boolean {
+    return isNotViewedPlayerItem(item, context)
+  }
+
   locationDescription = new DropAreaDescription({
     width: unitCardDescription.width * 2,
     height: unitCardDescription.height + 2,
@@ -13,17 +17,10 @@ export class PlayerUnitHandLocator extends HandLocator {
   })
 
   getCoordinates(location: Location, context: ItemContext) {
+    // Hors draft : main à la place de la draft hand. Pendant draft : décalée à droite.
     let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
     if (!isDraftRule(context)) return { x: x, y: y, z: 1 }
-    x += context.player === location.player ? 30 : 30
-
-    const isTopPlayers = isTopPlayer(context, location.player)
-    if (context.rules.players.length > 3) {
-      y += isTopPlayers ? 15 : -15
-    } else {
-      x += isTopPlayers ? -45 : 15
-    }
-
+    x += 20
     return { x: x, y: y, z: 1 }
   }
 

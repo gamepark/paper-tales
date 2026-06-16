@@ -1,16 +1,10 @@
-import { DeckLocator, ItemContext } from '@gamepark/react-game'
-import { Location } from '@gamepark/rules-api'
-import { unitCardDescription } from '../material/UnitCardDescription'
-import { unitDeckLocator } from './DeckLocator'
+import { DeckLocator } from '@gamepark/react-game'
 
 export class DiscardLocator extends DeckLocator {
   limit = 15
-
-  getCoordinates(location: Location, context: ItemContext) {
-    const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
-    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width + 1, y: y }
-    return { x, y: y + unitCardDescription.height + 0.5 }
-  }
+  // Top strip y=-15 — pos 2/5 : x=-13 → spans x:[-18, -8] (card 10w).
+  // Gap deck/discard : 2em (deck right edge -20, discard left edge -18).
+  coordinates = { x: -13, y: -15 }
 }
 
 export const discardLocator = new DiscardLocator()

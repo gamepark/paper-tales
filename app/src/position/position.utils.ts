@@ -2,28 +2,11 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { getRelativePlayerIndex, MaterialContext } from '@gamepark/react-game'
 import { Coordinates } from '@gamepark/rules-api'
 
-export const getPlayerBoardPosition = (context: MaterialContext, player?: number): Partial<Coordinates> => {
-  const index = getPlayerIndex(context, player)
-  const players = context.rules.players.length
-  switch (index) {
-    case 1:
-      return { x: 0, y: -35 }
-    case 2:
-      if (players === 2) return { y: -7, x: 61 }
-      return { y: -35, x: players < 5 ? 65 : 55 }
-    case 3:
-      return { y: -35, x: 110 }
-    case 4:
-      return { y: -35, x: 165 }
-    case 5:
-      return { x: 165 }
-    case 6:
-      return { x: 110 }
-    case 7:
-      return { x: players < 5 ? 65 : 55 }
-  }
-
-  return {}
+// In single-player view mode, every viewed player's content is rendered at this fixed
+// baseline. Non-viewed players are hidden via `hide()` in each per-player locator, so
+// the position they would otherwise resolve to is irrelevant.
+export const getPlayerBoardPosition = (_context: MaterialContext, _player?: number): Partial<Coordinates> => {
+  return { x: 0, y: 0 }
 }
 
 export const getPlayerIndex = (context: MaterialContext, player?: number) => {
@@ -40,22 +23,11 @@ export const getPlayerIndex = (context: MaterialContext, player?: number) => {
   }
 }
 
-export const isTopPlayer = (context: MaterialContext, player?: PlayerColor) => {
-  return [1, 2, 3].includes(getPlayerIndex(context, player))
+// View mode always renders the viewed player at the bottom orientation.
+export const isTopPlayer = (_context: MaterialContext, _player?: PlayerColor) => {
+  return false
 }
 
-export const getTableSize = (players: number): { xMin: number; xMax: number; yMin: number; yMax: number } => {
-  switch (players) {
-    case 3:
-    case 4:
-      return { xMin: -28, xMax: 125, yMin: -49, yMax: 39 }
-    case 5:
-    case 6:
-      return { xMin: -28, xMax: 170, yMin: -49, yMax: 39 }
-    case 7:
-      return { xMin: -28, xMax: 194, yMin: -49, yMax: 39 }
-    default:
-      // 2 players
-      return { xMin: -28, xMax: 105, yMin: -23, yMax: 41 }
-  }
+export const getTableSize = (_players: number): { xMin: number; xMax: number; yMin: number; yMax: number } => {
+  return { xMin: -60, xMax: 60, yMin: -30, yMax: 35 }
 }

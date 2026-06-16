@@ -1,13 +1,9 @@
-import { ItemContext, Locator } from '@gamepark/react-game'
-import { Location } from '@gamepark/rules-api'
+import { Locator } from '@gamepark/react-game'
 
 export class RoundTokenLocator extends Locator {
-  coordinates = { x: -20, y: -19 }
-
-  getCoordinates(_location: Location, context: ItemContext) {
-    if (context.rules.players.length === 2) return { x: 28, y: -11.5 }
-    return this.coordinates
-  }
+  // Top strip y=-15 — pos 4/5 : x=5 → spans x:[3.5, 6.5] (token ~3w).
+  // Gap age/round : 2em.
+  coordinates = { x: 5, y: -15 }
 }
 
 export const roundTokenLocator = new RoundTokenLocator()

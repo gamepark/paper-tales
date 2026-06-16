@@ -1,16 +1,10 @@
-import { ItemContext, PileLocator } from '@gamepark/react-game'
-import { Location } from '@gamepark/rules-api'
-import { unitCardDescription } from '../material/UnitCardDescription'
-import { unitDeckLocator } from './DeckLocator'
+import { PileLocator } from '@gamepark/react-game'
 
 export class AgeStockLocator extends PileLocator {
   radius = 2.5
-
-  getCoordinates(location: Location, context: ItemContext) {
-    const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
-    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width * 3 + 3, y: y - 3.5 }
-    return { x: x, y: y - unitCardDescription.height * 2.3 + 0.5 }
-  }
+  // Top strip y=-15 — pos 3/5 : x=-1 → spans x:[-3.5, 1.5] (pile r=2.5).
+  // Gap discard/age : 1.5em.
+  coordinates = { x: -1, y: -15 }
 }
 
 export const ageStockLocator = new AgeStockLocator()

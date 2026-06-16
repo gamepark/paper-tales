@@ -6,10 +6,13 @@ import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { DropAreaDescription, ItemContext, ListLocator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
-import { isTopPlayer } from '../position/position.utils'
-import { playerDraftHandLocator } from './PlayerDraftHandLocator'
+import { isNotViewedPlayerItem } from '../view/viewHelpers'
 
 export class PlayerBuildingHandLocator extends ListLocator {
+  hide(item: MaterialItem, context: ItemContext): boolean {
+    return isNotViewedPlayerItem(item, context)
+  }
+
   locationDescription = new DropAreaDescription({
     width: 20,
     height: 8,
@@ -26,28 +29,10 @@ export class PlayerBuildingHandLocator extends ListLocator {
     return { y: 0.5 }
   }
 
-  getRotateZ(location: Location, context: MaterialContext) {
-    const isTopPlayers = isTopPlayer(context, location.player)
-    if (isTopPlayers) return 180
-    return super.getRotateZ(location, context)
-  }
-
-  getCoordinates(location: Location, context: ItemContext) {
-    let { x = 0, y = 0, z = 0 } = playerDraftHandLocator.getCoordinates(location, context)
-
-    x += 28
-    if (this.isPlaying(location, context)) {
-      x += 5
-      z += 2
-    }
-
-    if (context.player !== location.player) {
-      x -= 10
-    } else {
-      y += 3
-    }
-
-    return { x: x, y: y, z: z + 0.5 }
+  // Colonne gauche, sous la building board. Card 14×10, base (-23, 22) :
+  // spans x:[-30, -16], y:[17, 27]. Au-dessus du yMax=28, sous building board (qui finit à y=10).
+  getCoordinates(_location: Location, _context: ItemContext) {
+    return { x: -23, y: 22, z: 0.5 }
   }
 
   getItemIndex(building: MaterialItem<PlayerColor, LocationType>, context: ItemContext): number {

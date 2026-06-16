@@ -13,10 +13,9 @@ import { playerGoldStockLocator } from './PlayerGoldStockLocator'
 import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
 import { playerUnitHandLocator } from './PlayerUnitHandLocator'
 import { roundTokenLocator } from './RoundTokenLocator'
-import { scoreBoardLocator } from './ScoreBoardLocator'
-import { scoreTokenLocator } from './ScoreTokenLocator'
 import { shieldLocator } from './ShieldLocator'
 
+// ScoreBoard / PlayerScore : plus de board image rendu, le score est lu sur le panel joueur.
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
   [LocationType.Deck]: unitDeckLocator,
   [LocationType.GoldStock]: goldStockLocator,
@@ -28,8 +27,6 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.PlayerBuildingBoard]: playerBuildingBoardLocator,
   [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
   [LocationType.PlayerUnitBoard]: playerUnitBoardLocator,
-  [LocationType.ScoreBoard]: scoreBoardLocator,
-  [LocationType.PlayerScore]: scoreTokenLocator,
   [LocationType.Time]: roundTokenLocator,
   [LocationType.OnCard]: new PileLocator({
     parentItemType: MaterialType.Unit,
