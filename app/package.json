@@ -12,7 +12,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "sync": "npx rimraf dist/assets/*.map && rclone sync dist paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read",
+    "sync:hashed": "rclone sync dist paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read --include \"assets/**\" -M --metadata-set \"cache-control=public, max-age=31536000, immutable\"",
+    "sync:other": "rclone sync dist paper-tales:paper-tales.game-park.com --progress --s3-acl=public-read --exclude \"assets/**\" -M --metadata-set \"cache-control=no-cache\"",
+    "sync": "npx rimraf dist/assets/*.map && yarn sync:hashed && yarn sync:other",
     "deploy": "yarn build && yarn sync"
   },
   "dependencies": {
