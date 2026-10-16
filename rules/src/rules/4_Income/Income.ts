@@ -1,5 +1,5 @@
 import { MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
-import sumBy from 'lodash/sumBy'
+import { sumBy } from 'es-toolkit/compat'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
 import { EffectType } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
@@ -48,7 +48,7 @@ export class Income extends MaterialRulesPart {
       }
 
       const effects = unitCardCaracteristics[item.id].effect ?? []
-      return effects.length > 0 && effects.some(isIncomeType)
+      return effects.some(isIncomeType)
     })
   }
 

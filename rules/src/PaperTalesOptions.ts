@@ -1,5 +1,4 @@
-import { OptionsSpec } from '@gamepark/rules-api'
-import { TFunction } from 'i18next'
+import { OptionsSpecV2 } from '@gamepark/rules-api'
 import { PlayerColor, playerColors } from './PlayerColor'
 
 /**
@@ -9,7 +8,6 @@ type PlayerOptions = { id: PlayerColor }
 
 /**
  * This is the type of object that the game receives when a new game is started.
- * The first generic parameter, "{}", can be changed to include game options like variants or expansions.
  */
 export type PaperTalesOptions = {
   players: PlayerOptions[]
@@ -18,32 +16,10 @@ export type PaperTalesOptions = {
 /**
  * This object describes all the options a game can have, and will be used by GamePark website to create automatically forms for you game
  * (forms for friendly games, or forms for matchmaking preferences, for instance).
+ * Labels are in app/public/options/{locale}.json
  */
-export const PaperTalesOptionsSpec: OptionsSpec<PaperTalesOptions> = {
-  players: {
-    id: {
-      label: (t: TFunction) => t('Player color'),
-      values: playerColors,
-      valueSpec: (color) => ({ label: (t) => getPlayerName(color, t) })
-    }
-  }
-}
-
-export function getPlayerName(playerId: PlayerColor, t: TFunction) {
-  switch (playerId) {
-    case PlayerColor.Red:
-      return t('Red')
-    case PlayerColor.Blue:
-      return t('Blue')
-    case PlayerColor.Green:
-      return t('Green')
-    case PlayerColor.Yellow:
-      return t('Yellow')
-    case PlayerColor.Black:
-      return t('Black')
-    case PlayerColor.Purple:
-      return t('Purple')
-    case PlayerColor.White:
-      return t('White')
-  }
+export const PaperTalesOptionsSpecV2: OptionsSpecV2 = {
+  specVersion: 2,
+  players: { min: 2, max: 7 },
+  identities: { values: playerColors }
 }

@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
@@ -18,13 +17,13 @@ export const AgeTokenHelp: FC<MaterialHelpProps> = (props) => {
     <>
       <h2 css={titleCss}>{t('age.help.title')}</h2>
       <p>
-        <Trans defaults="age.help.text" values={{ place: item.location!.id }}>
+        <Trans i18nKey="age.help.text" values={{ place: item.location!.id }}>
           <strong />
         </Trans>
       </p>
       {howManyTokensOnUnit > 0 && (
         <p>
-          <Trans defaults={'age.on.unit.count'} values={{ ageCount: howManyTokensOnUnit }} />
+          <Trans i18nKey={'age.on.unit.count'} values={{ ageCount: howManyTokensOnUnit }} />
         </p>
       )}
     </>

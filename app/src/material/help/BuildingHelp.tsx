@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
 import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
@@ -32,7 +31,7 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       <GetLocationText {...props} />
       {isBuilt && (
         <p>
-          <Trans defaults={isLevel2 ? 'build.lvl2' : 'build.lvl1.player'} />
+          <Trans i18nKey={isLevel2 ? 'build.lvl2' : 'build.lvl1.player'} />
         </p>
       )}
 
@@ -44,9 +43,9 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
 
       {/* {mine && TODO Symbole Phase 3} */}
       {/* {mine && TODO Symbole 2 PV} */}
-      {mine && <Trans defaults="level.two.effect.one.mine" />}
+      {mine && <Trans i18nKey="level.two.effect.one.mine" />}
       {/* {mine && TODO Symbole diamant} */}
-      {mine && <Trans defaults="level.two.effect.two.mine" />}
+      {mine && <Trans i18nKey="level.two.effect.two.mine" />}
 
       {/* {temple && TODO Construction N1} */}
       {temple && <ResourcesHelp _i18nKey="card.effect.resources1" resources={caracteristics.cost1} />}
@@ -65,14 +64,14 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       {tavern && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
       {/* {tavern && Phase 4 } */}
       {/* {tavern && 1 or } */}
-      {tavern && <Trans defaults="effect.one.tavern" />}
+      {tavern && <Trans i18nKey="effect.one.tavern" />}
       {/* {tavern && viande} */}
-      {tavern && <Trans defaults="effect.two.tavern" />}
+      {tavern && <Trans i18nKey="effect.two.tavern" />}
       {/* {tavern && phase 3} */}
       {/* {tavern && 1 PV } */}
-      {tavern && <Trans defaults="effect.one.tavern" />}
+      {tavern && <Trans i18nKey="effect.one.tavern" />}
       {/* {tavern && viande} */}
-      {tavern && <Trans defaults="effect.two.tavern" />}
+      {tavern && <Trans i18nKey="effect.two.tavern" />}
 
       {/* {town && TODO Construction N1} */}
       {town && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost1} />}
@@ -87,14 +86,14 @@ export const BuildingHelp: FC<MaterialHelpProps> = (props) => {
       {barracks && <ResourcesHelp _i18nKey="card.cost" resources={caracteristics.cost2} />}
       {/* {barrack && Phase 3 } */}
       {/* {barracks && 1 atk } */}
-      {barracks && <Trans defaults="effect.one.barracks" />}
+      {barracks && <Trans i18nKey="effect.one.barracks" />}
       {/* {barracks && bois} */}
-      {barracks && <Trans defaults="effect.two.barracks" />}
+      {barracks && <Trans i18nKey="effect.two.barracks" />}
       {/* {barracks && phase 3} */}
       {/* {barracks && 1 PV } */}
-      {barracks && <Trans defaults="effect.three.barracks" />}
+      {barracks && <Trans i18nKey="effect.three.barracks" />}
       {/* {barracks && combat 3+} */}
-      {barracks && <Trans defaults="effect.four.barracks" />}
+      {barracks && <Trans i18nKey="effect.four.barracks" />}
     </>
   )
 }
@@ -112,13 +111,13 @@ const GetLocationText: FC<MaterialHelpProps> = (props) => {
     <>
       {location?.type === LocationType.PlayerBuildingHand && (
         <p>
-          <Trans defaults={itsMe ? 'build.hand.you' : 'build.hand.player'} values={{ player: name }} />
+          <Trans i18nKey={itsMe ? 'build.hand.you' : 'build.hand.player'} values={{ player: name }} />
         </p>
       )}
 
       {location?.type === LocationType.PlayerBuildingBoard && (
         <p>
-          <Trans defaults={itsMe ? 'build.board.you' : 'build.board.player'} values={{ player: name }} />
+          <Trans i18nKey={itsMe ? 'build.board.you' : 'build.board.player'} values={{ player: name }} />
         </p>
       )}
     </>
@@ -142,7 +141,7 @@ const ResourcesHelp: FC<{ _i18nKey: string; resources: Resources[] }> = (props) 
   return (
     <>
       <p>
-        <Trans defaults="card.resources"></Trans> &nbsp;
+        <Trans i18nKey="card.resources"></Trans> &nbsp;
         {resourcesPictures.map((pict, index) => (
           <span key={index}>{pict} </span>
         ))}

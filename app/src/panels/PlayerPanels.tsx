@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { useMaterialContext, usePlayers } from '@gamepark/react-game'
@@ -120,7 +119,7 @@ const getPanelPosition = (players: number, index: number) => {
   }
 }
 
-export const playerColorCode: Record<PlayerColor, string> = {
+const playerColorCode: Record<PlayerColor, string> = {
   [PlayerColor.Red]: 'red',
   [PlayerColor.Blue]: '#1e5491',
   [PlayerColor.Green]: '#017b47',

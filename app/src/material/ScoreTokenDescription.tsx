@@ -11,6 +11,7 @@ import pawn_red from '../images/pawns/pawn_red.png'
 
 class ScoreTokenDescription extends TokenDescription {
   width = 2
+  transparency = true
   ratio = 0.77
   location = { type: LocationType.PlayerScore }
 

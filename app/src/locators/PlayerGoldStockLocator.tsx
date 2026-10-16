@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { ItemContext, PileLocator } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { isTopPlayer } from '../position/position.utils'

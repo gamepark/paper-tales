@@ -10,6 +10,7 @@ import { TimeTokenHelp } from './help/TimeTokenHelp'
 
 class RoundTokenDescription extends BoardDescription {
   width = 7
+  transparency = true
   ratio = 1.2
   location = { type: LocationType.Time }
 

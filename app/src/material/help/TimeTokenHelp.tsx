@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { MaterialHelpProps } from '@gamepark/react-game'
 import { FC } from 'react'
@@ -11,7 +10,7 @@ export const TimeTokenHelp: FC<MaterialHelpProps> = (props) => {
     <>
       <h2 css={titleCss}>{t('time.help.title')}</h2>
       <p>
-        <Trans defaults="time.help.text" values={{ place: item.location!.id }}>
+        <Trans i18nKey="time.help.text" values={{ place: item.location!.id }}>
           <strong />
         </Trans>
       </p>

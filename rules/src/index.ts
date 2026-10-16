@@ -1,3 +1,3 @@
 export { PaperTalesRules } from './PaperTalesRules'
-export { PaperTalesOptionsSpec } from './PaperTalesOptions'
+export { PaperTalesOptionsSpecV2 } from './PaperTalesOptions'
 export { PaperTalesSetup } from './PaperTalesSetup'

@@ -140,7 +140,7 @@ export class UnitCardDescription extends CardDescription {
 
     if (save) {
       items.push(
-        <ItemMenuButton key="save" label={<Trans defaults="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
+        <ItemMenuButton key="save" label={<Trans i18nKey="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
           <FontAwesomeIcon icon={faShield} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )
@@ -155,7 +155,7 @@ export class UnitCardDescription extends CardDescription {
     }
     if (age) {
       items.push(
-        <ItemMenuButton key="age" move={age} label={<Trans defaults="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
+        <ItemMenuButton key="age" move={age} label={<Trans i18nKey="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
           <FontAwesomeIcon icon={faArrowsToDot} css={[pointerCursorCss, littleCss]} />
         </ItemMenuButton>
       )

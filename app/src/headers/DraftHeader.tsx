@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 
 import { useLegalMoves } from '@gamepark/react-game'
 import { useTranslation } from 'react-i18next'

@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
@@ -14,7 +13,7 @@ export const ShieldIcon: FC<{ location: Location }> = ({ location }) => {
   const unit = rules.material(MaterialType.Unit).getItem(location.parent!)
   const unitId: Unit | undefined = unit.id
   const player = usePlayerId()
-  const war = useMemo(() => new War(rules.game), [rules.game, player])
+  const war = useMemo(() => new War(rules.game), [rules.game])
   const unitPower = !player || !unitId ? undefined : war.getUnitPower(unit, location.parent!)
 
   if (!unitPower) return null

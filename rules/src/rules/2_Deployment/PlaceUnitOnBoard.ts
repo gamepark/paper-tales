@@ -1,7 +1,5 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
-import omit from 'lodash/omit'
-import isEqual from 'lodash/isEqual'
-import sumBy from 'lodash/sumBy'
+import { isEqual, omit, sumBy } from 'es-toolkit/compat'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'

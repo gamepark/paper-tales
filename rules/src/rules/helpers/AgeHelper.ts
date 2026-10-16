@@ -1,5 +1,5 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
-import sum from 'lodash/sum'
+import { sum } from 'es-toolkit/compat'
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from '../../material/effects/6_AgeEffects'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
@@ -67,14 +67,7 @@ export class AgeHelper extends MaterialRulesPart {
   }
 
   get mysticalEffectsCount(): number {
-    console.log(
-      this.unitsWithAgeEffects.filter((item) => {
-        const id: Unit | undefined = item.id
-        if (!id) return false
-        return (unitCardCaracteristics[id].effect ?? []).some((eff) => isMysticEffect(eff))
-      }).length
-    )
-    return this.unitsWithAgeEffects.filter((item) => {
+    return this.unitsWithAgeEffects.filter<Unit>((item) => {
       const id: Unit | undefined = item.id
       if (!id) return false
       return (unitCardCaracteristics[id].effect ?? []).some((eff) => isMysticEffect(eff))

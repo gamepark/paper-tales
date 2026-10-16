@@ -1,4 +1,3 @@
-/** @jsxImportSource @emotion/react */
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { ComponentType } from 'react'
 import { PlayerTurnHeader } from './PlayerTurnHeader'
