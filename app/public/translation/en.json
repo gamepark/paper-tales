@@ -203,7 +203,7 @@
   "help.unit.hidden": "Face-down card",
   "help.unit.war.back": "In the Back: does not fight.",
   "help.unit.war.you": "Counts for <s/>.",
-  "help.unit.war.you.resource": "Your Kingdom produces {count} <res/>: counts for <s/>.",
+  "help.unit.war.you.resource": "The Kingdom produces {count} <res/>: counts for <s/>.",
   "help.unit.age.token": "Already carries an Age token.",
   "help.unit.age.dies": "Dies at the end of this turn.",
   "help.live.kingdom": "In your Kingdom",
@@ -218,7 +218,7 @@
   "help.unit.resources.front": "in the Front",
   "help.unit.resources.back": "in the Back",
   "help.unit.production": "Production:",
-  "help.unit.production.rule": "Your Kingdom produces these resources: they pay for constructions and count for some effects. They are never spent.",
+  "help.unit.production.rule": "These resources pay for constructions and count for some effects; they are never spent.",
   "unit.name.1": "Commander",
   "unit.effect.1": "<pl1/> for each War won.",
   "unit.name.2": "Militiaman",
@@ -353,5 +353,6 @@
   "help.symbol.b1": "level 1 Building",
   "help.symbol.b2": "level 2 Building",
   "help.symbol.phase4": "Income phase",
-  "help.building.production.more": "also"
+  "help.building.production.more": "also",
+  "help.live.kingdom.other": "In the Kingdom of {player}"
 }

@@ -9,7 +9,7 @@ import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
-import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, useRules } from '@gamepark/react-game'
+import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
 import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { TFunction } from 'i18next'
@@ -37,6 +37,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId()
+  const ownerName = usePlayerName(item.location?.player)
   const chooseWhereToPlaceTokenMove = useLegalMove((move: MaterialMove) => {
     if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
     return (move.data as GainAgeTokenOnChosenUnitEffect).unitIndex === itemIndex
@@ -48,11 +49,11 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const effects = pattern.effect ?? []
   const steps = new Set(effects.map(effectStep))
   const owner = item.location?.player
-  const inMyKingdom = item.location?.type === LocationType.PlayerUnitBoard && owner === me && itemIndex !== undefined
-  const tokens = inMyKingdom ? new AgeTokens(rules).count(itemIndex) : 0
+  const inKingdom = item.location?.type === LocationType.PlayerUnitBoard && owner !== undefined && itemIndex !== undefined
+  const tokens = inKingdom ? new AgeTokens(rules).count(itemIndex) : 0
   const front = item.location?.y === 0
-  const strength = inMyKingdom ? new War(rules.game).getUnitPower(item, itemIndex) : pattern.power
-  const dying = inMyKingdom && new AgeHelper(rules.game, owner!).isUnitDying(item, itemIndex)
+  const strength = inKingdom ? new War(rules.game).getUnitPower(item, itemIndex) : pattern.power
+  const dying = inKingdom && new AgeHelper(rules.game, owner!).isUnitDying(item, itemIndex)
   const resourceCondition = effects.find(isChangeWarPower)?.ifResource?.[0]
   const produced = resourceCondition !== undefined && owner !== undefined ? new ResourcesHelper(rules.game, owner).getResource(resourceCondition) : 0
   const conditional = effects.some(isChangeWarPower)
@@ -105,7 +106,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     {
       on: steps.has(2),
       text: printed(2),
-      you: inMyKingdom ? <WarLine front={front || effects.some(isWarFromBacklane)} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
+      you: inKingdom ? <WarLine front={front || effects.some(isWarFromBacklane)} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
     },
     { on: steps.has(3), text: printed(3) },
     { on: steps.has(4), text: printed(4) },
@@ -148,8 +149,8 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       }
     >
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
-      {inMyKingdom && (
-        <LiveBox title={t('help.live.kingdom', 'In your Kingdom')} lines={liveLines}>
+      {inKingdom && (
+        <LiveBox title={owner === me ? t('help.live.kingdom', 'In your Kingdom') : t('help.live.kingdom.other', { defaultValue: 'In the Kingdom of {player}', player: ownerName })} lines={liveLines}>
           {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />}
         </LiveBox>
       )}
@@ -164,7 +165,7 @@ const WarLine: FC<{ front: boolean; strength: number; resource?: Resources; prod
     return (
       <Trans
         i18nKey="help.unit.war.you.resource"
-        defaults="Your Kingdom produces {count} <res/>: counts for <s/>."
+        defaults="The Kingdom produces {count} <res/>: counts for <s/>."
         values={{ count: produced }}
         components={{ res: <ResourceIcon resource={resource} />, s: <StrengthIcon value={strength} /> }}
       />

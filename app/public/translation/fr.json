@@ -203,7 +203,7 @@
   "help.unit.hidden": "Carte face cachée",
   "help.unit.war.back": "À l’Arrière : ne combat pas.",
   "help.unit.war.you": "Compte pour <s/>.",
-  "help.unit.war.you.resource": "Votre royaume produit {count} <res/> : compte pour <s/>.",
+  "help.unit.war.you.resource": "Le royaume produit {count} <res/> : compte pour <s/>.",
   "help.unit.age.token": "Porte déjà un jeton Âge.",
   "help.unit.age.dies": "Meurt à la fin de ce tour.",
   "help.live.kingdom": "Dans votre royaume",
@@ -316,7 +316,7 @@
   "unit.name.42": "Aventurière",
   "unit.production.42": "<crystal/> par <age/> sur l’Aventurière.",
   "help.unit.production": "Production :",
-  "help.unit.production.rule": "Votre royaume produit ces ressources. Elles servent à construire et comptent pour certains effets ; elles ne sont jamais dépensées.",
+  "help.unit.production.rule": "Ces ressources servent à construire et comptent pour certains effets ; elles ne sont jamais dépensées.",
   "building.effect.1.2": "<pl2/> par <crystal/> dans votre Royaume.",
   "building.effect.2.1": "<g2/>",
   "building.effect.2.2": "<pl2/>",
@@ -353,5 +353,6 @@
   "help.symbol.b1": "Bâtiment de niveau 1",
   "help.symbol.b2": "Bâtiment de niveau 2",
   "help.symbol.phase4": "phase des Revenus",
-  "help.building.production.more": "en plus"
+  "help.building.production.more": "en plus",
+  "help.live.kingdom.other": "Dans le royaume de {player}"
 }

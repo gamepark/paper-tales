@@ -23,7 +23,7 @@ export const PrintedText: FC<{ lines: PrintedLine[]; rule?: boolean }> = ({ line
           <span css={line.production && productionCss}>{line.text}</span>
         </p>
       ))}
-      {production && <p css={noteCss}>{t('help.unit.production.rule', 'Your Kingdom produces these resources: they pay for constructions and count for some effects. They are never spent.')}</p>}
+      {production && <p css={noteCss}>{t('help.unit.production.rule', 'These resources pay for constructions and count for some effects; they are never spent.')}</p>}
     </div>
   )
 }
