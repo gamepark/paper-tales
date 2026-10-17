@@ -10,7 +10,9 @@ export const ScoringHeader: FC<{ icon: ReactNode; strong?: boolean; muted?: bool
 )
 
 const headerCss = css`
-  display: inline-flex;
+  display: flex;
+  justify-content: flex-start;
+  text-align: left;
   align-items: center;
   gap: 0.5em;
 `
