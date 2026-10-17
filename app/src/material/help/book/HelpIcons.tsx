@@ -26,6 +26,44 @@ export const LegendIcon: FC = () => <img css={iconCss} src={scoreIcon} alt="" />
 /** The strength shield printed on the cards, with its value */
 export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => <span css={shieldCss}>{value}</span>
 
+/** An icon cut from the printed cards (deploy, Age token added, building level 1 or 2…) */
+export const PrintedIcon: FC<{ src: string }> = ({ src }) => <img css={resourceCss} src={src} alt="" />
+
+/** The Legend scroll of the cards, with its value written on it */
+export const LegendValueIcon: FC<{ value: number }> = ({ value }) => (
+  <span css={[valueOnIconCss, legendValueCss]} style={{ backgroundImage: `url(${scoreIcon})` }}>
+    {value}
+  </span>
+)
+
+/** The gold coin of the cards, with its value written on it */
+export const GoldValueIcon: FC<{ value: number }> = ({ value }) => <span css={[valueOnIconCss, goldValueCss]}>{value}</span>
+
+const valueOnIconCss = css`
+  display: inline-grid;
+  place-items: center;
+  height: 1.3em;
+  vertical-align: middle;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 0.95em;
+  line-height: 1;
+`
+
+const legendValueCss = css`
+  min-width: 1.1em;
+  padding: 0 0.15em 0.05em 0.3em;
+  background: center / contain no-repeat;
+  color: #5a3414;
+`
+
+const goldValueCss = css`
+  width: 1.3em;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f7d34a 55%, #e9b534 58%, #c98f16 100%);
+  color: #4a3410;
+`
+
 const iconCss = css`
   display: inline-block;
   height: 1.25em;

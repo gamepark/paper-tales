@@ -103,7 +103,9 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     if (!i18n.exists(key)) return []
     return [{ phaseIcon: step !== undefined && step < 6 ? phaseIcons[step] : undefined, text: <Trans i18nKey={key} components={helpIconComponents} /> }]
   })
-  if (resources.length) {
+  if (i18n.exists(`unit.production.${unit}`)) {
+    printedLines.push({ production: true, text: <Trans i18nKey={`unit.production.${unit}`} components={helpIconComponents} /> })
+  } else if (resources.length) {
     const condition = resourceConditionText(pattern.resources?.condition, t)
     printedLines.push({
       production: true,
@@ -144,7 +146,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   return (
     <BookPage
       key={itemIndex}
-      name={unitPrintedName(unit)}
+      name={i18n.exists(`unit.name.${unit}`) ? t(`unit.name.${unit}`) : unitPrintedName(unit)}
       lede={<PrintedText lines={printedLines} />}
       facts={
         <>
