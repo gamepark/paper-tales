@@ -56,7 +56,7 @@ const timelineCss = css`
   &::before {
     content: '';
     position: absolute;
-    left: 1.4em;
+    left: calc(1.7em - 0.09em);
     top: 0.6em;
     bottom: 0.6em;
     width: 0.18em;
@@ -67,7 +67,7 @@ const timelineCss = css`
 const stepCss = css`
   position: relative;
   display: grid;
-  grid-template-columns: 2.9em 8.3em 1fr;
+  grid-template-columns: 3.4em 8.3em 1fr;
   align-items: center;
   min-height: 1.6em;
   padding: 0.05em 0.9em 0.05em 0;

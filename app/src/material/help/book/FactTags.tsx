@@ -3,12 +3,13 @@ import { FC, ReactNode } from 'react'
 import { paperMuted, tornClip } from '../../../theme/tableTheme'
 
 /** The facts printed on a card, each on its own torn tag: an icon and a value */
-export const FactTags: FC<{ tags: { icon?: ReactNode; label: ReactNode; title?: string }[] }> = ({ tags }) => (
+export const FactTags: FC<{ tags: { label: ReactNode; icon?: ReactNode; value?: ReactNode }[] }> = ({ tags }) => (
   <div css={rowCss}>
     {tags.map((tag, index) => (
-      <span key={index} css={tagCss} title={tag.title}>
+      <span key={index} css={tagCss}>
+        <span css={labelCss}>{tag.label}</span>
         {tag.icon}
-        <span>{tag.label}</span>
+        {tag.value !== undefined && <span>{tag.value}</span>}
       </span>
     ))}
   </div>
@@ -19,6 +20,11 @@ const rowCss = css`
   flex-wrap: wrap;
   gap: 0.5em;
   margin: 0.2em 0 0.8em;
+`
+
+const labelCss = css`
+  font-weight: 600;
+  color: #6b6058;
 `
 
 const tagCss = css`

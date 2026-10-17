@@ -3,11 +3,11 @@ import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { FC } from 'react'
 import crystal from '../../../images/icons/crystal.webp'
 import food from '../../../images/icons/food.webp'
+import strength from '../../../images/icons/strength.webp'
 import wood from '../../../images/icons/wood.webp'
 import scoreIcon from '../../../images/score/scoreIcon.png'
 import ageToken from '../../../images/tokens/Age.jpg'
 import gold from '../../../images/tokens/Gold1.jpg'
-import { crimson } from '../../../theme/book'
 
 /** The official icons of the game (archive « Portage numérique », 04 icons), inline in the help texts */
 const resourceIcons: Partial<Record<Resources, string>> = {
@@ -46,16 +46,16 @@ const roundCss = css`
   border-radius: 50%;
 `
 
+/** The official strength shield (04 icons/bouclier_rouge), its value written on it as on the cards */
 const shieldCss = css`
   display: inline-grid;
   place-items: center;
-  width: 1.15em;
+  width: 1.12em;
   height: 1.3em;
-  padding-bottom: 0.15em;
+  padding-bottom: 0.12em;
   vertical-align: -0.25em;
   color: #fff;
-  background: ${crimson};
-  clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%);
+  background: url(${strength}) center / contain no-repeat;
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: 0.95em;

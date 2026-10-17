@@ -121,10 +121,14 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       facts={
         <FactTags
           tags={[
-            { icon: <CoinIcon />, label: pattern.cost, title: t('help.unit.cost', 'Cost') },
-            { icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} />, label: t('help.unit.strength', 'Strength'), title: t('help.unit.strength', 'Strength') },
-            { label: resources.length ? <>{t('help.unit.produces', 'Produces')} {resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />)}</> : t('help.unit.no-resource', 'No resource') },
-            { label: t('help.unit.copies', { defaultValue: '{copies} copies', copies: howManyCardCopies(unit) }) }
+            { label: t('help.unit.cost', 'Cost'), icon: <CoinIcon />, value: pattern.cost },
+            { label: t('help.unit.strength', 'Strength'), icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} /> },
+            {
+              label: t('help.unit.resources', 'Produces'),
+              icon: resources.length ? resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />) : undefined,
+              value: resources.length ? undefined : t('help.unit.no-resource', 'nothing')
+            },
+            { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
           ]}
         />
       }
