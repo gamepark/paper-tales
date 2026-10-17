@@ -225,6 +225,5 @@
   "help.unit.resources.if-age": "avec un jeton Âge",
   "help.unit.resources.front": "à l’Avant",
   "help.unit.resources.back": "à l’Arrière",
-  "help.unit.production": "Production",
   "help.unit.build.resources": "Sa production compte pour payer les constructions. Les ressources ne sont jamais dépensées."
 }

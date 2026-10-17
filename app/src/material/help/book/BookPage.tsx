@@ -7,7 +7,7 @@ import { cutLine, rust, tornClip } from '../../../theme/tableTheme'
 export const BookPage: FC<{ name: ReactNode; lede?: ReactNode; facts?: ReactNode; children: ReactNode }> = ({ name, lede, facts, children }) => (
   <div css={[pageCss, pageTurnCss]}>
     <h3 css={nameCss}>{name}</h3>
-    {lede && <p css={ledeCss}>{lede}</p>}
+    {lede}
     {facts}
     {children}
   </div>
@@ -40,14 +40,4 @@ const nameCss = css`
     background: ${rust};
     clip-path: ${tornClip};
   }
-`
-
-const ledeCss = css`
-  max-width: 34em;
-  margin: 0.55em 0 0.15em;
-  font-family: 'Baloo 2', sans-serif;
-  font-weight: 600;
-  font-size: 1.22em;
-  line-height: 1.3;
-  color: #4f4741;
 `

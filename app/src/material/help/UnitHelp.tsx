@@ -26,7 +26,8 @@ import { FactTags } from './book/FactTags'
 import { helpIconComponents } from './book/helpIconComponents'
 import { CoinIcon, ResourceIcon, StrengthIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
-import { ProductionLine } from './book/ProductionLine'
+import { phaseIcons } from './book/phaseIcons'
+import { PrintedLine, PrintedText } from './book/PrintedText'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
 import { unitPrintedName } from './unitPrintedName'
@@ -95,6 +96,28 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   ]
   if (steps.has(6)) timeline.push({ on: true })
 
+  // The text printed on the card: each effect with the icon of its phase, then the scroll of the production
+  const printedLines: PrintedLine[] = effects.flatMap((effect, index) => {
+    const key = effects.length > 1 ? `unit.effect.${unit}.${index + 1}` : `unit.effect.${unit}`
+    const step = effectStep(effect)
+    if (!i18n.exists(key)) return []
+    return [{ phaseIcon: step !== undefined && step < 6 ? phaseIcons[step] : undefined, text: <Trans i18nKey={key} components={helpIconComponents} /> }]
+  })
+  if (resources.length) {
+    const condition = resourceConditionText(pattern.resources?.condition, t)
+    printedLines.push({
+      production: true,
+      text: (
+        <>
+          {resources.map((resource, index) => (
+            <ResourceIcon key={index} resource={resource} />
+          ))}
+          {condition && <> {condition}</>}
+        </>
+      )
+    })
+  }
+
   const liveLines: ReactNode[] = [
     tokens ? (
       <Trans
@@ -122,7 +145,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     <BookPage
       key={itemIndex}
       name={unitPrintedName(unit)}
-      lede={i18n.exists(`unit.effect.${unit}`) ? <Trans i18nKey={`unit.effect.${unit}`} components={helpIconComponents} /> : undefined}
+      lede={<PrintedText lines={printedLines} />}
       facts={
         <>
           <FactTags
@@ -132,7 +155,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
               { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
             ]}
           />
-          {resources.length > 0 && <ProductionLine resources={resources} condition={resourceConditionText(pattern.resources?.condition, t)} />}
         </>
       }
     >
