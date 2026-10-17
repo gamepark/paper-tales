@@ -1,6 +1,7 @@
 import { css } from '@emotion/react'
 import { DevToolsHub, GameTable, GameTableNavigation } from '@gamepark/react-game'
 import { FC } from 'react'
+import { CardsCatalogue } from './dev/CardsCatalogue'
 import { TestStates } from './dev/TestStates'
 import { tableBoundaries } from './locators/TableLayout'
 import { PlayerPanels } from './panels/PlayerPanels'
@@ -26,6 +27,7 @@ export const GameDisplay: FC = () => (
     {process.env.NODE_ENV === 'development' && (
       <DevToolsHub fabBottom="calc(5em)">
         <TestStates />
+        <CardsCatalogue />
       </DevToolsHub>
     )}
   </GameTable>
