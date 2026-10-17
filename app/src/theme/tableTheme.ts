@@ -23,11 +23,10 @@ export const paperFont = "'Baloo 2', 'Mulish', sans-serif"
  * A torn edge, as a clip-path polygon: a deterministic jitter, so that the paper tears the same way at every render.
  * Depths are in % of the box, so the tear scales with the slip.
  */
-const tornPolygon = (seed: number, depth: number, side: number) => {
+const tornPolygon = (seed: number, depth: number, side: number, steps = 18) => {
   let state = seed
   const random = () => (state = (state * 9301 + 49297) % 233280) / 233280
   const points: string[] = []
-  const steps = 18
   for (let i = 0; i <= steps; i++) points.push(`${(i / steps) * 100}% ${(random() * depth).toFixed(1)}%`)
   for (let i = 0; i <= 4; i++) points.push(`${(100 - random() * side).toFixed(1)}% ${(i / 4) * 100}%`)
   for (let i = steps; i >= 0; i--) points.push(`${(i / steps) * 100}% ${(100 - random() * depth).toFixed(1)}%`)
@@ -38,6 +37,10 @@ const tornPolygon = (seed: number, depth: number, side: number) => {
 export const tornClip = tornPolygon(7, 9, 2.5)
 /** Shallower tears, for the large sheets (player panels) and the paper glued on them */
 export const sheetTornClip = tornPolygon(7, 4, 1.2)
+/** The cover of the story book: a long sheet, torn very shallow */
+export const coverTornClip = tornPolygon(7, 1.3, 0.6, 44)
+/** A light sheet glued in the story book (the rows of the help) */
+export const bookSheetClip = tornPolygon(7, 2.2, 0.8)
 export const patchTornClip = tornPolygon(31, 4, 1.5)
 
 /** A disc of paper torn by hand: a circle with an irregular rim */

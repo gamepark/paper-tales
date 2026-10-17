@@ -1,12 +1,23 @@
 import { css } from '@emotion/react'
 import { GameTheme } from '@gamepark/react-game'
-import { tableButtonCss } from './tableTheme'
+import { bookContainerCss, bookContentCss } from './book'
+import { BookmarkCloseButton } from './BookmarkCloseButton'
+import { PageCornerNavigation } from './PageCornerNavigation'
+import { cutLine, paper, tableButtonCss } from './tableTheme'
 
 /**
- * The game theme of the framework: the buttons of the header (end the deployment, pass the construction) are the
- * rust paper slips of the table.
+ * The game theme of the framework. The table is cut paper; the windows are the pages of the story book: a rust cover,
+ * a bookmark to close, dog-eared corners to turn the pages. Buttons stay the rust paper slips of the table.
  */
 export const theme: Partial<GameTheme> = {
+  dialog: {
+    backgroundColor: paper,
+    color: cutLine,
+    container: bookContainerCss,
+    content: bookContentCss,
+    closeButton: BookmarkCloseButton,
+    navigation: PageCornerNavigation
+  },
   header: {
     buttons: css`
       ${tableButtonCss};

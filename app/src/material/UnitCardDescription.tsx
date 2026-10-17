@@ -56,7 +56,8 @@ import { cardAppearCss } from '../theme/tableTheme'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { AgeIcon, DiscardIcon, KeepIcon, SaveIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
-import { PaperTalesCardHelp } from './help/UnitCardHelp'
+import { UnitHelp } from './help/UnitHelp'
+import { BookHelpDisplay } from './help/book/BookHelpDisplay'
 
 export class UnitCardDescription extends CardDescription {
   height = 14
@@ -111,7 +112,8 @@ export class UnitCardDescription extends CardDescription {
     [Unit.WoodMerchant]: WoodMerchant
   }
 
-  help = PaperTalesCardHelp
+  help = UnitHelp
+  helpDisplay = BookHelpDisplay
 
   getItemExtraCss(item: MaterialItem, context: ItemContext) {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
