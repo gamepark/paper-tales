@@ -1,8 +1,8 @@
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import ageplus from '../../../images/icons/age-plus.webp'
-import building1 from '../../../images/icons/building1.webp'
-import building2 from '../../../images/icons/building2.webp'
-import deploy from '../../../images/icons/deploy.webp'
+import ageplus from '../../../images/icons/printed-age-add.webp'
+import building1 from '../../../images/icons/printed-building-1.webp'
+import building2 from '../../../images/icons/printed-building-2.webp'
+import deploy from '../../../images/icons/printed-reveal.webp'
 import { AgeIcon, CoinIcon, GoldValueIcon, LegendIcon, LegendValueIcon, PrintedIcon, ResourceIcon, StrengthIcon } from './HelpIcons'
 import { phaseIcons } from './phaseIcons'
 

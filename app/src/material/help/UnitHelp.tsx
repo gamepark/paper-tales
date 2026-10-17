@@ -1,3 +1,4 @@
+import { css } from '@emotion/react'
 import { isDeploymentType } from '@gamepark/paper-tales/material/effects/2_DeploymentEffects'
 import { isChangeWarPower, isWarType } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { isIncomeType } from '@gamepark/paper-tales/material/effects/4_IncomeEffects'
@@ -26,7 +27,6 @@ import { FactTags } from './book/FactTags'
 import { helpIconComponents } from './book/helpIconComponents'
 import { CoinIcon, ResourceIcon, StrengthIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
-import { phaseIcons } from './book/phaseIcons'
 import { PrintedLine, PrintedText } from './book/PrintedText'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
@@ -73,35 +73,17 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const conditional = effects.some(isChangeWarPower)
 
   const resources = pattern.resources?.type ?? []
-  const timeline: TimelineStep[] = [
-    { text: t('help.unit.draft', 'Received at the draft.') },
-    { on: steps.has(1), text: t('help.unit.reveal', { defaultValue: 'Revealed: you pay {cost} gold.', cost: pattern.cost }) },
-    {
-      on: steps.has(2),
-      text: steps.has(2)
-        ? t('help.unit.war.rule', 'Only the strength of the Front units counts, against each of your neighbours.')
-        : t('help.unit.war.strength', { defaultValue: 'Strength {strength} if it is in the Front.', strength: pattern.power }),
-      you: inMyKingdom && steps.has(2) ? <WarLine front={front} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
-    },
-    { on: steps.has(3) },
-    {
-      on: steps.has(4),
-      text: resources.length ? t('help.unit.build.resources', 'Its production counts to pay for the constructions. Resources are never spent.') : undefined
-    },
-    {
-      on: steps.has(5) || tokens > 0,
-      text: tokens > 0 ? t('help.unit.age.token', 'It already carries an Age token.') : undefined,
-      you: dying ? t('help.unit.age.dies', 'It dies at the end of this turn.') : undefined
-    }
-  ]
-  if (steps.has(6)) timeline.push({ on: true })
-
-  // The text printed on the card: each effect with the icon of its phase, then the scroll of the production
-  const printedLines: PrintedLine[] = effects.flatMap((effect, index) => {
+  // The text printed on the card: an effect of a phase goes in the line of its phase; what is permanent (the production
+  // scroll, an effect of no phase) stays at the top
+  const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
+  const printedLines: PrintedLine[] = []
+  effects.forEach((effect, index) => {
     const key = effects.length > 1 ? `unit.effect.${unit}.${index + 1}` : `unit.effect.${unit}`
+    if (!i18n.exists(key)) return
+    const text = <Trans key={key} i18nKey={key} components={helpIconComponents} />
     const step = effectStep(effect)
-    if (!i18n.exists(key)) return []
-    return [{ phaseIcon: step !== undefined && step < 6 ? phaseIcons[step] : undefined, text: <Trans i18nKey={key} components={helpIconComponents} /> }]
+    if (step === undefined) printedLines.push({ text })
+    else effectTexts[step].push(text)
   })
   if (i18n.exists(`unit.production.${unit}`)) {
     printedLines.push({ production: true, text: <Trans i18nKey={`unit.production.${unit}`} components={helpIconComponents} /> })
@@ -119,6 +101,26 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       )
     })
   }
+  const printed = (step: number) => (effectTexts[step].length ? <EffectLines lines={effectTexts[step]} /> : undefined)
+
+  // Each step: the printed effect of that phase, and what it means in the game now
+  const timeline: TimelineStep[] = [
+    { on: steps.has(0), text: printed(0) },
+    { on: steps.has(1), text: printed(1) },
+    {
+      on: steps.has(2),
+      text: printed(2),
+      you: inMyKingdom ? <WarLine front={front} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
+    },
+    { on: steps.has(3), text: printed(3) },
+    { on: steps.has(4), text: printed(4) },
+    {
+      on: steps.has(5) || tokens > 0,
+      text: printed(5) ?? (tokens > 0 ? t('help.unit.age.token', 'It already carries an Age token.') : undefined),
+      you: dying ? t('help.unit.age.dies', 'It dies at the end of this turn.') : undefined
+    }
+  ]
+  if (steps.has(6)) timeline.push({ on: true, text: printed(6) })
 
   const liveLines: ReactNode[] = [
     tokens ? (
@@ -132,17 +134,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       t(front ? 'help.unit.live.front' : 'help.unit.live.back', front ? 'In the Front, no Age token.' : 'In the Back, no Age token.')
     )
   ]
-  if (resourceCondition !== undefined) {
-    liveLines.push(
-      <Trans
-        i18nKey="help.unit.live.produces"
-        defaults="Your Kingdom produces {count} <res/>."
-        values={{ count: produced }}
-        components={{ res: <ResourceIcon resource={resourceCondition} /> }}
-      />
-    )
-  }
-
   return (
     <BookPage
       key={itemIndex}
@@ -194,3 +185,22 @@ const resourceConditionText = (condition: ResourcesCondition | undefined, t: TFu
   if (condition.onLane === LaneType.BackLane) return t('help.unit.resources.back', 'in the Back')
   return undefined
 }
+
+/** The printed effects of one phase, one per line */
+const EffectLines: FC<{ lines: ReactNode[] }> = ({ lines }) => (
+  <>
+    {lines.map((line, index) => (
+      <span key={index} css={effectLineCss}>
+        {line}
+      </span>
+    ))}
+  </>
+)
+
+const effectLineCss = css`
+  display: block;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 600;
+  font-size: 1.05em;
+  line-height: 1.3;
+`

@@ -27,7 +27,16 @@ export const LegendIcon: FC = () => <img css={iconCss} src={scoreIcon} alt="" />
 export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => <span css={shieldCss}>{value}</span>
 
 /** An icon cut from the printed cards (deploy, Age token added, building level 1 or 2…) */
-export const PrintedIcon: FC<{ src: string }> = ({ src }) => <img css={resourceCss} src={src} alt="" />
+export const PrintedIcon: FC<{ src: string }> = ({ src }) => <img css={printedCss} src={src} alt="" />
+
+const printedCss = css`
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  margin: -0.15em 0.05em;
+  object-fit: contain;
+  vertical-align: middle;
+`
 
 /** The Legend scroll of the cards, with its value written on it */
 export const LegendValueIcon: FC<{ value: number }> = ({ value }) => (
