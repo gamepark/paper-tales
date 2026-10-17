@@ -25,7 +25,7 @@ export class ResourcesHelper extends MaterialRulesPart {
       .player(this.player)
       .filter((item) => item.location.x === unit.location.x && item.location.y === unit.location.y)
       .getIndex()
-    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).length
+    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity()
   }
 
   get resources() {

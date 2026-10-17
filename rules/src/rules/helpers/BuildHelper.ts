@@ -1,4 +1,4 @@
-import { MaterialGame, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
 import { Building } from '../../material/Building'
 import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
 import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from '../../material/effects/3_WarEffects'
@@ -15,6 +15,13 @@ import { War } from '../3_War/War'
 import { Income } from '../4_Income/Income'
 import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
 import { ResourcesHelper } from './ResourcesHelper'
+
+/** The construction action of the turn (rulebook p.7) */
+export enum BuildAction {
+  BuildLevel1 = 1,
+  BuildLevel2,
+  Upgrade
+}
 
 export class BuildHelper extends MaterialRulesPart {
   private buildWithSubstitution: BuildWithSubstitution
@@ -89,92 +96,52 @@ export class BuildHelper extends MaterialRulesPart {
   }
 
   canBuildLevel1(buildingId: Building, fieldCost: number): boolean {
-    const characteristics = buildingCardCaracteristics[buildingId]
-    const cost1 = characteristics.cost1
-    const cost1Alternate = characteristics.cost1Alternate ?? []
-    return (
-      this.canBuildCost(cost1, fieldCost) ||
-      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost(cost1Alternate, fieldCost)) ||
-      this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, cost1, fieldCost)
-    )
+    return this.getGoldToPay(buildingId, BuildAction.BuildLevel1, fieldCost) !== undefined
   }
 
   canBuildLevel2(buildingId: Building, fieldCost: number): boolean {
-    const cost1 = buildingCardCaracteristics[buildingId].cost1
-    const cost1Alternate = buildingCardCaracteristics[buildingId].cost1Alternate ?? []
-    const cost2 = buildingCardCaracteristics[buildingId].cost2
-    const cost2Alternate = buildingCardCaracteristics[buildingId].cost2Alternate ?? []
-
-    const canPayDirectly =
-      this.canBuildCost([...cost1, ...cost2], fieldCost) ||
-      (this.hasAlternateCost(buildingId, 1) && this.canBuildCost([...cost1Alternate, ...cost2], fieldCost)) ||
-      (this.hasAlternateCost(buildingId, 2) && this.canBuildCost([...cost1, ...cost2Alternate], fieldCost)) ||
-      (this.hasAlternateCost(buildingId, 1) && this.hasAlternateCost(buildingId, 2) && this.canBuildCost([...cost1Alternate, ...cost2Alternate], fieldCost))
-    const canPayWithSubstitution =
-      this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2], fieldCost) ||
-      (this.hasAlternateCost(buildingId, 1) &&
-        this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1Alternate, ...cost2], fieldCost)) ||
-      (this.hasAlternateCost(buildingId, 2) && this.buildWithSubstitution.canBuildWithSubstitution(this.myResources, [...cost1, ...cost2Alternate], fieldCost))
-
-    return canPayDirectly || canPayWithSubstitution
+    return this.getGoldToPay(buildingId, BuildAction.BuildLevel2, fieldCost) !== undefined
   }
 
   canUpgrade(buildingId: Building): boolean {
-    const characteristics = buildingCardCaracteristics[buildingId]
-    const cost2 = characteristics.cost2
-    const cost2Alternate = characteristics.cost2Alternate ?? []
-    return this.canBuildCost(cost2, 0) || (this.hasAlternateCost(buildingId, 2) && this.canBuildCost(cost2Alternate, 0))
+    return this.getGoldToPay(buildingId, BuildAction.Upgrade, 0) !== undefined
   }
 
   /**
-   * Retourne les moves de dépense de gold lors de la construction d'une étape de bâtiment
-   * Attention, cette fonction peut renvoyer des résultats étranges si le bâtiment ne peut être construit.
-   * @see canBuildCost() pour vérifier si une étape est constructible.
-   * @param buildingId - Le bâtiment joué,
-   * @param level - L'étape du bâtiment que l'on considère,
-   * @returns - Un tableau contenant le move dépensant l'or.
+   * The ways a construction can be paid (rulebook p.7): the level 1 cost (or its gold alternative), the level 2 cost (or its
+   * alternative), both added up for a building put directly at level 2. The resources are not spent: they only have to
+   * be produced by the kingdom.
    */
-  getGoldToPayCostMove(buildingId: Building, level: number, ignoreFieldCost?: boolean): MaterialMove[] {
-    const moves: MaterialMove[] = []
-    const fieldCost = ignoreFieldCost ? 0 : this.fieldCost
-    const buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
-    const cost1: Resources[] = buildingCardCaracteristics[buildingId].cost1
-    const cost1Alternate = buildingCardCaracteristics[buildingId].cost1Alternate ?? []
-    const cost2: Resources[] = buildingCardCaracteristics[buildingId].cost2
-    const cost2Alternate = buildingCardCaracteristics[buildingId].cost2Alternate ?? []
-
-    const cost: Resources[] = level === 1 ? cost1 : cost2
-    const costAlternate = level === 1 ? cost1Alternate : cost2Alternate
-    let goldToPay = 0
-    const playerResources = this.resources
-    if (!costAlternate.length) {
-      // Cas nominal
-      if (!this.canBuildCost(cost, fieldCost)) {
-        // Substitution
-        goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(playerResources, cost).length
-      }
-      goldToPay += this.getGoldInBuildingCost(cost)
-    } else {
-      // Cas du temple
-      if (this.canBuildCost(cost, fieldCost)) {
-        goldToPay = this.getGoldInBuildingCost(cost)
-      } else {
-        // On préfèrera toujours payer le coût en substitution plutôt que le coût alternatif.
-        if (buildWithSubstitution.canBuildWithSubstitution(playerResources, cost, fieldCost)) {
-          goldToPay = buildWithSubstitution.getMissingResourcesForBuilding(playerResources, cost).length
-        } else {
-          goldToPay = this.getGoldInBuildingCost(costAlternate)
-        }
-      }
+  getCostOptions(buildingId: Building, action: BuildAction): Resources[][] {
+    const { cost1, cost1Alternate, cost2, cost2Alternate } = buildingCardCaracteristics[buildingId]
+    const level1 = cost1Alternate ? [cost1, cost1Alternate] : [cost1]
+    const level2 = cost2Alternate ? [cost2, cost2Alternate] : [cost2]
+    switch (action) {
+      case BuildAction.BuildLevel1:
+        return level1
+      case BuildAction.Upgrade:
+        return level2
+      case BuildAction.BuildLevel2:
+        return level1.flatMap((first) => level2.map((second) => [...first, ...second]))
     }
-
-    // const goldToPay = this.canBuildCost(playerId,cost, fieldCost) ? this.getGoldInBuildingCost(cost) : this.getGoldInBuildingCost(costAlternate)
-
-    if (goldToPay) {
-      moves.push(...this.material(MaterialType.Gold).money(golds).removeMoney(goldToPay, { type: LocationType.PlayerGoldStock, player: this.player }))
-    }
-    return moves
   }
+
+  /**
+   * All the gold a construction costs, land included: the cheapest way to pay it among the costs of the card, a missing
+   * resource being replaced by a gold when an effect allows it. Undefined if the kingdom cannot pay it.
+   * Legality and payment both use it, so that a construction offered is always paid exactly.
+   */
+  getGoldToPay(buildingId: Building, action: BuildAction, fieldCost = action === BuildAction.Upgrade ? 0 : this.fieldCost): number | undefined {
+    const replaceable = new Set(this.getReplaceResourceByGoldEffects(this.player).flatMap((effect) => effect.resource))
+    const totals = this.getCostOptions(buildingId, action).flatMap((cost) => {
+      const missing = this.buildWithSubstitution.getMissingResourcesForBuilding(this.myResources, cost)
+      if (missing.some((resource) => !replaceable.has(resource))) return []
+      return [fieldCost + this.getGoldInBuildingCost(cost) + missing.length]
+    })
+    const total = totals.length ? Math.min(...totals) : undefined
+    return total !== undefined && total <= this.gold ? total : undefined
+  }
+
   /**
    * Retourne un booléen indiquant si le bâtiment peut être construit ou non.
    * @param playerId - L'Id du joueur

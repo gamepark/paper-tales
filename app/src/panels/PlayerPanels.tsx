@@ -1,130 +1,129 @@
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { useMaterialContext, usePlayers } from '@gamepark/react-game'
+import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
+import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC } from 'react'
-import { createPortal } from 'react-dom'
-import { getPlayerIndex } from '../position/position.utils'
+import { useTranslation } from 'react-i18next'
+import {
+  getDraftRecipient,
+  getLeftNeighbour,
+  getMe,
+  getPanelPosition,
+  getPanelsOrder,
+  getRightNeighbour,
+  getViewedPlayer,
+  isDraftRule,
+  isWarView,
+  PANEL_HEIGHT,
+  PANEL_WIDTH
+} from '../locators/TableLayout'
+import { TableAnchor } from '../table/TableAnchor'
+import { paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
 import { PaperTalesPlayerPanel } from './PaperTalesPlayerPanel'
 
+/**
+ * The panels, laid on the table in a column: my left neighbour above me, my right neighbour below me, then the others.
+ * A whole panel is the button that displays that player's area: a view change nobody else sees, so the move is
+ * transient. The panel of the displayed area is pulled out of the column. During the recruitment, the panel of the
+ * Monarch who receives my cards is tagged.
+ */
 export const PlayerPanels: FC = () => {
-  const players = usePlayers<PlayerColor>({ sortFromMe: true })
-  const root = document.getElementById('root')
+  const { t } = useTranslation()
   const context = useMaterialContext()
-  if (!root) {
-    return null
+  const me = getMe(context)
+  const viewed = isWarView(context) ? undefined : getViewedPlayer(context)
+  const recipient = isDraftRule(context) ? getDraftRecipient(context) : undefined
+  const twoPlayers = context.rules.players.length === 2
+
+  const neighbourTag = (player: PlayerColor) => {
+    if (player === me) return undefined
+    if (twoPlayers) return t('panel.neighbour', 'Neighbour')
+    if (player === getLeftNeighbour(context)) return t('panel.left', 'Left')
+    if (player === getRightNeighbour(context)) return t('panel.right', 'Right')
+    return undefined
   }
 
-  return createPortal(
+  return (
     <>
-      {players.map((player, index) => (
-        <PaperTalesPlayerPanel
-          key={player.id}
-          player={player}
-          index={index}
-          color={playerColorCode[player.id]}
-          css={[absolute, panelPosition(players.length, getPlayerIndex(context, player.id)), player.id === PlayerColor.Black && black]}
-        />
-      ))}
-    </>,
-    root
+      {getPanelsOrder(context).map((id, index) => {
+        const tag = neighbourTag(id)
+        return (
+          <TableAnchor key={id} position={getPanelPosition(index)} css={containerCss}>
+            {id === viewed ? <PaperTalesPlayerPanel player={id} css={viewedCss} /> : <ViewPanelButton player={id} />}
+            {tag && <span css={[tagPaperCss, tagCss, cornerCss]}>{tag}</span>}
+            {id === recipient && <span css={[tagPaperCss, tagCss, recipientCss]}>{t('panel.receives', 'Receives your cards')}</span>}
+          </TableAnchor>
+        )
+      })}
+    </>
   )
 }
-const absolute = css`
+
+/** The panel of a player whose area is not displayed: clicking it displays their area */
+const ViewPanelButton: FC<{ player: PlayerColor }> = ({ player }) => {
+  const { t } = useTranslation()
+  const name = usePlayerName(player)
+  return (
+    <PlayMoveButton
+      css={panelButtonCss}
+      move={MaterialMoveBuilder.changeView(player)}
+      transient
+      title={t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })}
+    >
+      <PaperTalesPlayerPanel player={player} />
+    </PlayMoveButton>
+  )
+}
+
+const containerCss = css`
+  position: relative;
+  width: ${PANEL_WIDTH}em;
+  height: ${PANEL_HEIGHT}em;
+`
+
+// The panel of the displayed area is pulled out of the column, like a page sticking out of a book
+const viewedCss = css`
+  transform: translateX(0.7em);
+`
+
+// The whole panel is the button: no button look, the paper sheet lifts under the pointer
+const panelButtonCss = css`
+  ${paperButtonResetCss};
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s;
+
+  &:hover:not(:disabled) {
+    transform: translate(-0.06em, -0.1em);
+  }
+
+  &:active:not(:disabled) {
+    transform: translate(0.06em, 0.08em);
+  }
+`
+
+const tagCss = css`
   position: absolute;
-  font-size: 0.8em;
-  width: 25em;
-
-  > div > div > span {
-    font-size: 2.5em;
-  }
+  z-index: 2;
+  top: -0.75em;
+  padding: 0.15em 0.9em 0.05em;
+  font-size: 0.75em;
+  pointer-events: none;
 `
 
-const black = css`
-  > div > div > span,
-  > div > span,
-  h2 {
-    background-color: #ffffff50;
-  }
+const cornerCss = css`
+  left: 0.4em;
 `
 
-const panelPosition = (players: number, index: number) => css`
-  border: 0;
-  ${getPanelPosition(players, index)};
+const recipientCss = css`
+  top: auto;
+  bottom: -0.6em;
+  right: 0.4em;
+  ${paperBackgroundCss(rust, paper)};
 `
-
-const bottomRight = css`
-  bottom: 1em;
-  right: 1em;
-`
-
-const bottomLeft = css`
-  bottom: 1em;
-  left: 1em;
-`
-
-const topRight = css`
-  top: 11em;
-  right: 1em;
-`
-
-const topLeft = css`
-  top: 11em;
-  left: 1em;
-`
-
-const topCenter = css`
-  top: 8.5em;
-  left: calc(50dvw - 26em);
-`
-
-const topCenterLeft = css`
-  top: 8.5em;
-  left: calc(40dvw - 26em);
-`
-
-const topCenterRight = css`
-  top: 8.5em;
-  left: calc(67dvw - 14em);
-`
-
-const bottomCenterLeft = css`
-  bottom: 1em;
-  left: calc(40dvw - 14em);
-`
-
-const bottomCenterRight = css`
-  bottom: 1em;
-  left: calc(67dvw - 14em);
-`
-
-const getPanelPosition = (players: number, index: number) => {
-  switch (index) {
-    case 0:
-      return players < 3 ? topLeft : bottomLeft
-    case 1:
-      return players < 3 ? topRight : topLeft
-    case 2:
-      return players < 5 ? topRight : players < 7 ? topCenter : topCenterLeft
-    case 3:
-      return players < 7 ? topRight : topCenterRight
-    case 4:
-      return topRight
-    case 5:
-      return bottomRight
-    case 6:
-      return players < 7 ? bottomRight : bottomCenterRight
-    case 7:
-    default:
-      return players < 5 ? bottomRight : players < 7 ? bottomCenterRight : bottomCenterLeft
-  }
-}
-
-const playerColorCode: Record<PlayerColor, string> = {
-  [PlayerColor.Red]: 'red',
-  [PlayerColor.Blue]: '#1e5491',
-  [PlayerColor.Green]: '#017b47',
-  [PlayerColor.Yellow]: 'yellow',
-  [PlayerColor.Black]: 'black',
-  [PlayerColor.Purple]: 'purple',
-  [PlayerColor.White]: 'white'
-}

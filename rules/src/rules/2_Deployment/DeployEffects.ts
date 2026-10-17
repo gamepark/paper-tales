@@ -16,6 +16,7 @@ import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics, UnitPattern } from '../../material/UnitCaracteristics'
 import { PlayerColor } from '../../PlayerColor'
 import { BuildHelper } from '../helpers/BuildHelper'
+import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 import { Memory } from '../Memory'
 
@@ -28,7 +29,6 @@ export class DeployEffects extends SimultaneousRule {
 
     for (const player of players) {
       const deployedUnitsIndexes = this.remind<number[]>(Memory.PlayedCardsDuringDeployment, player)
-      const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes).getItems()
       const playerUnitBoard = this.getPlayerUnits(player)
       const buildHelper = new BuildHelper(this.game, player)
       const scoreHelper = new ScoreHelper(this.game, player)
@@ -40,9 +40,9 @@ export class DeployEffects extends SimultaneousRule {
         const effects = characteristics.effect ?? []
         for (const effect of effects) {
           if (isGainTokenOnDeploy(effect) && effect.token === MaterialType.ScoreToken) {
-            if (!effect.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unit.id)) {
+            if (!effect.onDeployment || deployedUnitsIndexes.includes(unitIndex)) {
               const factor = effect.perLevel2Builds ? buildHelper.buildLevel2Buildings.length : 1
-              scoreToAdd = effect.amount * factor
+              scoreToAdd += effect.amount * factor
             }
           } else {
             moves.push(...this.getUnitDeployEffectMoves(unit, unitIndex, player, effect))
@@ -71,7 +71,8 @@ export class DeployEffects extends SimultaneousRule {
         .location(LocationType.PlayerUnitBoard)
         .player(player)
         .filter((item) => item.id === Unit.Shapeshifter)
-      if (unitCardCaracteristics[unitId].cost < 1) {
+      // Draw and discard until a unit of cost 3 or less is revealed (printed on the card)
+      if (unitCardCaracteristics[unitId].cost > 3) {
         moves.push(unitCard.moveItem({ type: LocationType.Discard }))
         moves.push(
           this.material(MaterialType.Unit).location(LocationType.Deck).deck().dealOne({
@@ -84,7 +85,6 @@ export class DeployEffects extends SimultaneousRule {
       } else {
         const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
         const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
-        const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes).getItems()
         const buildHelper = new BuildHelper(this.game, player)
         const scoreHelper = new ScoreHelper(this.game, player)
 
@@ -95,16 +95,16 @@ export class DeployEffects extends SimultaneousRule {
         if (effects !== undefined) {
           effects.forEach((eff) => {
             if (isGainTokenOnDeploy(eff) && eff.token === MaterialType.ScoreToken) {
-              if (!eff.onDeployment || deployedUnits.find((deployedUnit) => deployedUnit.id === unitId)) {
+              if (!eff.onDeployment || deployedUnitsIndexes.includes(move.itemIndex)) {
                 const coeff = eff.perLevel2Builds ? buildHelper.buildLevel2Buildings.getQuantity() : 1
-                scoreToAdd = eff.amount * coeff
+                scoreToAdd += eff.amount * coeff
               }
             } else {
               moves.push(...this.getUnitDeployEffectMoves(unit, move.itemIndex, player, eff))
             }
-
-            moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
           })
+          // Once, after all the effects: the score moves to its new position from the current one
+          moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
         }
 
         moves.push(shapeShifterCard.moveItem({ type: LocationType.Discard }))
@@ -152,6 +152,10 @@ export class DeployEffects extends SimultaneousRule {
       if (!effects?.length) return false
       const gainAgeTokenOnChosenUnit = effects.find(isGainAgeTokenOnChosenUnit)
       if (!gainAgeTokenOnChosenUnit) return false
+      // Nothing to place: no choice to make (the Master Alchemist without food)
+      if (gainAgeTokenOnChosenUnit.perResource !== undefined && !new ResourcesHelper(this.game, player).getResource(gainAgeTokenOnChosenUnit.perResource)) {
+        return false
+      }
       return !gainAgeTokenOnChosenUnit.onDeployment || deployedUnits.includes(index)
     })
   }
@@ -163,10 +167,10 @@ export class DeployEffects extends SimultaneousRule {
   getUnitDeployEffectMoves(unit: MaterialItem, unitIndex: number, player: PlayerColor, eff: Effect): MaterialMove[] {
     const moves: MaterialMove[] = []
     const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
-    const deployedUnits = this.material(MaterialType.Unit).index(deployedUnitsIndexes)
 
     if (!isDeploymentType(eff)) return moves
-    if (eff.onDeployment && !deployedUnits.id(unit.id).length) return moves
+    // "When revealed" effects: this very card was deployed this turn (an older copy kept in play does not count)
+    if (eff.onDeployment && !deployedUnitsIndexes.includes(unitIndex)) return moves
 
     if (isImproveBuilding(eff)) {
       moves.push(...this.onImproveBuilding(player, eff))

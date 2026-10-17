@@ -60,6 +60,7 @@ export const theRealDeck = [
   Unit.TimeMaster,
   Unit.Peddler,
   Unit.Peddler,
+  Unit.Peddler,
   Unit.Rogue,
   Unit.Rogue,
   Unit.Sculptor,

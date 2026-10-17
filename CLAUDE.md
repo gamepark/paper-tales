@@ -261,11 +261,11 @@ app/src/                        → Frontend (React + Emotion CSS)
   App.tsx                       → App shell
   GameDisplay.tsx               → GameTable with dynamic dimensions
   material/                     → MaterialDescriptions + help components
-  locators/                     → All locators
+  locators/                     → All locators; TableLayout.ts holds the whole table layout
   headers/                      → Phase headers
-  panels/                       → Player panels (custom positioning)
+  panels/                       → Player panels (compact, laid on the table in a column)
+  table/                        → Phase widgets laid on the table (draft direction, deployment gold, build info, war results, view buttons)
   animations/                   → PaperTalesAnimations.ts
-  position/                     → position.utils.ts (player layout helpers)
 ```
 
 ## Game Phases (Round Flow)
@@ -314,7 +314,11 @@ Effects grouped by phase in `rules/src/material/effects/`:
 
 ## Player Panels
 
-Panels are rendered inside the game table, above or below each player area (`getPanelPosition` in `app/src/position/position.utils.ts`, which holds the whole table layout).
+Panels are React components laid in the game table, in a column on the left: left neighbour, me, right neighbour, then the others. The eye of a panel plays a transient changeView to display that player area.
+
+## Table layout
+
+The table shows one player area at a time (`locators/TableLayout.ts`), the same on a phone in landscape and on a desktop: mine by default, another player through the eye of their panel, or my 2 neighbours on each side of me (neighbours view: `changeView(NEIGHBOURS_VIEW)`, and automatic from RevealBoards to War, since War resolves at once). The right column holds the turn counter, the deck, the discard and the reserves. Use only React and the framework: no direct DOM access.
 
 ## Framework
 

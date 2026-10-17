@@ -19,42 +19,21 @@ export class War extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
     const players = this.game.players
-    const playerPower = players.map((player) => this.getPlayerPower(player))
 
-    players.forEach((player, index) => {
+    players.forEach((player) => {
       this.forget(Memory.PlayedCardsDuringDeployment, player)
-      //this.logAllPlayerUnitPower(player)
       const buildHelper = new BuildHelper(this.game, player)
       const scoreHelper = new ScoreHelper(this.game, player)
-      const myPower = playerPower[index]
+      const warsWon = this.getWarsWon(player)
 
-      //console.log("Puissance du joueur ",player, " : ", myPower)
+      let warScoring = 3 * warsWon
 
-      const leftPower = playerPower[this.getNeighbor(players, index, 'left')]
-      const rightPower = playerPower[this.getNeighbor(players, index, 'right')]
-
-      let warScoring = 0
-
-      if (players.length === 2) {
-        if (myPower > 0 && myPower >= leftPower) {
-          warScoring += myPower >= leftPower * 2 ? 6 : 3
-          moves.push(...this.getGainGoldIfWinWarMoves(player))
-          warScoring += this.getGainScoreIfWinWarAmount(player)
-        }
-      } else {
-        if (myPower >= leftPower) {
-          warScoring += 3
-          moves.push(...this.getGainGoldIfWinWarMoves(player))
-          warScoring += this.getGainScoreIfWinWarAmount(player)
-        }
-        if (myPower >= rightPower) {
-          warScoring += 3
-          moves.push(...this.getGainGoldIfWinWarMoves(player))
-          warScoring += this.getGainScoreIfWinWarAmount(player)
-        }
+      // At 2 players, a double strength wins the war twice (rulebook p.8), but its effects apply once
+      const effectsApplied = players.length === 2 ? Math.min(warsWon, 1) : warsWon
+      for (let i = 0; i < effectsApplied; i++) {
+        moves.push(...this.getGainGoldIfWinWarMoves(player))
+        warScoring += this.getGainScoreIfWinWarAmount(player)
       }
-
-      //console.log("Score gagné par le joueur ",player, " par les guerres gagnées : ", warScoring)
 
       // Effets scoring peu importe la victoire
       warScoring += sum(buildHelper.scoreAtWarBuildingEffects.map((effect) => buildHelper.getScoreFromBuilding(player, effect)))
@@ -64,6 +43,24 @@ export class War extends MaterialRulesPart {
 
     moves.push(this.startRule(RuleId.Income))
     return moves
+  }
+
+  /**
+   * The wars a player wins (rulebook p.6): one against each neighbour of a strength not above theirs. At 2 players
+   * (p.8), a strength not below the other's wins one war, at least double wins two. As written: no minimum strength,
+   * so two kingdoms of strength 0 both win.
+   */
+  getWarsWon(player: number): number {
+    const players = this.game.players
+    const index = players.indexOf(player)
+    const power = this.getPlayerPower(player)
+    const leftPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'left')])
+    if (players.length === 2) {
+      if (power < leftPower) return 0
+      return power >= leftPower * 2 ? 2 : 1
+    }
+    const rightPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'right')])
+    return (power >= leftPower ? 1 : 0) + (power >= rightPower ? 1 : 0)
   }
 
   getGainScoreIfWinWarAmount(player: number): number {
@@ -177,7 +174,8 @@ export class War extends MaterialRulesPart {
             add += resourcesHelper.getResource(resource) * addWarPowerEffect.powerAdded
           })
         } else if (addWarPowerEffect.perGoldOnIncomePhase) {
-          add += new Income(this.game).getPlayerIncome(player) * addWarPowerEffect.powerAdded
+          // All the gold earned at the income phase: the 2 gold of every Monarch, plus the income effects (the Ogre)
+          add += (2 + new Income(this.game).getPlayerIncome(player)) * addWarPowerEffect.powerAdded
         }
       }
 

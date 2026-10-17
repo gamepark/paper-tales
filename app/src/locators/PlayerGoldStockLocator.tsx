@@ -1,19 +1,21 @@
-import { ItemContext, PileLocator } from '@gamepark/react-game'
+import { ItemContext, MaterialContext, PileLocator } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
-import { isTopPlayer } from '../position/position.utils'
-import { playerDraftHandLocator } from './PlayerDraftHandLocator'
+import { getPlayerPositionDependencies, isMyAreaDisplayed, playerGoldCoordinates } from './TableLayout'
 
+/**
+ * Only my gold is on the table, the gold of the others is counted in their panel
+ */
 class PlayerGoldStockLocator extends PileLocator {
+  coordinates = playerGoldCoordinates
   radius = { x: 2, y: 2 }
   limit = 100
 
-  getCoordinates(location: Location, context: ItemContext) {
-    const { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
+  getPositionDependencies(_location: Location, context: MaterialContext) {
+    return getPlayerPositionDependencies(context)
+  }
 
-    return {
-      x: x - 15,
-      y: y + (isTopPlayer(context, location.player) ? 18 : -18)
-    }
+  hide(item: MaterialItem, context: ItemContext) {
+    return !isMyAreaDisplayed(context, item.location.player)
   }
 
   getPileId(item: MaterialItem) {

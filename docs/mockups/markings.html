@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales — cartes inactives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f7f3ef;
+    --cream: #f6ece6;
+    --muted: #e2d6cd;
+    --ink: #4a4540;
+    --rust: #b5481f;
+    --crimson: #9b2e4d;
+    --shadow: #00000059;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: #3b302a; font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.5;
+    background-color: var(--page);
+    background-image:
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%),
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%);
+    background-size: 44px 44px; background-position: 0 0, 22px 22px;
+  }
+  main { padding: 40px 28px 80px; max-width: 1700px; margin: 0 auto; }
+  h1 { font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--rust); font-size: 2.6rem; line-height: 1; margin: 0; }
+  .lead { max-width: 80ch; margin: 10px 0 26px; }
+
+  .board { display: grid; grid-template-columns: 150px repeat(5, minmax(230px, 1fr)); gap: 6px; overflow-x: auto; }
+  .colhead {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.12rem; line-height: 1.15; padding: 10px 12px; border-radius: 10px;
+    background: #fff9; border: 2px solid transparent; cursor: pointer; text-align: left; color: #3b302a;
+  }
+  .colhead small { display: block; font-family: 'Mulish'; font-weight: 500; font-size: .8rem; color: #6d625a; }
+  .colhead:hover { border-color: #b5481f55; }
+  .colhead:focus-visible { outline: 3px solid var(--rust); outline-offset: 2px; }
+  .colhead[aria-pressed="true"] { background: var(--rust); color: white; }
+  .colhead[aria-pressed="true"] small { color: #ffe6d9; }
+  .rowhead { font-weight: 800; font-size: .9rem; padding: 12px 8px 0 0; }
+  .rowhead small { display: block; font-weight: 500; color: #7a6e66; }
+  .cell {
+    position: relative; min-height: 230px; padding: 22px 12px; border-radius: 8px; display: grid; place-items: center;
+    background: #1f1813 url('http://localhost:3100/src/images/score/score_board.jpg') center / 420px;
+    font-size: 15px; overflow: hidden; outline: 3px solid transparent; transition: opacity .25s, outline-color .25s;
+  }
+  .cell::before { content: ''; position: absolute; inset: 0; background: #1c1610d9; }
+  .cell > * { position: relative; }
+  .board.picking .cell { opacity: .35; }
+  .board.picking .cell.picked { opacity: 1; outline-color: var(--rust); }
+
+  /* ---------- Cards at table size ---------- */
+  .card { position: relative; border-radius: .4em; background-size: cover; background-position: center; box-shadow: 0 .1em .3em #000a; }
+  .bld { width: 11.9em; height: 8.5em; background-image: url('http://localhost:3100/src/images/buildings/en/level1/TempleL1.jpg'); }
+  .unit { width: 6.3em; height: 8.8em; background-image: url('http://localhost:3100/src/images/units/en/Knight.jpg'); }
+  .unit.b { background-image: url('http://localhost:3100/src/images/units/en/Cook.jpg'); }
+  .unit.c { background-image: url('http://localhost:3100/src/images/units/en/Dragon.jpg'); }
+  .veil { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+  .bld .veil { background: rgba(40, 32, 24, .62); }
+  .unit .veil { background: rgba(40, 32, 24, .45); }
+  .kingdom { display: grid; grid-template-columns: repeat(2, 6.3em); gap: .32em; position: relative; }
+  .backrow { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 6.3em); gap: .32em; position: relative; }
+
+  /* Paper slip: drawn by ::before so the drop shadow follows the torn edge */
+  .slip { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: .35em; font-family: 'Baloo 2'; font-weight: 800; white-space: nowrap;
+    padding: .25em .9em .12em; color: var(--fg, var(--ink)); filter: drop-shadow(.16em .2em 0 var(--shadow)); }
+  .slip::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--bg, var(--cream)); clip-path: var(--torn); }
+  .slip svg { width: 1.2em; height: 1.2em; }
+
+  /* A — sash across */
+  .sash { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-14deg); font-size: 1.05em; --bg: var(--ink); --fg: var(--cream); }
+  .backrow .sash { transform: translate(-50%, -50%) rotate(-6deg); font-size: .95em; }
+
+  /* B — rubber stamp */
+  .stamp { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-12deg); font-family: 'Baloo 2'; font-weight: 800;
+    color: #e86a55; border: .16em solid #e86a55; border-radius: .35em; padding: .15em .55em 0; letter-spacing: .06em; text-transform: uppercase;
+    font-size: 1em; white-space: nowrap; opacity: .92;
+    text-shadow: 0 0 .05em #e86a5588; box-shadow: inset 0 0 .1em #e86a5588, 0 0 .1em #e86a5588;
+  .backrow .stamp { font-size: .8em; transform: translate(-50%, -50%) rotate(-8deg); }
+
+  /* C — corner tag */
+  .corner { position: absolute; top: -.55em; left: -.45em; font-size: .78em; padding: .2em .7em .08em .55em; }
+  .unit .corner { font-size: .62em; top: -.6em; left: -.5em; }
+
+  /* D — dashed cut line, the card not yet cut out of the sheet */
+  .cutline { position: absolute; inset: -.38em; border: .13em dashed #f6ece6cc; border-radius: .6em; pointer-events: none; }
+  .scissors { position: absolute; top: -1em; right: .6em; width: 1.3em; height: 1.3em; color: var(--cream); }
+  .cutlabel { position: absolute; bottom: -1.05em; left: 50%; transform: translateX(-50%); font-size: .78em; }
+  .backrow .cutline { inset: -.35em; }
+  .backrow .cutlabel { font-size: .72em; bottom: -1.1em; }
+
+  @media (prefers-reduced-motion: reduce) { .cell { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Cartes inactives</h1>
+  <p class="lead">Deux cas, sur de vraies cartes à leur taille de table : un bâtiment pas encore construit dans la grille, et les unités de la rangée arrière en vue Voisins, qui ne combattent pas. Clique un titre pour isoler une colonne.</p>
+  <div class="board" id="board"></div>
+</main>
+
+<script>
+  // Small pictograms, drawn in the ink of the slips
+  const towerIcon = '<svg viewBox="0 0 24 24"><path d="M5 21V9h2V5h3v4h4V5h3v4h2v12z" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2" stroke-linejoin="round"/></svg>'
+  const restIcon = '<svg viewBox="0 0 24 24"><path d="M6 18L18 6M8 6l10 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M3 3l18 18" stroke="#e86a55" stroke-width="2.4" stroke-linecap="round"/></svg>'
+  const scissors = '<svg class="scissors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.6 7.6L20 18M8.6 16.4L20 6"/></svg>'
+
+  const columns = [
+    { title: 'Actuel', sub: 'Voile sombre seulement' },
+    { title: 'A — Bandeau en travers', sub: 'Une bande de papier posée en écharpe' },
+    { title: 'B — Tampon', sub: 'Un coup de tampon encreur' },
+    { title: 'C — Étiquette de coin', sub: 'Petite étiquette avec un pictogramme' },
+    { title: 'D — Pointillés à découper', sub: 'La carte pas encore découpée de la planche' }
+  ]
+
+  const building = d => {
+    const marks = [
+      '',
+      '<span class="slip sash">Non construit</span>',
+      '<span class="stamp">Non construit</span>',
+      `<span class="slip corner">${towerIcon}À bâtir</span>`,
+      `<span class="cutline"></span>${scissors}<span class="slip cutlabel">À construire</span>`
+    ][d]
+    return `<div class="card bld"><div class="veil"></div>${marks}</div>`
+  }
+
+  const backRow = d => {
+    const back = (cls) => `<div class="card unit ${cls}"><div class="veil"></div>${d === 3 ? `<span class="slip corner">${restIcon}Arrière</span>` : ''}</div>`
+    const rowMark = [
+      '',
+      '<span class="slip sash">Hors combat</span>',
+      '<span class="stamp">Hors combat</span>',
+      '',
+      `<span class="cutline"></span><span class="slip cutlabel">Arrière · hors combat</span>`
+    ][d]
+    return `<div class="kingdom">
+      <div class="card unit c"></div><div class="card unit"></div>
+      <div class="backrow">${back('b')}${back('')}${rowMark}</div>
+    </div>`
+  }
+
+  const rows = [
+    { title: 'Bâtiment non construit', sub: 'grille des bâtiments', cell: building },
+    { title: 'Rangée arrière', sub: 'vue Voisins, ne combat pas', cell: backRow }
+  ]
+
+  const board = document.getElementById('board')
+  board.appendChild(document.createElement('div'))
+  columns.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.className = 'colhead'; b.dataset.col = i; b.setAttribute('aria-pressed', 'false')
+    b.innerHTML = `${c.title}<small>${c.sub}</small>`
+    board.appendChild(b)
+  })
+  for (const r of rows) {
+    const h = document.createElement('div'); h.className = 'rowhead'; h.innerHTML = `${r.title}<small>${r.sub}</small>`
+    board.appendChild(h)
+    columns.forEach((_, d) => {
+      const c = document.createElement('div'); c.className = 'cell'; c.dataset.col = d
+      c.innerHTML = r.cell(d)
+      board.appendChild(c)
+    })
+  }
+
+  // Torn edge of the slips: deterministic jitter
+  const torn = (() => {
+    let s = 7
+    const r = () => (s = (s * 9301 + 49297) % 233280) / 233280
+    const pts = [], n = 18
+    for (let i = 0; i <= n; i++) pts.push(`${(i / n) * 100}% ${(r() * 9).toFixed(1)}%`)
+    for (let i = 0; i <= 4; i++) pts.push(`${(100 - r() * 2.5).toFixed(1)}% ${(i / 4) * 100}%`)
+    for (let i = n; i >= 0; i--) pts.push(`${(i / n) * 100}% ${(100 - r() * 9).toFixed(1)}%`)
+    for (let i = 4; i >= 0; i--) pts.push(`${(r() * 2.5).toFixed(1)}% ${(i / 4) * 100}%`)
+    return `polygon(${pts.join(',')})`
+  })()
+  document.documentElement.style.setProperty('--torn', torn)
+
+  board.addEventListener('click', e => {
+    const head = e.target.closest('.colhead')
+    if (!head) return
+    const already = head.getAttribute('aria-pressed') === 'true'
+    board.querySelectorAll('.colhead').forEach(h => h.setAttribute('aria-pressed', 'false'))
+    board.querySelectorAll('.cell').forEach(c => c.classList.remove('picked'))
+    board.classList.toggle('picking', !already)
+    if (already) return
+    head.setAttribute('aria-pressed', 'true')
+    board.querySelectorAll(`.cell[data-col="${head.dataset.col}"]`).forEach(c => c.classList.add('picked'))
+  })
+</script>
+</body>
+</html>

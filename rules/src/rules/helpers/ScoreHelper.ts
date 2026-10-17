@@ -18,12 +18,14 @@ export class ScoreHelper extends MaterialRulesPart {
     return this.scoreToken.getItem()!.location.x!
   }
 
+  /** The score never goes below 0: the track starts at 0, and a loss of points stops there */
   gainOrLoseScore(amount: number): MaterialMove[] {
-    if (!amount) return []
+    const next = Math.max(0, this.score + amount)
+    if (next === this.score) return []
     return this.scoreToken.moveItems({
       type: LocationType.PlayerScore,
       player: this.player,
-      x: this.score + amount
+      x: next
     })
   }
 }

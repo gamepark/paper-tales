@@ -3,6 +3,9 @@ import { Effect, EffectType } from './effects/Effect'
 import { Resources } from './Resources'
 
 export type BuildingPattern = {
+  /** Legend points at the end of the game, for the level 1 and the level 2 faces (rulebook p.8) */
+  points1: number
+  points2: number
   cost1: Resources[]
   cost1Alternate?: Resources[]
   cost2: Resources[]
@@ -15,6 +18,8 @@ export type BuildingPattern = {
 
 export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
   [Building.Mine]: {
+    points1: 1,
+    points2: 3,
     cost1: [Resources.Wood],
     cost2: [Resources.Wood, Resources.Diamond],
     resources1: [Resources.Diamond],
@@ -27,6 +32,8 @@ export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
     ]
   },
   [Building.Tavern]: {
+    points1: 1,
+    points2: 3,
     cost1: [Resources.Food],
     cost2: [Resources.Wood, Resources.Food],
     effect1: [
@@ -45,6 +52,8 @@ export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
     ]
   },
   [Building.Barracks]: {
+    points1: 1,
+    points2: 3,
     cost1: [Resources.Wood],
     cost2: [Resources.Wood, Resources.Food],
     effect1: [
@@ -63,12 +72,16 @@ export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
     ]
   },
   [Building.Town]: {
+    points1: 1,
+    points2: 3,
     cost1: [Resources.Wood],
     cost2: [Resources.Wood, Resources.Wood],
     resources1: [Resources.Wood, Resources.Food],
     resources2: [Resources.Diamond]
   },
   [Building.Temple]: {
+    points1: 1,
+    points2: 3,
     cost1: [Resources.Diamond],
     cost1Alternate: [Resources.Gold, Resources.Gold],
     cost2: [Resources.Diamond, Resources.Diamond],

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales — boutons et fanions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --page: #f7f3ef;
+    --rust: #b5481f;
+    --ink: #3b302a;
+    --teal: #3d7377;
+    --teal-deep: #24484b;
+    --ochre: #d9bf45;
+    --ochre-deep: #9c8420;
+    --purple: #5b3d7a;
+    --crimson: #9b2e4d;
+    --red: #b03a2e;
+    --cut: #f6ece6;
+    --cut-line: #4a4540;
+    --parchment: #f1e6cc;
+    --parchment-dark: #e2d2ac;
+    --brown: #5a3414;
+    --wood: #7b4a24;
+    --gold: #e9b534;
+    --img: 'http://localhost:3100/src/images/';
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.5;
+    /* The quilted paper of the rulebook */
+    background-color: var(--page);
+    background-image:
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%),
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%);
+    background-size: 44px 44px; background-position: 0 0, 22px 22px;
+  }
+  main { padding: 40px 28px 80px; max-width: 1700px; margin: 0 auto; }
+  h1 { font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--rust); font-size: 2.6rem; line-height: 1; margin: 0; }
+  .lead { max-width: 75ch; margin: 10px 0 28px; }
+
+  /* ---------- Grid ---------- */
+  .board { display: grid; grid-template-columns: 170px repeat(5, minmax(220px, 1fr)); gap: 6px; overflow-x: auto; }
+  .colhead {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.15rem; line-height: 1.15; padding: 10px 12px; border-radius: 10px;
+    background: #fff9; border: 2px solid transparent; cursor: pointer; text-align: left; color: var(--ink);
+  }
+  .colhead small { display: block; font-family: 'Mulish'; font-weight: 500; font-size: .8rem; color: #6d625a; }
+  .colhead:hover { border-color: #b5481f55; }
+  .colhead:focus-visible { outline: 3px solid var(--rust); outline-offset: 2px; }
+  .colhead[aria-pressed="true"] { background: var(--rust); color: white; }
+  .colhead[aria-pressed="true"] small { color: #ffe6d9; }
+  .rowhead { font-weight: 800; font-size: .9rem; padding: 12px 8px 0 0; color: var(--ink); }
+  .rowhead small { display: block; font-weight: 500; color: #7a6e66; }
+  .cell {
+    position: relative; min-height: 120px; padding: 16px; border-radius: 8px; display: grid; place-items: center;
+    background: #1f1813 url('http://localhost:3100/src/images/score/score_board.jpg') center / 420px;
+    font-size: 15px; /* 1 em here stands for 1 table em at a usual screen size */
+    overflow: hidden; transition: opacity .25s, outline-color .25s; outline: 3px solid transparent;
+  }
+  .cell::before { content: ''; position: absolute; inset: 0; background: #1c1610d9; }
+  .cell > * { position: relative; }
+  .board.picking .cell { opacity: .35; }
+  .board.picking .cell.picked { opacity: 1; outline-color: var(--rust); }
+
+  /* ---------- Shared markup ---------- */
+  .hbar { width: 100%; padding: .5em .8em; text-align: center; font-size: .95em; font-weight: 700; color: white; background: #000c; border-radius: .3em; }
+  .hbar a { cursor: pointer; }
+  .views { display: flex; flex-direction: column; gap: .3em; width: 11em; }
+  .views > * { display: flex; align-items: center; justify-content: center; gap: .45em; height: 2.2em; font-weight: 800; white-space: nowrap; }
+  .views img, .war img, .info img { height: 1.1em; }
+  .caps { display: flex; flex-direction: column; gap: .5em; width: 11em; align-items: stretch; }
+  .tagrow { display: flex; gap: 1em; }
+  .war { display: inline-flex; align-items: center; gap: .6em; font-size: 1.1em; font-weight: 800; }
+  .info { display: inline-flex; align-items: center; gap: .4em; font-weight: 800; white-space: nowrap; }
+  .hbar a { white-space: nowrap; }
+  .info .coin { width: 1.1em; height: 1.1em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe680, #e2b21c 60%, #a97d06); }
+  .menus { display: flex; gap: 2.8em; align-items: center; padding: 1.6em 1.2em .6em; font-size: .78em; }
+  .holder { position: relative; }
+  .unit { width: 7em; height: 9.8em; border-radius: .35em; background: url('http://localhost:3100/src/images/units/en/Knight.jpg') center / cover; box-shadow: 0 .1em .3em #000a; }
+  .bld { width: 8.3em; height: 5.95em; border-radius: .3em; background: url('http://localhost:3100/src/images/buildings/en/level1/TempleL1.jpg') center / cover; box-shadow: 0 .1em .3em #000a; }
+  .mb { position: absolute; display: flex; align-items: center; justify-content: center; width: 2em; height: 2em; font-size: 1em; cursor: pointer; transform: translate(-50%, -50%); }
+  .mb .lbl { position: absolute; left: 100%; white-space: nowrap; font-weight: 800; font-size: .85em; }
+  .mb.keep { left: 0; top: 0; } .mb.trash { left: 100%; top: 0; }
+  .mb.h1 { left: 0; top: 50%; } .mb.h2 { left: 100%; top: 50%; }
+  .mb .n { font-weight: 800; font-size: .8em; margin-left: .1em; }
+
+  /* ===================== Actuel ===================== */
+  .d0 .hbar a { color: white; text-decoration: underline; }
+  .d0 .tbtn { background: var(--wood); color: var(--parchment); border: .15em solid var(--brown); border-radius: .4em; padding: .3em .9em; font-weight: 800; box-shadow: inset 0 .1em 0 #a06a3a, 0 .15em .3em #0008; }
+  .d0 .views > * { border-radius: .4em; }
+  .d0 .views .on { background: var(--parchment); color: var(--brown); border: .15em solid var(--gold); }
+  .d0 .views .off { background: #0006; color: var(--parchment); border: .15em solid #f1e6cc55; }
+  .d0 .views i { color: var(--gold); }
+  .d0 .cap, .d0 .tag, .d0 .war, .d0 .info {
+    background: var(--parchment-dark); color: var(--brown); text-align: center; padding: .15em 1em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - .6em) 50%, 100% 100%, 0 100%, .6em 50%);
+  }
+  .d0 .cap { font-size: .8em; font-weight: 800; }
+  .d0 .tag { font-size: .8em; font-weight: 800; }
+  .d0 .war { box-shadow: inset 0 -.3em 0 #fff; padding-bottom: .45em; }
+  .d0 .mb { background: white; color: black; border-radius: 50%; }
+  .d0 .mb .lbl { background: #0008; color: white; border-radius: .3em; padding: 0 .3em 0 .5em; margin-left: -.2em; font-weight: 500; }
+
+  /* ===================== A — Encadré sarcelle ===================== */
+  .d1 { --f: 'Baloo 2'; }
+  .d1 .hbar { background: linear-gradient(#f7f3ef, #ece6df); color: var(--ink); border-bottom: .2em solid var(--teal); }
+  .d1 .hbar a { font-family: var(--f); font-weight: 800; color: white; background: var(--teal); padding: .1em .7em; border-radius: .4em; box-shadow: 0 .18em 0 var(--teal-deep); text-transform: uppercase; font-size: .9em; letter-spacing: .03em; }
+  .d1 .tbtn, .d1 .views > *, .d1 .mb { font-family: var(--f); }
+  .d1 .tbtn { background: var(--teal); color: white; border: 0; border-radius: .5em; padding: .35em 1em .2em; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; box-shadow: 0 .25em 0 var(--teal-deep), 0 .4em .5em #0006; }
+  .d1 .views > * { border-radius: .5em; text-transform: uppercase; font-size: .95em; letter-spacing: .02em; padding-top: .15em; }
+  .d1 .views .on { background: var(--teal); color: white; box-shadow: 0 .22em 0 var(--teal-deep); }
+  .d1 .views .off { background: #f7f3ef; color: var(--teal-deep); box-shadow: 0 .22em 0 #b9b0a6; }
+  .d1 .views i { color: inherit; }
+  .d1 .cap, .d1 .tag { font-family: var(--f); font-weight: 800; text-align: center; text-transform: uppercase; font-size: .78em; letter-spacing: .04em; background: #f7f3ef; color: var(--teal-deep); border-radius: .35em; padding: .15em .6em 0; box-shadow: 0 .15em 0 #b9b0a6; }
+  .d1 .war { font-family: var(--f); background: var(--teal); color: white; border-radius: .5em; padding: .25em 1em .1em; box-shadow: 0 .25em 0 var(--teal-deep); border-left: .5em solid #fff; }
+  .d1 .info { font-family: var(--f); background: #f7f3ef; color: var(--teal-deep); border: .15em solid var(--teal); border-radius: .5em; padding: .15em .8em 0; }
+  .d1 .mb { background: var(--teal); color: white; border-radius: 50%; box-shadow: 0 .18em 0 var(--teal-deep), 0 0 0 .15em #fff; }
+  .d1 .mb .lbl { background: #fff; color: var(--teal-deep); border-radius: 0 .4em .4em 0; padding: .05em .5em 0 .7em; margin-left: -.5em; z-index: -1; text-transform: uppercase; }
+
+  /* ===================== B — Parchemin roulé ===================== */
+  .d2 { --f: 'Baloo 2'; }
+  .scroll { position: relative; background: linear-gradient(#e9d76a, var(--ochre) 45%, #c9ad35); color: #4a3a08; font-family: var(--f); font-weight: 800; padding: .2em 1.3em 0; text-align: center; }
+  .scroll::before, .scroll::after { content: ''; position: absolute; top: -.18em; bottom: -.18em; width: .65em; border-radius: .35em; background: linear-gradient(90deg, #8f7a1f, #e2cc5a 45%, #8f7a1f); box-shadow: 0 .1em .2em #0007; }
+  .scroll::before { left: -.25em; } .scroll::after { right: -.25em; }
+  .d2 .hbar { background: #2a2017e6; }
+  .d2 .hbar a { color: #f0dd7a; text-decoration: underline wavy #c9ad35; text-underline-offset: .25em; }
+  .d2 .tbtn { font-size: 1em; }
+  .d2 .views > * { position: relative; font-family: var(--f); }
+  .d2 .views .off { background: #0005; color: #f0e3a6; border: .12em dashed #d9bf4566; border-radius: .3em; }
+  .d2 .views i { color: #7a5c06; } .d2 .views .off i { color: #d9bf45; }
+  .d2 .cap { font-size: .78em; padding: .05em .8em 0; }
+  .d2 .tag { font-size: .78em; padding: 0 .9em; }
+  .d2 .war { padding: .15em 1.4em 0; }
+  .d2 .mb { background: radial-gradient(circle at 35% 30%, #c95a3a, #8e2b1c 65%, #5e170d); color: #f6e7c1; border-radius: 50%; box-shadow: 0 .12em .3em #000a, inset 0 0 0 .12em #00000033; }
+  .d2 .mb .lbl { background: linear-gradient(#e9d76a, #c9ad35); color: #4a3a08; font-family: var(--f); padding: .05em .6em 0 .8em; margin-left: -.6em; z-index: -1; border-radius: 0 .2em .2em 0; }
+
+  /* ===================== C — Fanion ondulé ===================== */
+  .d3 { --f: 'Baloo 2'; }
+  .flag { font-family: var(--f); font-weight: 800; color: white; padding: .45em 1.4em .35em; clip-path: var(--wave); text-align: center; }
+  .flag.act { background: linear-gradient(170deg, #c64a3a, var(--red) 55%, #8d2c22); }
+  .flag.info { background: linear-gradient(170deg, #6e4d92, var(--purple) 55%, #43295c); }
+  .flag.war { background: linear-gradient(170deg, #b23c5e, var(--crimson) 55%, #6f1f37); }
+  .flag.calm { background: linear-gradient(170deg, #fffaf4, var(--cut) 60%, #e3d6cc); color: var(--ink); }
+  .d3 .hbar { background: #1d1612e6; }
+  .d3 .hbar a { color: #ffb19f; text-decoration: none; border-bottom: .12em solid #ffb19f; }
+  .d3 .views .off { opacity: .85; }
+  .d3 .views > * { padding: 0 1em; }
+  .d3 .cap { font-size: .8em; padding: .3em 1em .25em; }
+  .d3 .tag { font-size: .8em; padding: .3em 1em .25em; }
+  .d3 .mb { background: white; color: var(--ink); border-radius: 50%; box-shadow: 0 0 0 .13em var(--ink), 0 .15em .3em #000a; }
+  .d3 .mb.keep, .d3 .mb.h1, .d3 .mb.h2 { color: var(--red); }
+  .d3 .mb .lbl { font-family: var(--f); color: white; padding: .2em .9em .15em 1em; margin-left: -.4em; z-index: -1; clip-path: var(--wave); background: var(--red); }
+
+  /* ===================== D — Papier découpé ===================== */
+  .d4 { --f: 'Baloo 2'; }
+  .paper { position: relative; font-family: var(--f); font-weight: 800; color: var(--cut-line); text-align: center; filter: drop-shadow(.18em .22em 0 #00000059); }
+  .paper > span { display: flex; align-items: center; justify-content: center; gap: .45em; background: var(--cut); clip-path: var(--torn); padding: .3em 1.1em .2em; outline: none; height: 100%; }
+  .paper.dark > span { background: var(--cut-line); color: var(--cut); }
+  .paper.rust > span { background: var(--rust); color: #fff4ec; }
+  .d4 .hbar { background: #1d1612e6; }
+  .d4 .hbar a { color: var(--cut); text-decoration: none; background: var(--rust); padding: .05em .6em; clip-path: var(--torn); }
+  .d4 .views > .paper { height: 2.2em; }
+  .d4 .views .off > span { background: #e2d6cd; color: #6d625a; }
+  .d4 .cap > span { font-size: .78em; padding: .15em .8em .05em; }
+  .d4 .tag > span { font-size: .78em; padding: .1em .9em 0; }
+  .d4 .info { position: relative; }
+  .d4 .info::after { content: ''; position: absolute; left: 1.2em; bottom: -.55em; border: .3em solid transparent; border-top: .35em solid var(--cut); filter: none; }
+  .d4 .mb { background: var(--cut); color: var(--cut-line); border-radius: 50%; box-shadow: .12em .16em 0 #00000059, inset 0 0 0 .12em var(--cut-line); }
+  .d4 .mb .lbl { background: var(--cut); color: var(--cut-line); font-family: var(--f); padding: .05em .7em 0 .9em; margin-left: -.6em; z-index: -1; clip-path: var(--torn); }
+
+  @media (prefers-reduced-motion: reduce) { .cell { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Boutons, fanions et menus</h1>
+  <p class="lead">Chaque ligne est un élément qu'on voit en jeu, chaque colonne une direction tirée du livret. Clique un titre de colonne pour la mettre en avant, et compare avec l'actuel.</p>
+  <div class="board" id="board"></div>
+</main>
+
+<script>
+  const IMG = 'http://localhost:3100/src/images/'
+  const shield = `<img src="${IMG}tokens/bouclier_rouge.png" alt="">`
+
+  const columns = [
+    { title: 'Actuel', sub: 'Parchemin à encoches, bois' },
+    { title: 'A — Encadré sarcelle', sub: 'Les encarts sarcelle du livret, en relief' },
+    { title: 'B — Parchemin roulé', sub: 'Le rappel jaune du livret, sceaux de cire' },
+    { title: 'C — Fanion ondulé', sub: 'Les fanions en tissu : rouge agir, violet informer, cramoisi guerre' },
+    { title: 'D — Papier découpé', sub: 'Papier coupé en couches, ombre décalée' }
+  ]
+
+  // Wrappers per direction: how a "box" of a given role is built
+  const box = (d, role, inner, extra = '') => {
+    if (d === 2 && role !== 'off') return `<div class="scroll ${extra}">${inner}</div>`
+    if (d === 3) {
+      const tone = { act: 'act', on: 'act', off: 'calm', cap: 'calm', tag: 'info', war: 'war', info: 'info' }[role]
+      return `<div class="flag ${tone} ${extra}">${inner}</div>`
+    }
+    if (d === 4) {
+      const tone = { act: 'rust', on: 'rust', off: '', cap: '', tag: 'dark', war: 'dark', info: '' }[role]
+      return `<div class="paper ${tone} ${extra}"><span>${inner}</span></div>`
+    }
+    return `<div class="${extra}">${inner}</div>`
+  }
+
+  const rows = [
+    {
+      title: 'En-tête', sub: 'texte + action', cell: d =>
+        `<div class="hbar">Déploie tes unités, ou <a tabindex="0">termine le déploiement</a></div>`
+    },
+    {
+      title: 'Bouton de table', sub: 'action principale', cell: d =>
+        d === 0 || d === 1 ? `<button class="tbtn">Passer</button>` : box(d, 'act', 'Passer', 'tbtn')
+    },
+    {
+      title: 'Vues', sub: 'colonne de droite', cell: d => {
+        const on = box(d, 'on', `<i class="fa-solid fa-crown"></i>Mon royaume`, 'on')
+        const off = d === 2
+          ? `<div class="off">${shield}Mes voisins</div>`
+          : box(d, 'off', `${shield}Mes voisins`, 'off')
+        return `<div class="views">${on}${off}</div>`
+      }
+    },
+    {
+      title: 'Légendes', sub: 'tour, pioche, défausse', cell: d =>
+        `<div class="caps">${['Tour 2 / 4', 'Pioche', 'Défausse'].map(t => box(d, 'cap', t, 'cap')).join('')}</div>`
+    },
+    {
+      title: 'Étiquettes de panneau', sub: 'voisins', cell: d =>
+        `<div class="tagrow">${box(d, 'tag', 'Gauche', 'tag')}${box(d, 'tag', 'Droite', 'tag')}</div>`
+    },
+    {
+      title: 'Guerre', sub: 'nom et force', cell: d =>
+        box(d, 'war', `Blanc ${shield} 6`, 'war')
+    },
+    {
+      title: 'Info de phase', sub: 'bandeau sous les bâtiments', cell: d =>
+        box(d, 'info', `<span class="coin"></span>1 or : 0 à payer, 1 restant`, 'info')
+    },
+    {
+      title: 'Menus sur carte', sub: 'garder, défausser, construire', cell: d => `
+        <div class="menus">
+          <div class="holder"><div class="unit"></div>
+            <span class="mb keep" tabindex="0"><i class="fa-solid fa-hand"></i><span class="lbl">Garder</span></span>
+            <span class="mb trash" tabindex="0"><i class="fa-solid fa-trash-can"></i></span>
+          </div>
+          <div class="holder"><div class="bld"></div>
+            <span class="mb h1" tabindex="0"><i class="fa-solid fa-hammer"></i><span class="n">1</span></span>
+            <span class="mb h2" tabindex="0"><i class="fa-solid fa-hammer"></i><span class="n">2</span></span>
+          </div>
+        </div>`
+    }
+  ]
+
+  // ---------- Build the board ----------
+  const board = document.getElementById('board')
+  board.appendChild(document.createElement('div'))
+  columns.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.className = 'colhead'; b.dataset.col = i; b.setAttribute('aria-pressed', 'false')
+    b.innerHTML = `${c.title}<small>${c.sub}</small>`
+    board.appendChild(b)
+  })
+  for (const r of rows) {
+    const h = document.createElement('div'); h.className = 'rowhead'; h.innerHTML = `${r.title}<small>${r.sub}</small>`
+    board.appendChild(h)
+    columns.forEach((_, d) => {
+      const c = document.createElement('div'); c.className = `cell d${d}`; c.dataset.col = d
+      c.innerHTML = r.cell(d)
+      board.appendChild(c)
+    })
+  }
+
+  // ---------- Shapes: a wavy cloth edge (C) and a torn paper edge (D), as clip-path polygons ----------
+  const wave = (() => {
+    const pts = [], n = 24
+    for (let i = 0; i <= n; i++) pts.push(`${(i / n) * 100}% ${8 + 6 * Math.sin((i / n) * Math.PI * 3)}%`)
+    pts.push('100% 50%')
+    for (let i = n; i >= 0; i--) pts.push(`${(i / n) * 100}% ${92 + 6 * Math.sin((i / n) * Math.PI * 3 + 0.6)}%`)
+    pts.push('4% 50%')
+    return `polygon(${pts.join(',')})`
+  })()
+  const torn = (() => {
+    // Deterministic jitter, so that every reload tears the paper the same way
+    let seed = 7
+    const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280)
+    const pts = [], n = 18
+    for (let i = 0; i <= n; i++) pts.push(`${(i / n) * 100}% ${rnd() * 9}%`)
+    for (let i = 0; i <= 6; i++) pts.push(`${100 - rnd() * 3}% ${(i / 6) * 100}%`)
+    for (let i = n; i >= 0; i--) pts.push(`${(i / n) * 100}% ${100 - rnd() * 9}%`)
+    for (let i = 6; i >= 0; i--) pts.push(`${rnd() * 3}% ${(i / 6) * 100}%`)
+    return `polygon(${pts.join(',')})`
+  })()
+  document.documentElement.style.setProperty('--wave', wave)
+  document.documentElement.style.setProperty('--torn', torn)
+
+  // ---------- Column pick ----------
+  board.addEventListener('click', e => {
+    const head = e.target.closest('.colhead')
+    if (!head) return
+    const already = head.getAttribute('aria-pressed') === 'true'
+    board.querySelectorAll('.colhead').forEach(h => h.setAttribute('aria-pressed', 'false'))
+    board.querySelectorAll('.cell').forEach(c => c.classList.remove('picked'))
+    board.classList.toggle('picking', !already)
+    if (already) return
+    head.setAttribute('aria-pressed', 'true')
+    board.querySelectorAll(`.cell[data-col="${head.dataset.col}"]`).forEach(c => c.classList.add('picked'))
+  })
+</script>
+</body>
+</html>

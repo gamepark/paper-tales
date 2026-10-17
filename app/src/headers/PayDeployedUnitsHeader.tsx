@@ -6,7 +6,7 @@ export const PayDeployedUnitsHeader = () => {
 
   return (
     <>
-      <div>{t('pay.units')}</div>
+      <div>{t('header.pay', 'The Monarchs pay their new units')}</div>
     </>
   )
 }

@@ -4,40 +4,41 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { DropAreaDescription, FlexLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { isTopPlayer } from '../position/position.utils'
-import { getColor } from '../utils/color'
-import { playerDraftHandLocator } from './PlayerDraftHandLocator'
+import { getHoverShift, getKingdomScale, getKingdomSlotCoordinates, getPlayerPositionDependencies, isKingdomDisplayed, scaleTransform } from './TableLayout'
 
 class PlayerUnitBoardLocator extends FlexLocator {
-  getCoordinates(location: Location, context: ItemContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
-    const isTopPlayers = isTopPlayer(context, location.player)
-    const factor = isTopPlayers ? -1 : 1
-    x += 5
+  getPositionDependencies(_location: Location, context: MaterialContext) {
+    return getPlayerPositionDependencies(context)
+  }
 
-    if (isTopPlayers) {
-      y += unitCardDescription.height * 2 + 1.5
-    } else {
-      y -= unitCardDescription.height * 2 + 1.5
-    }
+  getCoordinates(location: Location, context: MaterialContext) {
+    return { ...getKingdomSlotCoordinates(context, location.player, location.x!, location.y!), z: 0.1 }
+  }
 
-    return {
-      x: x - location.x! * (unitCardDescription.width + 0.2),
-      y: y + factor * location.y! * (unitCardDescription.height + 0.2),
-      z: 0.1
-    }
+  hide(item: MaterialItem, context: ItemContext) {
+    return !isKingdomDisplayed(context, item.location.player)
+  }
+
+  placeItem(item: MaterialItem, context: ItemContext) {
+    return [...super.placeItem(item, context), ...scaleTransform(getKingdomScale(context, item.location.player))]
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
-    if (item.location.y === 0 && context.player === item.location.player)
-      return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(15%)']
-
-    return ['translateZ(10em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)']
+    const { x, y } = getKingdomSlotCoordinates(context, item.location.player, item.location.x!, item.location.y!)
+    const scale = getKingdomScale(context, item.location.player)
+    const shift = getHoverShift({
+      x,
+      y,
+      width: unitCardDescription.width * scale,
+      height: unitCardDescription.height * scale,
+      zoom: 2
+    })
+    return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', ...shift]
   }
 
   getLocations(context: MaterialContext) {
     const locations: Location[] = []
-    for (const player of context.rules.players) {
+    for (const player of context.rules.players.filter((player) => isKingdomDisplayed(context, player))) {
       for (let x = 0; x <= 2; x++) {
         for (let y = 0; y < 2; y++) {
           if (y === 1 && x === 2) continue
@@ -62,31 +63,28 @@ export class PlayerUnitBoardDescription extends DropAreaDescription {
     super(unitCardDescription)
   }
 
+  getLocationSize(location: Location, context: MaterialContext) {
+    const { width, height } = super.getLocationSize(location, context)
+    const scale = getKingdomScale(context, location.player)
+    return { width: width * scale, height: height * scale }
+  }
+
   getExtraCss(location: Location, context: ItemContext) {
     const hasLevel2Building =
       context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(location.player).rotation(true).length > 0
 
-    const color = getColor(location.player!).substring(0, 7)
-    if (!hasLevel2Building && location.y === 0 && location.x === 2) {
-      return css`
-        background-image: linear-gradient(
-          45deg,
-          ${color}80 25%,
-          ${color}00 25%,
-          ${color}00 50%,
-          ${color}80 50%,
-          ${color}80 75%,
-          ${color}00 75%,
-          ${color}00 100%
-        );
-        background-size: 57px 57px;
-      `
-    }
-
-    return css`
-      background-color: ${color}80;
-    `
+    // Neutral slots: the player's colour is on their panel. The 5th slot is hatched until a level 2 building is in play (rulebook p.8)
+    if (!hasLevel2Building && location.y === 0 && location.x === 2) return lockedSlotCss
+    return slotCss
   }
 }
+
+const slotCss = css`
+  background-color: rgba(255, 255, 255, 0.18);
+`
+
+const lockedSlotCss = css`
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.22) 0 0.6em, transparent 0.6em 1.2em);
+`
 
 export const playerUnitBoardLocator = new PlayerUnitBoardLocator()

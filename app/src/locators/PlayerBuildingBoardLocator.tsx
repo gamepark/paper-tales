@@ -1,35 +1,55 @@
-import { ItemContext, ListLocator, MaterialContext } from '@gamepark/react-game'
+import { Building } from '@gamepark/paper-tales/material/Building'
+import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
-import { unitCardDescription } from '../material/UnitCardDescription'
-import { isTopPlayer } from '../position/position.utils'
-import { playerDraftHandLocator } from './PlayerDraftHandLocator'
+import { buildingCardDescription } from '../material/BuildingCardDescription'
+import {
+  BUILDING_SCALE,
+  getBuildingSlotCoordinates,
+  getHoverShift,
+  getKingdomScale,
+  getPlayerPositionDependencies,
+  getWarBuildingCoordinates,
+  isBuildingsDisplayed,
+  isKingdomDisplayed,
+  isWarView,
+  scaleTransform
+} from './TableLayout'
 
-export class PlayerBuildingBoardLocator extends ListLocator {
-  maxGap = { y: -18 }
-  gap = { y: -10.5 }
+/**
+ * Built buildings: each building has a fixed slot in the grid at the right of the kingdom. In the neighbours view,
+ * they stand at the right of their kingdom at the same scale, cascaded in the order they were built.
+ */
+export class PlayerBuildingBoardLocator extends Locator {
+  getPositionDependencies(_location: Location, context: MaterialContext) {
+    return getPlayerPositionDependencies(context)
+  }
 
-  getCoordinates(location: Location, context: MaterialContext) {
-    let { x = 0, y = 0 } = playerDraftHandLocator.getCoordinates(location, context)
-    const isTop = isTopPlayer(context, location.player)
-    x += 18
+  getItemCoordinates(item: MaterialItem, context: ItemContext) {
+    if (isWarView(context)) return getWarBuildingCoordinates(context, item.location.player, item.location.y ?? 0)
+    return getBuildingSlotCoordinates(item.id as Building)
+  }
 
-    if (isTop) {
-      y += unitCardDescription.height + 17.5
-    } else {
-      y -= unitCardDescription.height - 0.7
-    }
+  hide(item: MaterialItem, context: ItemContext) {
+    return isWarView(context) ? !isKingdomDisplayed(context, item.location.player) : !isBuildingsDisplayed(context, item.location.player)
+  }
 
-    return { x, y }
+  placeItem(item: MaterialItem, context: ItemContext) {
+    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : BUILDING_SCALE
+    return [...super.placeItem(item, context), ...scaleTransform(scale)]
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
-    if (item.location.player !== context.player) return super.getHoverTransform(item, context)
-    return [
-      `translateZ(${item.location.rotation ? -20 : 20}em)`,
-      `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`,
-      'scale(2)',
-      'translateY(-25%)'
-    ]
+    const { x, y } = this.getItemCoordinates(item, context)
+    const zoom = isWarView(context) ? 2.2 : 1.8
+    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : BUILDING_SCALE
+    const shift = getHoverShift({
+      x,
+      y,
+      width: buildingCardDescription.width * scale,
+      height: buildingCardDescription.height * scale,
+      zoom
+    })
+    return ['translateZ(30em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, `scale(${zoom})`, ...shift]
   }
 }
 

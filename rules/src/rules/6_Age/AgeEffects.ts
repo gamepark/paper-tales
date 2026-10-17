@@ -32,7 +32,10 @@ export class AgeEffects extends MaterialRulesPart {
                     const gain = this.computeGain(effect, ageHelper.howManyAgeTokenOnIndex(index))
                     scoreToGain += gain.scoreToGain
                     goldToGain += gain.goldToGain
-                  } else if (!effect.ifAgeToken || ageHelper.howManyAgeTokenOnIndex(index)) {
+                  } else if (
+                    (!effect.ifAgeToken || ageHelper.howManyAgeTokenOnIndex(index)) &&
+                    (!effect.ifSingleAgeToken || ageHelper.howManyAgeTokenOnIndex(index) === 1)
+                  ) {
                     const gain = this.computeGain(effect)
                     scoreToGain += gain.scoreToGain
                     goldToGain += gain.goldToGain

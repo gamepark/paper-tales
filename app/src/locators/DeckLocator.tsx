@@ -1,16 +1,32 @@
-import { DeckLocator, ItemContext } from '@gamepark/react-game'
-import { Location } from '@gamepark/rules-api'
+import { css } from '@emotion/react'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { DeckLocator, ItemContext, LocationDescription } from '@gamepark/react-game'
+import { MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
+import { COMMON_SCALE, deckCoordinates, scaleTransform } from './TableLayout'
 
+/**
+ * The deck, reduced, in the right column of the table. Its outline stays when it is empty.
+ */
 export class UnitDeckLocator extends DeckLocator {
-  coordinates = { x: -20, y: -15 }
-  limit = 15
+  coordinates = deckCoordinates
+  limit = 12
+  gap = { x: -0.03, y: -0.03 }
+  location = { type: LocationType.Deck }
+  locationDescription = new PileOutlineDescription()
 
-  getCoordinates(_location: Location, context: ItemContext) {
-    if (context.rules.players.length === 2) return { x: 0, y: -15 }
-    const { x, y } = { x: -20, y: -11 }
-    return { x, y: y + unitCardDescription.height + 0.5 }
+  placeItem(item: MaterialItem, context: ItemContext) {
+    return [...super.placeItem(item, context), ...scaleTransform(COMMON_SCALE)]
   }
+}
+
+export class PileOutlineDescription extends LocationDescription {
+  width = unitCardDescription.width * COMMON_SCALE
+  height = unitCardDescription.height * COMMON_SCALE
+  borderRadius = unitCardDescription.borderRadius * COMMON_SCALE
+  extraCss = css`
+    border: 0.15em dashed rgba(255, 255, 255, 0.45);
+  `
 }
 
 export const unitDeckLocator = new UnitDeckLocator()

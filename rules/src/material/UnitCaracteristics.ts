@@ -236,8 +236,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       },
       {
         type: EffectType.GainAgeTokenOnChosenUnit,
-        amount: 2,
-        onDeployment: true,
+        amount: 1,
         perResource: Resources.Food
       }
     ]
@@ -254,7 +253,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     power: 1,
     resources: {
       type: [Resources.Wood]
-    }
+    },
+    // Printed on the card: ignore the land cost (construction)
+    effect: [{ type: EffectType.IgnoreFieldCost }]
   },
   [Unit.Manticore]: {
     cost: 2,
@@ -345,7 +346,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       },
       {
         type: EffectType.GainTokenOnDeploy,
-        amount: 3,
+        amount: -3,
         onDeployment: true,
         token: MaterialType.ScoreToken,
         perLevel2Builds: true
@@ -361,7 +362,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         amount: -3,
         tokenGain: MaterialType.ScoreToken,
         whoDies: WhichUnit.Myself,
-        ifAgeToken: true
+        ifSingleAgeToken: true
       },
       {
         type: EffectType.GainAgeToken,
@@ -455,7 +456,8 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         type: EffectType.GainTokenIfDying,
         amount: 1,
         tokenGain: MaterialType.ScoreToken,
-        whoDies: WhichUnit.All
+        whoDies: WhichUnit.All,
+        perAgeToken: true
       }
     ]
   },

@@ -37,7 +37,8 @@ export type GainAgeToken = {
 
 export type GainAgeTokenOnChosenUnit = {
   type: EffectType.GainAgeTokenOnChosenUnit
-  onDeployment: boolean
+  /** Only when this card is revealed (the "once" icon of the card) */
+  onDeployment?: boolean
   amount: number
   perResource?: Resources
 }

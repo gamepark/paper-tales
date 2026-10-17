@@ -18,8 +18,9 @@ class GoldCoinDescription extends MoneyDescription {
   stockLocation = { type: LocationType.GoldStock }
 
   staticItems = [
-    { id: 1, quantity: 30, location: this.stockLocation },
-    { id: 5, quantity: 14, location: this.stockLocation }
+    // A small heap stands for the reserve: coins gained fly from here (rulebook p.3)
+    { id: 1, quantity: 5, location: this.stockLocation },
+    { id: 5, quantity: 2, location: this.stockLocation }
   ]
 
   help = GoldCoinHelp

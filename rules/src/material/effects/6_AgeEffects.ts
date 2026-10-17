@@ -11,6 +11,8 @@ export type GainTokenIfDying = {
   tokenGain: MaterialType.ScoreToken | MaterialType.Gold
   amount: number
   ifAgeToken?: true
+  /** Only when the unit dies with exactly one Age token (the Demon) */
+  ifSingleAgeToken?: true
   perAgeToken?: true
 }
 

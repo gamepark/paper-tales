@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales — changer de vue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --board: #2b231c;
+    --panel: #3a3027;
+    --parchment: #f1e6cc;
+    --parchment-dark: #e2d2ac;
+    --brown: #5a3414;
+    --wood: #7b4a24;
+    --ochre: #e9b534;
+    --war: #8e1b2c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--board); color: var(--parchment); font-family: 'Nunito', sans-serif; font-weight: 500; line-height: 1.5; }
+  main { max-width: 1500px; margin: 0 auto; padding: 40px 24px 96px; }
+  h1, h2 { font-family: 'IM Fell English', serif; font-weight: 400; margin: 0; }
+  h1 { font-size: 2.4rem; line-height: 1.15; }
+  .intro { max-width: 72ch; margin: 12px 0 40px; color: var(--parchment-dark); }
+
+  section { padding: 32px 0 40px; border-top: 1px solid #7b4a2466; }
+  .head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2 { font-size: 1.9rem; }
+  .letter { font-weight: 800; background: var(--parchment); color: var(--brown); border-radius: 50%; width: 1.9em; height: 1.9em; display: inline-grid; place-items: center; }
+  .reco-tag { font-size: .85rem; font-weight: 800; background: var(--ochre); color: var(--brown); padding: 2px 12px; border-radius: 20px; }
+  .what { max-width: 80ch; color: var(--parchment-dark); margin: 8px 0 20px; }
+
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  figure { margin: 0; }
+  figcaption { font-size: .9rem; color: var(--parchment-dark); margin-top: 6px; }
+  /* The captures are 1920 px wide, i.e. 100 table em: 1 em of the overlay = 1 table em */
+  .shot { position: relative; container-type: inline-size; border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px #0009; }
+  .shot img.bg { display: block; width: 100%; }
+  .ov { position: absolute; inset: 0; font-size: 1cqw; pointer-events: none; }
+  .ov > * { position: absolute; pointer-events: auto; }
+  .ring { position: absolute; border: .3em solid var(--ochre); border-radius: 1em; pointer-events: none; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { border-color: #e9b53433; } }
+  @media (prefers-reduced-motion: reduce) { .ring { animation: none; } }
+
+  .bottom { display: grid; grid-template-columns: auto 1fr; gap: 32px; margin-top: 20px; align-items: start; }
+  .lens { background: var(--panel); border-radius: 12px; padding: 18px 24px; display: flex; gap: 28px; align-items: center; }
+  .lens > div { font-size: 26px; position: relative; } /* control drawn at about 3x its table size */
+  .lens small { display: block; text-align: center; font-size: 13px; color: #e2d2acaa; margin-top: 8px; }
+  .pc { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: .95rem; }
+  .pc h3 { font-size: .95rem; margin: 0 0 4px; font-weight: 800; }
+  .pc ul { margin: 0; padding-left: 18px; }
+  .plus h3 { color: #a8d995; } .minus h3 { color: #f2a493; }
+
+  /* ---------- Controls, sized in table em ---------- */
+  .switch { display: flex; width: 11em; height: 2.4em; padding: .2em; gap: .15em; border-radius: .6em; background: var(--brown); box-shadow: inset 0 .1em .2em #0009, 0 .15em .3em #0008; }
+  .switch span { flex: 1; display: grid; place-items: center; border-radius: .4em; font-weight: 800; font-size: .85em; color: var(--parchment-dark); white-space: nowrap; }
+  .switch span.on { background: var(--parchment); color: var(--brown); box-shadow: 0 .1em .2em #0008; }
+
+  .compass { width: 10em; height: 10em; display: block; }
+  .ribbon { background: var(--parchment-dark); color: var(--brown); font-weight: 800; text-align: center; white-space: nowrap; padding: .15em .9em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - .6em) 50%, 100% 100%, 0 100%, .6em 50%); filter: drop-shadow(0 .1em .15em #0007); }
+  .stack { display: flex; flex-direction: column; align-items: center; gap: .4em; }
+  .stack .ribbon { font-size: .8em; width: 13.75em; }
+
+  .medal { width: 6em; height: 6em; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #b8323f, var(--war) 60%, #5e0f1b);
+    box-shadow: 0 0 0 .3em var(--parchment-dark), 0 0 0 .55em var(--wood), 0 .4em .8em #000a; }
+  .medal.crown { background: radial-gradient(circle at 35% 30%, #fff3d2, var(--parchment-dark) 60%, #b9a272); }
+  .medal svg { width: 3em; height: 3em; }
+
+  @media (max-width: 1000px) {
+    .shots, .bottom, .pc { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Où mettre « Mon royaume / Voisins » ?</h1>
+  <p class="intro">Chaque piste est dessinée sur de vraies captures du jeu à 7 joueurs, à sa taille réelle : à gauche quand je regarde mon royaume, à droite dans la vue Voisins (le contrôle est entouré). En dessous, le même contrôle agrandi, dans ses deux états.</p>
+  <div id="proposals"></div>
+</main>
+
+<script>
+  const TOP = 6.17 // the table starts 118.5 px below the top of the capture: 6.17 table em
+
+  // ---------- Controls ----------
+  const switchCtl = war => `<div class="switch"><span class="${war ? '' : 'on'}">Mon royaume</span><span class="${war ? 'on' : ''}">Voisins</span></div>`
+
+  function compassSvg(war) {
+    const colors = ['#7d2f9a', '#2f5fb8', '#d0233a', '#f0c419', '#2e9e48', '#151515', '#f2f2f2']
+    const R = 70
+    // Seen from above, me at the bottom: my right neighbour (Bleu) at the right of the screen, then around the table
+    const ang = i => Math.PI / 2 - (i * 2 * Math.PI) / 7
+    const a = ang(-1.2), b = ang(1.2)
+    let s = `<svg class="compass" viewBox="-110 -110 220 220">`
+    s += `<circle r="104" fill="#7b4a24" stroke="#5a3414" stroke-width="5"/><circle r="50" fill="#f1e6cc" stroke="#e2d2ac" stroke-width="3"/>`
+    // The arc of my 2 neighbours and me: the neighbours view
+    s += `<path d="M ${R * Math.cos(a)} ${R * Math.sin(a)} A ${R} ${R} 0 0 1 ${R * Math.cos(b)} ${R * Math.sin(b)}" fill="none" stroke="${war ? '#e9b534' : '#8e1b2c'}" stroke-width="30" stroke-linecap="round"/>`
+    s += `<text x="0" y="12" text-anchor="middle" font-size="34">⚔</text>`
+    colors.forEach((c, i) => {
+      const x = R * Math.cos(ang(i)), y = R * Math.sin(ang(i))
+      const me = i === 0
+      s += `<circle cx="${x}" cy="${y}" r="${me ? 17 : 13}" fill="${c}" stroke="${me && !war ? '#e9b534' : '#f1e6cc'}" stroke-width="${me && !war ? 7 : 3}"/>`
+      if (me) s += `<text x="${x}" y="${y + 5}" text-anchor="middle" font-size="13" font-weight="800" fill="white" font-family="Nunito">toi</text>`
+    })
+    return s + `</svg>`
+  }
+  const compassCtl = war => `<div class="stack">${compassSvg(war)}<div class="ribbon">${war ? 'Tes voisins' : 'Ton royaume'}</div></div>`
+
+  const shieldSvg = '<svg viewBox="0 0 24 24" fill="#f1e6cc"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>'
+  const crownSvg = '<svg viewBox="0 0 24 24" fill="#7b4a24"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 11H5z"/></svg>'
+  const medalCtl = war => `<div class="stack"><div class="medal ${war ? 'crown' : ''}">${war ? crownSvg : shieldSvg}</div><div class="ribbon">${war ? 'Mon royaume' : 'Voisins'}</div></div>`
+
+  // ---------- Proposals: where each control stands, in table em (top left corner) ----------
+  const proposals = [
+    {
+      letter: 'A', title: 'Interrupteur sous le tour',
+      what: 'Un interrupteur à deux positions dans la colonne de droite, entre le tour et la pioche. Les deux vues sont toujours écrites ; celle qui est affichée est en parchemin.',
+      control: switchCtl, at: { x: 88, y: 8.95 }, size: { w: 11, h: 2.4 },
+      plus: ['On lit tout de suite les deux vues et celle qui est active.', 'Dans la colonne des infos communes, au même endroit dans toutes les vues.'],
+      minus: ['Petit (11 em de large, libellés serrés).', 'Ne dit rien quand je regarde un autre joueur.']
+    },
+    {
+      letter: 'C', title: 'La table ronde', reco: true,
+      what: 'En bas à droite, une petite table vue de dessus : les 7 sièges dans l\'ordre réel, moi en bas, et l\'arc rouge de mes 2 voisins avec les épées. Cliquer l\'arc ouvre la vue Voisins, cliquer mon siège ramène à mon royaume (un autre siège ouvrirait ce joueur). Le bandeau dit la vue affichée.',
+      control: compassCtl, at: { x: 77, y: 31.3 }, size: { w: 11, h: 12.6 },
+      plus: ['Montre ce que les panneaux ne disent pas : qui est assis à côté de qui, donc contre qui on se bat.', 'Le bandeau nomme la vue affichée.', 'Thématique (une table de jeu), et la zone est libre dans toutes les vues.'],
+      minus: ['Un objet nouveau à comprendre au premier tour.', 'Sièges petits sur téléphone : seuls l\'arc et mon siège comptent vraiment.']
+    },
+    {
+      letter: 'D', title: 'Le médaillon de guerre',
+      what: 'Au même endroit, un gros médaillon rouge au bouclier (le symbole de la force, donc de la guerre). Dans la vue Voisins, il devient une couronne qui ramène à mon royaume.',
+      control: medalCtl, at: { x: 78.6, y: 33.4 }, size: { w: 8, h: 9.6 },
+      plus: ['Impossible à rater, lié à la guerre par son symbole.', 'Un seul geste, un seul objet.'],
+      minus: ['Ne montre qu\'une vue à la fois : il faut lire le bandeau pour savoir où on est.', 'Ne dit rien quand je regarde un autre joueur.']
+    }
+  ]
+
+  const root = document.getElementById('proposals')
+  for (const p of proposals) {
+    const shot = (img, war, caption) => `
+      <figure>
+        <div class="shot">
+          <img class="bg" src="${img}" alt="${caption}">
+          <div class="ov">
+            <div style="left:${p.at.x}em; top:${p.at.y + TOP}em">${p.control(war)}</div>
+            <div class="ring" style="left:${p.at.x - .8}em; top:${p.at.y + TOP - .8}em; width:${p.size.w + 1.6}em; height:${p.size.h + 1.6}em"></div>
+          </div>
+        </div>
+        <figcaption>${caption}</figcaption>
+      </figure>`
+    const section = document.createElement('section')
+    section.innerHTML = `
+      <div class="head"><span class="letter">${p.letter}</span><h2>${p.title}</h2>${p.reco ? '<span class="reco-tag">Ma recommandation</span>' : ''}</div>
+      <p class="what">${p.what}</p>
+      <div class="shots">
+        ${shot('real-kingdom.png', false, 'Je regarde mon royaume')}
+        ${shot('real-war.png', true, 'Vue Voisins')}
+      </div>
+      <div class="bottom">
+        <div class="lens">
+          <div>${p.control(false)}<small>dans mon royaume</small></div>
+          <div>${p.control(true)}<small>en vue Voisins</small></div>
+        </div>
+        <div class="pc">
+          <div class="plus"><h3>Pour</h3><ul>${p.plus.map(t => `<li>${t}</li>`).join('')}</ul></div>
+          <div class="minus"><h3>Contre</h3><ul>${p.minus.map(t => `<li>${t}</li>`).join('')}</ul></div>
+        </div>
+      </div>`
+    root.appendChild(section)
+  }
+</script>
+</body>
+</html>

@@ -10,10 +10,11 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
-    const players = this.game.players
+    // Only the Monarchs this rule started for: ending the turn of the others would end it in the rules that follow (the
+    // last active Monarch done, the Age goes on to the next turn, and a late "end of turn" would skip a draft pick)
+    const players = this.game.players.filter((player) => this.isTurnToPlay(player))
     players.forEach((player) => {
       const unitsToSave = this.getUnitToSave(player)
-      console.log(unitsToSave)
 
       if (!new AgeHelper(this.game, player).mysticalEffectsCount || !unitsToSave.length) {
         moves.push(this.endPlayerTurn(player))
@@ -33,7 +34,6 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     const moves: MaterialMove[] = []
     const unitsToSave = this.getUnitToSave(playerId)
 
-    // unitsToSave is different of 0 thanks to the pre work in onRuleStart
 
     unitsToSave.getIndexes().forEach((unitIndex) => {
       moves.push(
@@ -44,11 +44,15 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
       )
     })
 
+    // The card says "you may": the Monarch can also save nobody
+    moves.push(this.customMove(CustomMoveType.SaveNobody, playerId))
+
     return moves
   }
 
   onCustomMove(move: CustomMove): MaterialMove[] {
     const moves: MaterialMove[] = []
+    if (isCustomMoveType(CustomMoveType.SaveNobody)(move)) return [this.endPlayerTurn(move.data as PlayerColor)]
     if (!isCustomMoveType(CustomMoveType.MysticEffect)(move)) return []
     const data = move.data as MysticEffectType
     const player: PlayerColor = data.player
@@ -64,7 +68,6 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
 
     const unitsAlreadySaved = this.remind<UnitSavedWithMysticType>(Memory.UnitSavedWithMystic, player)
 
-    console.log(unitsAlreadySaved.length, ageHelper.mysticalEffectsCount)
     if (ageHelper.mysticalEffectsCount <= unitsAlreadySaved.length) {
       moves.push(this.endPlayerTurn(player))
     }
@@ -73,6 +76,7 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
   }
 
   getMovesAfterPlayersDone(): MaterialMove[] {
-    return [this.startRule(RuleId.AgeUnitsDie)]
+    // The saves are chosen before the Age: then the Age goes on with its effects, then the deaths
+    return [this.startRule(RuleId.AgeEffects)]
   }
 }

@@ -1,36 +1,43 @@
 import { css } from '@emotion/react'
-import { GameTable, GameTableNavigation } from '@gamepark/react-game'
+import { DevToolsHub, GameTable, GameTableNavigation } from '@gamepark/react-game'
 import { FC } from 'react'
+import { TestStates } from './dev/TestStates'
+import { tableBoundaries } from './locators/TableLayout'
 import { PlayerPanels } from './panels/PlayerPanels'
-import { getTableSize } from './position/position.utils'
+import { BuildInfo } from './table/BuildInfo'
+import { UnbuiltMarks } from './table/UnbuiltMarks'
+import { DeployGold } from './table/DeployGold'
+import { DraftDirection } from './table/DraftDirection'
+import { SideColumn } from './table/SideColumn'
+import { ViewButtons } from './table/ViewButtons'
+import { WarInfo } from './table/WarInfo'
 
-type GameDisplayProps = {
-  players: number
-}
+export const GameDisplay: FC = () => (
+  <GameTable {...tableBoundaries} verticalCenter css={process.env.NODE_ENV === 'development' && tableBorder}>
+    <GameTableNavigation css={navigationCss} />
+    <PlayerPanels />
+    <SideColumn />
+    <DraftDirection />
+    <DeployGold />
+    <BuildInfo />
+    <UnbuiltMarks />
+    <WarInfo />
+    <ViewButtons />
+    {process.env.NODE_ENV === 'development' && (
+      <DevToolsHub fabBottom="calc(5em)">
+        <TestStates />
+      </DevToolsHub>
+    )}
+  </GameTable>
+)
 
-export const GameDisplay: FC<GameDisplayProps> = ({ players }) => {
-  if (!players) return null
-  const tableSize = getTableSize(players)
-  return (
-    <>
-      <GameTable
-        {...tableSize}
-        verticalCenter
-        css={
-          process.env.NODE_ENV === 'development' &&
-          css`
-            border: 1px solid white;
-          `
-        }
-      >
-        <GameTableNavigation css={gameNavigationCss} />
-        <PlayerPanels />
-      </GameTable>
-    </>
-  )
-}
+const tableBorder = css`
+  border: 1px solid white;
+`
 
-const gameNavigationCss = css`
-  top: 30em;
-  font-size: 0.9em;
+const navigationCss = css`
+  top: auto;
+  bottom: 1em;
+  left: auto;
+  right: 1em;
 `

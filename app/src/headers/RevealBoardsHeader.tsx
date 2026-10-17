@@ -6,7 +6,7 @@ export const RevealBoardsHeader = () => {
 
   return (
     <>
-      <div>{t('reveal.board')}</div>
+      <div>{t('header.reveal', 'The units are revealed')}</div>
     </>
   )
 }

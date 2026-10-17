@@ -1,36 +1,17 @@
 import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
-import { sum } from 'es-toolkit/compat'
-import { isRelicEffect } from '../../material/effects/7_EndGameEffects'
-import { LocationType } from '../../material/LocationType'
-import { MaterialType } from '../../material/MaterialType'
-import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
-import { AgeHelper } from '../helpers/AgeHelper'
+import { EndScoreHelper } from '../helpers/EndScoreHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 
+/**
+ * End of the game (rulebook p.8): every Monarch adds the Legend points of their built buildings, and of their relics
+ */
 export class EndGame extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
-
-    const players = this.game.players
-    for (const player of players) {
-      let scoreToAdd = 0
-      const ageHelper = new AgeHelper(this.game, player)
-      const scoreHelper = new ScoreHelper(this.game, player)
-      const units = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
-
-      for (const [index, item] of units.entries) {
-        const itemId = item.id as Unit
-        const characteristics = unitCardCaracteristics[itemId]
-        if (characteristics.effect !== undefined) {
-          const score: number[] = characteristics.effect.filter(isRelicEffect).map((e) => ageHelper.howManyAgeTokenOnIndex(index) * e.amount)
-          scoreToAdd += sum(score)
-        }
-      }
-
-      if (scoreToAdd) moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
+    for (const player of this.game.players) {
+      const points = new EndScoreHelper(this.game, player).points
+      if (points) moves.push(...new ScoreHelper(this.game, player).gainOrLoseScore(points))
     }
-
     moves.push(this.endGame())
     return moves
   }

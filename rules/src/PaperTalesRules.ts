@@ -28,6 +28,7 @@ import { EndGame } from './rules/6_Age/EndGame'
 import { AgeEffects } from './rules/6_Age/AgeEffects'
 import { AgeUnitsAge } from './rules/6_Age/AgeUnitsAge'
 import { AgeUnitsDie } from './rules/6_Age/AgeUnitsDie'
+import { BuildHelper } from './rules/helpers/BuildHelper'
 import { SaveUnitsWithMysticEffect } from './rules/6_Age/SaveUnitsWithMysticEffect'
 import { DeployEffects } from './rules/2_Deployment/DeployEffects'
 import { ChooseWherePlacingAgeToken } from './rules/2_Deployment/ChooseWherePlacingAgeToken'
@@ -82,6 +83,12 @@ export class PaperTalesRules
 
   getScore(player: number) {
     return this.material(MaterialType.ScoreToken).location(LocationType.PlayerScore).player(player).getItem()!.location.x!
+  }
+
+  /** A tie is broken by the gold left (rulebook p.8) */
+  getTieBreaker(tieBreaker: number, player: PlayerColor) {
+    if (tieBreaker === 1) return new BuildHelper(this.game, player).gold
+    return
   }
 
   giveTime(): number {

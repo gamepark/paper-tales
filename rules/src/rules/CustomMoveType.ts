@@ -3,7 +3,9 @@ import { PlayerColor } from '../PlayerColor'
 export enum CustomMoveType {
   FinishDeployment = 1,
   MysticEffect,
-  GainAgeTokenOnChosenUnitEffect
+  GainAgeTokenOnChosenUnitEffect,
+  /** The mystic effect is optional ("you may save"): save nobody */
+  SaveNobody
 }
 
 export type GainAgeTokenOnChosenUnitEffect = {

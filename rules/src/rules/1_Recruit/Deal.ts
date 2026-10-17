@@ -3,30 +3,30 @@ import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { RuleId } from '../RuleId'
 
+/**
+ * Every Monarch receives 5 Unit cards, 9 at 2 players (rulebook p.5 and p.8). Only when the deck runs out during the
+ * deal is the discard shuffled into a new deck, then the deal goes on.
+ */
 export class Deal extends PlayerTurnRule {
   onRuleStart(): MaterialMove[] {
     const cardsPerPlayer = this.game.players.length === 2 ? 9 : 5
-
     const moves: MaterialMove[] = []
     const deck = this.material(MaterialType.Unit).location(LocationType.Deck).deck()
-    const missingCardsTotal = this.game.players.length * cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).getQuantity()
+    let cardsLeft = deck.length
+    let missingSomewhere = false
 
-    // Distribution y
-    this.game.players.forEach((player) => {
-      const missingCards = cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).getQuantity()
+    for (const player of this.game.players) {
+      const missingCards = cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).length
+      const dealt = Math.min(missingCards, cardsLeft)
+      if (dealt > 0) moves.push(deck.dealAtOnce({ type: LocationType.PlayerDraftHand, player }, dealt))
+      cardsLeft -= dealt
+      if (dealt < missingCards) missingSomewhere = true
+    }
 
-      if (missingCards) {
-        moves.push(deck.dealAtOnce({ type: LocationType.PlayerDraftHand, player }, missingCards))
-      }
-    })
-
-    // Cas de la défausse vide : on mélange et on reprend la distribution
-    if (moves.length !== missingCardsTotal) {
-      moves.push(
-        this.material(MaterialType.Unit).location(LocationType.Discard).shuffle(),
-        ...this.material(MaterialType.Unit).location(LocationType.Discard).moveItems({ type: LocationType.Deck }),
-        this.startPlayerTurn(RuleId.Deal, this.game.players[0])
-      )
+    if (missingSomewhere) {
+      // The deck is empty: the discard becomes the new deck, and the deal goes on
+      const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
+      moves.push(discard.shuffle(), ...discard.moveItems({ type: LocationType.Deck }), this.startPlayerTurn(RuleId.Deal, this.game.players[0]))
     } else {
       moves.push(this.startSimultaneousRule(RuleId.Draft))
     }

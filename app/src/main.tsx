@@ -5,6 +5,9 @@ import { GameProvider } from '@gamepark/react-game'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { paperTalesAnimation } from './animations/PaperTalesAnimations'
+import { PaperTalesLogs } from './logs/PaperTalesLogs'
+import { PaperTalesScoring } from './scoring/PaperTalesScoring'
+import { theme } from './theme'
 import App from './App'
 import { Locators } from './locators/Locators'
 import { Material } from './material/Material'
@@ -19,6 +22,9 @@ createRoot(document.getElementById('root')!).render(
       material={Material}
       locators={Locators}
       animations={paperTalesAnimation}
+      theme={theme}
+      logs={new PaperTalesLogs()}
+      scoring={new PaperTalesScoring()}
     >
       <App />
     </GameProvider>

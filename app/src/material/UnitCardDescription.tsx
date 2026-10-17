@@ -1,14 +1,11 @@
 import { css } from '@emotion/react'
-import { faArrowsToDot } from '@fortawesome/free-solid-svg-icons/faArrowsToDot'
-import { faHand } from '@fortawesome/free-solid-svg-icons/faHand'
-import { faTrashCan } from '@fortawesome/free-solid-svg-icons/faTrashCan'
-import { faShield } from '@fortawesome/free-solid-svg-icons/faShield'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
+import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { CustomMoveType, GainAgeTokenOnChosenUnitEffect, MysticEffectType } from '@gamepark/paper-tales/rules/CustomMoveType'
-import { CardDescription, ItemContext, ItemMenuButton, pointerCursorCss } from '@gamepark/react-game'
+import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { isCustomMoveType, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
@@ -54,6 +51,11 @@ import Treefolk from '../images/units/en/Treefolk.jpg'
 import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
+import { isWarView } from '../locators/TableLayout'
+import { cardAppearCss } from '../theme/tableTheme'
+import { hoveredItemMenuAboveCss } from './hoverMenuCss'
+import { AgeIcon, DiscardIcon, KeepIcon, SaveIcon } from './icons/PaperIcons'
+import { PaperMenuButton } from './PaperMenuButton'
 import { PaperTalesCardHelp } from './help/UnitCardHelp'
 
 export class UnitCardDescription extends CardDescription {
@@ -111,6 +113,21 @@ export class UnitCardDescription extends CardDescription {
 
   help = PaperTalesCardHelp
 
+  getItemExtraCss(item: MaterialItem, context: ItemContext) {
+    // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
+    // In the neighbours view, the back row is shaded: only the front row fights (p.6).
+    if (item.location.type === LocationType.Discard) return [cardAppearCss, discardCss]
+    if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
+      return [cardAppearCss, hoveredItemMenuAboveCss, backRowCss]
+    }
+    return [cardAppearCss, hoveredItemMenuAboveCss]
+  }
+
+  // The neighbours view is for looking at the war, not for arranging my kingdom: no drag there (discard nor slot change)
+  canDrag(move: MaterialMove, context: ItemContext) {
+    return !isWarView(context) && super.canDrag(move, context)
+  }
+
   menuAlwaysVisible = true
 
   getItemMenu(_item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
@@ -120,9 +137,10 @@ export class UnitCardDescription extends CardDescription {
       return data.unitIndex === context.index
     })
 
-    const discard = legalMoves.find(
-      (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index
-    )
+    // The neighbours view is for looking at the war, not for arranging my kingdom: no discard button there
+    const discard =
+      !isWarView(context) &&
+      legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index)
     const draft = legalMoves.find(
       (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index
     )
@@ -132,32 +150,32 @@ export class UnitCardDescription extends CardDescription {
     const items = []
     if (draft) {
       items.push(
-        <ItemMenuButton key="draft" move={draft} radius={8} angle={-150 + _item.location.x! * 1.5}>
-          <FontAwesomeIcon icon={faHand} css={[pointerCursorCss, littleCss]} />
-        </ItemMenuButton>
+        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" radius={8} angle={-150 + _item.location.x! * 1.5}>
+          <KeepIcon />
+        </PaperMenuButton>
       )
     }
 
     if (save) {
       items.push(
-        <ItemMenuButton key="save" label={<Trans i18nKey="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
-          <FontAwesomeIcon icon={faShield} css={[pointerCursorCss, littleCss]} />
-        </ItemMenuButton>
+        <PaperMenuButton key="save" label={<Trans i18nKey="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
+          <SaveIcon />
+        </PaperMenuButton>
       )
     }
 
     if (discard) {
       items.push(
-        <ItemMenuButton key="discard" move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
-          <FontAwesomeIcon icon={faTrashCan} css={[pointerCursorCss, littleCss]} />
-        </ItemMenuButton>
+        <PaperMenuButton key="discard" move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
+          <DiscardIcon />
+        </PaperMenuButton>
       )
     }
     if (age) {
       items.push(
-        <ItemMenuButton key="age" move={age} label={<Trans i18nKey="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
-          <FontAwesomeIcon icon={faArrowsToDot} css={[pointerCursorCss, littleCss]} />
-        </ItemMenuButton>
+        <PaperMenuButton key="age" move={age} label={<Trans i18nKey="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
+          <AgeIcon />
+        </PaperMenuButton>
       )
     }
 
@@ -165,8 +183,38 @@ export class UnitCardDescription extends CardDescription {
   }
 }
 
-const littleCss = css`
-  font-size: 1.2em;
+/** A unit of the back row that still fights (rulebook p.6, the ranged units): not shaded in the neighbours view */
+const fightsFromBackRow = (item: MaterialItem) =>
+  item.id !== undefined && (unitCardCaracteristics[item.id as Unit].effect ?? []).some(isWarFromBacklane)
+
+const backRowCss = css`
+  > * > *:first-of-type::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(40, 32, 24, 0.45);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  /* Hovered, the card is read in full colour. The framework turns off the pointer events of the card itself: its hover
+     is read on the item display around it */
+  *:hover > & > * > *:first-of-type::before {
+    opacity: 0;
+  }
+`
+
+// A veil on the faces, not a filter: a filter flattens the 3D of the card, and the back (turned with rotateY) vanished
+const discardCss = css`
+  > * > *::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(40, 32, 24, 0.4);
+    pointer-events: none;
+  }
 `
 
 export const unitCardDescription = new UnitCardDescription()

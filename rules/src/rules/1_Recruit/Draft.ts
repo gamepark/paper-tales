@@ -10,9 +10,11 @@ export class Draft extends SimultaneousRule {
 
     const draftCards = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand)
     if (draftCards.getQuantity() === this.game.players.length) {
+      // Last card of each draft hand goes automatically to the player's hand, then the draft is over
       this.game.players.forEach((player) => {
-        moves.push(draftCards.player(player).moveItem({ type: LocationType.PlayerUnitHand, player }))
+        moves.push(draftCards.player(player).moveItemsAtOnce({ type: LocationType.PlayerUnitHand, player }))
       })
+      moves.push(this.startRule(RuleId.GiveDraftToNeighbor))
     }
 
     return moves

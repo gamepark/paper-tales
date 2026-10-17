@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales — tout en papier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --page: #f7f3ef;
+    --rust: #b5481f;
+    --ink: #3b302a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.5;
+    background-color: var(--page);
+    background-image:
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%),
+      linear-gradient(45deg, #ece6df 25%, transparent 25%, transparent 75%, #ece6df 75%);
+    background-size: 44px 44px; background-position: 0 0, 22px 22px;
+  }
+  main { padding: 40px 28px 80px; max-width: 1700px; margin: 0 auto; }
+  h1 { font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--rust); font-size: 2.6rem; line-height: 1; margin: 0; }
+  .lead { max-width: 78ch; margin: 10px 0 8px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 26px; font-size: .92rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend b { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+  .board { display: grid; grid-template-columns: 170px repeat(5, minmax(230px, 1fr)); gap: 6px; overflow-x: auto; }
+  .colhead {
+    font-family: 'Baloo 2'; font-weight: 800; font-size: 1.15rem; line-height: 1.15; padding: 10px 12px; border-radius: 10px;
+    background: #fff9; border: 2px solid transparent; cursor: pointer; text-align: left; color: var(--ink);
+  }
+  .colhead small { display: block; font-family: 'Mulish'; font-weight: 500; font-size: .8rem; color: #6d625a; }
+  .colhead:hover { border-color: #b5481f55; }
+  .colhead:focus-visible { outline: 3px solid var(--rust); outline-offset: 2px; }
+  .colhead[aria-pressed="true"] { background: var(--rust); color: white; }
+  .colhead[aria-pressed="true"] small { color: #ffe6d9; }
+  .rowhead { font-weight: 800; font-size: .9rem; padding: 12px 8px 0 0; }
+  .rowhead small { display: block; font-weight: 500; color: #7a6e66; }
+  .cell {
+    position: relative; min-height: 120px; padding: 18px 14px; border-radius: 8px; display: grid; place-items: center;
+    background: #1f1813 url('http://localhost:3100/src/images/score/score_board.jpg') center / 420px;
+    font-size: 15px; overflow: hidden; outline: 3px solid transparent; transition: opacity .25s, outline-color .25s;
+  }
+  .cell::before { content: ''; position: absolute; inset: 0; background: #1c1610d9; }
+  .cell > * { position: relative; }
+  .board.picking .cell { opacity: .35; }
+  .board.picking .cell.picked { opacity: 1; outline-color: var(--rust); }
+
+  /* ---------- Roles: one colour code for every direction ---------- */
+  .r-act, .r-on { --c: #b5481f; --c2: #7d2e12; --t: #fff4ec; --l3: #e9b534; }
+  .r-info, .r-tag { --c: #5b3d7a; --c2: #3b2652; --t: #f3ecfa; --l3: #b5481f; }
+  .r-war { --c: #9b2e4d; --c2: #651a31; --t: #fff; --l3: #f6ece6; }
+  .r-cap, .r-off { --c: #f6ece6; --c2: #c9b8ab; --t: #4a4540; --l3: #5b3d7a; }
+  .r-off { --c: #e6dbd2; --t: #6d625a; }
+
+  .box { font-family: 'Baloo 2'; font-weight: 800; white-space: nowrap; }
+  .box .in { display: flex; align-items: center; justify-content: center; gap: .45em; }
+  .box img { height: 1.1em; }
+  .coin { width: 1.1em; height: 1.1em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe680, #e2b21c 60%, #a97d06); }
+
+  /* Shared layouts */
+  .hbar { width: 100%; padding: .5em .8em; text-align: center; font-size: .95em; font-weight: 700; color: white; background: #1d1612e6; border-radius: .3em; display: flex; align-items: center; justify-content: center; gap: .5em; flex-wrap: wrap; }
+  .hbar .box { font-size: .9em; }
+  .views { display: flex; flex-direction: column; gap: .45em; width: 11.5em; }
+  .views .box .in { height: 2.1em; }
+  .caps { display: flex; flex-direction: column; gap: .55em; width: 11em; }
+  .caps .box { font-size: .8em; }
+  .tagrow { display: flex; gap: 1.2em; font-size: .85em; }
+  .war-l { font-size: 1.1em; }
+  .menus { display: flex; gap: 2.8em; align-items: center; padding: 1.6em 1.2em .6em; font-size: .78em; }
+  .holder { position: relative; }
+  .unit { width: 7em; height: 9.8em; border-radius: .35em; background: url('http://localhost:3100/src/images/units/en/Knight.jpg') center / cover; box-shadow: 0 .1em .3em #000a; }
+  .bld { width: 8.3em; height: 5.95em; border-radius: .3em; background: url('http://localhost:3100/src/images/buildings/en/level1/TempleL1.jpg') center / cover; box-shadow: 0 .1em .3em #000a; }
+  .mb { position: absolute; width: 2.1em; height: 2.1em; transform: translate(-50%, -50%); cursor: pointer; }
+  .mb.keep { left: 0; top: 0; } .mb.trash { left: 100%; top: 0; } .mb.h1 { left: 0; top: 50%; } .mb.h2 { left: 100%; top: 50%; }
+  .mb .disc { position: absolute; inset: 0; display: grid; place-items: center; color: var(--rust); font-size: 1em; }
+  .mb .disc .n { font-family: 'Baloo 2'; font-weight: 800; font-size: .75em; position: absolute; right: .15em; bottom: -.05em; }
+  .mb .lbl { position: absolute; left: 80%; top: 50%; transform: translateY(-50%); z-index: -1; font-size: .85em; }
+
+  /* ===================== Actuel ===================== */
+  .d0 .box .in { padding: .15em 1em; clip-path: polygon(0 0, 100% 0, calc(100% - .6em) 50%, 100% 100%, 0 100%, .6em 50%); background: #e2d2ac; color: #5a3414; }
+  .d0 .r-on .in { background: #f1e6cc; } .d0 .r-off .in { background: #0006; color: #f1e6cc; clip-path: none; border-radius: .4em; }
+  .d0 .r-act .in { background: #7b4a24; color: #f1e6cc; clip-path: none; border-radius: .4em; }
+  .d0 .mb .disc { background: white; color: black; border-radius: 50%; }
+  .d0 .mb .lbl .in { background: #0008; color: white; clip-path: none; border-radius: .3em; font-family: 'Mulish'; font-weight: 500; padding-left: .6em; }
+
+  /* ===================== P1 — Papier plié: the card banner, tails folded behind ===================== */
+  .d1 .box { position: relative; padding: 0 .85em; isolation: isolate; }
+  .d1 .box::before, .d1 .box::after { content: ''; position: absolute; top: .32em; bottom: -.32em; width: 1.3em; background: var(--c2); z-index: -1; }
+  .d1 .box::before { left: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, .45em 50%); }
+  .d1 .box::after { right: 0; clip-path: polygon(0 0, 100% 0, calc(100% - .45em) 50%, 100% 100%, 0 100%); }
+  .d1 .box .in { position: relative; padding: .22em 1em .12em; color: var(--t); background: linear-gradient(180deg, color-mix(in srgb, var(--c) 82%, white), var(--c) 40%, color-mix(in srgb, var(--c) 88%, black)); box-shadow: 0 .12em .2em #0006; }
+  /* the little fold where the band turns into the tail */
+  .d1 .box .in::before, .d1 .box .in::after { content: ''; position: absolute; bottom: -.32em; border-top: .32em solid color-mix(in srgb, var(--c2) 70%, black); }
+  .d1 .box .in::before { left: 0; border-left: .45em solid transparent; }
+  .d1 .box .in::after { right: 0; border-right: .45em solid transparent; }
+  .d1 .views .box, .d1 .caps .box { width: 100%; }
+  .d1 .mb .disc { background: radial-gradient(circle at 40% 35%, #fffaf3, #f6ece6 60%, #ddcbbd); border-radius: 50%; box-shadow: 0 0 0 .12em #7d2e12, 0 .15em .25em #0008; }
+  .d1 .mb .lbl .in { padding-left: 1em; }
+
+  /* ===================== P2 — Découpe en couches: stacked sheets, like the illustrations ===================== */
+  .paperfibre { background-image: radial-gradient(#ffffff14 1px, transparent 1.4px), radial-gradient(#00000012 1px, transparent 1.4px); background-size: .5em .5em, .7em .7em; background-position: 0 0, .25em .3em; }
+  .d2 .box .in { padding: .2em 1em .1em; color: var(--t); background-color: var(--c);
+    border-radius: .55em .8em .5em .7em / .7em .45em .8em .5em;
+    box-shadow: .16em .2em 0 var(--c2), .34em .4em 0 var(--l3), .34em .4em .3em #0008; }
+  .d2 .views .box .in, .d2 .caps .box .in { width: calc(100% - .34em); }
+  .d2 .r-off .in { box-shadow: .16em .2em 0 var(--c2); }
+  .d2 .mb .disc { background-color: #f6ece6; border-radius: 52% 48% 50% 50% / 48% 52% 48% 52%; box-shadow: .12em .15em 0 #b5481f, .24em .3em 0 #5b3d7a, .24em .3em .25em #0008; }
+  .d2 .mb .lbl .in { padding-left: 1.1em; }
+
+  /* ===================== P3 — Papier déchiré: torn edges with the white fibre fringe ===================== */
+  .d3 .box { filter: drop-shadow(.12em .2em .12em #000a); }
+  .d3 .box .fringe { background: #fffdf8; clip-path: var(--torn-a); padding: .14em .16em; }
+  .d3 .box .in { padding: .25em 1.1em .15em; color: var(--t); background-color: var(--c); clip-path: var(--torn-b); }
+  .d3 .views .box, .d3 .caps .box { width: 100%; }
+  .d3 .mb .disc { background: #f6ece6; clip-path: var(--torn-disc); }
+  .d3 .mb { filter: drop-shadow(0 .12em .1em #000a); }
+  .d3 .mb::before { content: ''; position: absolute; inset: -.12em; background: #fffdf8; clip-path: var(--torn-disc); }
+
+  /* ===================== P4 — Étiquettes scotchées: slips held by masking tape ===================== */
+  .d4 .box { position: relative; transform: rotate(var(--r, -1deg)); }
+  .d4 .box .in { padding: .25em 1.1em .15em; color: var(--t); background-color: var(--c); box-shadow: 0 .14em .25em #0008; }
+  .d4 .box::before, .d4 .box::after { content: ''; position: absolute; top: -.32em; width: 1.5em; height: .65em; background: #efe2c4b0; box-shadow: 0 .05em .1em #0003; z-index: 1;
+    clip-path: polygon(4% 0, 96% 8%, 100% 100%, 0 92%); }
+  .d4 .box::before { left: -.45em; transform: rotate(-28deg); }
+  .d4 .box::after { right: -.45em; transform: rotate(28deg); }
+  .d4 .views .box, .d4 .caps .box { width: 100%; }
+  .d4 .caps .box::before, .d4 .caps .box::after, .d4 .tagrow .box::after { display: none; }
+  .d4 .caps .box::before { display: block; left: 50%; transform: translateX(-50%) rotate(-3deg); }
+  .d4 .mb .disc { background: #f6ece6; border-radius: 50%; box-shadow: 0 .12em .2em #0009; }
+  .d4 .mb::after { content: ''; position: absolute; left: 50%; top: -.25em; width: 1.4em; height: .55em; transform: translateX(-50%) rotate(-12deg); background: #efe2c4b0; z-index: 1; }
+  .d4 .mb .lbl { left: 95%; }
+  .d4 .mb .lbl::before, .d4 .mb .lbl::after { display: none; }
+
+  /* Paper-cut icons */
+  .pi { width: 1.55em; height: 1.55em; filter: drop-shadow(.06em .1em 0 #00000059); overflow: visible; }
+  .lvl { position: absolute; right: -.25em; bottom: -.2em; width: 1.05em; height: 1.05em; display: grid; place-items: center; background: #5a3414; color: #f6ece6; border-radius: .2em; border: .1em solid #fffdf8; font-family: 'Baloo 2'; font-weight: 800; font-size: .75em; line-height: 1; }
+  .d0 .lvl { display: none; }
+  .iconset { display: grid; grid-template-columns: repeat(3, auto); gap: .9em 1.4em; font-size: 1.1em; }
+  .iconset figure { margin: 0; display: grid; justify-items: center; gap: .3em; }
+  .iconset .disc { position: relative; width: 2.6em; height: 2.6em; display: grid; place-items: center; }
+  .iconset .pi { width: 2.1em; height: 2.1em; }
+  .iconset figcaption { font-size: .7em; font-weight: 800; color: #f6ece6; }
+  .d0 .iconset .disc { background: white; color: black; border-radius: 50%; }
+  .d1 .iconset .disc { background: radial-gradient(circle at 40% 35%, #fffaf3, #f6ece6 60%, #ddcbbd); border-radius: 50%; box-shadow: 0 0 0 .12em #7d2e12, 0 .15em .25em #0008; }
+  .d2 .iconset .disc { background-color: #f6ece6; border-radius: 52% 48% 50% 50% / 48% 52% 48% 52%; box-shadow: .12em .15em 0 #b5481f, .24em .3em 0 #5b3d7a; }
+  .d3 .iconset .disc { background: #f6ece6; clip-path: var(--torn-disc); }
+  .d4 .iconset .disc { background: #f6ece6; border-radius: 50%; box-shadow: 0 .12em .2em #0009; }
+
+  @media (prefers-reduced-motion: reduce) { .cell { transition: none; } }
+</style>
+</head>
+<body>
+<!-- Paper-cut icons of the game: flat sheets of colour, a cream cut fringe (stroke drawn under the fill), an offset shadow (CSS) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-keep" viewBox="0 0 48 48">
+      <g stroke="#fffdf8" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">
+        <rect x="9" y="5" width="24" height="33" rx="3" transform="rotate(-8 21 21)" fill="#f6ece6"/>
+        <rect x="11.5" y="9" width="19" height="7" rx="1" transform="rotate(-8 21 21)" fill="#b5481f"/>
+        <rect x="12" y="19" width="18" height="13" rx="1.5" transform="rotate(-8 21 21)" fill="#d9c8b8"/>
+        <circle cx="33" cy="34" r="9.5" fill="#9b2e4d"/>
+        <path d="M28.5 34.2l3.2 3.2 6-6.4" fill="none" stroke="#fffdf8" stroke-width="2.8" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <symbol id="i-discard" viewBox="0 0 48 48">
+      <g stroke="#fffdf8" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">
+        <path d="M6 9 L22 6 L23 14 L20 18 L24 23 L21 28 L25 34 L24 41 L9 43 Z" fill="#f6ece6" transform="rotate(-9 16 24)"/>
+        <path d="M8.5 11.5 L20.5 9.3 L21 15 L10 17 Z" fill="#b5481f" transform="rotate(-9 16 24)"/>
+        <path d="M27 7 L41 9 L39 44 L28 42 L29 35 L25.5 29 L29 24 L25 19 L28 14 Z" fill="#f6ece6" transform="rotate(10 33 25)"/>
+        <path d="M28 10 L39 11.5 L38.6 17 L27.6 15.6 Z" fill="#b5481f" transform="rotate(10 33 25)"/>
+      </g>
+    </symbol>
+    <symbol id="i-build" viewBox="0 0 48 48">
+      <g stroke="#fffdf8" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">
+        <path d="M10 42 L10 17 L14 17 L14 12 L19 12 L19 17 L24 17 L24 12 L29 12 L29 17 L33 17 L33 42 Z" fill="#8a8178"/>
+        <path d="M18 42 L18 32 Q21.5 27 25 32 L25 42 Z" fill="#4a4540"/>
+        <rect x="15" y="21" width="4" height="5" rx="1" fill="#4a4540"/>
+        <rect x="24" y="21" width="4" height="5" rx="1" fill="#4a4540"/>
+      </g>
+    </symbol>
+    <symbol id="i-save" viewBox="0 0 48 48">
+      <g stroke="#fffdf8" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">
+        <path d="M24 4 L41 9 L41 22 C41 33 33 40 24 44 C15 40 7 33 7 22 L7 9 Z" fill="#9b2e4d"/>
+        <circle cx="24" cy="23" r="11" fill="#3e7d8a"/>
+        <path d="M27.5 15.5 A8.5 8.5 0 1 0 31.5 28 A7 7 0 1 1 27.5 15.5 Z" fill="#f6ece6"/>
+      </g>
+    </symbol>
+    <symbol id="i-age" viewBox="0 0 48 48">
+      <g stroke="#fffdf8" stroke-width="2.4" stroke-linejoin="round" paint-order="stroke">
+        <circle cx="24" cy="29" r="14" fill="#3e7d8a"/>
+        <path d="M28 19.5 A10.5 10.5 0 1 0 33.5 35 A8.6 8.6 0 1 1 28 19.5 Z" fill="#f6ece6"/>
+        <path d="M24 2 L24 11 M19 7 L24 12 L29 7" fill="none" stroke="#e9b534" stroke-width="3.2" stroke-linecap="round"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+<main>
+  <h1>Tout en papier</h1>
+  <p class="lead">Quatre façons de faire du papier, toutes avec le même code couleur que la piste C, pour qu'on lise la fonction avant le texte. Clique un titre de colonne pour l'isoler.</p>
+  <div class="legend">
+    <span><b style="background:#b5481f"></b>agir</span>
+    <span><b style="background:#5b3d7a"></b>informer</span>
+    <span><b style="background:#9b2e4d"></b>guerre</span>
+    <span><b style="background:#f6ece6; outline: 1px solid #c9b8ab"></b>légende</span>
+  </div>
+  <div class="board" id="board"></div>
+</main>
+
+<script>
+  const IMG = 'http://localhost:3100/src/images/'
+  const shield = `<img src="${IMG}tokens/bouclier_rouge.png" alt="">`
+
+  const columns = [
+    { title: 'Actuel', sub: 'Parchemin à encoches, bois' },
+    { title: 'P1 — Papier plié', sub: 'Le ruban des cartes, bouts repliés derrière' },
+    { title: 'P2 — Découpe en couches', sub: 'Feuilles superposées et décalées, comme les illustrations' },
+    { title: 'P3 — Papier déchiré', sub: 'Bords déchirés, frange blanche des fibres' },
+    { title: 'P4 — Étiquettes scotchées', sub: 'Bouts de papier posés de travers, ruban adhésif' }
+  ]
+
+  // Rotations of the taped slips, fixed so that the page looks the same at every reload
+  const tilts = [-1.6, 1.2, -0.8, 1.8, -1.2, 0.9, -2, 1.4]
+  let tilt = 0
+  const box = (d, role, inner, extra = '') => {
+    const style = d === 4 ? ` style="--r:${tilts[tilt++ % tilts.length]}deg"` : ''
+    const body = d === 3 ? `<div class="fringe"><div class="in">${inner}</div></div>` : `<div class="in">${inner}</div>`
+    return `<div class="box r-${role} ${d === 2 ? 'paperfibre-host' : ''} ${extra}"${style}>${body}</div>`
+  }
+  // The current game keeps its FontAwesome icons; the paper directions use the paper-cut icons
+  const fa = { keep: 'fa-hand', discard: 'fa-trash-can', build: 'fa-hammer', save: 'fa-shield', age: 'fa-arrows-to-dot' }
+  const icon = (d, name) => d === 0 ? `<i class="fa-solid ${fa[name]}"></i>` : `<svg class="pi"><use href="#i-${name}"/></svg>`
+  // Level badge of the buildings: a small brown square with a cream number, as printed on the cards
+  const disc = (d, name, n = '') => `<div class="disc">${icon(d, name)}${n ? `<span class="${d === 0 ? 'n' : 'lvl'}">${n}</span>` : ''}</div>`
+
+  const rows = [
+    { title: 'En-tête', sub: 'texte + action', cell: d => `<div class="hbar">Déploie tes unités, ou ${box(d, 'act', 'termine le déploiement')}</div>` },
+    { title: 'Bouton de table', sub: 'action principale', cell: d => box(d, 'act', 'Passer') },
+    { title: 'Vues', sub: 'colonne de droite', cell: d => `<div class="views">${box(d, 'on', '<i class="fa-solid fa-crown"></i>Mon royaume')}${box(d, 'off', `${shield}Mes voisins`)}</div>` },
+    { title: 'Légendes', sub: 'tour, pioche, défausse', cell: d => `<div class="caps">${['Tour 2 / 4', 'Pioche', 'Défausse'].map(t => box(d, 'cap', t)).join('')}</div>` },
+    { title: 'Étiquettes de panneau', sub: 'voisins', cell: d => `<div class="tagrow">${box(d, 'tag', 'Gauche')}${box(d, 'tag', 'Droite')}</div>` },
+    { title: 'Guerre', sub: 'nom et force', cell: d => box(d, 'war', `Blanc ${shield} 6`, 'war-l') },
+    { title: 'Info de phase', sub: 'bandeau sous les bâtiments', cell: d => box(d, 'info', '<span class="coin"></span>1 or : 0 à payer, 1 restant') },
+    {
+      title: 'Menus sur carte', sub: 'garder, défausser, construire', cell: d => `
+        <div class="menus">
+          <div class="holder"><div class="unit"></div>
+            <span class="mb keep" tabindex="0">${disc(d, 'keep')}<span class="lbl">${box(d, 'act', 'Garder')}</span></span>
+            <span class="mb trash" tabindex="0">${disc(d, 'discard')}</span>
+          </div>
+          <div class="holder"><div class="bld"></div>
+            <span class="mb h1" tabindex="0">${disc(d, 'build', 1)}</span>
+            <span class="mb h2" tabindex="0">${disc(d, 'build', 2)}</span>
+          </div>
+        </div>`
+    },
+    {
+      title: 'Icônes', sub: 'le jeu complet, en grand', cell: d => `
+        <div class="iconset">${[['keep', 'Garder'], ['discard', 'Défausser'], ['build', 'Construire', 1], ['build', 'Améliorer', 2], ['save', 'Sauver'], ['age', 'Jeton Âge']]
+          .map(([name, label, n]) => `<figure>${disc(d, name, n)}<figcaption>${label}</figcaption></figure>`).join('')}</div>`
+    }
+  ]
+
+  const board = document.getElementById('board')
+  board.appendChild(document.createElement('div'))
+  columns.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.className = 'colhead'; b.dataset.col = i; b.setAttribute('aria-pressed', 'false')
+    b.innerHTML = `${c.title}<small>${c.sub}</small>`
+    board.appendChild(b)
+  })
+  for (const r of rows) {
+    const h = document.createElement('div'); h.className = 'rowhead'; h.innerHTML = `${r.title}<small>${r.sub}</small>`
+    board.appendChild(h)
+    columns.forEach((_, d) => {
+      const c = document.createElement('div'); c.className = `cell d${d}`; c.dataset.col = d
+      c.innerHTML = r.cell(d)
+      board.appendChild(c)
+    })
+  }
+  // The fibre texture of P2 goes on the coloured sheets
+  document.querySelectorAll('.d2 .box .in, .d2 .mb .disc').forEach(n => n.classList.add('paperfibre'))
+
+  // ---------- Torn edges (P3): deterministic jitter so that the paper tears the same way at every reload ----------
+  const tornPolygon = (seed, depth, side) => {
+    let s = seed
+    const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280)
+    const pts = [], n = 22
+    for (let i = 0; i <= n; i++) pts.push(`${(i / n) * 100}% ${rnd() * depth}%`)
+    for (let i = 0; i <= 5; i++) pts.push(`${100 - rnd() * side}% ${(i / 5) * 100}%`)
+    for (let i = n; i >= 0; i--) pts.push(`${(i / n) * 100}% ${100 - rnd() * depth}%`)
+    for (let i = 5; i >= 0; i--) pts.push(`${rnd() * side}% ${(i / 5) * 100}%`)
+    return `polygon(${pts.join(',')})`
+  }
+  const tornDisc = (() => {
+    let s = 11
+    const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280)
+    const pts = []
+    for (let i = 0; i < 28; i++) {
+      const a = (i / 28) * Math.PI * 2, r = 46 + rnd() * 4
+      pts.push(`${50 + r * Math.cos(a)}% ${50 + r * Math.sin(a)}%`)
+    }
+    return `polygon(${pts.join(',')})`
+  })()
+  document.documentElement.style.setProperty('--torn-a', tornPolygon(5, 10, 2.5))
+  document.documentElement.style.setProperty('--torn-b', tornPolygon(17, 8, 2))
+  document.documentElement.style.setProperty('--torn-disc', tornDisc)
+
+  board.addEventListener('click', e => {
+    const head = e.target.closest('.colhead')
+    if (!head) return
+    const already = head.getAttribute('aria-pressed') === 'true'
+    board.querySelectorAll('.colhead').forEach(h => h.setAttribute('aria-pressed', 'false'))
+    board.querySelectorAll('.cell').forEach(c => c.classList.remove('picked'))
+    board.classList.toggle('picking', !already)
+    if (already) return
+    head.setAttribute('aria-pressed', 'true')
+    board.querySelectorAll(`.cell[data-col="${head.dataset.col}"]`).forEach(c => c.classList.add('picked'))
+  })
+</script>
+</body>
+</html>

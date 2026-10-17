@@ -1,9 +1,9 @@
 import { css } from '@emotion/react'
-import { faHammer } from '@fortawesome/free-solid-svg-icons/faHammer'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Building } from '@gamepark/paper-tales/material/Building'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { CardDescription, ItemContext, ItemMenuButton, MaterialContext, pointerCursorCss } from '@gamepark/react-game'
+import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
+import { CardDescription, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
 import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
@@ -16,6 +16,10 @@ import Tavern2 from '../images/buildings/en/level2/TavernL2.jpg'
 import Temple2 from '../images/buildings/en/level2/TempleL2.jpg'
 import Town2 from '../images/buildings/en/level2/TownL2.jpg'
 import { BuildingHelp } from './help/BuildingHelp'
+import { BuildIcon } from './icons/PaperIcons'
+import { PaperMenuButton } from './PaperMenuButton'
+import { cardAppearCss } from '../theme/tableTheme'
+import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 
 export class BuildingCardDescription extends CardDescription {
   height = 10
@@ -46,6 +50,21 @@ export class BuildingCardDescription extends CardDescription {
 
   help = BuildingHelp
 
+  getItemExtraCss(item: MaterialItem, context: ItemContext) {
+    // Not built yet: dimmed, unless I can build it right now (I have the resources, the gold and the land, rulebook
+    // p.7). Hovered: above its neighbours in the grid, in colour.
+    const dimmed = item.location.type === LocationType.PlayerBuildingHand && !this.canBuildNow(context)
+    return [cardAppearCss, hoverAboveCss, hoveredItemMenuAboveCss, veilCss, dimmed && dimmedCss]
+  }
+
+  /** During my construction, a legal move builds this building */
+  canBuildNow(context: ItemContext) {
+    if (context.rules.game.rule?.id !== RuleId.Build || context.player === undefined) return false
+    return context.rules
+      .getLegalMoves(context.player)
+      .some((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index)
+  }
+
   menuAlwaysVisible = true
 
   getItemMenu(_item: MaterialItem, context: ItemContext, _legalMoves: MaterialMove[]) {
@@ -56,21 +75,17 @@ export class BuildingCardDescription extends CardDescription {
     const items = []
     if (buildAsIs) {
       items.push(
-        <ItemMenuButton key="build-as-is" move={buildAsIs} angle={-87} radius={7} css={largeButtonCss}>
-          <div>
-            <FontAwesomeIcon icon={faHammer} css={iconCss} /> 1
-          </div>
-        </ItemMenuButton>
+        <PaperMenuButton key="build-as-is" move={buildAsIs} angle={-87} radius={7} level={1}>
+          <BuildIcon />
+        </PaperMenuButton>
       )
     }
 
     if (flip) {
       items.push(
-        <ItemMenuButton key="flip" move={flip} angle={87} radius={7} css={largeButtonCss}>
-          <div>
-            <FontAwesomeIcon icon={faHammer} css={iconCss} /> 2
-          </div>
-        </ItemMenuButton>
+        <PaperMenuButton key="flip" move={flip} angle={87} radius={7} level={2}>
+          <BuildIcon />
+        </PaperMenuButton>
       )
     }
 
@@ -78,15 +93,37 @@ export class BuildingCardDescription extends CardDescription {
   }
 }
 
-const largeButtonCss = css`
-  width: 3em;
-  font-weight: bold;
-  padding-right: 0.2em;
+const hoverAboveCss = css`
+  &:hover {
+    z-index: 100;
+  }
 `
 
-const iconCss = css`
-  ${pointerCursorCss};
-  font-size: 1.2em;
+// A veil over the front face rather than a filter: a filter opens a stacking context that would flatten the 3D lift
+// of the hovered card under its neighbours
+// The veil is always there and only its opacity changes, so that a building lights up smoothly when it gets built
+const veilCss = css`
+  > * > *:first-of-type::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(40, 32, 24, 0.62);
+    opacity: 0;
+    transition: opacity 0.6s;
+    pointer-events: none;
+  }
+`
+
+const dimmedCss = css`
+  > * > *:first-of-type::before {
+    opacity: 1;
+  }
+
+  /* The framework turns off the pointer events of the card itself: its hover is read on the item display around it */
+  *:hover > & > * > *:first-of-type::before {
+    opacity: 0;
+  }
 `
 
 export const buildingCardDescription = new BuildingCardDescription()

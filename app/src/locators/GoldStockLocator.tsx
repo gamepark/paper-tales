@@ -1,23 +1,13 @@
-import { Gold } from '@gamepark/paper-tales/material/Gold'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { ItemContext, PileLocator } from '@gamepark/react-game'
-import { Location, MaterialItem } from '@gamepark/rules-api'
-import { unitCardDescription } from '../material/UnitCardDescription'
-import { unitDeckLocator } from './DeckLocator'
+import { PileLocator } from '@gamepark/react-game'
+import { goldStockCoordinates } from './TableLayout'
 
+/**
+ * The gold reserve, drawn as a small heap of 1 and 5 coins mixed: coins gained fly from here
+ */
 export class GoldStockLocator extends PileLocator {
-  radius = 3
-
-  getCoordinates(location: Location, context: ItemContext) {
-    const { x = 0, y = 0 } = unitDeckLocator.getCoordinates(location, context)
-    if (context.rules.players.length === 2) return { x: x + unitCardDescription.width * 2 + 2, y: y - 3.5 }
-    return { x: x, y: y - unitCardDescription.height + 0.5 }
-  }
-
-  getPileId(item: MaterialItem<PlayerColor, LocationType, Gold>): string {
-    return `${item.id}`
-  }
+  coordinates = goldStockCoordinates
+  radius = 1.5
+  limit = 8
 }
 
 export const goldStockLocator = new GoldStockLocator()

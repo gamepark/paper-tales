@@ -40,3 +40,5 @@ tmpclaude-*
 
 # Visual Studio Code
 .vscode
+# Dev only: saved game states for the DevToolsHub
+/app/public/test-states/
