@@ -1,15 +1,30 @@
 import { css } from '@emotion/react'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
+import ageToken from '../../../images/icons/age-token.webp'
 import crystal from '../../../images/icons/crystal.webp'
 import food from '../../../images/icons/food.webp'
+import gold from '../../../images/icons/gold-token.webp'
 import strength from '../../../images/icons/strength.webp'
 import wood from '../../../images/icons/wood.webp'
 import scoreIcon from '../../../images/score/scoreIcon.png'
-import ageToken from '../../../images/tokens/Age.jpg'
-import gold from '../../../images/tokens/Gold1.jpg'
 
-/** The official icons of the game (archive « Portage numérique », 04 icons), inline in the help texts */
+/**
+ * Every icon in a help text sits in the same square box, centred on the middle of the line; the image keeps its own
+ * ratio inside the box (official icons of the archive « Portage numérique »).
+ */
+const IconBox: FC<{ size?: number; children: ReactNode }> = ({ size = 1.35, children }) => (
+  <span css={boxCss} style={{ width: `${size}em`, height: `${size}em` }}>
+    {children}
+  </span>
+)
+
+const IconImage: FC<{ src: string; size?: number }> = ({ src, size }) => (
+  <IconBox size={size}>
+    <img css={imageCss} src={src} alt="" />
+  </IconBox>
+)
+
 const resourceIcons: Partial<Record<Resources, string>> = {
   [Resources.Wood]: wood,
   [Resources.Food]: food,
@@ -17,94 +32,88 @@ const resourceIcons: Partial<Record<Resources, string>> = {
 }
 
 export const ResourceIcon: FC<{ resource: Resources }> = ({ resource }) =>
-  resource === Resources.Gold ? <CoinIcon /> : <img css={resourceCss} src={resourceIcons[resource]} alt="" />
+  resource === Resources.Gold ? <CoinIcon /> : <IconImage src={resourceIcons[resource]!} />
 
-export const CoinIcon: FC = () => <img css={roundCss} src={gold} alt="" />
-export const AgeIcon: FC = () => <img css={roundCss} src={ageToken} alt="" />
-export const LegendIcon: FC = () => <img css={iconCss} src={scoreIcon} alt="" />
+export const CoinIcon: FC = () => <IconImage src={gold} />
+export const AgeIcon: FC = () => <IconImage src={ageToken} />
+export const LegendIcon: FC = () => <IconImage src={scoreIcon} />
 
-/** The strength shield printed on the cards, with its value */
-export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => <span css={shieldCss}>{value}</span>
+/** An icon cut from the printed cards (reveal, Age token added, building level 1 or 2…), a bit larger as on the cards */
+export const PrintedIcon: FC<{ src: string }> = ({ src }) => <IconImage src={src} size={1.5} />
 
-/** An icon cut from the printed cards (deploy, Age token added, building level 1 or 2…) */
-export const PrintedIcon: FC<{ src: string }> = ({ src }) => <img css={printedCss} src={src} alt="" />
-
-const printedCss = css`
-  display: inline-block;
-  width: 1.5em;
-  height: 1.5em;
-  margin: -0.15em 0.05em;
-  object-fit: contain;
-  vertical-align: middle;
-`
+/** The strength shield printed on the cards, with its value written on it */
+export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => (
+  <IconBox>
+    <img css={imageCss} src={strength} alt="" />
+    <span css={[valueCss, shieldValueCss]}>{value}</span>
+  </IconBox>
+)
 
 /** The Legend scroll of the cards, with its value written on it */
 export const LegendValueIcon: FC<{ value: number }> = ({ value }) => (
-  <span css={[valueOnIconCss, legendValueCss]} style={{ backgroundImage: `url(${scoreIcon})` }}>
-    {value}
-  </span>
+  <IconBox>
+    <img css={imageCss} src={scoreIcon} alt="" />
+    <span css={[valueCss, legendValueCss]}>{value}</span>
+  </IconBox>
 )
 
 /** The gold coin of the cards, with its value written on it */
-export const GoldValueIcon: FC<{ value: number }> = ({ value }) => <span css={[valueOnIconCss, goldValueCss]}>{value}</span>
+export const GoldValueIcon: FC<{ value: number }> = ({ value }) => (
+  <IconBox>
+    <img css={imageCss} src={gold} alt="" />
+    <span css={[valueCss, goldValueCss]}>{value}</span>
+  </IconBox>
+)
 
-const valueOnIconCss = css`
-  display: inline-grid;
-  place-items: center;
-  height: 1.3em;
+const boxCss = css`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
   vertical-align: middle;
-  font-family: 'Baloo 2', sans-serif;
-  font-weight: 800;
-  font-size: 0.95em;
-  line-height: 1;
+  margin: -0.2em 0.05em;
 `
 
-const legendValueCss = css`
-  min-width: 1.1em;
-  padding: 0 0.15em 0.05em 0.3em;
-  background: center / contain no-repeat;
-  color: #5a3414;
-`
-
-const goldValueCss = css`
-  width: 1.3em;
-  border-radius: 50%;
-  background: radial-gradient(circle, #f7d34a 55%, #e9b534 58%, #c98f16 100%);
-  color: #4a3410;
-`
-
-const iconCss = css`
-  display: inline-block;
-  height: 1.25em;
-  vertical-align: middle;
-`
-
-const resourceCss = css`
-  ${iconCss};
-  width: 1.3em;
-  height: 1.3em;
+/**
+ * The box decides the size, the image keeps its ratio inside. The framework sizes the images of the help texts
+ * (`p img { height: 1em; top: 0.1em }`, more specific): `&&` raises the specificity above it.
+ */
+const imageCss = css`
+  && {
+    display: block;
+    position: static;
+    width: 100%;
+    height: 100%;
+  }
+  max-width: none;
+  max-height: none;
   object-fit: contain;
 `
 
-const roundCss = css`
-  ${iconCss};
-  width: 1.2em;
-  height: 1.2em;
-  border-radius: 50%;
-`
-
-/** The official strength shield (04 icons/bouclier_rouge), its value written on it as on the cards */
-const shieldCss = css`
-  display: inline-grid;
+const valueCss = css`
+  position: absolute;
+  inset: 0;
+  display: grid;
   place-items: center;
-  width: 1.12em;
-  height: 1.3em;
-  padding-bottom: 0.12em;
-  vertical-align: middle;
-  color: #fff;
-  background: url(${strength}) center / contain no-repeat;
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
-  font-size: 0.95em;
   line-height: 1;
+`
+
+const shieldValueCss = css`
+  padding-bottom: 0.12em;
+  color: #fff;
+  font-size: 0.72em;
+`
+
+const legendValueCss = css`
+  padding-left: 0.1em;
+  color: #5a3414;
+  font-size: 0.7em;
+`
+
+const goldValueCss = css`
+  color: #4a3410;
+  font-size: 0.72em;
 `
