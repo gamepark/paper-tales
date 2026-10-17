@@ -168,28 +168,20 @@ export const panelCss = css`
     }
   }
 
+  /* The journal: a page of the rulebook, with its chevron pattern (validated mockup docs/mockups/journal3.html) */
   &:not(:has(> h2)) {
-    border-right: 0.4em solid ${rustDeep};
-    border-bottom: 0.4em solid ${rustDeep};
     border-radius: 0 0 0.3em 0;
+    background-color: #f4efe7;
+    background-image:
+      linear-gradient(135deg, #ffffff66 25%, transparent 25%),
+      linear-gradient(225deg, #ffffff66 25%, transparent 25%),
+      linear-gradient(45deg, #e6dfd466 25%, transparent 25%),
+      linear-gradient(315deg, #e6dfd466 25%, transparent 25%);
+    background-size: 3em 3em;
 
-    /* The red margin line of the notebook */
-    &::before {
-      content: '';
-      position: absolute;
-      top: 3em;
-      bottom: 0;
-      left: 1.4em;
-      width: 1.5px;
-      background: #b5481f66;
-      pointer-events: none;
-    }
-
-    /* The strip the index tabs stand on */
     > div:first-of-type {
-      align-items: flex-end;
-      padding-bottom: 0;
-      background: ${rustDeep};
+      padding-top: 0.7em;
+      padding-bottom: 0.4em;
     }
   }
 `

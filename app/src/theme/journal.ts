@@ -1,61 +1,60 @@
 import { css } from '@emotion/react'
-import { cutLine, paper, paperMuted, rust } from './tableTheme'
+import { cutLine } from './tableTheme'
+
+/** The teal of the rulebook boxes and arrows */
+export const teal = '#2a7f86'
 
 /**
- * The tabs of the journal (chat, history): index tabs cut in paper, standing on the strip at the top of the page; the
- * open one is of the same paper as the page and a little taller (validated mockup docs/mockups/theme.html, B).
+ * The tabs of the journal (chat, history): the arrow banners of the rulebook, teal for the open one, faded paper for
+ * the other (validated mockup docs/mockups/journal3.html).
  */
 export const tabCss = css`
   flex: 0 0 auto;
   height: auto;
-  margin: 0.3em 0.1em 0;
-  padding: 0.4em 1.3em 0.3em;
+  margin: 0 0.1em;
+  padding: 0.35em 1.7em 0.25em 1em;
   border: 0;
-  border-radius: 0;
-  background: ${paperMuted};
-  color: #4a4540b3;
+  border-radius: 0.2em 0 0 0.2em;
+  background: #b9ad9f;
+  color: #ffffffe6;
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: 0.8em;
-  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
-
-  > div {
-    transform: translateY(0.05em);
-  }
+  clip-path: polygon(0 0, calc(100% - 0.8em) 0, 100% 50%, calc(100% - 0.8em) 100%, 0 100%);
+  cursor: pointer;
 `
 
 export const tabSelectedCss = css`
-  margin-top: 0;
-  padding-bottom: 0.5em;
-  background: ${paper};
-  color: ${cutLine};
+  background: ${teal};
+  color: #fff;
 `
 
-/** One line of the notebook: no dark box, a ruled line under each entry, the ink of the book */
+/** One event of the journal: a line of the rulebook page. The Monarch, when there is one, is drawn by the entry itself */
 export const historyEntryCss = css`
   background: none;
   color: ${cutLine};
   border-radius: 0;
-  border-bottom: 1.5px solid #4a454026;
-  padding: 0.3em 0.5em 0.3em 1.4em;
+  margin: 0;
+  padding: 0.15em 0.6em 0.15em 1em;
   font-family: 'Mulish', sans-serif;
   font-weight: 500;
   font-size: 1.5em;
   line-height: 1.3;
 `
 
-/** The last line of the notebook, where the discussion is written: a rule of ink above, the pen in rust */
+/** Where a message is typed: the white box of the rulebook, bordered in teal */
 export const chatBarCss = css`
   align-items: center;
-  gap: 0.6em;
-  margin: 0 1em 0.6em 2.2em;
+  gap: 0.5em;
+  margin: 0.6em 1em 0.8em 1.1em;
   width: auto;
-  padding: 0.55em 0 0;
-  border-top: 2px solid ${cutLine};
-  background: none;
+  padding: 0.35em 0.5em 0.35em 0.9em;
+  border: 2px solid ${teal};
+  border-radius: 0.6em;
+  background: #fff;
 
   > input {
-    padding: 0.2em 0;
+    padding: 0.1em 0;
     border-radius: 0;
     background: none;
     color: ${cutLine};
@@ -68,7 +67,7 @@ export const chatBarCss = css`
   }
 
   > button {
-    color: ${rust};
-    font-size: 1.25em;
+    color: ${teal};
+    font-size: 1.2em;
   }
 `
