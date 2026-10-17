@@ -1,4 +1,4 @@
-import { getEnumValues, MaterialGame, MaterialMove } from '@gamepark/rules-api'
+import { getEnumValues, ItemMoveType, MaterialGame, MaterialMove, MoveKind } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
 import { buildingCardCaracteristics } from '../material/BuildingCaracteristics'
@@ -109,5 +109,15 @@ describe('Rulebook p.6 and p.8: the wars', () => {
   it('at 2 players, a tie wins a war, and at least double wins two: 0 against 0 wins two', () => {
     const rules = new PaperTalesRules(newGame([PlayerColor.Blue, PlayerColor.Red]))
     for (const player of rules.players) expect(new War(rules.game).getWarsWon(player)).toBe(2)
+  })
+})
+
+describe('Hidden information: the draft', () => {
+  it('each hand given to a neighbour is shuffled, so the giver cannot follow its cards', () => {
+    const players = [PlayerColor.Blue, PlayerColor.Red, PlayerColor.Green]
+    const rules = new PaperTalesRules(newGame(players))
+    const consequences = rules.play(rules.startRule(RuleId.GiveDraftToNeighbor))
+    const shuffles = consequences.filter((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Shuffle)
+    expect(shuffles).toHaveLength(players.length)
   })
 })

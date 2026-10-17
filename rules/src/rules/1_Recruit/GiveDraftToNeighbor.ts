@@ -21,6 +21,8 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
             player: this.getNextPlayer(player)
           })
         )
+        // The hand is shuffled once given: the Monarch who passed it cannot follow a card to what the neighbour keeps
+        if (playerRemainingUnits.length > 1) moves.push(playerRemainingUnits.shuffle())
       })
 
       moves.push(this.startSimultaneousRule(RuleId.Draft))
