@@ -7,7 +7,7 @@ import food from '../../../images/icons/food.webp'
 import gold from '../../../images/icons/gold-token.webp'
 import strength from '../../../images/icons/strength.webp'
 import wood from '../../../images/icons/wood.webp'
-import scoreIcon from '../../../images/score/scoreIcon.png'
+import scoreIcon from '../../../images/icons/legend.webp'
 
 /**
  * Every icon in a help text sits in the same square box, centred on the middle of the line; the image keeps its own
@@ -51,7 +51,7 @@ export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => (
 
 /** The Legend scroll of the cards, with its value written on it */
 export const LegendValueIcon: FC<{ value: number }> = ({ value }) => (
-  <IconBox>
+  <IconBox size={1.6}>
     <img css={imageCss} src={scoreIcon} alt="" />
     <span css={[valueCss, legendValueCss]}>{value}</span>
   </IconBox>
@@ -109,10 +109,16 @@ const shieldValueCss = css`
   font-size: 0.72em;
 `
 
+/** The value written on the scroll as on the cards: white with a brown shadow, on the middle of the sheet */
 const legendValueCss = css`
-  padding-left: 0.1em;
-  color: #5a3414;
-  font-size: 0.7em;
+  padding: 0 0 0.1em 0.12em;
+  color: #fff;
+  font-size: 0.85em;
+  text-shadow:
+    -0.06em 0 0 #7a4e0c,
+    0.06em 0 0 #7a4e0c,
+    0 -0.06em 0 #7a4e0c,
+    0 0.09em 0 #7a4e0c;
 `
 
 const goldValueCss = css`
