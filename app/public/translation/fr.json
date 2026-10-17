@@ -153,7 +153,7 @@
   "header.age.effects": "Âge : effets des unités qui meurent",
   "header.age.die": "Âge : les unités qui portent un jeton Âge meurent",
   "header.age.age": "Âge : les autres unités reçoivent un jeton Âge",
-  "header.age.save": "Choisis l’unité que ton mystique sauve de la mort, ou <0>ne sauve personne</0>",
+  "header.age.save": "Choisis l’unité que ton Mystique sauve de la mort, ou <0>ne sauve personne</0>",
   "header.age.save.wait": "Un Monarque choisit une unité à sauver de la mort",
   "header.next-turn": "Un nouveau tour commence",
   "header.end": "Fin de la partie",
