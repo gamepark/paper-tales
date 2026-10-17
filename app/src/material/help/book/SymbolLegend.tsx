@@ -7,7 +7,7 @@ import { helpIconComponents } from './helpIconComponents'
 const symbols = ['deploy', 'ageplus'] as const
 
 /** Which of these symbols the given printed texts use */
-export const usedSymbols = (texts: string[]) => symbols.filter((symbol) => texts.some((text) => text.includes(`<${symbol}/>`)))
+const usedSymbols = (texts: string[]) => symbols.filter((symbol) => texts.some((text) => text.includes(`<${symbol}/>`)))
 
 /** A small legend under the timeline: what each symbol of the card means */
 export const SymbolLegend: FC<{ texts: string[] }> = ({ texts }) => {
