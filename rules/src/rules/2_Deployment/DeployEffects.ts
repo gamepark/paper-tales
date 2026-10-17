@@ -51,7 +51,8 @@ export class DeployEffects extends SimultaneousRule {
       }
 
       moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
-      moves.push(this.endPlayerTurn(player))
+      // A Shapeshifter draws until it keeps a unit: the turn ends once it is kept, before the wars
+      if (!moves.some((move) => this.isShapeshifterDraw(move, player))) moves.push(this.endPlayerTurn(player))
     }
 
     return moves
@@ -74,14 +75,11 @@ export class DeployEffects extends SimultaneousRule {
       // Draw and discard until a unit of cost 3 or less is revealed (printed on the card)
       if (unitCardCaracteristics[unitId].cost > 3) {
         moves.push(unitCard.moveItem({ type: LocationType.Discard }))
-        moves.push(
-          this.material(MaterialType.Unit).location(LocationType.Deck).deck().dealOne({
-            type: LocationType.PlayerUnitBoard,
-            player: unit.location.player,
-            x: unit.location.x,
-            y: unit.location.y
-          })
-        )
+        if (this.deck.length) {
+          moves.push(this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: unit.location.x, y: unit.location.y }))
+        } else {
+          moves.push(this.endPlayerTurn(player))
+        }
       } else {
         const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
         const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
@@ -114,9 +112,14 @@ export class DeployEffects extends SimultaneousRule {
             quantity: 1
           })
         )
+        moves.push(this.endPlayerTurn(player))
       }
     }
     return moves
+  }
+
+  private isShapeshifterDraw(move: MaterialMove, player: PlayerColor) {
+    return isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard && move.location.player === player
   }
 
   getActivePlayerLegalMoves(_playerId: number): MaterialMove[] {

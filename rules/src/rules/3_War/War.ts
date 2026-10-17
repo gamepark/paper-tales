@@ -28,8 +28,8 @@ export class War extends MaterialRulesPart {
 
       let warScoring = 3 * warsWon
 
-      // At 2 players, a double strength wins the war twice (rulebook p.8), but its effects apply once
-      const effectsApplied = players.length === 2 ? Math.min(warsWon, 1) : warsWon
+      // At 2 players, a double strength wins 2 wars (rulebook p.8): the effects "for each war won" apply twice
+      const effectsApplied = warsWon
       for (let i = 0; i < effectsApplied; i++) {
         moves.push(...this.getGainGoldIfWinWarMoves(player))
         warScoring += this.getGainScoreIfWinWarAmount(player)

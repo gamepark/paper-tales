@@ -22,7 +22,7 @@ Au niveau 2, la carte garde le cartouche du niveau 1 (grisé, toujours actif) : 
 
 Détail carte par carte : `cards-audit-units-a.md` (Commander → LandLord) et `cards-audit-units-b.md` (Manticore →
 Adventurer). Coûts, forces et ressources conformes pour les 42 unités ; les écarts portent sur les effets et un nombre
-d'exemplaires. Chaque écart a été revérifié sur l'image de la carte. Tests : `rules/src/__tests__/cards.test.ts`.
+d'exemplaires. Chaque écart a été revérifié sur l'image de la carte. Tests : `cards.test.ts`, et un test par effet imprimé dans `units-a.test.ts` / `units-b.test.ts` (valeurs tirées des cartes).
 
 ### Corrigé
 
@@ -37,6 +37,9 @@ d'exemplaires. Chaque écart a été revérifié sur l'image de la carte. Tests 
 | Palm Reader | 1 PL par jeton Âge sur vos unités qui meurent | Effet jamais appliqué (`perAgeToken` manquant) | `perAgeToken` |
 | Adventurer | Ressource par jeton Âge | Comptait les piles de jetons, pas les jetons (2 jetons posés en une pile → 1 ressource) | Compte la quantité |
 | Ogre | +1 force par or gagné à la phase de revenu | Sans les 2 or de base de la phase | Les 2 or de base comptés |
+| Commander, Rogue, Colossus, Master Alchemist (2 joueurs) | « par Guerre gagnée » ; livret p. 8 : au moins le double = 2 Guerres | Effets appliqués une seule fois à 2 joueurs | Appliqués pour chaque Guerre gagnée |
+| Shapeshifter (pioche rejetée) | Tout se résout en phase 2 | Après une carte rejetée, la Guerre démarrait avant le jeton Âge de l'unité gardée | Le tour du joueur se termine une fois l'unité gardée |
+| Mystical Healer (vieillissement) | Livret p. 8 : un jeton Âge sur chaque unité encore en jeu | L'unité sauvée ne vieillissait pas (sauvable à l'infini) | Toute unité encore en jeu vieillit |
 | Mystical Healer | (règle de l'Âge) | Après un sauvetage, l'étape « effets d'Âge » était sautée : les effets « quand elle meurt » perdus pour tous | Enchaîne sur les effets d'Âge |
 
 Conséquence : un malus peut faire passer un score sous 0. Le score est borné à 0 (la piste commence à 0).
@@ -57,7 +60,9 @@ Conséquence : un malus peut faire passer un score sous 0. Le score est borné �
   bâtiment construit directement au niveau 2 payait chaque niveau séparément au lieu de leur somme. Corrigé : un seul
   calcul, le moins cher payable, utilisé pour la légalité comme pour le paiement.
 
+- **Ville niveau 2** : son cristal n’était jamais produit (le niveau lu comme `rotation as number` valait `true`, jamais 2). Trouvé par les tests des bâtiments, corrigé.
+
 ### Reste ouvert
 
 - **Golem + Kraken** révélés le même tour : l'ordre décide si les bâtiments améliorés par le Golem comptent pour le
-  malus du Kraken ; la carte ne tranche pas.
+  malus du Kraken ; la carte ne tranche pas. Le code calcule le Kraken avant les améliorations du Golem.
