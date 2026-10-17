@@ -9,6 +9,7 @@ import { PlayerColor } from '../../PlayerColor'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 import { DiscardRemainingUnits } from './DiscardRemainingUnits'
+import { AgeTokens } from '../helpers/AgeTokens'
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
   onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove[] {
@@ -88,8 +89,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     if (move.location.type === LocationType.Discard) {
       const card = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
       this.removeCardFromDeployment(card.location.player!, move.itemIndex)
-      const ageTokens = this.material(MaterialType.Age).location(LocationType.OnCard).parent(move.itemIndex)
-      moves.push(...ageTokens.deleteItems())
+      moves.push(...new AgeTokens(this).remove(move.itemIndex))
     }
 
     if (move.location.type === LocationType.PlayerUnitBoard) {

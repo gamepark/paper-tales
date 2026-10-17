@@ -9,6 +9,7 @@ import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '../CustomMoveTyp
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
+import { AgeTokens } from '../helpers/AgeTokens'
 
 export class ChooseWherePlacingAgeToken extends SimultaneousRule {
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
@@ -45,14 +46,7 @@ export class ChooseWherePlacingAgeToken extends SimultaneousRule {
 
     // Ajout des jetons
     moves.push(
-      this.material(MaterialType.Age).createItem({
-        location: {
-          type: LocationType.OnCard,
-          parent: chosenUnitIndex,
-          player: data.player
-        },
-        quantity: quantityOfAgeTokens
-      })
+      new AgeTokens(this).add(chosenUnitIndex, data.player, quantityOfAgeTokens)
     )
 
     // MaJ des effets à traiter

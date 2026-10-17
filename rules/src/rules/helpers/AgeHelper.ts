@@ -6,6 +6,7 @@ import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { Memory } from '../Memory'
+import { AgeTokens } from './AgeTokens'
 
 export class AgeHelper extends MaterialRulesPart {
   constructor(
@@ -20,7 +21,7 @@ export class AgeHelper extends MaterialRulesPart {
   }
 
   getAgeTokenOnIndex(targetIndex: number): Material {
-    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(targetIndex)
+    return new AgeTokens(this).on(targetIndex)
   }
 
   get agingUnits() {

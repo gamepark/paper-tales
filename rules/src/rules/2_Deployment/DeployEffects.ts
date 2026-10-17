@@ -1,4 +1,5 @@
 import { isMoveItemType, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { AgeTokens } from '../helpers/AgeTokens'
 import {
   GainAgeToken,
   ImproveBuilding,
@@ -105,13 +106,10 @@ export class DeployEffects extends SimultaneousRule {
           moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
         }
 
+        // The Shapeshifter leaves with the Age tokens it may have received (Necromancer, Kraken)
+        for (const index of shapeShifterCard.getIndexes()) moves.push(...new AgeTokens(this).remove(index))
         moves.push(shapeShifterCard.moveItem({ type: LocationType.Discard }))
-        moves.push(
-          this.material(MaterialType.Age).createItem({
-            location: { type: LocationType.OnCard, parent: move.itemIndex, player: player },
-            quantity: 1
-          })
-        )
+        moves.push(new AgeTokens(this).add(move.itemIndex, player))
         moves.push(this.endPlayerTurn(player))
       }
     }
@@ -226,10 +224,7 @@ export class DeployEffects extends SimultaneousRule {
     const playerUnitBoard = this.getPlayerUnits(player)
     if (eff.whichUnit === WhichUnit.Myself) {
       return [
-        this.material(MaterialType.Age).createItem({
-          location: { type: LocationType.OnCard, parent: unitIndex, player: player },
-          quantity: eff.amount
-        })
+        new AgeTokens(this).add(unitIndex, player, eff.amount)
       ]
     } else if (eff.whichUnit === WhichUnit.All) {
       // No case in whole game
@@ -240,10 +235,7 @@ export class DeployEffects extends SimultaneousRule {
         const spaceIndex = entry[0]
         if (spaceIndex !== unitIndex) {
           moves.push(
-            this.material(MaterialType.Age).createItem({
-              location: { type: LocationType.OnCard, parent: spaceIndex, player: player },
-              quantity: eff.amount
-            })
+            new AgeTokens(this).add(spaceIndex, player, eff.amount)
           )
         }
       }

@@ -6,6 +6,7 @@ import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { BuildHelper } from './BuildHelper'
+import { AgeTokens } from './AgeTokens'
 
 export class ResourcesHelper extends MaterialRulesPart {
   constructor(
@@ -25,7 +26,7 @@ export class ResourcesHelper extends MaterialRulesPart {
       .player(this.player)
       .filter((item) => item.location.x === unit.location.x && item.location.y === unit.location.y)
       .getIndex()
-    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity()
+    return new AgeTokens(this).count(index)
   }
 
   get resources() {

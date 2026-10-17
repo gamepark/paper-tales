@@ -792,3 +792,33 @@ describe('Landlord', () => {
     expect(new BuildHelper(rules.game, Blue).getGoldToPay(Building.Barracks, BuildAction.BuildLevel1)).toBe(2)
   })
 })
+
+describe('Age tokens', () => {
+  const pilesOn = (rules: PaperTalesRules, unitIndex: number) => rules.material(MaterialType.Age).location(LocationType.OnCard).parent(unitIndex).length
+
+  it('the Age token of the phase 6 joins the tokens already on the unit, and they all leave with it', () => {
+    const rules = newRules()
+    // Treefolk aged once, then a token from an effect: both in one pile
+    const treefolk = place(rules, Unit.Treefolk, Blue, 0, 0)
+    runAge(rules)
+    addAge(rules, treefolk, Blue, 1)
+    expect([ageOn(rules, treefolk), pilesOn(rules, treefolk)]).toEqual([2, 1])
+    runAge(rules)
+    // It died with its token: no token left in the game
+    expect(location(rules, treefolk).type).toBe(LocationType.Discard)
+    expect(rules.material(MaterialType.Age).length).toBe(0)
+  })
+
+  it('the Shapeshifter is discarded with the Age tokens it received', () => {
+    const rules = newRules()
+    const shapeshifter = place(rules, Unit.Shapeshifter, Blue, 1, 0)
+    addAge(rules, shapeshifter, Blue, 1)
+    const knight = rules.material(MaterialType.Unit).location(LocationType.Deck).id(Unit.Knight).getIndexes()[0]
+    for (const index of rules.material(MaterialType.Unit).location(LocationType.Deck).getIndexes()) if (index !== knight) rules.game.items[MaterialType.Unit]![index].location = { type: LocationType.Discard }
+    deployed(rules, { [Blue]: [shapeshifter] })
+    runDeployEffects(rules)
+    expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
+    expect(ageOn(rules, shapeshifter)).toBe(0)
+    expect(ageOn(rules, knight)).toBe(1)
+  })
+})

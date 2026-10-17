@@ -14,6 +14,7 @@ import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
+import { AgeTokens } from '../helpers/AgeTokens'
 
 export class War extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
@@ -186,7 +187,7 @@ export class War extends MaterialRulesPart {
   }
 
   getAgeOnUnit(index: number) {
-    return this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).getQuantity()
+    return new AgeTokens(this).count(index)
   }
 
   getAgeInPlayerRealm(player: PlayerColor) {

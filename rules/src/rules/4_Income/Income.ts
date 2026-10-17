@@ -11,6 +11,7 @@ import { PlayerColor } from '../../PlayerColor'
 import { BuildHelper } from '../helpers/BuildHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { RuleId } from '../RuleId'
+import { AgeTokens } from '../helpers/AgeTokens'
 
 export class Income extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
@@ -70,7 +71,7 @@ export class Income extends MaterialRulesPart {
           .player(playerId)
           .getIndex()
 
-        const hasAgeToken = this.material(MaterialType.Age).location(LocationType.OnCard).parent(index).length > 0
+        const hasAgeToken = new AgeTokens(this).count(index) > 0
 
         return hasAgeToken ? effect.amount : 0
       }
