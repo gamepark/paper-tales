@@ -219,11 +219,12 @@
   "unit.effect.26": "Force <s3/> au lieu de <s2/> si votre Royaume produit au moins une <food/>.",
   "help.unit.cost": "Coût",
   "help.unit.strength": "Force",
-  "help.unit.resources": "Produit",
   "help.unit.copies.label": "Exemplaires",
   "result.end": "Fin",
   "help.unit.resources.per-age": "par jeton Âge",
   "help.unit.resources.if-age": "avec un jeton Âge",
   "help.unit.resources.front": "à l’Avant",
-  "help.unit.resources.back": "à l’Arrière"
+  "help.unit.resources.back": "à l’Arrière",
+  "help.unit.production": "Production",
+  "help.unit.build.resources": "Sa production compte pour payer les constructions. Les ressources ne sont jamais dépensées."
 }

@@ -32,8 +32,8 @@ export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number }> = ({
   return (
     <div css={timelineCss}>
       {steps.map((step, index) => (
-        <div key={index} css={[stepCss, step.on && onCss]}>
-          <span css={[phaseCss, !step.on && current !== index && offCss]}>{index < 6 ? <img src={phaseIcons[index]} alt="" /> : <LegendIcon />}</span>
+        <div key={index} css={[stepCss, step.text && infoCss, step.on && onCss]}>
+          <span css={[phaseCss, !step.on && !step.text && current !== index && offCss]}>{index < 6 ? <img src={phaseIcons[index]} alt="" /> : <LegendIcon />}</span>
           <span css={[nameCss, step.on && nameOnCss]}>
             {names[index]}
             {current === index && <span css={nowCss}>{t('phase.now', 'now')}</span>}
@@ -72,6 +72,11 @@ const stepCss = css`
   min-height: 1.6em;
   padding: 0.05em 0.9em 0.05em 0;
   color: #a59a91;
+`
+
+/** A step with something to say, where the item does not act: plain text */
+const infoCss = css`
+  color: #5c534c;
 `
 
 const onCss = css`

@@ -26,6 +26,7 @@ import { FactTags } from './book/FactTags'
 import { helpIconComponents } from './book/helpIconComponents'
 import { CoinIcon, ResourceIcon, StrengthIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
+import { ProductionLine } from './book/ProductionLine'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
 import { unitPrintedName } from './unitPrintedName'
@@ -70,6 +71,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const produced = resourceCondition !== undefined && owner !== undefined ? new ResourcesHelper(rules.game, owner).getResource(resourceCondition) : 0
   const conditional = effects.some(isChangeWarPower)
 
+  const resources = pattern.resources?.type ?? []
   const timeline: TimelineStep[] = [
     { text: t('help.unit.draft', 'Received at the draft.') },
     { on: steps.has(1), text: t('help.unit.reveal', { defaultValue: 'Revealed: you pay {cost} gold.', cost: pattern.cost }) },
@@ -81,7 +83,10 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       you: inMyKingdom && steps.has(2) ? <WarLine front={front} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
     },
     { on: steps.has(3) },
-    { on: steps.has(4) },
+    {
+      on: steps.has(4),
+      text: resources.length ? t('help.unit.build.resources', 'Its production counts to pay for the constructions. Resources are never spent.') : undefined
+    },
     {
       on: steps.has(5) || tokens > 0,
       text: tokens > 0 ? t('help.unit.age.token', 'It already carries an Age token.') : undefined,
@@ -90,7 +95,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   ]
   if (steps.has(6)) timeline.push({ on: true })
 
-  const resources = pattern.resources?.type ?? []
   const liveLines: ReactNode[] = [
     tokens ? (
       <Trans
@@ -120,22 +124,16 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       name={unitPrintedName(unit)}
       lede={i18n.exists(`unit.effect.${unit}`) ? <Trans i18nKey={`unit.effect.${unit}`} components={helpIconComponents} /> : undefined}
       facts={
-        <FactTags
-          tags={[
-            { label: t('help.unit.cost', 'Cost'), icon: <CoinIcon />, value: pattern.cost },
-            { label: t('help.unit.strength', 'Strength'), icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} /> },
-            ...(resources.length
-              ? [
-                  {
-                    label: t('help.unit.resources', 'Produces'),
-                    icon: resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />),
-                    value: resourceConditionText(pattern.resources?.condition, t)
-                  }
-                ]
-              : []),
-            { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
-          ]}
-        />
+        <>
+          <FactTags
+            tags={[
+              { label: t('help.unit.cost', 'Cost'), icon: <CoinIcon />, value: pattern.cost },
+              { label: t('help.unit.strength', 'Strength'), icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} /> },
+              { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
+            ]}
+          />
+          {resources.length > 0 && <ProductionLine resources={resources} condition={resourceConditionText(pattern.resources?.condition, t)} />}
+        </>
       }
     >
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
