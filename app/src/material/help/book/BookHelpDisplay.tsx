@@ -4,7 +4,7 @@ import { FC } from 'react'
 import ageToken from '../../../images/tokens/Age.jpg'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
-import { bookEm, pageFold } from '../../../theme/book'
+import { bookEm, pageFold, pageTurnCss } from '../../../theme/book'
 import { paper } from '../../../theme/tableTheme'
 
 /**
@@ -16,7 +16,7 @@ export const BookHelpDisplay: FC<MaterialHelpDisplayProps & { scale?: number }> 
   const ageTokens = rules && props.itemIndex !== undefined ? new AgeTokens(rules).count(props.itemIndex) : 0
   return (
     <div css={pageCss}>
-      <div css={itemCss} style={{ fontSize: `${scale / 2.13}em` }}>
+      <div key={props.itemIndex} css={[itemCss, pageTurnCss]} style={{ fontSize: `${scale / 2.13}em` }}>
         <DefaultHelpDisplay {...props} />
         {ageTokens > 0 && <img css={ageCss} src={ageToken} alt="" />}
       </div>
@@ -39,7 +39,7 @@ const pageCss = css`
 
 const itemCss = css`
   position: relative;
-  transform: rotate(-2.5deg);
+  rotate: -2.5deg;
 `
 
 const ageCss = css`

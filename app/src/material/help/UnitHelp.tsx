@@ -21,8 +21,9 @@ import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
+import { FactTags } from './book/FactTags'
 import { helpIconComponents } from './book/helpIconComponents'
-import { ResourceIcon } from './book/HelpIcons'
+import { CoinIcon, ResourceIcon, StrengthIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
@@ -45,7 +46,7 @@ const effectStep = (effect: Effect) => {
  */
 export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const { item, itemIndex } = props
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId()
   const chooseWhereToPlaceTokenMove = useLegalMove((move: MaterialMove) => {
@@ -114,14 +115,17 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
 
   return (
     <BookPage
+      key={itemIndex}
       name={unitPrintedName(unit)}
-      lede={<Trans i18nKey={`unit.effect.${unit}`} defaults="" components={helpIconComponents} />}
+      lede={i18n.exists(`unit.effect.${unit}`) ? <Trans i18nKey={`unit.effect.${unit}`} components={helpIconComponents} /> : undefined}
       facts={
-        <Trans
-          i18nKey="help.unit.facts"
-          defaults="Unit, {copies} copies. Cost {cost} gold, strength {strength}{star}, <res/>."
-          values={{ copies: howManyCardCopies(unit), cost: pattern.cost, strength: pattern.power, star: conditional ? '*' : '' }}
-          components={{ res: <ProducedResources resources={resources} /> }}
+        <FactTags
+          tags={[
+            { icon: <CoinIcon />, label: pattern.cost, title: t('help.unit.cost', 'Cost') },
+            { icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} />, label: t('help.unit.strength', 'Strength'), title: t('help.unit.strength', 'Strength') },
+            { label: resources.length ? <>{t('help.unit.produces', 'Produces')} {resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />)}</> : t('help.unit.no-resource', 'No resource') },
+            { label: t('help.unit.copies', { defaultValue: '{copies} copies', copies: howManyCardCopies(unit) }) }
+          ]}
         />
       }
     >
@@ -132,19 +136,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
         </LiveBox>
       )}
     </BookPage>
-  )
-}
-
-const ProducedResources: FC<{ resources: Resources[] }> = ({ resources }) => {
-  const { t } = useTranslation()
-  if (!resources.length) return <>{t('help.unit.no-resource', 'no resource')}</>
-  return (
-    <>
-      {t('help.unit.produces', 'produces')}{' '}
-      {resources.map((resource, index) => (
-        <ResourceIcon key={index} resource={resource} />
-      ))}
-    </>
   )
 }
 

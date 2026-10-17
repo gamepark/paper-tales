@@ -1,4 +1,4 @@
-import { css } from '@emotion/react'
+import { css, keyframes } from '@emotion/react'
 import { coverTornClip, cutLine, paper, paperFont, paperMuted, rustDeep } from './tableTheme'
 
 /**
@@ -69,4 +69,16 @@ export const bookContentCss = css`
   }
   color: ${cutLine};
   background: linear-gradient(90deg, ${pageFold} 0, ${paper} 2.6em);
+`
+
+const pageTurn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(1.2em);
+  }
+`
+
+/** A page that comes in when the corner of the book turns to another item */
+export const pageTurnCss = css`
+  animation: ${pageTurn} 0.3s ease-out;
 `

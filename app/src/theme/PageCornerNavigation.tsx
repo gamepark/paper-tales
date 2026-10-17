@@ -50,7 +50,7 @@ const cornerCss = css`
 
   > svg {
     position: absolute;
-    top: ${bookEm(0.55)};
+    top: 0.55em;
     color: ${rust};
     font-size: ${bookEm(1.1)};
   }
@@ -64,7 +64,7 @@ const previousCss = css`
   }
 
   > svg {
-    right: ${bookEm(0.55)};
+    right: 0.55em;
   }
 `
 
@@ -76,14 +76,16 @@ const nextCss = css`
   }
 
   > svg {
-    left: ${bookEm(0.55)};
+    left: 0.55em;
   }
 `
 
+/** The folio, centred under the item on the left page (in em of the mockup, the font size of the folio) */
 const folioCss = css`
   position: absolute;
-  bottom: ${bookEm(0.9 + 1.2)};
-  left: ${bookEm(0.55 + 3.4 + 1)};
+  bottom: ${0.9 + 1.2}em;
+  left: 13.4em;
+  transform: translateX(-50%);
   font-family: ${paperFont};
   font-weight: 700;
   font-size: ${bookEm(1)};

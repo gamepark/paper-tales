@@ -1,8 +1,7 @@
 import { css } from '@emotion/react'
 import { FC, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { bookSheetClip } from '../../../theme/tableTheme'
-import { cutLine, paperMuted } from '../../../theme/tableTheme'
+import { bookSheetClip, cutLine, paper, paperMuted } from '../../../theme/tableTheme'
 import { LegendIcon } from './HelpIcons'
 import { phaseIcons } from './phaseIcons'
 
@@ -34,12 +33,12 @@ export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number }> = ({
     <div css={timelineCss}>
       {steps.map((step, index) => (
         <div key={index} css={[stepCss, step.on && onCss]}>
-          {index < 6 ? <img css={[phaseCss, !step.on && current !== index && offCss]} src={phaseIcons[index]} alt="" /> : <span css={[phaseCss, endCss, !step.on && offCss]}><LegendIcon /></span>}
-          <span css={nameCss}>
+          <span css={[phaseCss, !step.on && current !== index && offCss]}>{index < 6 ? <img src={phaseIcons[index]} alt="" /> : <LegendIcon />}</span>
+          <span css={[nameCss, step.on && nameOnCss]}>
             {names[index]}
             {current === index && <span css={nowCss}>{t('phase.now', 'now')}</span>}
           </span>
-          <span css={textCss}>
+          <span css={[textCss, step.on && textOnCss]}>
             {step.text}
             {step.you && <span css={youCss}>{step.you}</span>}
           </span>
@@ -82,6 +81,11 @@ const onCss = css`
   margin: 0.12em 0;
   color: ${cutLine};
 
+  /* the sheet already hides the line */
+  > span:first-of-type {
+    background: none;
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -92,31 +96,43 @@ const onCss = css`
   }
 `
 
+/** The icon sits on paper, so that the line of the timeline never shows through its transparent parts */
 const phaseCss = css`
   position: relative;
   justify-self: center;
-  width: 2.3em;
-`
-
-const endCss = css`
   display: grid;
   place-items: center;
-  font-size: 1.2em;
-  width: auto;
+  width: 2.3em;
+  background: ${paper};
+
+  > img {
+    width: 100%;
+  }
 `
 
+/** A phase where the item does nothing: the icon faded as in the mockup, on the paper backing */
 const offCss = css`
-  opacity: 0.32;
+  > * {
+    opacity: 0.32;
+  }
 `
 
 const nameCss = css`
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
-  font-size: 0.95em;
+  font-size: 0.92em;
+`
+
+const nameOnCss = css`
+  font-size: 1.08em;
 `
 
 const textCss = css`
-  font-size: 0.97em;
+  font-size: 0.95em;
+`
+
+const textOnCss = css`
+  font-size: 1.02em;
 `
 
 const nowCss = css`

@@ -1,14 +1,14 @@
 import { css } from '@emotion/react'
 import { FC, ReactNode } from 'react'
-import { bookBodyFont } from '../../../theme/book'
+import { bookBodyFont, pageTurnCss } from '../../../theme/book'
 import { cutLine, rust, tornClip } from '../../../theme/tableTheme'
 
 /** The right page of the story book: the name, the printed text, the facts, then the timeline and the live box */
 export const BookPage: FC<{ name: ReactNode; lede?: ReactNode; facts?: ReactNode; children: ReactNode }> = ({ name, lede, facts, children }) => (
-  <div css={pageCss}>
+  <div css={[pageCss, pageTurnCss]}>
     <h3 css={nameCss}>{name}</h3>
     {lede && <p css={ledeCss}>{lede}</p>}
-    {facts && <p css={factsCss}>{facts}</p>}
+    {facts}
     {children}
   </div>
 )
@@ -50,11 +50,4 @@ const ledeCss = css`
   font-size: 1.22em;
   line-height: 1.3;
   color: #4f4741;
-`
-
-const factsCss = css`
-  margin: 0 0 0.6em;
-  color: #7a6f67;
-  font-weight: 700;
-  font-size: 0.95em;
 `

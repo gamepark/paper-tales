@@ -210,14 +210,16 @@
   "help.unit.war.you.resource": "Votre royaume produit {count} <res/> : elle compte pour {strength}.",
   "help.unit.age.token": "Elle porte déjà un jeton Âge.",
   "help.unit.age.dies": "Elle meurt à la fin de ce tour.",
-  "help.unit.facts": "Unité, {copies} exemplaires. Coût {cost} or, force {strength}{star}, <res/>.",
-  "help.unit.produces": "produit",
-  "help.unit.no-resource": "aucune ressource",
+  "help.unit.produces": "Produit",
+  "help.unit.no-resource": "Aucune ressource",
   "help.live.kingdom": "Dans votre royaume",
   "help.unit.live.front": "À l’Avant, sans jeton Âge.",
   "help.unit.live.back": "À l’Arrière, sans jeton Âge.",
   "help.unit.live.front.age": "À l’Avant, {tokens} <age/>.",
   "help.unit.live.back.age": "À l’Arrière, {tokens} <age/>.",
   "help.unit.live.produces": "Votre royaume produit {count} <res/>.",
-  "unit.effect.26": "Force <s3/> au lieu de <s2/> si votre Royaume produit au moins une <food/>."
+  "unit.effect.26": "Force <s3/> au lieu de <s2/> si votre Royaume produit au moins une <food/>.",
+  "help.unit.cost": "Coût",
+  "help.unit.strength": "Force",
+  "help.unit.copies": "{copies, plural, one {# exemplaire} other {# exemplaires}}"
 }
