@@ -1,4 +1,4 @@
-import { isChangeWarPower } from '@gamepark/paper-tales/material/effects/3_WarEffects'
+import { isChangeWarPower, isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { howManyCardCopies, Unit } from '@gamepark/paper-tales/material/Unit'
@@ -94,29 +94,30 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     {
       on: steps.has(2),
       text: printed(2),
-      you: inMyKingdom ? <WarLine front={front} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
+      you: inMyKingdom ? <WarLine front={front || effects.some(isWarFromBacklane)} strength={strength} resource={resourceCondition} produced={produced} /> : undefined
     },
     { on: steps.has(3), text: printed(3) },
     { on: steps.has(4), text: printed(4) },
     {
       on: steps.has(5) || tokens > 0,
-      text: printed(5) ?? (tokens > 0 ? t('help.unit.age.token', 'It already carries an Age token.') : undefined),
-      you: dying ? t('help.unit.age.dies', 'It dies at the end of this turn.') : undefined
+      text: printed(5) ?? (tokens > 0 ? t('help.unit.age.token', 'Already carries an Age token.') : undefined),
+      you: dying ? t('help.unit.age.dies', 'Dies at the end of this turn.') : undefined
     }
   ]
   if (steps.has(6)) timeline.push({ on: true, text: printed(6) })
 
+  // Two separate facts: where the unit stands (does it fight?) and its Age tokens (does it die?)
+  const fightsFromBack = effects.some(isWarFromBacklane)
+  const place = front ? 'help.unit.live.front' : fightsFromBack ? 'help.unit.live.back.fights' : 'help.unit.live.back'
+  const age = !tokens ? 'help.unit.live.age.none' : dying ? 'help.unit.live.age.dies' : 'help.unit.live.age.survives'
   const liveLines: ReactNode[] = [
-    tokens ? (
-      <Trans
-        i18nKey={front ? 'help.unit.live.front.age' : 'help.unit.live.back.age'}
-        defaults={front ? 'In the Front, {tokens} <age/>.' : 'In the Back, {tokens} <age/>.'}
-        values={{ tokens }}
-        components={helpIconComponents}
-      />
-    ) : (
-      t(front ? 'help.unit.live.front' : 'help.unit.live.back', front ? 'In the Front, no Age token.' : 'In the Back, no Age token.')
-    )
+    t(place, front ? 'In the Front: fights.' : fightsFromBack ? 'In the Back: fights anyway.' : 'In the Back: does not fight.'),
+    <Trans
+      i18nKey={age}
+      defaults={!tokens ? 'No Age token: gets one at the end of the turn.' : dying ? '{tokens} <age/>: dies at the end of the turn.' : '{tokens} <age/>: survives, and gets one more.'}
+      values={{ tokens }}
+      components={helpIconComponents}
+    />
   ]
   return (
     <BookPage
@@ -146,18 +147,19 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
 }
 
 const WarLine: FC<{ front: boolean; strength: number; resource?: Resources; produced: number }> = ({ front, strength, resource, produced }) => {
-  if (!front) return <Trans i18nKey="help.unit.war.back" defaults="In the Back, it does not fight." />
+  // front: the unit fights (in the Front, or in the Back for the units that fight from there)
+  if (!front) return <Trans i18nKey="help.unit.war.back" defaults="In the Back: does not fight." />
   if (resource !== undefined) {
     return (
       <Trans
         i18nKey="help.unit.war.you.resource"
-        defaults="Your Kingdom produces {count} <res/>: it counts for {strength}."
+        defaults="Your Kingdom produces {count} <res/>: counts for {strength}."
         values={{ count: produced, strength }}
         components={{ res: <ResourceIcon resource={resource} /> }}
       />
     )
   }
-  return <Trans i18nKey="help.unit.war.you" defaults="It counts for {strength}." values={{ strength }} />
+  return <Trans i18nKey="help.unit.war.you" defaults="Counts for {strength}." values={{ strength }} />
 }
 
 /** The condition printed beside the produced resource (the scroll of the card), if any */
