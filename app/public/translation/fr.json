@@ -221,5 +221,9 @@
   "help.unit.strength": "Force",
   "help.unit.resources": "Produit",
   "help.unit.copies.label": "Exemplaires",
-  "result.end": "Fin"
+  "result.end": "Fin",
+  "help.unit.resources.per-age": "par jeton Âge",
+  "help.unit.resources.if-age": "avec un jeton Âge",
+  "help.unit.resources.front": "à l’Avant",
+  "help.unit.resources.back": "à l’Arrière"
 }

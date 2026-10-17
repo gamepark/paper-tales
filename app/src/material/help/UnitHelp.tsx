@@ -8,7 +8,7 @@ import { Effect } from '@gamepark/paper-tales/material/effects/Effect'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { howManyCardCopies, Unit } from '@gamepark/paper-tales/material/Unit'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { LaneType, ResourcesCondition, unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-tales/rules/CustomMoveType'
@@ -18,6 +18,7 @@ import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHe
 import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, useRules } from '@gamepark/react-game'
 import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
+import { TFunction } from 'i18next'
 import { Trans, useTranslation } from 'react-i18next'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
@@ -124,7 +125,13 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
             { label: t('help.unit.cost', 'Cost'), icon: <CoinIcon />, value: pattern.cost },
             { label: t('help.unit.strength', 'Strength'), icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} /> },
             ...(resources.length
-              ? [{ label: t('help.unit.resources', 'Produces'), icon: resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />) }]
+              ? [
+                  {
+                    label: t('help.unit.resources', 'Produces'),
+                    icon: resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />),
+                    value: resourceConditionText(pattern.resources?.condition, t)
+                  }
+                ]
               : []),
             { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
           ]}
@@ -154,4 +161,14 @@ const WarLine: FC<{ front: boolean; strength: number; resource?: Resources; prod
     )
   }
   return <Trans i18nKey="help.unit.war.you" defaults="It counts for {strength}." values={{ strength }} />
+}
+
+/** The condition printed beside the produced resource (the scroll of the card), if any */
+const resourceConditionText = (condition: ResourcesCondition | undefined, t: TFunction): string | undefined => {
+  if (!condition) return undefined
+  if (condition.perAgeToken) return t('help.unit.resources.per-age', 'per Age token')
+  if (condition.ifAgeToken) return t('help.unit.resources.if-age', 'with an Age token')
+  if (condition.onLane === LaneType.FrontLane) return t('help.unit.resources.front', 'in the Front')
+  if (condition.onLane === LaneType.BackLane) return t('help.unit.resources.back', 'in the Back')
+  return undefined
 }
