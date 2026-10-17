@@ -1,11 +1,4 @@
-import { css } from '@emotion/react'
-import { isDeploymentType } from '@gamepark/paper-tales/material/effects/2_DeploymentEffects'
-import { isChangeWarPower, isWarType } from '@gamepark/paper-tales/material/effects/3_WarEffects'
-import { isIncomeType } from '@gamepark/paper-tales/material/effects/4_IncomeEffects'
-import { isBuildEffect } from '@gamepark/paper-tales/material/effects/5_Build'
-import { isAgeEffect } from '@gamepark/paper-tales/material/effects/6_AgeEffects'
-import { isRelicEffect } from '@gamepark/paper-tales/material/effects/7_EndGameEffects'
-import { Effect } from '@gamepark/paper-tales/material/effects/Effect'
+import { isChangeWarPower } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { howManyCardCopies, Unit } from '@gamepark/paper-tales/material/Unit'
@@ -23,6 +16,8 @@ import { TFunction } from 'i18next'
 import { Trans, useTranslation } from 'react-i18next'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
+import { EffectLines } from './book/EffectLines'
+import { effectStep } from './book/effectStep'
 import { FactTags } from './book/FactTags'
 import { helpIconComponents } from './book/helpIconComponents'
 import { CoinIcon, ResourceIcon, StrengthIcon } from './book/HelpIcons'
@@ -31,17 +26,6 @@ import { PrintedLine, PrintedText } from './book/PrintedText'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
 import { unitPrintedName } from './unitPrintedName'
-
-/** The step of the turn (0 to 5, 6 for the end of the game) an effect of a card acts at */
-const effectStep = (effect: Effect) => {
-  if (isDeploymentType(effect)) return 1
-  if (isWarType(effect)) return 2
-  if (isIncomeType(effect)) return 3
-  if (isBuildEffect(effect)) return 4
-  if (isAgeEffect(effect)) return 5
-  if (isRelicEffect(effect)) return 6
-  return undefined
-}
 
 /**
  * The help of a unit, as a page of the story book (validated mockup docs/mockups/help-book.html): the printed effect,
@@ -185,23 +169,3 @@ const resourceConditionText = (condition: ResourcesCondition | undefined, t: TFu
   if (condition.onLane === LaneType.BackLane) return t('help.unit.resources.back', 'in the Back')
   return undefined
 }
-
-/** The printed effects of one phase, one per line */
-const EffectLines: FC<{ lines: ReactNode[] }> = ({ lines }) => (
-  <>
-    {lines.map((line, index) => (
-      <span key={index} css={effectLineCss}>
-        {line}
-      </span>
-    ))}
-  </>
-)
-
-const effectLineCss = css`
-  display: block;
-  font-family: 'Baloo 2', sans-serif;
-  --icon-shift: 0;
-  font-weight: 600;
-  font-size: 1.05em;
-  line-height: 1.3;
-`

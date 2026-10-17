@@ -10,10 +10,10 @@ export type PrintedLine = { phaseIcon?: string; production?: boolean; text: Reac
  * The text printed on the card, put forward on its own sheet: what the card does, as the player reads it on the card
  * (validated mockup docs/mockups/help-book.html, the printed text under the name).
  */
-export const PrintedText: FC<{ lines: PrintedLine[] }> = ({ lines }) => {
+export const PrintedText: FC<{ lines: PrintedLine[]; rule?: boolean }> = ({ lines, rule = true }) => {
   const { t } = useTranslation()
   if (!lines.length) return null
-  const production = lines.some((line) => line.production)
+  const production = rule && lines.some((line) => line.production)
   return (
     <div css={sheetCss}>
       {lines.map((line, index) => (

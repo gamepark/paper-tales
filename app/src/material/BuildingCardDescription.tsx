@@ -15,7 +15,8 @@ import Mine2 from '../images/buildings/en/level2/MineL2.jpg'
 import Tavern2 from '../images/buildings/en/level2/TavernL2.jpg'
 import Temple2 from '../images/buildings/en/level2/TempleL2.jpg'
 import Town2 from '../images/buildings/en/level2/TownL2.jpg'
-import { BuildingHelp } from './help/BuildingHelp'
+import { BuildingBookHelp } from './help/BuildingBookHelp'
+import { BuildingBookHelpDisplay } from './help/book/BuildingBookHelpDisplay'
 import { BuildIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
 import { cardAppearCss } from '../theme/tableTheme'
@@ -48,7 +49,8 @@ export class BuildingCardDescription extends CardDescription {
     return !!item.location?.rotation || super.isFlipped(item, context)
   }
 
-  help = BuildingHelp
+  help = BuildingBookHelp
+  helpDisplay = BuildingBookHelpDisplay
 
   getItemExtraCss(item: MaterialItem, context: ItemContext) {
     // Not built yet: dimmed, unless I can build it right now (I have the resources, the gold and the land, rulebook
