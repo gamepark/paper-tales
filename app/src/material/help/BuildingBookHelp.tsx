@@ -143,8 +143,8 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
       facts={
         <FactTags
           tags={[
-            { label: t('help.building.cost1', 'Level 1'), icon: <CostOptions cost={pattern.cost1} alternate={pattern.cost1Alternate} /> },
-            { label: t('help.building.cost2', 'Level 2'), icon: <CostOptions cost={pattern.cost2} alternate={pattern.cost2Alternate} /> }
+            { label: t('help.building.cost1', 'Level 1 cost'), icon: <CostOptions cost={pattern.cost1} alternate={pattern.cost1Alternate} /> },
+            { label: t('help.building.cost2', 'Level 2 cost'), icon: <CostOptions cost={pattern.cost2} alternate={pattern.cost2Alternate} /> }
           ]}
         />
       }
