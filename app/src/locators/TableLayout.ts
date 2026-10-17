@@ -190,10 +190,11 @@ export const getKingdomScale = (context: MaterialContext, player?: number) => {
 }
 
 /**
- * Kingdom slots: front row (y = 0) on top, the 5th slot (x = 2) on the left
+ * Kingdom slots: front row (y = 0) on top, the 5th slot (x = 2, unlocked by a level 2 building) on the right of the
+ * front row (rulebook p.8)
  */
 export const getKingdomSlotCoordinates = (context: MaterialContext, player: number | undefined, x: number, y: number): XYCoordinates => {
-  const localX = (2 - x) * KINGDOM_COLUMN + unitCardDescription.width / 2
+  const localX = x * KINGDOM_COLUMN + unitCardDescription.width / 2
   const localY = y * KINGDOM_ROW + unitCardDescription.height / 2
   if (!isWarView(context)) return { x: AREA_X + localX, y: AREA_Y + localY }
   const players = getWarPlayers(context)
