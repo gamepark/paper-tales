@@ -25,6 +25,7 @@ import { LiveBox } from './book/LiveBox'
 import { PrintedLine, PrintedText } from './book/PrintedText'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
+import { SymbolLegend } from './book/SymbolLegend'
 import { unitPrintedName } from './unitPrintedName'
 
 /**
@@ -137,6 +138,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       }
     >
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
+      <SymbolLegend texts={effects.map((_, index) => t(effects.length > 1 ? `unit.effect.${unit}.${index + 1}` : `unit.effect.${unit}`))} />
       {inMyKingdom && (
         <LiveBox title={t('help.live.kingdom', 'In your Kingdom')} lines={liveLines}>
           {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />}

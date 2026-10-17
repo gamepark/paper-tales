@@ -347,5 +347,7 @@
   "help.unit.live.back.fights": "À l’Arrière : combat quand même.",
   "help.unit.live.age.none": "Aucun jeton Âge : en recevra un à la fin du tour.",
   "help.unit.live.age.dies": "{tokens} <age/> : meurt à la fin du tour.",
-  "help.unit.live.age.survives": "{tokens} <age/> : survit et en recevra un de plus."
+  "help.unit.live.age.survives": "{tokens} <age/> : survit et en recevra un de plus.",
+  "help.symbol.deploy": "<deploy/> : quand la carte est révélée, une seule fois.",
+  "help.symbol.ageplus": "<ageplus/> : placez un jeton Âge."
 }
