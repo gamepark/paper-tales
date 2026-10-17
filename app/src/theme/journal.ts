@@ -37,9 +37,11 @@ export const historyEntryCss = css`
   color: ${cutLine};
   border-radius: 0;
   border-bottom: 1.5px solid #4a454026;
-  padding: 0.35em 0.5em 0.35em 1.8em;
+  padding: 0.3em 0.5em 0.3em 1.4em;
   font-family: 'Mulish', sans-serif;
   font-weight: 500;
+  font-size: 1.5em;
+  line-height: 1.3;
 `
 
 /** The last line of the notebook, where the discussion is written: a rule of ink above, the pen in rust */
