@@ -624,6 +624,16 @@ describe('Mystical Healer', () => {
     expect(saves.map((move) => (move as CustomMove).data.unitIndex)).toEqual([knight])
   })
 
+  it('phase 6: a unit that would not die with a single token (Salamander) is not offered', () => {
+    const rules = newRules()
+    rules.memorize(Memory.Time, 1)
+    place(rules, Unit.MysticalHealer, Blue, 0, 0)
+    const salamander = place(rules, Unit.Salamander, Blue, 1, 0)
+    addAge(rules, salamander, Blue, 1)
+    runBuildPassAndAge(rules)
+    expect(rules.getLegalMoves(Blue).filter(isCustomMoveType(CustomMoveType.MysticEffect))).toEqual([])
+  })
+
   it('phase 6: the saved unit does not die, and ages like the others', () => {
     const { rules, knight, healer } = healerTable()
     const save = rules.getLegalMoves(Blue).find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move as CustomMove).data.unitIndex === knight)!
