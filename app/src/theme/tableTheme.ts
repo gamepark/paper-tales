@@ -28,9 +28,16 @@ const tornPolygon = (seed: number, depth: number, side: number, steps = 18) => {
   const random = () => (state = (state * 9301 + 49297) % 233280) / 233280
   const points: string[] = []
   for (let i = 0; i <= steps; i++) points.push(`${(i / steps) * 100}% ${(random() * depth).toFixed(1)}%`)
-  for (let i = 0; i <= 4; i++) points.push(`${(100 - random() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  // The sides start inside the edges: a side point on a corner would stick out of the torn top or bottom edge as a spike
+  for (let i = 0; i <= 4; i++) {
+    const x = (100 - random() * side).toFixed(1)
+    if (i > 0 && i < 4) points.push(`${x}% ${(i / 4) * 100}%`)
+  }
   for (let i = steps; i >= 0; i--) points.push(`${(i / steps) * 100}% ${(100 - random() * depth).toFixed(1)}%`)
-  for (let i = 4; i >= 0; i--) points.push(`${(random() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  for (let i = 4; i >= 0; i--) {
+    const x = (random() * side).toFixed(1)
+    if (i > 0 && i < 4) points.push(`${x}% ${(i / 4) * 100}%`)
+  }
   return `polygon(${points.join(',')})`
 }
 
