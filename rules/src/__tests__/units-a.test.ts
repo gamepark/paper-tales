@@ -37,7 +37,7 @@ const run = (rules: PaperTalesRules, move: MaterialMove, until?: RuleId) => {
   const queue: MaterialMove[] = rules.play(rules.randomize(move))
   while (queue.length > 0) {
     if (until !== undefined && rules.game.rule?.id === until) return
-    queue.push(...rules.play(rules.randomize(queue.shift()!)))
+    queue.unshift(...rules.play(rules.randomize(queue.shift()!)))
   }
 }
 

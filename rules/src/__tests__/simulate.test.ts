@@ -6,7 +6,7 @@ import { PlayerColor } from '../PlayerColor'
 
 const play = (rules: PaperTalesRules, move: MaterialMove) => {
   const queue: MaterialMove[] = rules.play(rules.randomize(move))
-  while (queue.length > 0) queue.push(...rules.play(rules.randomize(queue.shift()!)))
+  while (queue.length > 0) queue.unshift(...rules.play(rules.randomize(queue.shift()!)))
 }
 
 /**

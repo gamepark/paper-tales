@@ -40,7 +40,7 @@ const newGame = (units: Unit[], buildings: [Building, 1 | 2][]) => {
 
 const playAll = (rules: PaperTalesRules, move: MaterialMove) => {
   const queue: MaterialMove[] = rules.play(move)
-  while (queue.length) queue.push(...rules.play(rules.randomize(queue.shift()!)))
+  while (queue.length) queue.unshift(...rules.play(rules.randomize(queue.shift()!)))
 }
 
 /** The score Blue gains at the wars */

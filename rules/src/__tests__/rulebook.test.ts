@@ -16,7 +16,7 @@ const newGame = (players: PlayerColor[]) => new PaperTalesSetup().setup({ player
 
 const playConsequences = (rules: PaperTalesRules, move: MaterialMove) => {
   const queue: MaterialMove[] = rules.play(rules.randomize(move))
-  while (queue.length > 0) queue.push(...rules.play(rules.randomize(queue.shift()!)))
+  while (queue.length > 0) queue.unshift(...rules.play(rules.randomize(queue.shift()!)))
 }
 
 const units = (rules: PaperTalesRules, type: LocationType) => rules.material(MaterialType.Unit).location(type)

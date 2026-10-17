@@ -76,7 +76,7 @@ const isItemMove = (move: MaterialMove) => move.kind === MoveKind.ItemMove
 /** Runs the start of one phase and its consequences, without going on to the next phase */
 const runPhase = (rules: PaperTalesRules, start: MaterialMove) => {
   const queue = rules.play(start).filter(isItemMove)
-  while (queue.length) queue.push(...rules.play(rules.randomize(queue.shift()!)).filter(isItemMove))
+  while (queue.length) queue.unshift(...rules.play(rules.randomize(queue.shift()!)).filter(isItemMove))
 }
 
 const runRule = (rules: PaperTalesRules, ruleId: RuleId) => runPhase(rules, rules.startRule(ruleId))

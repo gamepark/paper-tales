@@ -81,7 +81,7 @@ describe('Mystical Healer and the next turn', () => {
     const healer = rules.material(MaterialType.Unit).id(Unit.MysticalHealer).getIndexes()[0]
     game.items[MaterialType.Unit]![healer].location = { type: LocationType.PlayerUnitBoard, player: PlayerColor.Green, x: 0, y: 0 }
     const queue = rules.play(rules.startSimultaneousRule(RuleId.SaveUnitsWithMysticEffect, [PlayerColor.Green]))
-    while (queue.length) queue.push(...rules.play(queue.shift()!))
+    while (queue.length) queue.unshift(...rules.play(queue.shift()!))
     // The next turn begins: everyone drafts
     expect(game.rule?.id).toBe(RuleId.Draft)
     for (const player of players) expect(rules.isTurnToPlay(player)).toBe(true)

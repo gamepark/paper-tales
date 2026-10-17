@@ -13,7 +13,7 @@ import { RuleId } from '../rules/RuleId'
 
 const playAll = (rules: PaperTalesRules, move: MaterialMove) => {
   const queue: MaterialMove[] = rules.play(move)
-  while (queue.length) queue.push(...rules.play(rules.randomize(queue.shift()!)))
+  while (queue.length) queue.unshift(...rules.play(rules.randomize(queue.shift()!)))
 }
 
 /** Blue owns a built Mine, the given units, and the given gold */
