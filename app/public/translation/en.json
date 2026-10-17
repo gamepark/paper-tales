@@ -348,6 +348,20 @@
   "help.unit.live.age.none": "No Age token: gets one at the end of the turn.",
   "help.unit.live.age.dies": "{tokens} <age/>: dies at the end of the turn.",
   "help.unit.live.age.survives": "{tokens} <age/>: survives, and gets one more.",
-  "help.symbol.deploy": "<deploy/>: when the card is revealed, only once.",
-  "help.symbol.ageplus": "<ageplus/>: place an Age token."
+  "help.symbol.deploy": "when the card is revealed, only once",
+  "help.symbol.ageplus": "place an Age token",
+  "help.symbol.age": "Age token",
+  "help.symbol.b1": "level 1 Building",
+  "help.symbol.b2": "level 2 Building",
+  "help.symbol.food": "food",
+  "help.symbol.wood": "wood",
+  "help.symbol.crystal": "crystal",
+  "help.symbol.gold": "gold",
+  "help.symbol.pl": "Legend point",
+  "help.symbol.phase4": "Income phase",
+  "help.symbol.pl.n": "{count, plural, one {# Legend point} other {# Legend points}}",
+  "help.symbol.pl.minus": "{count, plural, one {# Legend point} other {# Legend points}} less",
+  "help.symbol.g.n": "{count} gold",
+  "help.symbol.s.n": "strength {count}",
+  "help.symbol.sp.n": "+{count} strength"
 }

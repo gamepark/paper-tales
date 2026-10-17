@@ -61,6 +61,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   // The text printed on the card: an effect of a phase goes in the line of its phase; what is permanent (the production
   // scroll, an effect of no phase) stays at the top
   const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
+  const effectKeys: string[][] = [[], [], [], [], [], [], []]
   const printedLines: PrintedLine[] = []
   effects.forEach((effect, index) => {
     const key = effects.length > 1 ? `unit.effect.${unit}.${index + 1}` : `unit.effect.${unit}`
@@ -68,7 +69,10 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     const text = <Trans key={key} i18nKey={key} components={helpIconComponents} />
     const step = effectStep(effect)
     if (step === undefined) printedLines.push({ text })
-    else effectTexts[step].push(text)
+    else {
+      effectTexts[step].push(text)
+      effectKeys[step].push(t(key))
+    }
   })
   if (i18n.exists(`unit.production.${unit}`)) {
     printedLines.push({ production: true, text: <Trans i18nKey={`unit.production.${unit}`} components={helpIconComponents} /> })
@@ -86,7 +90,13 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       )
     })
   }
-  const printed = (step: number) => (effectTexts[step].length ? <EffectLines lines={effectTexts[step]} /> : undefined)
+  const printed = (step: number) =>
+    effectTexts[step].length ? (
+      <>
+        <EffectLines lines={effectTexts[step]} />
+        <SymbolLegend texts={effectKeys[step]} />
+      </>
+    ) : undefined
 
   // Each step: the printed effect of that phase, and what it means in the game now
   const timeline: TimelineStep[] = [
@@ -138,7 +148,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       }
     >
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
-      <SymbolLegend texts={effects.map((_, index) => t(effects.length > 1 ? `unit.effect.${unit}.${index + 1}` : `unit.effect.${unit}`))} />
       {inMyKingdom && (
         <LiveBox title={t('help.live.kingdom', 'In your Kingdom')} lines={liveLines}>
           {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />}

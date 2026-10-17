@@ -1,41 +1,63 @@
 import { css } from '@emotion/react'
-import { FC } from 'react'
-import { Trans } from 'react-i18next'
+import { FC, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { helpIconComponents } from './helpIconComponents'
 
-/** The symbols of the printed texts that need a word, each with its meaning */
-const symbols = ['deploy', 'ageplus'] as const
+type Symbol = { tag: string; key: string; count?: number }
 
-/** Which of these symbols the given printed texts use */
-const usedSymbols = (texts: string[]) => symbols.filter((symbol) => texts.some((text) => text.includes(`<${symbol}/>`)))
+/** What an icon of the printed texts means: its translation key, and its number when it carries one */
+const describe = (tag: string): Symbol | undefined => {
+  if (['deploy', 'ageplus', 'age', 'b1', 'b2', 'food', 'wood', 'crystal', 'gold', 'pl'].includes(tag)) return { tag, key: tag }
+  const phase = tag.match(/^phase(\d)$/)
+  if (phase) return { tag, key: `phase${phase[1]}` }
+  const valued = tag.match(/^(plm|pl|g|sp|s)(\d)$/)
+  if (!valued) return undefined
+  const [, kind, digit] = valued
+  return { tag, key: kind === 'plm' ? 'pl.minus' : `${kind}.n`, count: Number(digit) }
+}
 
-/** A small legend under the timeline: what each symbol of the card means */
+/** The icons used by the given printed texts, in reading order, each once */
+const usedSymbols = (texts: string[]) => {
+  const symbols: Symbol[] = []
+  for (const text of texts) {
+    for (const [, tag] of text.matchAll(/<([a-z0-9]+)\/>/g)) {
+      const symbol = describe(tag)
+      if (symbol && !symbols.some((known) => known.tag === tag)) symbols.push(symbol)
+    }
+  }
+  return symbols
+}
+
+/** A small grey line under a printed effect: each of its icons and what it means */
 export const SymbolLegend: FC<{ texts: string[] }> = ({ texts }) => {
-  const used = usedSymbols(texts)
-  if (!used.length) return null
+  const { t } = useTranslation()
+  const symbols = usedSymbols(texts)
+  if (!symbols.length) return null
   return (
-    <div css={legendCss}>
-      {used.map((symbol) => (
-        <p key={symbol} css={lineCss}>
-          <Trans
-            i18nKey={`help.symbol.${symbol}`}
-            defaults={symbol === 'deploy' ? '<deploy/>: when the card is revealed, once.' : '<ageplus/>: place an Age token.'}
-            components={helpIconComponents}
-          />
-        </p>
+    <span css={legendCss}>
+      {symbols.map((symbol, index) => (
+        <Fragment key={symbol.tag}>
+          {index > 0 && ' · '}
+          <span css={itemCss}>
+            {helpIconComponents[symbol.tag as keyof typeof helpIconComponents]} {t(`help.symbol.${symbol.key}`, { count: symbol.count })}
+          </span>
+        </Fragment>
       ))}
-    </div>
+    </span>
   )
 }
 
 const legendCss = css`
-  display: grid;
-  gap: 0.2em;
-  margin: -0.6em 0 1em 0.4em;
+  display: block;
+  margin-top: 0.25em;
+  font-family: 'Mulish', sans-serif;
+  --icon-shift: -0.15em;
+  font-weight: 500;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: #7a6f67;
 `
 
-const lineCss = css`
-  margin: 0;
-  font-size: 0.88em;
-  color: #6b6058;
+const itemCss = css`
+  white-space: nowrap;
 `

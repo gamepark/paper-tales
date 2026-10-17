@@ -348,6 +348,20 @@
   "help.unit.live.age.none": "Aucun jeton Âge : en recevra un à la fin du tour.",
   "help.unit.live.age.dies": "{tokens} <age/> : meurt à la fin du tour.",
   "help.unit.live.age.survives": "{tokens} <age/> : survit et en recevra un de plus.",
-  "help.symbol.deploy": "<deploy/> : quand la carte est révélée, une seule fois.",
-  "help.symbol.ageplus": "<ageplus/> : placez un jeton Âge."
+  "help.symbol.deploy": "quand la carte est révélée, une seule fois",
+  "help.symbol.ageplus": "placez un jeton Âge",
+  "help.symbol.age": "jeton Âge",
+  "help.symbol.b1": "Bâtiment de niveau 1",
+  "help.symbol.b2": "Bâtiment de niveau 2",
+  "help.symbol.food": "viande",
+  "help.symbol.wood": "bois",
+  "help.symbol.crystal": "cristal",
+  "help.symbol.gold": "or",
+  "help.symbol.pl": "point de Légende",
+  "help.symbol.phase4": "phase des Revenus",
+  "help.symbol.pl.n": "{count, plural, one {# point} other {# points}} de Légende",
+  "help.symbol.pl.minus": "{count, plural, one {# point} other {# points}} de Légende en moins",
+  "help.symbol.g.n": "{count} or",
+  "help.symbol.s.n": "force {count}",
+  "help.symbol.sp.n": "+{count} de force"
 }

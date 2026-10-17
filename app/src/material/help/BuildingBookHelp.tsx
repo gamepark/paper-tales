@@ -24,6 +24,7 @@ import { LiveBox } from './book/LiveBox'
 import { currentPhaseIndex } from './book/phases'
 import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
 import { PrintedLine, PrintedText } from './book/PrintedText'
+import { SymbolLegend } from './book/SymbolLegend'
 
 const levelIcons = [building1, building2]
 
@@ -82,6 +83,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
 
   // The printed text of each level: an effect in the line of its phase, the production scroll at the top
   const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
+  const effectKeys: string[][] = [[], [], [], [], [], [], []]
   const printedLines: PrintedLine[] = []
   ;[pattern.effect1, pattern.effect2].forEach((effects, level) => {
     const effect = effects?.[0]
@@ -94,7 +96,10 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
       </span>
     )
     if (step === undefined) printedLines.push({ text })
-    else effectTexts[step].push(text)
+    else {
+      effectTexts[step].push(text)
+      effectKeys[step].push(t(key))
+    }
   })
   // The productions of both levels on one scroll line, each after the icon of its level
   const productions = [pattern.resources1, pattern.resources2].flatMap((resources, level) =>
@@ -117,7 +122,13 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
       )
     })
   }
-  const printed = (step: number) => (effectTexts[step].length ? <EffectLines lines={effectTexts[step]} /> : undefined)
+  const printed = (step: number) =>
+    effectTexts[step].length ? (
+      <>
+        <EffectLines lines={effectTexts[step]} />
+        <SymbolLegend texts={effectKeys[step]} />
+      </>
+    ) : undefined
 
   const timeline: TimelineStep[] = [
     {},
