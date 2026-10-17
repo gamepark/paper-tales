@@ -352,5 +352,6 @@
   "help.symbol.ageplus": "place an Age token",
   "help.symbol.b1": "level 1 Building",
   "help.symbol.b2": "level 2 Building",
-  "help.symbol.phase4": "Income phase"
+  "help.symbol.phase4": "Income phase",
+  "help.building.production.more": "also"
 }

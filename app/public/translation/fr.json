@@ -352,5 +352,6 @@
   "help.symbol.ageplus": "placez un jeton Âge",
   "help.symbol.b1": "Bâtiment de niveau 1",
   "help.symbol.b2": "Bâtiment de niveau 2",
-  "help.symbol.phase4": "phase des Revenus"
+  "help.symbol.phase4": "phase des Revenus",
+  "help.building.production.more": "en plus"
 }

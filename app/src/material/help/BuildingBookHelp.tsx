@@ -113,6 +113,8 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
           {productions.map(({ level, resources }) => (
             <span key={level} css={productionLevelCss}>
               <LevelLabel level={level} />
+              {/* The level 2 face keeps the production of the level 1 */}
+              {level === 1 && productions.length > 1 && <>{t('help.building.production.more', 'also')} </>}
               {resources.map((resource, index) => (
                 <ResourceIcon key={index} resource={resource} />
               ))}
