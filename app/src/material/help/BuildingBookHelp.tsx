@@ -1,6 +1,4 @@
-import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
@@ -11,49 +9,16 @@ import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, usePlayer
 import { isMoveItemType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import building1 from '../../images/icons/printed-building-1.webp'
-import building2 from '../../images/icons/printed-building-2.webp'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
-import { EffectLines } from './book/EffectLines'
-import { effectStep } from './book/effectStep'
+import { buildingPrintedContent } from './book/buildingPrinted'
+import { Cost } from './book/Cost'
 import { FactTags } from './book/FactTags'
-import { helpIconComponents } from './book/helpIconComponents'
-import { CoinIcon, PrintedIcon, ResourceIcon } from './book/HelpIcons'
+import { CoinIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
 import { currentPhaseIndex } from './book/phases'
-import { PhaseTimeline, TimelineStep } from './book/PhaseTimeline'
-import { PrintedLine, PrintedText } from './book/PrintedText'
-import { SymbolLegend } from './book/SymbolLegend'
-
-const levelIcons = [building1, building2]
-
-/** A cost printed on the card: its resources, gold coins written as one coin with their number */
-const Cost: FC<{ cost: Resources[] }> = ({ cost }) => {
-  const gold = cost.filter((resource) => resource === Resources.Gold).length
-  return (
-    <>
-      {cost
-        .filter((resource) => resource !== Resources.Gold)
-        .map((resource, index) => (
-          <ResourceIcon key={index} resource={resource} />
-        ))}
-      {gold > 0 && helpIconComponents[`g${gold}` as keyof typeof helpIconComponents]}
-    </>
-  )
-}
-
-const CostOptions: FC<{ cost: Resources[]; alternate?: Resources[] }> = ({ cost, alternate }) => (
-  <>
-    <Cost cost={cost} />
-    {alternate && (
-      <>
-        {' / '}
-        <Cost cost={alternate} />
-      </>
-    )}
-  </>
-)
+import { PhaseTimeline } from './book/PhaseTimeline'
+import { PrintedText } from './book/PrintedText'
 
 /**
  * The help of a building, as a page of the story book (validated mockup docs/mockups/help-book.html, Tavern): both
@@ -66,7 +31,6 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
   const me = usePlayerId()
   const ownerName = usePlayerName(item.location?.player)
   const building = item.id as Building
-  const pattern = buildingCardCaracteristics[building]
   const owner = item.location?.player
   const mine = owner !== undefined && owner === me
   const built = item.location?.type === LocationType.PlayerBuildingBoard
@@ -82,95 +46,10 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
   const buildLevel2 = useLegalMove(moveTo(true, false))
   const upgrade = useLegalMove(moveTo(true, true))
 
-  // The printed text of each level: an effect in the line of its phase, the production scroll at the top
-  const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
-  const effectKeys: string[][] = [[], [], [], [], [], [], []]
-  const printedLines: PrintedLine[] = []
-  ;[pattern.effect1, pattern.effect2].forEach((effects, level) => {
-    const effect = effects?.[0]
-    const key = `building.effect.${building}.${level + 1}`
-    if (!effect || !i18n.exists(key)) return
-    const step = effectStep(effect)
-    const text = (
-      <span key={key}>
-        <LevelLabel level={level} /> <Trans i18nKey={key} components={helpIconComponents} />
-      </span>
-    )
-    if (step === undefined) printedLines.push({ text })
-    else {
-      effectTexts[step].push(text)
-      effectKeys[step].push(t(key))
-    }
-  })
-  // The productions of both levels on one scroll line, each after the icon of its level
-  const productions = [pattern.resources1, pattern.resources2].flatMap((resources, level) =>
-    resources?.length ? [{ level, resources }] : []
-  )
-  if (productions.length) {
-    printedLines.push({
-      production: true,
-      text: (
-        <>
-          {productions.map(({ level, resources }) => (
-            <span key={level} css={productionLevelCss}>
-              <LevelLabel level={level} />
-              {/* The level 2 face keeps the production of the level 1 */}
-              {level === 1 && productions.length > 1 && <>{t('help.building.production.more', 'also')} </>}
-              {resources.map((resource, index) => (
-                <ResourceIcon key={index} resource={resource} />
-              ))}
-            </span>
-          ))}
-        </>
-      )
-    })
-  }
-  const printed = (step: number) =>
-    effectTexts[step].length ? (
-      <>
-        <EffectLines lines={effectTexts[step]} />
-        <SymbolLegend texts={effectKeys[step]} />
-      </>
-    ) : undefined
-
-  const timeline: TimelineStep[] = [
-    {},
-    {
-      on: true,
-      text: (
-        <span>
-          <LevelLabel level={1} /> {t('help.building.slot', 'your Kingdom gets a 5th spot for a Unit, in the Front.')}
-        </span>
-      )
-    },
-    { on: effectTexts[2].length > 0, text: printed(2) },
-    { on: effectTexts[3].length > 0, text: printed(3) },
-    {
-      on: true,
-      text: t(
-        'help.building.rule',
-        'One action per turn: build a Building at level 1, build it directly at level 2, or upgrade a level 1 Building. Building costs 2 more gold for each Building you already have; upgrading does not.'
-      )
-    },
-    {},
-    { on: true, text: <Trans i18nKey="help.building.end" defaults="<pl1/> at level 1, <pl3/> at level 2." components={helpIconComponents} /> }
-  ]
-
+  const { name, lines, facts, steps } = buildingPrintedContent(building, i18n)
   return (
-    <BookPage
-      key={itemIndex}
-      name={t(`building.${building}`)}
-      lede={<PrintedText lines={printedLines} rule={false} />}
-      facts={
-        <FactTags
-          tags={[
-            { label: t('help.building.cost1', 'Level 1 cost'), icon: <CostOptions cost={pattern.cost1} alternate={pattern.cost1Alternate} /> },
-            { label: t('help.building.cost2', 'Level 2 cost'), icon: <CostOptions cost={pattern.cost2} alternate={pattern.cost2Alternate} /> }
-          ]}
-        />
-      }
-    >
-      <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
+    <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} rule={false} />} facts={<FactTags tags={facts} />}>
+      <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
       {mine && (
         <BuildLiveBox
           building={building}
@@ -263,27 +142,3 @@ const BuildLiveBox: FC<{
   }
   return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines} />
 }
-
-const productionLevelCss = css`
-  & + & {
-    margin-left: 0.8em;
-  }
-`
-
-/** The level an effect or a production belongs to: the icon printed on the card, and its name */
-const LevelLabel: FC<{ level: number }> = ({ level }) => {
-  const { t } = useTranslation()
-  return (
-    <span css={levelLabelCss}>
-      <PrintedIcon src={levelIcons[level]} />
-      {t(level ? 'help.building.level.2' : 'help.building.level.1', level ? 'Level 2:' : 'Level 1:')}
-    </span>
-  )
-}
-
-const levelLabelCss = css`
-  margin-right: 0.25em;
-  color: #6b6058;
-  font-weight: 700;
-  white-space: nowrap;
-`

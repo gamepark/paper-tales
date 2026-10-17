@@ -1,6 +1,6 @@
 import { DevToolEntry, Dialog } from '@gamepark/react-game'
 import { FC, lazy, Suspense, useState } from 'react'
-import { dialogCss } from './catalogue.css'
+import { contentCss, dialogCss } from './catalogue.css'
 
 // Loaded on demand: the catalogue reads the card descriptions, which depend on the table layout, which depends on them.
 // Importing it with the table would evaluate the descriptions before the layout is ready.
@@ -17,11 +17,14 @@ export const CardsCatalogue: FC = () => {
     <>
       <DevToolEntry icon="🂡" label="Cartes" desc="Toutes les cartes et leurs infos" onClick={() => setOpen(true)} />
       <Dialog open={open} onBackdropClick={() => setOpen(false)} css={dialogCss}>
-        {open && (
-          <Suspense fallback={null}>
-            <CatalogueContent close={() => setOpen(false)} />
-          </Suspense>
-        )}
+        {/* The text is scaled inside: on the dialog itself, it would scale the book cover too */}
+        <div css={contentCss}>
+          {open && (
+            <Suspense fallback={null}>
+              <CatalogueContent close={() => setOpen(false)} />
+            </Suspense>
+          )}
+        </div>
       </Dialog>
     </>
   )

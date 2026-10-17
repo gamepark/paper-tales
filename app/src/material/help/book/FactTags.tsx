@@ -2,8 +2,11 @@ import { css } from '@emotion/react'
 import { FC, ReactNode } from 'react'
 import { paperMuted, tornClip } from '../../../theme/tableTheme'
 
+/** A fact printed on a card: a label, an icon, a value */
+export type FactTag = { label: ReactNode; icon?: ReactNode; value?: ReactNode }
+
 /** The facts printed on a card, each on its own torn tag: an icon and a value */
-export const FactTags: FC<{ tags: { label: ReactNode; icon?: ReactNode; value?: ReactNode }[] }> = ({ tags }) => (
+export const FactTags: FC<{ tags: FactTag[] }> = ({ tags }) => (
   <div css={rowCss}>
     {tags.map((tag, index) => (
       <span key={index} css={tagCss}>

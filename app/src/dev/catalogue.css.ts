@@ -1,10 +1,14 @@
 import { css } from '@emotion/react'
-import { cutLine, paperMuted, rust, tornClip } from '../theme/tableTheme'
+import { cutLine, paperMuted, rust } from '../theme/tableTheme'
 
 /** Styles of the cards catalogue (development only): a list of cards, each with its image and everything the code knows about it */
 export const dialogCss = css`
   width: 92vw;
   height: 88vh;
+`
+
+export const contentCss = css`
+  height: 100%;
   font-size: 2em;
 `
 
@@ -117,61 +121,9 @@ export const titleCss = css`
   }
 `
 
-export const tagsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4em;
-  margin-bottom: 0.4em;
-
-  > span {
-    position: relative;
-    isolation: isolate;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    padding: 0.15em 0.7em 0.1em;
-    font-family: 'Baloo 2', sans-serif;
-    font-weight: 700;
-    white-space: nowrap;
-
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background: ${paperMuted};
-      clip-path: ${tornClip};
-    }
-  }
-`
-
-export const linesCss = css`
-  display: grid;
-  gap: 0.25em;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  > li {
-    display: grid;
-    grid-template-columns: 2em 1fr;
-    align-items: center;
-    gap: 0.5em;
-  }
-`
-
-export const phaseIconCss = css`
-  width: 2em;
-`
-
-export const printedCss = css`
-  font-family: 'Baloo 2', sans-serif;
-  font-weight: 600;
-  --icon-shift: 0;
-`
-
 export const codeCss = css`
-  display: block;
+  display: grid;
+  margin-top: 0.3em;
   font-family: monospace;
   font-size: 0.8em;
   color: #7a6f67;

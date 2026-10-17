@@ -16,10 +16,11 @@ export type TimelineStep = {
 
 /**
  * The life of the item over a turn (validated mockup docs/mockups/help-book.html): the 6 phases in order with their
- * official icon, the ones where it acts on paper, the current phase marked.
+ * official icon, the ones where it acts on paper, the current phase marked. With onlyActive, the other phases are left out.
  */
-export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number }> = ({ steps, current }) => {
-  const { t } = useTranslation()
+export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number; onlyActive?: boolean; lng?: string }> = ({ steps, current, onlyActive, lng }) => {
+  const { i18n } = useTranslation()
+  const t = i18n.getFixedT(lng ?? i18n.language)
   const names = [
     t('phase.1', 'Recruitment'),
     t('phase.2', 'Deployment'),
@@ -31,7 +32,7 @@ export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number }> = ({
   ]
   return (
     <div css={timelineCss}>
-      {steps.map((step, index) => (
+      {steps.map((step, index) => (onlyActive && !step.on && !step.text && !step.you) ? null : (
         <div key={index} css={[stepCss, step.text && infoCss, (step.on || step.you) && onCss]}>
           <span css={[phaseCss, !step.on && !step.text && !step.you && current !== index && offCss]}>{index < 6 ? <img src={phaseIcons[index]} alt="" /> : <LegendIcon />}</span>
           <span css={[nameCss, step.on && nameOnCss]}>
