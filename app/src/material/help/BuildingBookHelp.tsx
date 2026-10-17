@@ -90,7 +90,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
     const step = effectStep(effect)
     const text = (
       <span key={key}>
-        <PrintedIcon src={levelIcons[level]} /> <Trans i18nKey={key} components={helpIconComponents} />
+        <LevelLabel level={level} /> <Trans i18nKey={key} components={helpIconComponents} />
       </span>
     )
     if (step === undefined) printedLines.push({ text })
@@ -107,7 +107,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
         <>
           {productions.map(({ level, resources }) => (
             <span key={level} css={productionLevelCss}>
-              <PrintedIcon src={levelIcons[level]} />
+              <LevelLabel level={level} />
               {resources.map((resource, index) => (
                 <ResourceIcon key={index} resource={resource} />
               ))}
@@ -128,7 +128,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
       on: true,
       text: t(
         'help.building.rule',
-        'One action: build at level 1, directly at level 2 (both costs) or upgrade (level 2 cost, no Landcost). Landcost: 2 gold per Building you have.'
+        'One action per turn: build a Building at level 1, build it directly at level 2, or upgrade a level 1 Building. Building costs 2 more gold for each Building you already have; upgrading does not.'
       )
     },
     {},
@@ -150,11 +150,12 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
       }
     >
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
-      {mine && !level2 && (
+      {mine && (
         <BuildLiveBox
           building={building}
           player={owner}
           built={built}
+          level2={level2}
           buttons={[buildLevel1, buildLevel2, upgrade]}
           onBuild={closeDialog}
         />
@@ -164,65 +165,74 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
 }
 
 /** What the player can build now: the Landcost, their gold, and each construction with its price or what it lacks */
-const BuildLiveBox: FC<{ building: Building; player: number; built: boolean; buttons: (MaterialMove | undefined)[]; onBuild?: () => void }> = ({
+const BuildLiveBox: FC<{
+  building: Building
+  player: number
+  built: boolean
+  level2: boolean
+  buttons: (MaterialMove | undefined)[]
+  onBuild?: () => void
+}> = ({
   onBuild,
   building,
   player,
   built,
+  level2,
   buttons: [buildLevel1, buildLevel2, upgrade]
 }) => {
   const { t } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const helper = new BuildHelper(rules.game, player)
   const produced = new ResourcesHelper(rules.game, player)
-  const pattern = buildingCardCaracteristics[building]
 
+  // The resources a cost lacks (they are never spent: the kingdom must produce them)
   const missing = (cost: Resources[]) => {
     const counts = new Map<Resources, number>()
     for (const resource of cost) if (resource !== Resources.Gold) counts.set(resource, (counts.get(resource) ?? 0) + 1)
     return [...counts].flatMap(([resource, count]) => Array(Math.max(0, count - produced.getResource(resource))).fill(resource) as Resources[])
   }
-  const line = (action: BuildAction, label: string, cost: Resources[], move?: MaterialMove) => {
-    const gold = helper.getGoldToPay(building, action)
-    if (gold !== undefined) {
-      return (
-        <span>
-          {t(label, { gold })}
-          {move && (
-            <>
-              {' '}
-              <PlayMoveButton css={tableButtonCss} move={move} onPlay={onBuild}>
-                {t('help.building.do', 'Build')}
-              </PlayMoveButton>
-            </>
-          )}
-        </span>
-      )
+  const land = built ? 0 : helper.fieldCost
+  const lacks = (what: string, options: Resources[][]) => {
+    // A way to pay that only lacks gold (the Temple can be paid in gold): say how much gold is missing
+    const goldOnly = options.filter((cost) => !missing(cost).length).map((cost) => land + cost.filter((r) => r === Resources.Gold).length - helper.gold)
+    const resources = missing(options[0])
+    const values = { what, gold: goldOnly.length ? Math.min(...goldOnly) : 0 }
+    if (goldOnly.length && resources.length) {
+      return <Trans i18nKey="help.building.lacking.or-gold" defaults="{what}: you lack <res/>, or {gold} <coin/>." values={values} components={{ res: <Cost cost={resources} />, coin: <CoinIcon /> }} />
     }
-    const lacking = missing(cost)
-    return lacking.length ? (
-      <Trans
-        i18nKey="help.building.lacking"
-        defaults="{what}: you lack <res/>."
-        values={{ what: t(`${label}.short`) }}
-        components={{ res: <Cost cost={lacking} /> }}
-      />
-    ) : (
-      t('help.building.no-gold', { defaultValue: '{what}: not enough gold.', what: t(`${label}.short`) })
+    if (goldOnly.length) return <Trans i18nKey="help.building.lacking.gold" defaults="{what}: you lack {gold} <coin/>." values={values} components={{ coin: <CoinIcon /> }} />
+    return <Trans i18nKey="help.building.lacking" defaults="{what}: your Kingdom lacks <res/>." values={values} components={{ res: <Cost cost={resources} /> }} />
+  }
+  const line = (action: BuildAction, label: string, move?: MaterialMove) => {
+    const what = t(label)
+    const gold = helper.getGoldToPay(building, action)
+    if (gold === undefined) return lacks(what, helper.getCostOptions(building, action))
+    return (
+      <span>
+        <Trans i18nKey="help.building.price" defaults="{what}: {gold} <coin/> in all." values={{ what, gold }} components={{ coin: <CoinIcon /> }} />
+        {move && (
+          <>
+            {' '}
+            <PlayMoveButton css={tableButtonCss} move={move} onPlay={onBuild}>
+              {t('help.building.do', 'Build')}
+            </PlayMoveButton>
+          </>
+        )}
+      </span>
     )
   }
 
+  // Where the building stands in the kingdom, then what each construction costs in all
+  const state = level2 ? 'help.building.state.2' : built ? 'help.building.state.1' : 'help.building.state.0'
   const lines: ReactNode[] = [
-    built ? (
-      <Trans key="gold" i18nKey="help.building.gold.upgrade" defaults="You have {gold} <coin/>. An upgrade pays no Landcost." values={{ gold: helper.gold }} components={{ coin: <CoinIcon /> }} />
-    ) : (
-      <Trans key="gold" i18nKey="help.building.gold" defaults="Landcost {land} gold. You have {gold} <coin/>." values={{ land: helper.fieldCost, gold: helper.gold }} components={{ coin: <CoinIcon /> }} />
-    )
+    <Trans key="state" i18nKey={state} defaults={level2 ? 'Built at level 2.' : built ? 'Built at level 1.' : 'Not built yet.'} />,
+    <Trans key="gold" i18nKey="help.building.gold" defaults="You have {gold} <coin/>." values={{ gold: helper.gold }} components={{ coin: <CoinIcon /> }} />
   ]
-  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade', pattern.cost2, upgrade))
+  if (level2) return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines.slice(0, 1)} />
+  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade', upgrade))
   else {
-    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1', pattern.cost1, buildLevel1))
-    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2', [...pattern.cost1, ...pattern.cost2], buildLevel2))
+    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1', buildLevel1))
+    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2', buildLevel2))
   }
   return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines} />
 }
@@ -231,4 +241,22 @@ const productionLevelCss = css`
   & + & {
     margin-left: 0.8em;
   }
+`
+
+/** The level an effect or a production belongs to: the icon printed on the card, and its name */
+const LevelLabel: FC<{ level: number }> = ({ level }) => {
+  const { t } = useTranslation()
+  return (
+    <span css={levelLabelCss}>
+      <PrintedIcon src={levelIcons[level]} />
+      {t(level ? 'help.building.level.2' : 'help.building.level.1', level ? 'Level 2:' : 'Level 1:')}
+    </span>
+  )
+}
+
+const levelLabelCss = css`
+  margin-right: 0.25em;
+  color: #6b6058;
+  font-weight: 700;
+  white-space: nowrap;
 `

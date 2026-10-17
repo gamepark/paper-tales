@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import { DefaultHelpDisplay, MaterialHelpDisplayProps } from '@gamepark/react-game'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { FC } from 'react'
 import { bookEm, pageFold, pageTurnCss } from '../../../theme/book'
 import { paper } from '../../../theme/tableTheme'
@@ -9,14 +10,17 @@ import { paper } from '../../../theme/tableTheme'
  * mockup docs/mockups/help-book.html, Tavern). The fold is the right edge of the page.
  */
 export const BuildingBookHelpDisplay: FC<MaterialHelpDisplayProps> = (props) => {
+  // A built building shows the face the player has; the other one is faded
+  const built = props.item.location?.type === LocationType.PlayerBuildingBoard
+  const level2 = !!props.item.location?.rotation
   const face = (level2: boolean) => ({ ...props, item: { ...props.item, location: { ...props.item.location!, rotation: level2 } } })
   return (
     <div css={pageCss}>
       <div key={props.itemIndex} css={[facesCss, pageTurnCss]}>
-        <div css={[faceCss, level1Css]}>
+        <div css={[faceCss, level1Css, built && level2 && fadedCss]}>
           <DefaultHelpDisplay {...face(false)} />
         </div>
-        <div css={[faceCss, level2Css]}>
+        <div css={[faceCss, level2Css, built && !level2 && fadedCss]}>
           <DefaultHelpDisplay {...face(true)} />
         </div>
       </div>
@@ -54,4 +58,9 @@ const level1Css = css`
 const level2Css = css`
   margin: -1.4em 0 0 3.2em;
   rotate: 2.5deg;
+`
+
+const fadedCss = css`
+  opacity: 0.35;
+  filter: grayscale(0.6);
 `
