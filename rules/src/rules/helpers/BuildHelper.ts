@@ -49,7 +49,8 @@ export class BuildHelper extends MaterialRulesPart {
   }
 
   getLevel(building: MaterialItem): number {
-    return building.location.rotation as number
+    // A built building shows its level 2 face when rotated
+    return building.location.rotation ? 2 : 1
   }
 
   get builtBuildings() {
