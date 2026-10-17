@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal — propositions tirées du matériel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mulish:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6ece6; --muted: #e2d6cd; --ink: #4a4540; --rust: #b5481f; --rustDeep: #8f3816; --ochre: #e9b534; --crimson: #9b2e4d; --teal: #2a7f86; --brown: #7b4a24;
+    --rouge: #d7263d; --violet: #7a3fa0; --noir: #222; --jaune: #e0b020; --vert: #12985a; --bleu: #1f5fc4;
+    --hard: drop-shadow(.16em .2em 0 #00000059);
+    --img: 'http://localhost:3100/src/images';
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 15px; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--paper); font-family: 'Mulish', sans-serif; font-weight: 500;
+    background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)), url('http://localhost:3100/src/images/score/score_board.jpg') center / cover fixed;
+  }
+  header { padding: 1.4em 2em .2em; display: flex; align-items: baseline; gap: 1em; }
+  header h1 { margin: 0; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.6em; }
+  header p { margin: 0; color: #f6ece6b3; }
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2em; padding: 1em 2em 3em; align-items: start; }
+  .dir { position: relative; padding: 1em; border-radius: .4em; }
+  .dir.on { background: #ffffff14; outline: 2px dashed #ffffff40; }
+  .dir > h2 { margin: 0 0 .9em; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.35em; cursor: pointer; display: flex; align-items: center; gap: .6em; }
+  .dir > h2 b { display: grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--rust); color: var(--paper); font-size: .9em; }
+  .dir > h2 small { font-weight: 600; font-size: .7em; color: #f6ece6a0; }
+  .note { margin: .9em 0 0; font-size: .9em; line-height: 1.45; color: #f6ece6c0; }
+  .note b { color: var(--paper); }
+  .cap { font-size: .85em; color: #f6ece6a0; margin: .3em 0 .2em .2em; font-style: italic; }
+  .views { display: flex; flex-direction: column; gap: 1.4em; }
+  .chatv { font-size: .8em; }
+  .bookmark { position: absolute; top: -.3em; left: .9em; width: 2.4em; height: 3.4em; display: grid; place-items: start center; padding-top: .75em; background: var(--crimson); color: var(--paper); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); z-index: 5; font-size: 1.05em; }
+
+  /* shared: the pawn of the player, the printed icons */
+  .pawn { width: 1.6em; height: 2em; flex: none; object-fit: contain; filter: drop-shadow(.06em .08em 0 #0005); }
+  .name { font-family: 'Baloo 2', sans-serif; font-weight: 700; }
+  .rouge { color: var(--rouge); } .violet { color: var(--violet); } .noir { color: var(--noir); } .jaune { color: #b8900e; } .vert { color: var(--vert); } .bleu { color: var(--bleu); }
+  .ico { display: inline-grid; place-items: center; width: 1.35em; height: 1.35em; vertical-align: middle; margin: 0 .05em; position: relative; top: -.05em; }
+  .ico img { width: 100%; height: 100%; object-fit: contain; }
+  .ico.scroll { width: 1.6em; height: 1.6em; }
+  .ico.scroll b { position: absolute; inset: 0; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: .78em; color: #fff; -webkit-text-stroke: .08em #7a5a10; paint-order: stroke fill; padding-bottom: .1em; }
+  .ico.coin b { position: absolute; inset: 0; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: .7em; color: #4a4540; }
+  .phase { width: 2.1em; height: 1.6em; flex: none; object-fit: contain; }
+
+  /* ======== A — Cases de la piste ======== */
+  .A .panel { position: relative; width: 26em; padding: 1em .9em 1em; border-radius: .35em; min-height: 36em; display: flex; flex-direction: column;
+    background: url('http://localhost:3100/src/images/score/score_board.jpg') -30em -8em / 90em auto; box-shadow: 0 .3em 0 #00000055, inset 0 0 0 .2em #ffffff22; }
+  .A .panel::before { content: ''; position: absolute; inset: 0; background: #0b1424aa; border-radius: .35em; }
+  .A .tabs { position: relative; display: flex; gap: .6em; margin: 0 0 .8em 3.8em; }
+  .A .tab { position: relative; padding: .35em 1.2em .25em; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1em; color: var(--ink); cursor: pointer; filter: drop-shadow(.1em .12em 0 #0006); }
+  .A .tab::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(135deg, #fff 0 45%, #e9e4e0 45% 55%, #fff 55%); clip-path: var(--tile); }
+  .A .tab.off { color: #4a4540a0; } .A .tab.off::before { background: #d9d3cd; }
+  .A .tiles { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: .35em; }
+  .A .tile { position: relative; display: flex; align-items: center; gap: .55em; padding: .45em .9em .4em .7em; color: var(--ink); line-height: 1.3; filter: drop-shadow(.12em .14em 0 #0006); }
+  .A .tile::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(118deg, #ffffff 0 38%, #e6e1dc 38% 52%, #fbfafa 52%); clip-path: var(--tile); }
+  .A .tile:nth-child(odd)::before { clip-path: var(--tile2); }
+  .A .tile.turn { align-self: center; padding: .2em 3.2em .2em 1em; margin: .4em 0 .5em; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--brown); font-size: 1.05em; }
+  .A .tile.turn img { position: absolute; right: .2em; top: -.35em; height: 2.6em; }
+  .A .tile.turn::before { background: #f3efe9; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); border-radius: .2em; }
+  .A .tile.aside { font-style: italic; color: #6b6058; font-size: .92em; }
+  .A .chat { position: relative; display: flex; align-items: center; gap: .6em; margin-top: .6em; padding: .5em .8em .4em; color: var(--ink); filter: drop-shadow(.12em .14em 0 #0006); }
+  .A .chat::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #fff; clip-path: var(--tile2); }
+  .A .chat span { flex: 1; color: #4a454099; font-weight: 600; } .A .chat i { color: var(--brown); font-style: normal; }
+
+  /* ======== B — Bandeau de carte ======== */
+  .B .panel { position: relative; width: 26em; min-height: 36em; display: flex; flex-direction: column; filter: var(--hard); }
+  .B .sky { position: relative; height: 5.4em; background: radial-gradient(ellipse at 30% 0%, #2f6f78, #12404a 70%); border-radius: .5em .5em 0 0; }
+  .B .sky::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2.2em; background: #fff; clip-path: var(--snow); }
+  .B .sky .tabs { position: absolute; left: 3.6em; top: .7em; display: flex; gap: .5em; z-index: 2; }
+  .B .banner { position: relative; padding: .3em 1.4em .2em; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1em; color: var(--ink); cursor: pointer; }
+  .B .banner::before { content: ''; position: absolute; inset: 0; z-index: -1; background: #fff; clip-path: polygon(0 12%, 4% 0, 96% 4%, 100% 20%, 97% 100%, 3% 96%, 0 80%); }
+  .B .banner.off { color: #4a454090; } .B .banner.off::before { background: #d7d3cf; }
+  .B .body { flex: 1; background: #fff; padding: .4em 1.1em .9em 1em; display: flex; flex-direction: column; justify-content: flex-end; gap: .2em; color: #333; border-radius: 0 0 .5em .5em; }
+  .B .fx { display: flex; align-items: center; gap: .55em; padding: .3em 0; line-height: 1.3; border-top: 1px solid #0000000d; }
+  .B .fx:first-child { border-top: 0; }
+  .B .turn { display: flex; align-items: center; justify-content: center; gap: .5em; margin: .5em 0 .2em; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--brown); font-size: 1.05em; }
+  .B .turn img { height: 2.2em; }
+  .B .aside { justify-content: center; font-style: italic; color: #6b6058; font-size: .92em; }
+  .B .chat { display: flex; align-items: center; gap: .6em; margin-top: .6em; padding: .45em .8em .35em; background: #f1eeeb; border-radius: .3em; color: var(--ink); }
+  .B .chat span { flex: 1; color: #4a454099; font-weight: 600; } .B .chat i { color: var(--rust); font-style: normal; }
+
+  /* ======== C — Page du livret ======== */
+  .C .panel { position: relative; width: 26em; min-height: 36em; display: flex; flex-direction: column; padding: 1.1em 1.1em 1em; color: var(--ink); border-radius: .3em; filter: var(--hard);
+    background-color: #f4efe7; background-image: linear-gradient(135deg, #ffffff66 25%, transparent 25%), linear-gradient(225deg, #ffffff66 25%, transparent 25%), linear-gradient(45deg, #e6dfd466 25%, transparent 25%), linear-gradient(315deg, #e6dfd466 25%, transparent 25%); background-size: 3em 3em; }
+  .C .tabs { display: flex; gap: .5em; margin: 0 0 .8em 3.2em; }
+  .C .arrow { position: relative; padding: .3em 1.6em .2em 1em; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1em; color: #fff; cursor: pointer; }
+  .C .arrow::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--teal); clip-path: polygon(0 0, calc(100% - .8em) 0, 100% 50%, calc(100% - .8em) 100%, 0 100%); border-radius: .2em 0 0 .2em; }
+  .C .arrow.off::before { background: #b9ad9f; }
+  .C .log { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: .15em; }
+  .C .ph { display: flex; align-items: center; gap: .5em; margin: .6em 0 .25em; padding: .15em .9em .1em .4em; color: #fff; font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: .95em; width: fit-content;
+    background: var(--rust); clip-path: polygon(0 0, calc(100% - .7em) 0, 100% 50%, calc(100% - .7em) 100%, 0 100%); border-radius: .15em 0 0 .15em; }
+  .C .ph.teal { background: var(--teal); } .C .ph.brown { background: var(--brown); } .C .ph.age { background: #3f8f99; }
+  .C .ph img { height: 1.5em; }
+  .C .turn { font-family: 'Baloo 2', sans-serif; font-weight: 800; color: var(--rust); font-size: 1.3em; margin: .3em 0 .1em; display: flex; align-items: center; gap: .5em; }
+  .C .turn img { height: 1.9em; }
+  .C .row { display: flex; align-items: center; gap: .5em; padding: .2em 0 .2em .5em; line-height: 1.3; }
+  .C .row .pawn { width: 1.3em; height: 1.6em; }
+  .C .aside { font-style: italic; color: #6b6058; font-size: .92em; padding-left: .5em; }
+  .C .chat { display: flex; align-items: center; gap: .6em; margin-top: .7em; padding: .5em .9em .4em; background: #fff; border: 2px solid var(--teal); border-radius: .6em; }
+  .C .chat span { flex: 1; color: #4a454099; font-weight: 600; } .C .chat i { color: var(--teal); font-style: normal; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Journal du jeu — à partir du matériel</h1>
+  <p>Piste de score, bandeaux des cartes, page du livret. Taille réelle (1 em = 15 px, 26 em de large). Clique sur un titre pour marquer ton choix.</p>
+</header>
+
+<div class="board">
+
+  <!-- ================= A ================= -->
+  <section class="dir A" id="A">
+    <h2><b>A</b> Cases de la piste <small>mosaïque, cases, livre du tour</small></h2>
+    <div class="views">
+      <div>
+        <div class="cap">Historique</div>
+        <div class="panel">
+          <div class="bookmark">✕</div>
+          <div class="tabs"><div class="tab off">Discuter</div><div class="tab">Historique</div></div>
+          <div class="tiles" id="tilesA"></div>
+        </div>
+      </div>
+      <div class="chatv">
+        <div class="cap">Discuter</div>
+        <div class="panel" style="min-height: 17em">
+          <div class="bookmark">✕</div>
+          <div class="tabs"><div class="tab">Discuter</div><div class="tab off">Historique</div></div>
+          <div class="tiles"><div class="tile"><img class="pawn" src="http://localhost:3100/src/images/pawns/pawn_red.png"><span><span class="name rouge">Rouge</span> bien joué !</span></div></div>
+          <div class="chat"><span>Écrire un message</span><i>✒</i></div>
+        </div>
+      </div>
+    </div>
+    <p class="note"><b>C'est la piste de score</b> : le fond est la mosaïque du plateau, chaque entrée une case de papier blanc à l'ombre diagonale, le tour est le livre ouvert du compte-tours, le joueur est son pion de score. Les valeurs sont les icônes imprimées (parchemin, pièce, bouclier).</p>
+  </section>
+
+  <!-- ================= B ================= -->
+  <section class="dir B" id="B">
+    <h2><b>B</b> Bandeau de carte <small>neige déchirée, badges de phase</small></h2>
+    <div class="views">
+      <div>
+        <div class="cap">Historique</div>
+        <div class="panel">
+          <div class="bookmark">✕</div>
+          <div class="sky"><div class="tabs"><div class="banner off">Discuter</div><div class="banner">Historique</div></div></div>
+          <div class="body" id="bodyB"></div>
+        </div>
+      </div>
+      <div class="chatv">
+        <div class="cap">Discuter</div>
+        <div class="panel" style="min-height: 17em">
+          <div class="bookmark">✕</div>
+          <div class="sky"><div class="tabs"><div class="banner">Discuter</div><div class="banner off">Historique</div></div></div>
+          <div class="body">
+            <div class="fx"><img class="pawn" src="http://localhost:3100/src/images/pawns/pawn_red.png"><span><span class="name rouge">Rouge</span> bien joué !</span></div>
+            <div class="chat"><span>Écrire un message</span><i>✒</i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note"><b>C'est une carte</b> : le ciel teal de l'illustration, le bord de neige déchiré, puis le texte d'effet, chaque ligne précédée du badge de la phase comme sur les cartes (guerre, revenu, construction, âge). Les onglets sont le bandeau-titre des cartes.</p>
+  </section>
+
+  <!-- ================= C ================= -->
+  <section class="dir C" id="C">
+    <h2><b>C</b> Page du livret <small>chevrons, bandeaux-flèches</small></h2>
+    <div class="views">
+      <div>
+        <div class="cap">Historique</div>
+        <div class="panel">
+          <div class="bookmark">✕</div>
+          <div class="tabs"><div class="arrow off">Discuter</div><div class="arrow">Historique</div></div>
+          <div class="log" id="logC"></div>
+        </div>
+      </div>
+      <div class="chatv">
+        <div class="cap">Discuter</div>
+        <div class="panel" style="min-height: 17em">
+          <div class="bookmark">✕</div>
+          <div class="tabs"><div class="arrow">Discuter</div><div class="arrow off">Historique</div></div>
+          <div class="log"><div class="row"><img class="pawn" src="http://localhost:3100/src/images/pawns/pawn_red.png"><span><span class="name rouge">Rouge</span> bien joué !</span></div></div>
+          <div class="chat"><span>Écrire un message</span><i>✒</i></div>
+        </div>
+      </div>
+    </div>
+    <p class="note"><b>C'est le livret de règles</b> : la page à chevrons, les bandeaux-flèches qui annoncent chaque phase (« Guerres », « Revenus »…) comme dans le livret, et les événements groupés sous la phase. Le plus lisible quand il y a beaucoup d'entrées.</p>
+  </section>
+
+</div>
+
+<script>
+  const IMG = 'http://localhost:3100/src/images'
+  const torn = (seed, depth, side, steps = 18) => {
+    let s = seed
+    const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280 }
+    const pts = []
+    for (let i = 0; i <= steps; i++) pts.push(`${(i / steps * 100).toFixed(1)}% ${(rnd() * depth).toFixed(1)}%`)
+    for (let i = 1; i < 4; i++) pts.push(`${(100 - rnd() * side).toFixed(1)}% ${(i / 4 * 100).toFixed(1)}%`)
+    for (let i = steps; i >= 0; i--) pts.push(`${(i / steps * 100).toFixed(1)}% ${(100 - rnd() * depth).toFixed(1)}%`)
+    for (let i = 3; i > 0; i--) pts.push(`${(rnd() * side).toFixed(1)}% ${(i / 4 * 100).toFixed(1)}%`)
+    return `polygon(${pts.join(',')})`
+  }
+  // The snow edge at the bottom of a unit card: wide soft points
+  const snow = () => { const p = ['0 100%']; for (let i = 0; i <= 40; i++) { const x = i / 40 * 100; const y = 55 + 30 * Math.sin(i * 1.9) * Math.cos(i * .7); p.push(`${x.toFixed(1)}% ${y.toFixed(0)}%`) } p.push('100% 100%'); return `polygon(${p.join(',')})` }
+  const root = document.documentElement.style
+  root.setProperty('--tile', torn(11, 5, 2))
+  root.setProperty('--tile2', torn(23, 5, 2))
+  root.setProperty('--snow', snow())
+
+  const pawns = { rouge: 'pawn_red', violet: 'pawn_purple', noir: 'pawn_black', jaune: 'pawn_yellow', vert: 'pawn_green', bleu: 'pawn_blue' }
+  const pawn = (c) => `<img class="pawn" src="${IMG}/pawns/${pawns[c]}.png" alt="">`
+  const who = (c, n) => `<span class="name ${c}">${n}</span>`
+  const scroll = (n) => `<span class="ico scroll"><img src="${IMG}/icons/legend.webp"><b>${n}</b></span>`
+  const coin = (n) => `<span class="ico coin"><img src="${IMG}/icons/gold-token.webp"><b>${n}</b></span>`
+  const phase = (n) => `<img class="phase" src="${IMG}/icons/phase${n}.webp" alt="">`
+  const turnBook = (n) => `<img src="${IMG}/time/time${n}.png" alt="">`
+
+  // The same events, written with the printed icons
+  const events = [
+    { kind: 'turn', n: 2 },
+    { c: 'bleu', n: 'Bleu', text: 'déploie le Chevalier', phase: 2 },
+    { c: 'rouge', n: 'Rouge', text: 'déploie le Démon', phase: 2 },
+    { kind: 'aside', text: 'Guerres, forces : Rouge 0, Violet 2, Noir 3, Jaune 5', phase: 3 },
+    { c: 'violet', n: 'Violet', text: `gagne 1 guerre : +${scroll(3)}`, phase: 3 },
+    { c: 'noir', n: 'Noir', text: `gagne 1 guerre : +${scroll(3)}`, phase: 3 },
+    { c: 'jaune', n: 'Jaune', text: `gagne 2 guerres : +${scroll(6)}`, phase: 3 },
+    { c: 'rouge', n: 'Rouge', text: `reçoit ${coin(2)}`, phase: 4 },
+    { c: 'violet', n: 'Violet', text: `reçoit ${coin(2)}`, phase: 4 },
+    { c: 'jaune', n: 'Jaune', text: `gagne ${scroll(1)}`, phase: 4 },
+    { c: 'vert', n: 'Vert', text: 'construit la Taverne', phase: 5 },
+    { c: 'noir', n: 'Noir', text: 'sauve la Mystique', phase: 6 },
+    { c: 'rouge', n: 'Rouge', text: 'perd le Démon', phase: 6 }
+  ]
+
+  // A: one track tile per event, the turn as the open book
+  document.getElementById('tilesA').innerHTML = events.map((e) => {
+    if (e.kind === 'turn') return `<div class="tile turn">Tour ${e.n}${turnBook(e.n)}</div>`
+    if (e.kind === 'aside') return `<div class="tile aside">${e.text}</div>`
+    return `<div class="tile">${pawn(e.c)}<span>${who(e.c, e.n)} ${e.text}</span></div>`
+  }).join('')
+
+  // B: card effects, each with its phase badge
+  document.getElementById('bodyB').innerHTML = events.map((e) => {
+    if (e.kind === 'turn') return `<div class="turn">${turnBook(e.n)}Tour ${e.n}</div>`
+    if (e.kind === 'aside') return `<div class="fx aside">${e.text}</div>`
+    return `<div class="fx">${phase(e.phase)}${pawn(e.c)}<span>${who(e.c, e.n)} ${e.text}</span></div>`
+  }).join('')
+
+  // C: the rulebook page, events grouped under the arrow banner of their phase
+  const phaseNames = { 2: ['Déploiement', 'teal'], 3: ['Guerres', ''], 4: ['Revenus', 'brown'], 5: ['Construction', 'brown'], 6: ['Âge', 'age'] }
+  let last
+  document.getElementById('logC').innerHTML = events.map((e) => {
+    if (e.kind === 'turn') { last = undefined; return `<div class="turn">${turnBook(e.n)}Tour ${e.n}</div>` }
+    let out = ''
+    if (e.phase !== last) { const [name, cls] = phaseNames[e.phase]; out += `<div class="ph ${cls}">${phase(e.phase)}${name}</div>`; last = e.phase }
+    if (e.kind === 'aside') return out + `<div class="aside">${e.text.replace('Guerres, forces : ', 'Forces : ')}</div>`
+    return out + `<div class="row">${pawn(e.c)}<span>${who(e.c, e.n)} ${e.text}</span></div>`
+  }).join('')
+
+  document.querySelectorAll('.dir > h2').forEach((h) => h.addEventListener('click', () => {
+    document.querySelectorAll('.dir').forEach((d) => d.classList.toggle('on', d === h.parentElement))
+  }))
+</script>
+</body>
+</html>
