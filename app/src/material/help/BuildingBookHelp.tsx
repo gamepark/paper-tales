@@ -7,7 +7,7 @@ import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { BuildAction, BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
-import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, useRules } from '@gamepark/react-game'
+import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
 import { isMoveItemType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -64,6 +64,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId()
+  const ownerName = usePlayerName(item.location?.player)
   const building = item.id as Building
   const pattern = buildingCardCaracteristics[building]
   const owner = item.location?.player
@@ -178,6 +179,12 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
           level2={level2}
           buttons={[buildLevel1, buildLevel2, upgrade]}
           onBuild={closeDialog}
+        />
+      )}
+      {!mine && owner !== undefined && (
+        <LiveBox
+          title={t('help.live.kingdom.other', { defaultValue: 'In the Kingdom of {player}', player: ownerName })}
+          lines={[t(level2 ? 'help.building.state.2' : built ? 'help.building.state.1' : 'help.building.state.0')]}
         />
       )}
     </BookPage>

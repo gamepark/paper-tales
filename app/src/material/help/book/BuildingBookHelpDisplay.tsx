@@ -2,8 +2,9 @@ import { css } from '@emotion/react'
 import { DefaultHelpDisplay, MaterialHelpDisplayProps } from '@gamepark/react-game'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { FC } from 'react'
+import { useTranslation } from 'react-i18next'
 import { bookEm, pageFold, pageTurnCss } from '../../../theme/book'
-import { paper } from '../../../theme/tableTheme'
+import { paper, paperFont, rust, tornClip } from '../../../theme/tableTheme'
 
 /**
  * The left page of the story book for a building: both faces, level 1 above, level 2 below, slightly askew (validated
@@ -13,15 +14,19 @@ export const BuildingBookHelpDisplay: FC<MaterialHelpDisplayProps> = (props) => 
   // A built building shows the face the player has; the other one is faded
   const built = props.item.location?.type === LocationType.PlayerBuildingBoard
   const level2 = !!props.item.location?.rotation
+  const { t } = useTranslation()
+  const builtTag = <span css={builtCss}>{t('help.building.built', 'Built')}</span>
   const face = (level2: boolean) => ({ ...props, item: { ...props.item, location: { ...props.item.location!, rotation: level2 } } })
   return (
     <div css={pageCss}>
       <div key={props.itemIndex} css={[facesCss, pageTurnCss]}>
         <div css={[faceCss, level1Css, built && level2 && fadedCss]}>
           <DefaultHelpDisplay {...face(false)} />
+          {built && !level2 && builtTag}
         </div>
         <div css={[faceCss, level2Css, built && !level2 && fadedCss]}>
           <DefaultHelpDisplay {...face(true)} />
+          {built && level2 && builtTag}
         </div>
       </div>
     </div>
@@ -48,6 +53,7 @@ const facesCss = css`
 
 /** The framework draws the card at 75 / 14 em: a quarter of it fits the page */
 const faceCss = css`
+  position: relative;
   font-size: 0.235em;
 `
 
@@ -63,4 +69,31 @@ const level2Css = css`
 const fadedCss = css`
   opacity: 0.35;
   filter: grayscale(0.6);
+`
+
+/** A rust slip pinned on the face the building has now */
+const builtCss = css`
+  position: absolute;
+  top: -1.5em;
+  left: 50%;
+  translate: -50% 0;
+  rotate: -3deg;
+  z-index: 2;
+  isolation: isolate;
+  padding: 0.2em 1.2em 0.1em;
+  font-family: ${paperFont};
+  font-weight: 800;
+  font-size: 6em;
+  color: #fff6ef;
+  white-space: nowrap;
+  filter: drop-shadow(0.06em 0.08em 0 #00000059);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: ${rust};
+    clip-path: ${tornClip};
+  }
 `

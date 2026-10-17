@@ -354,5 +354,6 @@
   "help.symbol.b2": "Bâtiment de niveau 2",
   "help.symbol.phase4": "phase des Revenus",
   "help.building.production.more": "en plus",
-  "help.live.kingdom.other": "Dans le royaume de {player}"
+  "help.live.kingdom.other": "Dans le royaume de {player}",
+  "help.building.built": "Construit"
 }
