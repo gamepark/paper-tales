@@ -51,6 +51,7 @@ export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number }> = ({
 const timelineCss = css`
   position: relative;
   display: grid;
+  margin-bottom: 1.2em;
   gap: 0.15em;
 
   &::before {
