@@ -14,7 +14,9 @@ export const resultContainerCss = css`
   && > div {
     display: grid;
     grid-template-columns: ${leftPage}em 1fr;
-    grid-template-rows: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 1em;
     column-gap: 2.8em;
     margin: 0;
     padding: 2.1em 3.4em 3.2em 0;
@@ -72,7 +74,7 @@ export const resultContainerCss = css`
   /* the score, on the right page */
   && > div > h2 + div + div {
     grid-column: 2;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span 2;
     align-self: center;
     color: ${cutLine};
 

@@ -1,15 +1,14 @@
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { useRankedPlayers, useResultText } from '@gamepark/react-game'
+import { Avatar, useRankedPlayers, useResultText } from '@gamepark/react-game'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { tornDiscClip, paper, rust } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 
 /**
  * The left page of the last page of the story book (validated mockup docs/mockups/theme.html, direction B): « Fin », the
- * score marker of the winner on a disc of their colour, and the result. The framework shows the same header in the bar
+ * avatar of the winner on a disc of their colour, and the result. The framework shows the same header in the bar
  * at the top: there, only the text (the result dialog shows the rest, see theme/result.ts).
  */
 export const ResultPage: FC = () => {
@@ -21,7 +20,7 @@ export const ResultPage: FC = () => {
       <span css={endCss} data-book-only>{t('result.end', 'The End')}</span>
       {winner !== undefined && (
         <span css={discCss} data-book-only style={{ '--pc': getColor(winner).substring(0, 7) } as Record<string, string>}>
-          <img src={scoreTokenDescription.images[winner]} alt="" />
+          <Avatar playerId={winner} css={avatarCss} />
         </span>
       )}
       <span data-book-text>{resultText}</span>
@@ -67,10 +66,11 @@ const discCss = css`
     background: ${paper};
   }
 
-  > img {
-    position: relative;
-    z-index: 1;
-    height: 3.3em;
-    filter: drop-shadow(0 0.06em 0 #0006);
-  }
+`
+
+const avatarCss = css`
+  position: relative;
+  z-index: 1;
+  width: 3.9em;
+  height: 3.9em;
 `
