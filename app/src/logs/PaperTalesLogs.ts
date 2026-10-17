@@ -26,11 +26,10 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
     if (isStartRule(move) && move.id === RuleId.War) return { Component: StrengthsLog, css: strengthsLogCss }
 
     if (isMoveItemType(MaterialType.Unit)(move)) {
-      const player = move.location.player
-      if (rule === RuleId.RevealBoards && move.location.type === LocationType.PlayerUnitBoard) return { Component: DeployLog, player }
-      if (rule === RuleId.AgeUnitsDie && move.location.type === LocationType.Discard) {
-        return { Component: DeathLog, player: context.game.items[MaterialType.Unit]?.[move.itemIndex]?.location.player }
-      }
+      // The Monarch of the unit, read before the move: a reveal only says { rotation: false }
+      const player = context.game.items[MaterialType.Unit]?.[move.itemIndex]?.location.player
+      if (rule === RuleId.RevealBoards && move.location.rotation === false) return { Component: DeployLog, player }
+      if (rule === RuleId.AgeUnitsDie && move.location.type === LocationType.Discard) return { Component: DeathLog, player }
     }
     if (isMoveItemType(MaterialType.Building)(move) && rule === RuleId.Build && move.location.type === LocationType.PlayerBuildingBoard) {
       return { Component: BuildLog, player: move.location.player }

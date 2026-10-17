@@ -11,8 +11,8 @@ import { useUnitName } from './useUnitName'
 export const DeployLog: FC<MaterialLogProps<MoveItem>> = ({ move, context }) => {
   const { t } = useTranslation()
   const unitName = useUnitName()
-  const name = usePlayerName(move.location.player)
   const item = new PaperTalesRules(context.game).material(MaterialType.Unit).index(move.itemIndex).getItem<Unit>()
+  const name = usePlayerName(item?.location.player)
   const unit = (item?.id ?? (move as MoveItem & { reveal?: { id?: Unit } }).reveal?.id) as Unit | undefined
   if (unit === undefined) return <>{t('log.deploy.hidden', { defaultValue: '{player} deploys a unit', player: name })}</>
   return <>{t('log.deploy', { defaultValue: '{player} deploys {unit}', player: name, unit: unitName(unit) })}</>
