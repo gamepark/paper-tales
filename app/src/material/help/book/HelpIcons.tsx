@@ -29,7 +29,7 @@ export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => <span
 const iconCss = css`
   display: inline-block;
   height: 1.25em;
-  vertical-align: -0.22em;
+  vertical-align: middle;
 `
 
 const resourceCss = css`
@@ -53,7 +53,7 @@ const shieldCss = css`
   width: 1.12em;
   height: 1.3em;
   padding-bottom: 0.12em;
-  vertical-align: -0.25em;
+  vertical-align: middle;
   color: #fff;
   background: url(${strength}) center / contain no-repeat;
   font-family: 'Baloo 2', sans-serif;

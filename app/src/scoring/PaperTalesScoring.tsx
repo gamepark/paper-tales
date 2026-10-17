@@ -7,6 +7,7 @@ import { ScoringDescription } from '@gamepark/react-game'
 import { Trans } from 'react-i18next'
 import gold from '../images/tokens/Gold1.jpg'
 import { AgeIcon, BuildIcon, LegendIcon, NeighboursIcon } from '../material/icons/PaperIcons'
+import { ResultPage } from './ResultPage'
 import { ScoringHeader as Header } from './ScoringHeader'
 
 enum ScoringKey {
@@ -25,6 +26,8 @@ enum ScoringKey {
  * for, with its name under it. Everything is computed from the table.
  */
 export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperTalesRules, ScoringKey> {
+  ResultHeader = ResultPage
+
   getScoringKeys(rules: PaperTalesRules) {
     const relics = rules.players.some((player) => new EndScoreHelper(rules.game, player).relicsPoints > 0)
     return [ScoringKey.DuringGame, ScoringKey.Buildings, ...(relics ? [ScoringKey.Relics] : []), ScoringKey.Total, ScoringKey.Gold]
@@ -85,6 +88,8 @@ export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperT
 
 const totalCss = css`
   font-weight: 800;
+  font-size: 1.25em;
+  color: #b5481f;
 `
 
 const mutedCss = css`

@@ -3,6 +3,7 @@ import { GameTheme } from '@gamepark/react-game'
 import { bookContainerCss, bookContentCss } from './book'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
 import { PageCornerNavigation } from './PageCornerNavigation'
+import { resultContainerCss } from './result'
 import { cutLine, paper, tableButtonCss } from './tableTheme'
 
 /**
@@ -17,6 +18,11 @@ export const theme: Partial<GameTheme> = {
     content: bookContentCss,
     closeButton: BookmarkCloseButton,
     navigation: PageCornerNavigation
+  },
+  result: {
+    border: '#4a454055',
+    icon: '#b5481f',
+    container: resultContainerCss
   },
   header: {
     buttons: css`
