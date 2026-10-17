@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import { FC, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { bookSheetClip, ochre } from '../../../theme/tableTheme'
 
 /** One line of the text printed on a card: an effect with the icon of its phase, or the scroll of its production */
@@ -10,18 +11,36 @@ export type PrintedLine = { phaseIcon?: string; production?: boolean; text: Reac
  * (validated mockup docs/mockups/help-book.html, the printed text under the name).
  */
 export const PrintedText: FC<{ lines: PrintedLine[] }> = ({ lines }) => {
+  const { t } = useTranslation()
   if (!lines.length) return null
+  const production = lines.some((line) => line.production)
   return (
     <div css={sheetCss}>
       {lines.map((line, index) => (
-        <p key={index} css={[lineCss, line.production && productionCss]}>
+        <p key={index} css={lineCss}>
           {line.phaseIcon && <img css={phaseCss} src={line.phaseIcon} alt="" />}
-          <span>{line.text}</span>
+          {line.production && <span css={labelCss}>{t('help.unit.production', 'Production:')}</span>}
+          <span css={line.production && productionCss}>{line.text}</span>
         </p>
       ))}
+      {production && <p css={noteCss}>{t('help.unit.production.rule', 'Your Kingdom produces these resources: they pay for constructions and count for some effects. They are never spent.')}</p>}
     </div>
   )
 }
+
+const labelCss = css`
+  color: #6b6058;
+  font-size: 0.9em;
+`
+
+const noteCss = css`
+  margin: 0;
+  font-family: 'Mulish', sans-serif;
+  font-weight: 500;
+  font-size: 0.85em;
+  line-height: 1.35;
+  color: #7a6f67;
+`
 
 const sheetCss = css`
   position: relative;

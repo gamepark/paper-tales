@@ -317,5 +317,7 @@
   "unit.name.41": "Singe chapardeur",
   "unit.effect.41": "Gagnez <g1/> par <age/> sur le Singe chapardeur quand il meurt.",
   "unit.name.42": "Aventurière",
-  "unit.production.42": "<crystal/> par <age/> sur l’Aventurière."
+  "unit.production.42": "<crystal/> par <age/> sur l’Aventurière.",
+  "help.unit.production": "Production :",
+  "help.unit.production.rule": "Votre royaume produit ces ressources : elles servent à construire et comptent pour certains effets. Elles ne sont jamais dépensées."
 }
