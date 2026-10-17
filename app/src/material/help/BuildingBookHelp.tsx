@@ -59,7 +59,7 @@ const CostOptions: FC<{ cost: Resources[]; alternate?: Resources[] }> = ({ cost,
  * faces on the left page; on the right the costs of both levels, each printed effect in the line of its phase, and
  * what the player can build now, with the button.
  */
-export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex }) => {
+export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, closeDialog }) => {
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId()
@@ -156,6 +156,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex }) => 
           player={owner}
           built={built}
           buttons={[buildLevel1, buildLevel2, upgrade]}
+          onBuild={closeDialog}
         />
       )}
     </BookPage>
@@ -163,7 +164,8 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex }) => 
 }
 
 /** What the player can build now: the Landcost, their gold, and each construction with its price or what it lacks */
-const BuildLiveBox: FC<{ building: Building; player: number; built: boolean; buttons: (MaterialMove | undefined)[] }> = ({
+const BuildLiveBox: FC<{ building: Building; player: number; built: boolean; buttons: (MaterialMove | undefined)[]; onBuild?: () => void }> = ({
+  onBuild,
   building,
   player,
   built,
@@ -189,7 +191,7 @@ const BuildLiveBox: FC<{ building: Building; player: number; built: boolean; but
           {move && (
             <>
               {' '}
-              <PlayMoveButton css={tableButtonCss} move={move}>
+              <PlayMoveButton css={tableButtonCss} move={move} onPlay={onBuild}>
                 {t('help.building.do', 'Build')}
               </PlayMoveButton>
             </>

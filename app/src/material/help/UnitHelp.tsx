@@ -138,7 +138,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       <PhaseTimeline steps={timeline} current={currentPhaseIndex(rules)} />
       {inMyKingdom && (
         <LiveBox title={t('help.live.kingdom', 'In your Kingdom')} lines={liveLines}>
-          {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} />}
+          {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />}
         </LiveBox>
       )}
     </BookPage>
