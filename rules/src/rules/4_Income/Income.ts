@@ -13,12 +13,15 @@ import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { RuleId } from '../RuleId'
 import { AgeTokens } from '../helpers/AgeTokens'
 
+/** The gold every Monarch earns at the income phase, before the effects (rulebook p.6) */
+export const BASE_INCOME = 2
+
 export class Income extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
     for (const player of this.game.players) {
       const goldMoney = this.material(MaterialType.Gold).money(golds)
-      moves.push(...goldMoney.addMoney(2 + this.getPlayerIncome(player), { type: LocationType.PlayerGoldStock, player }))
+      moves.push(...goldMoney.addMoney(BASE_INCOME + this.getPlayerIncome(player), { type: LocationType.PlayerGoldStock, player }))
     }
 
     moves.push(this.startSimultaneousRule(RuleId.Build))

@@ -12,7 +12,6 @@ import { Resources } from '../../material/Resources'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { War } from '../3_War/War'
-import { Income } from '../4_Income/Income'
 import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
 import { ResourcesHelper } from './ResourcesHelper'
 
@@ -200,27 +199,6 @@ export class BuildHelper extends MaterialRulesPart {
 
   get scoreAtWarBuildingEffects(): ScoreAtWar[] {
     return this.warBuildingEffects.filter(isScoreAtWar)
-  }
-
-  getPowerAddedFromBuilding(playerId: number, buildEffect: AddWarPower): number {
-    let add = 0
-    if (buildEffect.perAgeToken) {
-      // No existing case, maybe for later
-    } else if (buildEffect.perResource) {
-      const resourcesHelper = new ResourcesHelper(this.game, playerId)
-      buildEffect.perResource.forEach((resource) => {
-        const resources = resourcesHelper.getResource(resource)
-        add += resources * buildEffect.powerAdded
-      })
-    } else if (buildEffect.perGoldOnIncomePhase) {
-      const incomeHelper = new Income(this.game)
-      const income = incomeHelper.getPlayerIncome(playerId)
-      add += income * buildEffect.powerAdded
-    } else {
-      add += buildEffect.powerAdded
-    }
-
-    return add
   }
 
   getScoreFromBuilding(playerId: number, buildEffect: ScoreAtWar): number {

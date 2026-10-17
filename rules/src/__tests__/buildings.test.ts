@@ -1,6 +1,7 @@
 import { MaterialGame, MaterialMove } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
+import { EffectType } from '../material/effects/Effect'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Resources } from '../material/Resources'
@@ -126,5 +127,18 @@ describe('End of the game', () => {
   it('a building gives 1 point at level 1 and 3 at level 2', () => {
     const { game } = newGame([], [[Building.Mine, 1], [Building.Temple, 2]])
     expect(new EndScoreHelper(game, Blue).buildingsPoints).toBe(4)
+  })
+})
+
+describe('Strength effects, one calculation for units and buildings', () => {
+  it('a fixed bonus adds its strength', () => {
+    const { game } = newGame([], [])
+    expect(new War(game).getAddedPower({ type: EffectType.AddWarPower, powerAdded: 2 }, Blue)).toBe(2)
+  })
+
+  it('a bonus per gold of the income phase counts the base gold too', () => {
+    const { game } = newGame([], [[Building.Temple, 1]])
+    // 2 base gold + 2 of the Temple
+    expect(new War(game).getAddedPower({ type: EffectType.AddWarPower, perGoldOnIncomePhase: true, powerAdded: 1 }, Blue)).toBe(4)
   })
 })

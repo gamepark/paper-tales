@@ -28,7 +28,6 @@ export type WarFromBacklane = {
 export type CantWar = {
   type: EffectType.CantWar
   ifAgeToken?: true
-  ifResource?: true
 }
 
 export type ScoreAtWar = {

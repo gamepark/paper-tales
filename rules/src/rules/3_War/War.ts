@@ -1,6 +1,6 @@
 import { Material, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { sum, sumBy } from 'es-toolkit/compat'
-import { isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from '../../material/effects/3_WarEffects'
+import { AddWarPower, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from '../../material/effects/3_WarEffects'
 import { AgeLocation, Effect } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
@@ -8,7 +8,7 @@ import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { PlayerColor } from '../../PlayerColor'
-import { Income } from '../4_Income/Income'
+import { BASE_INCOME, Income } from '../4_Income/Income'
 import { BuildHelper } from '../helpers/BuildHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
@@ -140,14 +140,7 @@ export class War extends MaterialRulesPart {
       const addWarPowerEffect = effects.find(isAddWarPower)
 
       // On applique la premiere condition exclusive
-      if (cantWarEffect !== undefined) {
-        if (cantWarEffect.ifAgeToken) {
-          const ageOnUnit = this.getAgeOnUnit(unitIndex)
-          if (ageOnUnit > 0) {
-            return 0
-          }
-        }
-      }
+      if (cantWarEffect !== undefined && (!cantWarEffect.ifAgeToken || this.getAgeOnUnit(unitIndex) > 0)) return 0
 
       // Ensuite, on applique la seconde condition exclusive
       if (changeWarPowerEffect !== undefined) {
@@ -164,26 +157,27 @@ export class War extends MaterialRulesPart {
       }
 
       // Enfin, on calcule le surplus de puissance qu'on peut ajouter. Pas de return ici
-      let add = 0
-      if (addWarPowerEffect) {
-        if (addWarPowerEffect.perAgeToken !== undefined) {
-          const ageFactor = addWarPowerEffect.perAgeToken === AgeLocation.OnUnit ? this.getAgeOnUnit(unitIndex) : this.getAgeInPlayerRealm(player)
-          add += ageFactor * addWarPowerEffect.powerAdded
-        } else if (addWarPowerEffect.perResource) {
-          const resourcesHelper = new ResourcesHelper(this.game, player)
-          addWarPowerEffect.perResource.forEach((resource) => {
-            add += resourcesHelper.getResource(resource) * addWarPowerEffect.powerAdded
-          })
-        } else if (addWarPowerEffect.perGoldOnIncomePhase) {
-          // All the gold earned at the income phase: the 2 gold of every Monarch, plus the income effects (the Ogre)
-          add += (2 + new Income(this.game).getPlayerIncome(player)) * addWarPowerEffect.powerAdded
-        }
-      }
-
-      return characteristics.power + add
+      return characteristics.power + (addWarPowerEffect ? this.getAddedPower(addWarPowerEffect, player, unitIndex) : 0)
     }
 
     return characteristics.power
+  }
+
+  /** The strength an AddWarPower effect adds, the same for a unit and for a building (no Age token on a building) */
+  getAddedPower(effect: AddWarPower, player: number, unitIndex?: number): number {
+    if (effect.perAgeToken !== undefined) {
+      const ageTokens = effect.perAgeToken === AgeLocation.OnUnit ? (unitIndex !== undefined ? this.getAgeOnUnit(unitIndex) : 0) : this.getAgeInPlayerRealm(player)
+      return ageTokens * effect.powerAdded
+    }
+    if (effect.perResource) {
+      const resourcesHelper = new ResourcesHelper(this.game, player)
+      return sumBy(effect.perResource, (resource) => resourcesHelper.getResource(resource)) * effect.powerAdded
+    }
+    if (effect.perGoldOnIncomePhase) {
+      // All the gold earned at the income phase: the base gold of every Monarch, plus the income effects (the Ogre)
+      return (BASE_INCOME + new Income(this.game).getPlayerIncome(player)) * effect.powerAdded
+    }
+    return effect.powerAdded
   }
 
   getAgeOnUnit(index: number) {
@@ -201,7 +195,7 @@ export class War extends MaterialRulesPart {
     const strength = sumBy(unitIndexes, (index: number) => this.computePower(units.index(index)))
 
     const buildings = buildHelper.addPowerBuildingEffects
-    const buildingStrength = sumBy(buildings, (building) => buildHelper.getPowerAddedFromBuilding(player, building))
+    const buildingStrength = sumBy(buildings, (building) => this.getAddedPower(building, player))
     return strength + buildingStrength
   }
 
