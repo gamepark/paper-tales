@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { DefaultHelpDisplay, MaterialHelpDisplayProps, useRules } from '@gamepark/react-game'
+import { DefaultHelpDisplay, MaterialHelpDisplayProps, useMaterialDescription, useRules } from '@gamepark/react-game'
 import { FC } from 'react'
 import ageToken from '../../../images/tokens/Age.jpg'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
@@ -11,17 +11,29 @@ import { paper } from '../../../theme/tableTheme'
  * The left page of the story book: the item laid slightly askew, with its Age tokens, and the fold of the book as the
  * right edge of the page, so that it follows the width of the item (validated mockup docs/mockups/help-book.html).
  */
-export const BookHelpDisplay: FC<MaterialHelpDisplayProps & { scale?: number }> = ({ scale = 0.79, ...props }) => {
+export const BookHelpDisplay: FC<MaterialHelpDisplayProps & { scale?: number; ageTokens?: boolean }> = ({ scale = 0.79, ageTokens = true, ...props }) => {
   const rules = useRules<PaperTalesRules>()
-  const ageTokens = rules && props.itemIndex !== undefined ? new AgeTokens(rules).count(props.itemIndex) : 0
+  const tokens = ageTokens && rules && props.itemIndex !== undefined ? new AgeTokens(rules).count(props.itemIndex) : 0
   return (
     <div css={pageCss}>
       <div key={props.itemIndex} css={[itemCss, pageTurnCss]} style={{ fontSize: `${scale / 2.13}em` }}>
         <DefaultHelpDisplay {...props} />
-        {ageTokens > 0 && <img css={ageCss} src={ageToken} alt="" />}
+        {tokens > 0 && <img css={ageCss} src={ageToken} alt="" />}
       </div>
     </div>
   )
+}
+
+/** The width of a token or a coin on its page, in em of the page */
+const TOKEN_WIDTH = 14
+
+/** The left page for a token, a coin or the turn counter: the item alone, drawn at the same width whatever its size */
+export const TokenBookHelpDisplay: FC<MaterialHelpDisplayProps> = (props) => {
+  const description = useMaterialDescription(props.itemType)
+  const { width, height } = description?.getSize(props.item.id) ?? { width: 1, height: 1 }
+  // The framework draws the item at min(75 / height, 75 / width, 10) em: bring it back to TOKEN_WIDTH
+  const drawn = Math.min(75 / height, 75 / width, 10) * Math.max(width, height)
+  return <BookHelpDisplay {...props} scale={(2.13 * TOKEN_WIDTH) / drawn} ageTokens={false} />
 }
 
 const pageCss = css`

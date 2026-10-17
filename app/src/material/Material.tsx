@@ -6,12 +6,15 @@ import { ageTokenDescription } from './AgeTokenDescription'
 import { buildingCardDescription } from './BuildingCardDescription'
 import { frenchBuildingCardDescription } from './FrenchBuildingCardDescription'
 import { frenchUnitCardDescription } from './FrenchUnitCardDescription'
+import { roundTokenDescription } from './RoundTokenDescription'
 
 export const Material: Partial<Record<MaterialType, MaterialDescription>> = {
   [MaterialType.Unit]: unitCardDescription,
   [MaterialType.Gold]: goldCoinDescription,
   [MaterialType.Age]: ageTokenDescription,
-  [MaterialType.Building]: buildingCardDescription
+  [MaterialType.Building]: buildingCardDescription,
+  // The turn counter is drawn by the side column; the description gives it its help page
+  [MaterialType.Time]: roundTokenDescription
 }
 
 /** The French edition of the cards, used when the game is played in French (the English edition is the fallback) */

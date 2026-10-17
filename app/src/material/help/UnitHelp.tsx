@@ -16,6 +16,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
 import { FactTags } from './book/FactTags'
+import { HiddenUnitHelp } from './HiddenUnitHelp'
 import { helpIconComponents } from './book/helpIconComponents'
 import { ResourceIcon, StrengthIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
@@ -39,7 +40,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     return (move.data as GainAgeTokenOnChosenUnitEffect).unitIndex === itemIndex
   })
   const unit = item.id as Unit | undefined
-  if (unit === undefined) return <BookPage name={t('help.unit.hidden', 'Face-down card')}>{null}</BookPage>
+  if (unit === undefined) return <HiddenUnitHelp {...props} />
 
   const pattern = unitCardCaracteristics[unit]
   const effects = pattern.effect ?? []

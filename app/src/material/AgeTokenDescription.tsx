@@ -1,6 +1,7 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { RoundTokenDescription } from '@gamepark/react-game'
 import AgeToken from '../images/tokens/Age.jpg'
+import { TokenBookHelpDisplay } from './help/book/BookHelpDisplay'
 import { AgeTokenHelp } from './help/AgeTokenHelp'
 
 class AgeTokenDescription extends RoundTokenDescription {
@@ -12,6 +13,7 @@ class AgeTokenDescription extends RoundTokenDescription {
   staticItems = [{ id: 1, quantity: 5, location: this.stockLocation }]
 
   help = AgeTokenHelp
+  helpDisplay = TokenBookHelpDisplay
 }
 
 export const ageTokenDescription = new AgeTokenDescription()

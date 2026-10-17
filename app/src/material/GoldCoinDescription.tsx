@@ -2,6 +2,7 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { ComponentSize, MoneyDescription } from '@gamepark/react-game'
 import Gold1 from '../images/tokens/Gold1.jpg'
 import Gold5 from '../images/tokens/Gold5.jpg'
+import { TokenBookHelpDisplay } from './help/book/BookHelpDisplay'
 import { GoldCoinHelp } from './help/GoldCoinHelp'
 
 class GoldCoinDescription extends MoneyDescription {
@@ -24,6 +25,7 @@ class GoldCoinDescription extends MoneyDescription {
   ]
 
   help = GoldCoinHelp
+  helpDisplay = TokenBookHelpDisplay
 }
 
 export const goldCoinDescription = new GoldCoinDescription()

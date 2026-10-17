@@ -1,5 +1,8 @@
 import { css, keyframes } from '@emotion/react'
-import { useMaterialContext } from '@gamepark/react-game'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { PlayMoveButton, useMaterialContext } from '@gamepark/react-game'
+import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import time1 from '../images/time/time1.png'
@@ -9,6 +12,7 @@ import time4 from '../images/time/time4.png'
 import { deckLabelPosition, discardLabelPosition, getRound, SIDE_COLUMN_WIDTH, sideColumnPosition } from '../locators/TableLayout'
 import { captionCss, ochre } from '../theme/tableTheme'
 import { TableAnchor } from './TableAnchor'
+import displayMaterialHelp = MaterialMoveBuilder.displayMaterialHelp
 
 // The open book of the rulebook (p.3), with the number of the turn and the direction of the draft (p.5)
 const turnImages = [time1, time2, time3, time4]
@@ -25,7 +29,10 @@ export const SideColumn: FC = () => {
   return (
     <>
       <TableAnchor position={sideColumnPosition} css={columnCss}>
-        <img key={round} src={turnImages[round - 1]} alt={title} title={title} css={turnCss} />
+        {/* A click opens the help of the turn, like on any item of the table */}
+        <PlayMoveButton css={turnButtonCss} move={displayMaterialHelp(MaterialType.Time, { id: round, location: { type: LocationType.Time } })} transient>
+          <img key={round} src={turnImages[round - 1]} alt={title} title={title} css={turnCss} />
+        </PlayMoveButton>
         <div css={captionCss}>{title}</div>
       </TableAnchor>
       <TableAnchor position={deckLabelPosition} css={columnCss}>
@@ -33,7 +40,8 @@ export const SideColumn: FC = () => {
       </TableAnchor>
       <TableAnchor position={discardLabelPosition} css={columnCss}>
         <div css={captionCss}>{t('side.discard', 'Discard')}</div>
-      </TableAnchor>    </>
+      </TableAnchor>{' '}
+    </>
   )
 }
 
@@ -51,7 +59,15 @@ const turnChange = keyframes`
   100% { transform: scale(1); filter: drop-shadow(0 0 0.3em ${ochre}); }
 `
 
+const turnButtonCss = css`
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+`
+
 const turnCss = css`
+  display: block;
   width: 7em;
   filter: drop-shadow(0 0 0.3em ${ochre});
   animation: ${turnChange} 1.2s ease-out;
