@@ -1,8 +1,9 @@
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { useTranslation } from 'react-i18next'
+import { unitPrintedName } from '../material/help/unitPrintedName'
 
-/** The name of a unit: its translation, else the English name printed on the card */
+/** The name of a unit in the language of the game, else the name printed on the English card */
 export const useUnitName = () => {
-  const { t } = useTranslation()
-  return (unit: Unit) => t(`card.${unit}`, Unit[unit].replace(/([a-z])([A-Z])/g, '$1 $2'))
+  const { t, i18n } = useTranslation()
+  return (unit: Unit) => (i18n.exists(`unit.name.${unit}`) ? t(`unit.name.${unit}`) : unitPrintedName(unit))
 }

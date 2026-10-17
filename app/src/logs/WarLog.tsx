@@ -1,36 +1,59 @@
-import { css } from '@emotion/react'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 import { MaterialLogProps, usePlayerName } from '@gamepark/react-game'
-import { FC } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { MoveItem } from '@gamepark/rules-api'
+import { FC, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 
-/**
- * The start of the wars: the strength of every kingdom and the wars it wins, read on the game before they are fought
- */
-export const WarLog: FC<MaterialLogProps> = ({ context }) => {
+/** The wars begin: the strength of every kingdom, read on the game before they are fought */
+export const StrengthsLog: FC<MaterialLogProps> = ({ context }) => {
+  const { t } = useTranslation()
   const rules = new PaperTalesRules(context.game)
   const war = new War(context.game)
   return (
-    <div>
-      <Trans i18nKey="log.war" defaults="Wars" />
-      <ul css={listCss}>
-        {rules.players.map((player) => (
-          <WarLine key={player} player={player} power={war.getPlayerPower(player)} won={war.getWarsWon(player)} />
-        ))}
-      </ul>
-    </div>
+    <>
+      {t('log.war.strengths', 'Wars, strengths:')}{' '}
+      {rules.players.map((player, index) => (
+        <Fragment key={player}>
+          {index > 0 && ', '}
+          <Strength player={player} power={war.getPlayerPower(player)} />
+        </Fragment>
+      ))}
+    </>
   )
 }
 
-const WarLine: FC<{ player: PlayerColor; power: number; won: number }> = ({ player, power, won }) => {
-  const { t } = useTranslation()
+const Strength: FC<{ player: PlayerColor; power: number }> = ({ player, power }) => {
   const name = usePlayerName(player)
-  return <li>{t('log.war.player', { defaultValue: '{player}: strength {power}, {count, plural, =0 {no war won} one {# war won} other {# wars won}}', player: name, power, count: won })}</li>
+  return (
+    <>
+      {name} {power}
+    </>
+  )
 }
 
-const listCss = css`
-  margin: 0.2em 0 0;
-  padding-left: 1.2em;
-`
+/**
+ * The Legend points a Monarch scores at the wars: the wars won, and the points with the effects that score then, read
+ * as the move of their score marker (the game of the context is the one before the move)
+ */
+export const WarWonLog: FC<MaterialLogProps<MoveItem>> = ({ move, context }) => {
+  const { t } = useTranslation()
+  const rules = new PaperTalesRules(context.game)
+  const player = move.location.player as PlayerColor
+  const name = usePlayerName(player)
+  const before = rules.material(MaterialType.ScoreToken).index(move.itemIndex).getItem()!
+  const points = (move.location.x ?? 0) - (before.location.x ?? 0)
+  const wars = new War(context.game).getWarsWon(player)
+  return (
+    <>
+      {t('log.war.won', {
+        defaultValue: '{player} wins {count, plural, =0 {no war} one {# war} other {# wars}}: {points, plural, one {+# Legend point} other {+# Legend points}}',
+        player: name,
+        count: wars,
+        points
+      })}
+    </>
+  )
+}
