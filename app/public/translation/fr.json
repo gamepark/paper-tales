@@ -210,7 +210,6 @@
   "help.unit.war.you.resource": "Votre royaume produit {count} <res/> : elle compte pour {strength}.",
   "help.unit.age.token": "Elle porte déjà un jeton Âge.",
   "help.unit.age.dies": "Elle meurt à la fin de ce tour.",
-  "help.unit.no-resource": "rien",
   "help.live.kingdom": "Dans votre royaume",
   "help.unit.live.front": "À l’Avant, sans jeton Âge.",
   "help.unit.live.back": "À l’Arrière, sans jeton Âge.",

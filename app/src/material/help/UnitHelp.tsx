@@ -123,11 +123,9 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
           tags={[
             { label: t('help.unit.cost', 'Cost'), icon: <CoinIcon />, value: pattern.cost },
             { label: t('help.unit.strength', 'Strength'), icon: <StrengthIcon value={`${pattern.power}${conditional ? '*' : ''}`} /> },
-            {
-              label: t('help.unit.resources', 'Produces'),
-              icon: resources.length ? resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />) : undefined,
-              value: resources.length ? undefined : t('help.unit.no-resource', 'nothing')
-            },
+            ...(resources.length
+              ? [{ label: t('help.unit.resources', 'Produces'), icon: resources.map((resource, index) => <ResourceIcon key={index} resource={resource} />) }]
+              : []),
             { label: t('help.unit.copies.label', 'Copies'), value: howManyCardCopies(unit) }
           ]}
         />
