@@ -10,7 +10,7 @@ import { PaperTalesScoring } from './scoring/PaperTalesScoring'
 import { theme } from './theme'
 import App from './App'
 import { Locators } from './locators/Locators'
-import { Material } from './material/Material'
+import { Material, materialI18n } from './material/Material'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -20,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
       optionsSpec={PaperTalesOptionsSpecV2}
       GameSetup={PaperTalesSetup}
       material={Material}
+      materialI18n={materialI18n}
       locators={Locators}
       animations={paperTalesAnimation}
       theme={theme}
