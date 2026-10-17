@@ -6,6 +6,7 @@ import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Resources } from '../material/Resources'
 import { theRealDeck, Unit } from '../material/Unit'
+import { unitCardCaracteristics } from '../material/UnitCaracteristics'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
@@ -538,6 +539,33 @@ describe('Shapeshifter', () => {
     expect(location(rules, woodcutter).type).toBe(LocationType.Deck)
     expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
     expect(rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(Blue).length).toBe(1)
+  })
+
+  it('phase 2, empty deck: the discard is shuffled into a new deck (rulebook p.5), and the draw goes on', () => {
+    const { rules, shapeshifter } = revealShapeshifter([]) // every other card is in the discard
+    expect(rules.game.rule?.id).toBe(RuleId.War)
+    expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
+    const kept = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(Blue)
+    expect(kept.length).toBe(1)
+    expect(unitCardCaracteristics[kept.getItem<Unit>()!.id].cost).toBeLessThanOrEqual(3)
+    expect(ageOn(rules, kept.getIndex())).toBe(1)
+  })
+
+  it('phase 2, empty deck and a discard without any unit of cost 3 or less: the discard is shuffled once, then the draw stops', () => {
+    cardsIndexes = []
+    const rules = newRules()
+    const shapeshifter = place(rules, Unit.Shapeshifter, Blue, 1, 0)
+    // The deck is empty and the discard holds a single Kraken; the other cards are out of reach, in a hand
+    for (const index of rules.material(MaterialType.Unit).location(LocationType.Deck).getIndexes()) {
+      rules.game.items[MaterialType.Unit]![index].location = { type: LocationType.PlayerUnitHand, player: Red }
+    }
+    const kraken = rules.material(MaterialType.Unit).id(Unit.Kraken).getIndex()
+    rules.game.items[MaterialType.Unit]![kraken].location = { type: LocationType.Discard, x: 0 }
+    deployed(rules, { [Blue]: [shapeshifter] })
+    runDeployEffects(rules)
+    expect(rules.game.rule?.id).toBe(RuleId.War)
+    expect(location(rules, kraken).type).toBe(LocationType.Discard)
+    expect(location(rules, shapeshifter).type).toBe(LocationType.PlayerUnitBoard)
   })
 
   it('phase 2: nothing when it was not revealed this turn', () => {

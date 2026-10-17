@@ -3,7 +3,9 @@ export enum Memory {
   UnitSavedWithMystic,
   TwoPlayersDraftMoves,
   PlacingAgeTokenUnitsIndexes,
-  Time
+  Time,
+  /** The discard was already shuffled into a new deck for the Shapeshifter of this player this turn */
+  ShapeshifterRefill
 }
 
 export type UnitSavedWithMysticType = number[]

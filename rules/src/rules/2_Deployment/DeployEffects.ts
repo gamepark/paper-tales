@@ -1,4 +1,4 @@
-import { isMoveItemType, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
 import { AgeTokens } from '../helpers/AgeTokens'
 import {
   GainAgeToken,
@@ -35,6 +35,13 @@ export class DeployEffects extends SimultaneousRule {
       const scoreHelper = new ScoreHelper(this.game, player)
       let scoreToAdd = 0
 
+      // The effects of the phase take into account everything in play at the end of the phase (rulebook p.12): the
+      // level 2 Buildings include the ones a Golem revealed this turn improves
+      const improvesAll = playerUnitBoard.entries.some(
+        ([index, unit]) => deployedUnitsIndexes.includes(index) && (unitCardCaracteristics[unit.id as Unit].effect ?? []).some(isImproveBuilding)
+      )
+      const level2Buildings = buildHelper.buildLevel2Buildings.length + (improvesAll ? buildHelper.builtLevel1Buildings.length : 0)
+
       for (const [unitIndex, unit] of playerUnitBoard.entries) {
         const unitId = unit.id as Unit
         const characteristics: UnitPattern = unitCardCaracteristics[unitId]
@@ -42,7 +49,7 @@ export class DeployEffects extends SimultaneousRule {
         for (const effect of effects) {
           if (isGainTokenOnDeploy(effect) && effect.token === MaterialType.ScoreToken) {
             if (!effect.onDeployment || deployedUnitsIndexes.includes(unitIndex)) {
-              const factor = effect.perLevel2Builds ? buildHelper.buildLevel2Buildings.length : 1
+              const factor = effect.perLevel2Builds ? level2Buildings : 1
               scoreToAdd += effect.amount * factor
             }
           } else {
@@ -79,17 +86,17 @@ export class DeployEffects extends SimultaneousRule {
         if (this.deck.length) {
           moves.push(this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: unit.location.x, y: unit.location.y }))
         } else {
-          moves.push(this.endPlayerTurn(player))
+          moves.push(...(this.refillDeck(player) ?? [this.endPlayerTurn(player)]))
         }
       } else {
         const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
-        const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
         const buildHelper = new BuildHelper(this.game, player)
         const scoreHelper = new ScoreHelper(this.game, player)
 
-        const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, player)
-        cardsPlayedIndexes.push(move.itemIndex)
-        this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, player)
+        // The drawn unit is deployed this turn: its "when revealed" effects apply
+        this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards, move.itemIndex], player)
+        const deployedUnitsIndexes = this.remind<number[]>(Memory.PlayedCardsDuringDeployment, player)
+        this.forget(Memory.ShapeshifterRefill, player)
 
         if (effects !== undefined) {
           effects.forEach((eff) => {
@@ -113,11 +120,35 @@ export class DeployEffects extends SimultaneousRule {
         moves.push(this.endPlayerTurn(player))
       }
     }
+
+    // The discard just became the new deck for a Shapeshifter: it draws from it
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) {
+      for (const player of this.game.players) {
+        if (!this.remind(Memory.ShapeshifterRefill, player)) continue
+        const shapeshifter = this.getPlayerUnits(player).id(Unit.Shapeshifter)
+        if (shapeshifter.length) moves.push(...this.onShapeShifter(player, shapeshifter.getItem()!))
+        else moves.push(this.endPlayerTurn(player))
+      }
+    }
     return moves
   }
 
+  /** The Shapeshifter is still drawing: either a card comes to the board, or the discard is being shuffled into a new deck */
   private isShapeshifterDraw(move: MaterialMove, player: PlayerColor) {
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) return !!this.remind(Memory.ShapeshifterRefill, player)
     return isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard && move.location.player === player
+  }
+
+  /**
+   * The deck is empty while a Shapeshifter draws: the discard is shuffled into a new deck, as during the deal (rulebook
+   * p.5), once per Shapeshifter so that a discard without any unit of cost 3 or less does not loop. Undefined when there
+   * is nothing to shuffle.
+   */
+  private refillDeck(player: PlayerColor): MaterialMove[] | undefined {
+    const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
+    if (!discard.length || this.remind(Memory.ShapeshifterRefill, player)) return undefined
+    this.memorize(Memory.ShapeshifterRefill, true, player)
+    return [discard.shuffle(), discard.moveItemsAtOnce({ type: LocationType.Deck })]
   }
 
   getActivePlayerLegalMoves(_playerId: number): MaterialMove[] {
@@ -129,6 +160,7 @@ export class DeployEffects extends SimultaneousRule {
     let goToChooseRule = false
 
     for (const player of this.game.players) {
+      this.forget(Memory.ShapeshifterRefill, player)
       const unitWithPlaceAgeToken: number[] = this.getUnitsWithPlaceAgeToken(player).getIndexes()
 
       if (unitWithPlaceAgeToken.length > 0) {
@@ -203,9 +235,9 @@ export class DeployEffects extends SimultaneousRule {
     }
   }
 
-  private onShapeShifter(player: number, unit: MaterialItem): MaterialMove[] {
+  private onShapeShifter(player: PlayerColor, unit: MaterialItem): MaterialMove[] {
     const deck = this.deck
-    if (!deck.length) return []
+    if (!deck.length) return this.refillDeck(player) ?? []
     return [
       deck.dealOne({
         type: LocationType.PlayerUnitBoard,

@@ -321,9 +321,31 @@ describe('Kraken', () => {
     expect(rules.getScore(Blue)).toBe(4)
   })
 
-  // UNSURE: Golem and Kraken revealed the same turn. Neither card says whether the Buildings the Golem improves count
-  // for the Kraken penalty. In the code, DeployEffects.onRuleStart computes the Kraken score from the level 2 Buildings
-  // before the Golem moves are played, so they do not count. No test written.
+  it('revealed with a Golem: the Buildings the Golem improves count for the penalty (rulebook p.12, timing of the effects)', () => {
+    const rules = newRules()
+    const kraken = place(rules, Unit.Kraken, Blue, 0, 0)
+    const golem = place(rules, Unit.Golem, Blue, 1, 0)
+    build(rules, Blue, Building.Mine, true)
+    build(rules, Blue, Building.Tavern) // level 1, improved by the Golem: counts
+    build(rules, Blue, Building.Town) // same
+    setScore(rules, Blue, 10)
+    revealed(rules, { [Blue]: [kraken, golem] })
+    runSimultaneous(rules, RuleId.DeployEffects)
+    expect(rules.getScore(Blue)).toBe(1)
+    expect(rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(Blue).rotation(true).length).toBe(3)
+  })
+
+  it('revealed with a Golem already in play: only the level 2 Buildings of the moment count', () => {
+    const rules = newRules()
+    const kraken = place(rules, Unit.Kraken, Blue, 0, 0)
+    place(rules, Unit.Golem, Blue, 1, 0)
+    build(rules, Blue, Building.Mine, true)
+    build(rules, Blue, Building.Tavern)
+    setScore(rules, Blue, 10)
+    revealed(rules, { [Blue]: [kraken] })
+    runSimultaneous(rules, RuleId.DeployEffects)
+    expect(rules.getScore(Blue)).toBe(7)
+  })
 })
 
 describe('Demon', () => {
