@@ -132,7 +132,14 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
 
   const timeline: TimelineStep[] = [
     {},
-    { text: t('help.building.slot', 'A level 2 Building gives a 5th spot, in the Front.') },
+    {
+      on: true,
+      text: (
+        <span>
+          <LevelLabel level={1} /> {t('help.building.slot', 'your Kingdom gets a 5th spot for a Unit, in the Front.')}
+        </span>
+      )
+    },
     { on: effectTexts[2].length > 0, text: printed(2) },
     { on: effectTexts[3].length > 0, text: printed(3) },
     {

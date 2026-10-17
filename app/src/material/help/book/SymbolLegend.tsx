@@ -5,15 +5,14 @@ import { helpIconComponents } from './helpIconComponents'
 
 type Symbol = { tag: string; key: string; count?: number }
 
-/** What an icon of the printed texts means: its translation key, and its number when it carries one */
+/**
+ * The symbols specific to the card effects, which a player cannot guess. The common ones (resources, gold, points,
+ * strength) are not explained.
+ */
 const describe = (tag: string): Symbol | undefined => {
-  if (['deploy', 'ageplus', 'age', 'b1', 'b2', 'food', 'wood', 'crystal', 'gold', 'pl'].includes(tag)) return { tag, key: tag }
+  if (['deploy', 'ageplus', 'b1', 'b2'].includes(tag)) return { tag, key: tag }
   const phase = tag.match(/^phase(\d)$/)
-  if (phase) return { tag, key: `phase${phase[1]}` }
-  const valued = tag.match(/^(plm|pl|g|sp|s)(\d)$/)
-  if (!valued) return undefined
-  const [, kind, digit] = valued
-  return { tag, key: kind === 'plm' ? 'pl.minus' : `${kind}.n`, count: Number(digit) }
+  return phase ? { tag, key: `phase${phase[1]}` } : undefined
 }
 
 /** The icons used by the given printed texts, in reading order, each once */

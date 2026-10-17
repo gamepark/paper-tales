@@ -324,7 +324,7 @@
   "building.effect.3.2": "<pl1/> for each <food/> in your Kingdom.",
   "building.effect.4.1": "<sp1/> for each <wood/> in your Kingdom.",
   "building.effect.4.2": "<pl1/> for each Unit with <s3/> or more in your Kingdom.",
-  "help.building.slot": "A level 2 Building gives a 5th spot, in the Front.",
+  "help.building.slot": "your Kingdom gets a 5th spot for a Unit, in the Front.",
   "help.building.rule": "One action per turn: build a Building at level 1, build it directly at level 2, or upgrade a level 1 Building. Building costs 2 more gold for each Building you already have; upgrading does not.",
   "help.building.end": "<pl1/> at level 1, <pl3/> at level 2.",
   "help.building.cost1": "Level 1 cost",
@@ -350,18 +350,7 @@
   "help.unit.live.age.survives": "{tokens} <age/>: survives, and gets one more.",
   "help.symbol.deploy": "when the card is revealed, only once",
   "help.symbol.ageplus": "place an Age token",
-  "help.symbol.age": "Age token",
   "help.symbol.b1": "level 1 Building",
   "help.symbol.b2": "level 2 Building",
-  "help.symbol.food": "food",
-  "help.symbol.wood": "wood",
-  "help.symbol.crystal": "crystal",
-  "help.symbol.gold": "gold",
-  "help.symbol.pl": "Legend point",
-  "help.symbol.phase4": "Income phase",
-  "help.symbol.pl.n": "{count, plural, one {# Legend point} other {# Legend points}}",
-  "help.symbol.pl.minus": "{count, plural, one {# Legend point} other {# Legend points}} less",
-  "help.symbol.g.n": "{count} gold",
-  "help.symbol.s.n": "strength {count}",
-  "help.symbol.sp.n": "+{count} strength"
+  "help.symbol.phase4": "Income phase"
 }
