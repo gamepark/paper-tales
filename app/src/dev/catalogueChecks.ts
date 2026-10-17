@@ -1,5 +1,3 @@
-import { Effect, EffectType } from '@gamepark/paper-tales/material/effects/Effect'
-import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { i18n } from 'i18next'
 import { helpIconComponents } from '../material/help/book/helpIconComponents'
 
@@ -14,16 +12,3 @@ export const textIssues = (i18n: i18n, lng: string, key: string): string[] => {
   return unknown.map((tag) => `icône inconnue <${tag}/> dans ${key}`)
 }
 
-/** What the code knows about an effect, in one line: its type and its fields, resources by their name */
-export const describeEffect = (effect: Effect): string => {
-  const { type, ...fields } = effect
-  const show = (key: string, value: unknown): string => {
-    if (/resource/i.test(key) || key === 'ifResource' || key === 'perResource') {
-      const list = Array.isArray(value) ? value : [value]
-      return list.map((resource) => Resources[resource as Resources] ?? String(resource)).join('+')
-    }
-    return Array.isArray(value) ? value.join(',') : String(value)
-  }
-  const details = Object.entries(fields).map(([key, value]) => `${key}=${show(key, value)}`)
-  return [EffectType[type], ...details].join(' ')
-}

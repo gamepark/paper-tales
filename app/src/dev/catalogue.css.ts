@@ -121,14 +121,6 @@ export const titleCss = css`
   }
 `
 
-export const codeCss = css`
-  display: grid;
-  margin-top: 0.3em;
-  font-family: monospace;
-  font-size: 0.8em;
-  color: #7a6f67;
-`
-
 export const issueCss = css`
   display: block;
   font-weight: 700;

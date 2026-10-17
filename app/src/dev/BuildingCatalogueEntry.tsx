@@ -7,7 +7,6 @@ import { FactTags } from '../material/help/book/FactTags'
 import { LegendValueIcon } from '../material/help/book/HelpIcons'
 import { PhaseTimeline } from '../material/help/book/PhaseTimeline'
 import { PrintedText } from '../material/help/book/PrintedText'
-import { CatalogueCode } from './CatalogueCode'
 import { entryCss, imagesCss, issueCss, titleCss } from './catalogue.css'
 import { buildingFaces, buildingIssues } from './cardIssues'
 
@@ -43,7 +42,6 @@ export const BuildingCatalogueEntry: FC<{ building: Building; lng: string; i18n:
         />
         <PrintedText lines={lines} rule={false} />
         <PhaseTimeline steps={steps} onlyActive lng={lng} />
-        <CatalogueCode effects={[...(pattern.effect1 ?? []), ...(pattern.effect2 ?? [])]} resources={[pattern.resources1, pattern.resources2]} />
         {issues.map((issue) => (
           <span key={issue} css={issueCss}>
             {issue}
