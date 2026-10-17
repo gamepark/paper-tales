@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales — fenêtres en papier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --paper: #f6ece6; --muted: #e2d6cd; --ink: #4a4540; --rust: #b5481f; --rustDeep: #8f3816;
+    --ochre: #e9b534; --crimson: #9b2e4d; --shadow: #00000059;
+    --hard: drop-shadow(.16em .2em 0 var(--shadow));
+    --img: 'http://localhost:3100/src/images';
+  }
+  * { box-sizing: border-box; }
+  html { background: #1a140f; }
+  body {
+    margin: 0; color: var(--ink); font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.45; font-size: 15px;
+    background: #1a140f url('http://localhost:3100/src/images/score/score_board.jpg') center top / 900px;
+    min-height: 100vh;
+  }
+  body::before { content: ''; position: fixed; inset: 0; background: #17110cdb; pointer-events: none; }
+  main { position: relative; padding: 34px 30px 60px; max-width: 1600px; margin: 0 auto; }
+  .intro { color: var(--paper); max-width: 82ch; margin-bottom: 26px; }
+  .intro h1 { font-family: 'Baloo 2'; font-weight: 800; font-size: 2.5rem; line-height: 1; margin: 0 0 8px; color: var(--paper); }
+  .intro p { margin: 0; color: #e2d6cdcc; }
+  button { font: inherit; color: inherit; }
+
+  /* ---------- Paper primitives (same technique as tableTheme.ts) ---------- */
+  .pp { position: relative; isolation: isolate; filter: var(--hard); }
+  .pp::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--bg, var(--paper)); clip-path: var(--clip, var(--torn)); }
+  .slip { --clip: var(--torn); display: inline-flex; align-items: center; justify-content: center; gap: .45em; padding: .32em 1.15em .22em;
+    font-family: 'Baloo 2'; font-weight: 800; white-space: nowrap; border: 0; background: none; cursor: pointer; color: var(--fg, var(--ink)); line-height: 1.25; }
+  .slip.rust { --bg: var(--rust); --fg: var(--paper); }
+  .slip.cream { --bg: var(--paper); --fg: var(--ink); }
+  .slip.ink { --bg: var(--ink); --fg: var(--paper); }
+  .slip.ochre { --bg: var(--ochre); --fg: var(--ink); }
+  .slip.rust:hover, .slip.rust.hover { --bg: var(--rustDeep); transform: translate(-.06em, -.08em); filter: drop-shadow(.24em .3em 0 var(--shadow)); }
+  .slip.cream:hover, .slip.cream.hover { --bg: #fff8f2; transform: translate(-.06em, -.08em); filter: drop-shadow(.24em .3em 0 var(--shadow)); }
+  .slip:focus-visible { outline: .14em dashed var(--ochre); outline-offset: .2em; }
+  .disc { --clip: var(--disc); display: grid; place-items: center; border: 0; background: none; cursor: pointer; }
+  .t { font-family: 'Baloo 2'; font-weight: 800; line-height: 1.1; }
+  .caption { font-size: .87rem; color: #e2d6cdb3; margin-top: .55em; max-width: 34em; }
+  .caption b { color: var(--paper); font-weight: 700; }
+
+  /* ---------- Direction sections ---------- */
+  .dir { margin: 0 0 46px; transition: opacity .25s; }
+  .board.picking .dir { opacity: .32; }
+  .board.picking .dir.picked { opacity: 1; }
+  .dirhead { display: flex; align-items: center; gap: 16px; border: 0; background: none; cursor: pointer; padding: 0; text-align: left; color: var(--paper); margin-bottom: 26px; }
+  .dirhead .letter { --bg: var(--rust); width: 2.6em; height: 2.6em; font-size: 1.15rem; color: var(--paper); }
+  .dirhead .letter span { font-family: 'Baloo 2'; font-weight: 800; font-size: 1.6em; line-height: 1; margin-top: .12em; }
+  .dirhead h2 { font-family: 'Baloo 2'; font-weight: 800; font-size: 2rem; line-height: 1; margin: 0; }
+  .dirhead p { margin: 4px 0 0; color: #e2d6cdcc; max-width: 75ch; }
+  .dirhead[aria-pressed="true"] .letter { --bg: var(--ochre); color: var(--ink); }
+  .dirhead[aria-pressed="true"] h2 { color: var(--ochre); }
+  .dirhead:focus-visible { outline: 3px dashed var(--ochre); outline-offset: 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 44px 48px; align-items: flex-start; margin-bottom: 44px; }
+  .col { display: flex; flex-direction: column; gap: 34px; }
+
+  /* Placeholder lines for the help content (designed elsewhere) */
+  .ph { display: flex; flex-direction: column; gap: .6em; margin-top: 1.1em; }
+  .ph i { display: block; height: .7em; border-radius: .35em; background: #4a454024; }
+  .ph i:nth-child(1) { width: 92%; } .ph i:nth-child(2) { width: 78%; } .ph i:nth-child(3) { width: 86%; }
+  .ph i:nth-child(4) { width: 52%; margin-bottom: .7em; } .ph i:nth-child(5) { width: 88%; } .ph i:nth-child(6) { width: 64%; }
+  .card { width: 15.6em; aspect-ratio: 438 / 613; border-radius: .55em; background: url('http://localhost:3100/src/images/units/en/Cerberus.jpg') center / cover; box-shadow: 0 .12em .4em #0006; flex: none; }
+  .meta { font-size: .87em; color: #4a4540b3; font-weight: 700; }
+
+  /* Score table (our own component, shared by the 3 directions) */
+  .score { border-collapse: collapse; font-size: 1em; }
+  .score th, .score td { padding: .45em .35em; text-align: center; }
+  .score td:first-child, .score th:first-child { text-align: left; padding-left: .2em; white-space: nowrap; }
+  .score .lbl { display: inline-flex; align-items: center; gap: .5em; }
+  .score .lbl i, .score .lbl img { width: 1.4em; text-align: center; color: var(--rust); }
+  .score .lbl img { height: 1.4em; object-fit: contain; }
+  .score .lbl img.round { border-radius: 50%; }
+  .score .num { font-family: 'Baloo 2'; font-weight: 600; font-size: 1.15em; }
+  .score tr.total .num, .score tr.total .lbl { font-weight: 800; }
+  .score tr.total .num { font-size: 1.35em; }
+  .score tr.tie .lbl, .score tr.tie .num { color: #4a4540b3; }
+  .score tr.tie .lbl span { font-style: italic; }
+  .score th .who { display: flex; flex-direction: column; align-items: center; gap: .15em; font-family: 'Baloo 2'; font-weight: 700; font-size: .95em; width: 4.4em; }
+  .av { position: relative; width: 3em; height: 3em; display: grid; place-items: center; }
+  .av::before { content: ''; position: absolute; inset: 0; background: var(--pc); clip-path: var(--disc); }
+  .av::after { content: ''; position: absolute; inset: .22em; background: var(--paper); clip-path: var(--disc); }
+  .av img { position: relative; z-index: 1; height: 2em; filter: drop-shadow(0 .06em 0 #0006); }
+  .medal { position: absolute; left: -.35em; top: -.3em; width: 1.6em; height: 1.6em; display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; font-size: .87em; color: var(--ink); filter: var(--hard); z-index: 2; }
+  .medal::before { content: ''; position: absolute; inset: 0; clip-path: var(--disc); background: var(--m); z-index: -1; }
+  .m1 { --m: #e9b534; } .m2 { --m: #cfc7c0; } .m3 { --m: #c98a55; }
+
+  /* Journal shared bits */
+  .entry { display: flex; align-items: center; gap: .55em; font-family: 'Baloo 2'; font-weight: 600; font-size: 1.05em; line-height: 1.25; }
+  .entry .av { width: 2em; height: 2em; flex: none; }
+  .entry .av img { height: 1.35em; }
+  .entry b { font-weight: 800; }
+  .entry.depth { padding-left: 2.6em; }
+  .entry .arrow { margin-left: -1.4em; width: 1.1em; color: var(--rust); font-weight: 800; }
+  .tabs { display: flex; }
+
+  /* Menu shared bits */
+  .menu-items { display: flex; flex-direction: column; }
+  .menu-items .slip { font-size: 1.05em; }
+  .menu-items i { width: 1.3em; text-align: center; }
+
+  /* ================= A — Feuille déchirée ================= */
+  .A .sheet { --clip: var(--big); --bg: var(--paper); padding: 2.6em 2.2em 2em; }
+  .A .sheet .slip.cream, .C .top .slip.cream, .B .pages .slip.cream { --bg: var(--muted); }
+  .A .sheet.journal { --bg: var(--muted); }
+  .A .journal .tabs .off { --bg: #d3c5ba; }
+  .A .chat { --bg: var(--paper) !important; }
+  .B .book, .C .stack { width: fit-content; }
+  .A .ribbon { position: absolute; top: -.85em; left: 50%; transform: translateX(-50%) rotate(-1.2deg); font-size: 1.25em; padding: .35em 1.6em .25em; --clip: var(--torn2); }
+  .A .close { position: absolute; top: -.7em; right: -.7em; width: 2.5em; height: 2.5em; --bg: var(--rust); color: var(--paper); font-size: 1.05em; }
+  .A .close:hover { --bg: var(--rustDeep); }
+  .A .help { width: 52em; display: flex; gap: 2em; padding-bottom: 4.2em; }
+  .A .help .right { flex: 1; padding-top: .4em; }
+  .A .help h3 { margin: 0; font-size: 1.9em; color: var(--rust); }
+  .A .navA { position: absolute; left: 2.2em; right: 2.2em; bottom: 1.1em; display: flex; justify-content: space-between; align-items: center; }
+  .A .navA .count { font-family: 'Baloo 2'; font-weight: 800; color: #4a4540b3; }
+  .A .confirm { width: 27em; text-align: center; padding-top: 2.4em; }
+  .A .confirm p { margin: .2em 0 1.3em; }
+  .A .btns { display: flex; justify-content: center; gap: 1em; }
+  .A .result { width: 60em; padding-top: 3.2em; }
+  .A .result .ribbon { font-size: 1.35em; }
+  .A .result .top { display: flex; justify-content: center; margin-bottom: 1em; }
+  .A .score { width: 100%; }
+  .A .score tbody tr { background: linear-gradient(var(--muted), var(--muted)) left bottom / 100% 2px no-repeat; }
+  .A .score tr.total td { position: relative; }
+  .A .score tr.total { background: none; }
+  .A .score tr.total td::before { content: ''; position: absolute; inset: .15em 0; background: #e9b53466; z-index: -1; }
+  .A .score tr.total td:first-child::before { clip-path: polygon(0 8%, 100% 0, 100% 100%, 1% 92%); }
+  .A .score tr.total td:last-child::before { clip-path: polygon(0 0, 99% 10%, 100% 88%, 0 100%); }
+  .A .journal { width: 26em; height: 30em; display: flex; flex-direction: column; padding: 1.3em 1.2em 1.1em; }
+  .A .journal .tabs { gap: .5em; margin-bottom: 1em; }
+  .A .journal .tabs .slip { flex: 1; font-size: 1.05em; }
+  .A .journal .tabs .off { --bg: var(--muted); --fg: #4a4540b3; filter: none; }
+  .A .log { flex: 1; display: flex; flex-direction: column; gap: .7em; overflow: hidden; }
+  .A .log .entry { --clip: var(--torn); --bg: var(--paper); padding: .35em .9em .35em .5em; align-self: flex-start; }
+  .A .log .entry::after { content: ''; position: absolute; left: .6em; right: .6em; bottom: .12em; height: .2em; border-radius: .1em; background: var(--pc); }
+  .A .log .entry.depth { margin-left: 1.6em; padding-left: 1.6em; }
+  .A .chat { display: flex; align-items: center; gap: .5em; margin-top: 1em; --clip: var(--torn); --bg: var(--muted); padding: .45em .5em .45em 1em; filter: none; }
+  .A .chat span { flex: 1; color: #4a454099; font-weight: 600; }
+  .A .chat .slip { padding: .3em .8em; }
+  .A .menu { width: 22em; padding: 2.4em 1.4em 1.4em; }
+  .A .menu .menu-items { gap: .6em; align-items: flex-end; }
+  .A .menu .slip i { color: var(--rust); }
+  .A .tuto { width: 26em; padding: 1.4em 1.5em 1.2em; }
+  .A .tuto::after { content: ''; position: absolute; left: 3em; bottom: -1.3em; width: 2.4em; height: 1.4em; background: var(--paper); clip-path: polygon(0 0, 100% 0, 18% 100%); }
+  .A .tuto p { margin: 0 0 .9em; font-size: 1.05em; }
+  .A .tuto .slip { float: right; }
+  .A .tuto::before { --clip: var(--big2); }
+  .A .corner { width: 3em; height: 3em; padding: 0; font-size: 1.15em; }
+  .A .corner.hover { transform: rotate(-4deg) translateY(-.08em); }
+
+  /* ================= B — Livre de contes ================= */
+  .B .book { position: relative; padding: .55em .55em .9em; filter: var(--hard); }
+  .B .book::before { content: ''; position: absolute; inset: 0; background: var(--rustDeep); clip-path: var(--big); }
+  .B .pages { position: relative; display: flex; color: var(--ink);
+    background: linear-gradient(90deg, var(--paper) 0, var(--paper) calc(var(--gut) - 2.4em), #ddcfc4 var(--gut), var(--paper) calc(var(--gut) + 2.4em), var(--paper) 100%);
+    box-shadow: 0 .18em 0 #e2d6cd, 0 .34em 0 #cdbfb3; border-radius: .2em; }
+  .B .pages::after { content: ''; position: absolute; top: 0; bottom: 0; left: var(--gut); width: 1px; background: #4a454033; }
+  .B .page { padding: 2.1em 2.4em 2.6em; }
+  .B .help .pages { --gut: 20em; width: 52em; }
+  .B .help .page.l { width: 20em; display: grid; place-items: center; padding-right: 2.6em; }
+  .B .help .page.r { flex: 1; padding-left: 3em; }
+  .B .help h3 { margin: 0; font-size: 1.9em; color: var(--ink); }
+  .B .help h3::after { content: ''; display: block; width: 3.2em; height: .32em; margin-top: .25em; background: var(--rust); clip-path: var(--torn); }
+  .B .bookmark { position: absolute; top: -.3em; right: 2em; width: 2.4em; height: 3.6em; display: grid; place-items: start center; padding-top: .8em; border: 0; background: var(--crimson); color: var(--paper); cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); font-size: 1.05em; z-index: 2; }
+  .B .bookmark:hover { background: #7d2340; height: 3.9em; }
+  .B .curl { position: absolute; bottom: .9em; width: 3.4em; height: 3.4em; border: 0; cursor: pointer; background: none; z-index: 2; filter: drop-shadow(-.12em -.12em 0 #0003); }
+  .B .curl::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #e2d6cd 0 50%, transparent 50%); }
+  .B .curl.next { right: .55em; }
+  .B .curl.next::before { background: linear-gradient(315deg, transparent 50%, #e2d6cd 50%); }
+  .B .curl.prev { left: .55em; }
+  .B .curl.prev::before { background: linear-gradient(45deg, transparent 50%, #e2d6cd 50%); }
+  .B .curl i { position: absolute; color: var(--rust); font-size: 1.1em; }
+  .B .curl.next i { left: .55em; top: .55em; }
+  .B .curl.prev i { right: .55em; top: .55em; }
+  .B .folio { position: absolute; bottom: 1.25em; font-family: 'Baloo 2'; font-weight: 700; color: #4a454099; }
+  .B .help .folio.l { left: 9.3em; } .B .help .folio.r { right: 4.6em; }
+  .B .confirm .pages { width: 27em; background: var(--paper); text-align: center; }
+  .B .confirm .page { width: 100%; padding: 2em 2em 2.2em; }
+  .B .confirm h3 { margin: 0 0 .3em; font-size: 1.45em; }
+  .B .confirm p { margin: 0 0 1.3em; }
+  .B .confirm .orn { color: var(--rust); letter-spacing: .4em; margin-bottom: .6em; font-size: .9em; }
+  .B .btns { display: flex; justify-content: center; gap: 1em; }
+  .B .result .pages { --gut: 21em; }
+  .B .result .page.l { width: 21em; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; gap: .9em; padding-right: 2.8em; }
+  .B .result .fin { font-family: 'Baloo 2'; font-weight: 800; font-size: 3.6em; line-height: .9; color: var(--rust); }
+  .B .result .page.l h3 { margin: 0; font-size: 1.35em; }
+  .B .result .winner { --pc: #12985a; width: 5em; height: 5em; }
+  .B .result .winner img { height: 3.3em; }
+  .B .result .page.r { padding-left: 2.8em; }
+  .B .score tbody tr { border-top: 1.5px dotted #4a454055; }
+  .B .score tr.total .num { color: var(--rust); }
+  .B .journal { width: 26em; }
+  .B .journal .tabs { gap: .25em; padding-left: 1.2em; position: relative; z-index: 1; }
+  .B .journal .tabs button { border: 0; cursor: pointer; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.05em; padding: .4em 1.3em .3em; background: var(--muted); color: #4a4540b3; clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); margin-top: .3em; }
+  .B .journal .tabs button.on { background: var(--paper); color: var(--ink); margin-top: 0; padding-bottom: .5em; }
+  .B .journal .pages { --gut: -10em; flex-direction: column; height: 26em; background: var(--paper);
+    background-image: repeating-linear-gradient(transparent 0 2.45em, #4a454026 2.45em calc(2.45em + 1.5px)); background-position: 0 1em; padding: 1.15em 1.3em 1em 2.2em; }
+  .B .journal .pages::after { left: 1.4em; width: 1.5px; background: #b5481f66; }
+  .B .journal .log { flex: 1; display: flex; flex-direction: column; }
+  .B .journal .entry { height: 2.45em; align-items: center; }
+  .B .journal .entry .av { width: 1.9em; height: 1.9em; }
+  .B .chatB { display: flex; align-items: center; gap: .6em; border-top: 2px solid var(--ink); padding-top: .55em; }
+  .B .chatB span { flex: 1; color: #4a454099; font-weight: 600; }
+  .B .chatB button { border: 0; background: none; color: var(--rust); font-size: 1.25em; cursor: pointer; }
+  .B .menu .pages { width: 23em; background: var(--paper); flex-direction: column; padding: 1.6em 1.8em 1.7em; }
+  .B .menu h3 { margin: 0 0 .7em; font-size: 1.5em; text-align: center; }
+  .B .toc a { display: flex; align-items: baseline; gap: .4em; padding: .38em 0; color: var(--ink); text-decoration: none; font-family: 'Baloo 2'; font-weight: 600; font-size: 1.08em; }
+  .B .toc a::after { content: ''; order: 2; flex: 1; border-bottom: 2px dotted #4a454066; transform: translateY(-.25em); }
+  .B .toc a span { order: 1; }
+  .B .toc a i { order: 3; color: var(--rust); width: 1.4em; text-align: center; }
+  .B .toc a:hover span { color: var(--rust); }
+  .B .toc a:first-child { padding-top: 0; }
+  .B .tuto { position: relative; width: 26em; filter: var(--hard); }
+  .B .tuto .pagef { background: var(--paper); padding: 1.4em 1.6em 1.2em; clip-path: polygon(0 0, calc(100% - 2.2em) 0, 100% 2.2em, 100% 100%, 0 100%); }
+  .B .tuto::after { content: ''; position: absolute; top: 0; right: 0; width: 2.2em; height: 2.2em; background: linear-gradient(225deg, transparent 50%, #d8cabe 50%); filter: drop-shadow(-.1em .1em 0 #0002); }
+  .B .tuto p { margin: 0 0 1em; font-size: 1.05em; }
+  .B .tuto .row2 { display: flex; justify-content: space-between; align-items: center; }
+  .B .tuto .folio { position: static; }
+  .B .rib { width: 2.8em; height: 3.8em; border: 0; cursor: pointer; display: grid; place-items: start center; padding-top: .75em; color: var(--paper); font-size: 1.15em;
+    background: var(--rust); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); filter: none; }
+  .B .rib.hover { background: var(--rustDeep); height: 4.2em; }
+  .B .ribwrap { filter: var(--hard); display: inline-block; }
+
+  /* ================= C — Collage ================= */
+  .C .stack { position: relative; isolation: isolate; filter: var(--hard); }
+  .C .stack::before, .C .stack::after { content: ''; position: absolute; z-index: -2; clip-path: var(--big2); }
+  .C .stack::before { inset: -.6em 1em .5em -.9em; background: var(--ink); transform: rotate(-2.2deg); }
+  .C .stack::after { inset: .5em -.5em -.6em .7em; background: var(--l2, var(--ochre)); transform: rotate(1.1deg); z-index: -1; }
+  .C .top { position: relative; z-index: 0; }
+  .C .top::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--paper); clip-path: var(--big); }
+  .C .label { position: absolute; top: -1em; left: 1.4em; transform: rotate(-2deg); font-size: 1.3em; padding: .3em 1.3em .22em; z-index: 3; }
+  .C .x { position: absolute; top: -.8em; right: -.6em; width: 2.6em; height: 2.6em; --bg: var(--ochre); color: var(--ink); font-size: 1.05em; transform: rotate(8deg); z-index: 3; }
+  .C .x:hover { --bg: #f2c851; transform: rotate(-4deg); }
+  .C .help .top { width: 52em; display: flex; gap: 2em; padding: 2.8em 2.2em 4.4em; }
+  .C .help .card { transform: rotate(-1.5deg); }
+  .C .help .right { flex: 1; }
+  .C .help .sub { display: inline-block; --bg: var(--muted); padding: .15em .9em; font-size: .9em; margin-top: .2em; filter: none; }
+  .C .navC { position: absolute; bottom: 1em; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 1em; z-index: 3; }
+  .C .navC .disc { width: 2.4em; height: 2.4em; --bg: var(--ink); color: var(--ochre); }
+  .C .navC .disc:hover { --bg: var(--rust); color: var(--paper); }
+  .C .navC .count { --bg: var(--ochre); padding: .15em .9em; font-family: 'Baloo 2'; font-weight: 800; transform: rotate(1.5deg); }
+  .C .confirm { --l2: var(--rust); }
+  .C .confirm .top { width: 27em; padding: 2.6em 2em 1.8em; text-align: center; }
+  .C .confirm p { margin: 0 0 1.3em; }
+  .C .btns { display: flex; justify-content: center; gap: 1em; }
+  .C .result .top { width: 60em; padding: 3.4em 2em 1.8em; }
+  .C .result .label { left: 50%; transform: translateX(-50%) rotate(-1.4deg); font-size: 1.4em; }
+  .C .result .home { display: flex; justify-content: center; margin-bottom: 1em; }
+  .C .score { width: 100%; border-collapse: separate; border-spacing: 0 .35em; }
+  .C .score tbody td { background: #fffaf6; }
+  .C .score tbody tr:nth-child(2) td { background: var(--muted); }
+  .C .score tbody tr.total td { background: var(--ochre); }
+  .C .score tbody tr.tie td { background: transparent; }
+  .C .score tbody td:first-child { clip-path: polygon(0 10%, 100% 0, 100% 100%, .6% 90%); }
+  .C .score tbody td:last-child { clip-path: polygon(0 0, 99% 12%, 100% 85%, 0 100%); }
+  .C .score .av { transform: rotate(var(--r, -3deg)); }
+  .C .journal { --l2: var(--rust); }
+  .C .journal .top { width: 26em; height: 30em; display: flex; flex-direction: column; padding: 1.2em 1.1em 1em; }
+  .C .journal .tabs { gap: .3em; margin: -2em 0 .9em; }
+  .C .journal .tabs .slip { font-size: 1.05em; }
+  .C .journal .tabs .on { transform: rotate(-2deg); z-index: 1; }
+  .C .journal .tabs .off { --bg: var(--muted); --fg: #4a4540b3; transform: rotate(1.5deg) translateY(.2em); }
+  .C .log { flex: 1; display: flex; flex-direction: column; gap: .6em; }
+  .C .log .entry { --clip: var(--torn); --bg: #fffaf6; padding: .3em .9em .3em .4em; align-self: flex-start; }
+  .C .log .entry:nth-child(odd) { transform: rotate(-.6deg); }
+  .C .log .entry:nth-child(even) { transform: rotate(.5deg); --bg: var(--muted); }
+  .C .log .entry .av::before { clip-path: polygon(4% 8%, 96% 0, 100% 92%, 0 100%); }
+  .C .log .entry .av::after, .C .log .entry .av img { display: none; }
+  .C .log .entry .av { width: 1.5em; height: 1.5em; transform: rotate(-6deg); }
+  .C .log .entry.depth { margin-left: 1.2em; }
+  .C .chatC { display: flex; gap: .5em; align-items: center; margin-top: .8em; }
+  .C .chatC .field { flex: 1; --bg: #fffaf6; --clip: var(--torn); padding: .45em 1em; color: #4a454099; font-weight: 600; filter: none; outline: 2px solid transparent; }
+  .C .chatC .field::before { box-shadow: inset 0 0 0 2px var(--ink); }
+  .C .menu { --l2: var(--rust); }
+  .C .menu .top { width: 22em; padding: 2.6em 1.3em 1.3em; }
+  .C .menu .menu-items { gap: .5em; }
+  .C .menu .slip { justify-content: flex-start; padding-left: .45em; }
+  .C .menu .slip i { --bg: var(--ink); width: 1.8em; height: 1.8em; display: grid; place-items: center; color: var(--ochre); position: relative; isolation: isolate; font-size: .85em; }
+  .C .menu .slip i::before { position: relative; z-index: 1; }
+  .C .menu .slip i::after { content: ''; position: absolute; inset: 0; background: var(--ink); clip-path: polygon(6% 4%, 100% 0, 94% 100%, 0 94%); z-index: 0; }
+  .C .menu .slip:nth-child(odd) { transform: rotate(-.7deg); }
+  .C .menu .slip:nth-child(even) { transform: rotate(.6deg); margin-left: .5em; }
+  .C .tuto { --l2: var(--ochre); }
+  .C .tuto .top { width: 26em; padding: 1.4em 1.5em 1.2em; }
+  .C .tuto p { margin: 0 0 1em; font-size: 1.05em; }
+  .C .tuto .slip { float: right; }
+  .C .tuto .arrow { position: absolute; left: -2.6em; top: 1.2em; width: 3em; height: 1.6em; background: var(--rust); clip-path: polygon(0 50%, 40% 0, 40% 28%, 100% 22%, 100% 78%, 40% 72%, 40% 100%); z-index: 3; transform: rotate(-6deg); }
+  .C .cornerC { position: relative; width: 3.1em; height: 3.1em; border: 0; background: none; cursor: pointer; isolation: isolate; color: var(--ochre); font-size: 1.15em; filter: var(--hard); }
+  .C .cornerC::before, .C .cornerC::after { content: ''; position: absolute; clip-path: var(--torn); }
+  .C .cornerC::before { inset: 0; background: var(--rust); transform: rotate(7deg) translate(.15em, .1em); z-index: -2; }
+  .C .cornerC::after { inset: .12em; background: var(--ink); transform: rotate(-3deg); z-index: -1; }
+  .C .cornerC.hover::before { transform: rotate(12deg) translate(.25em, .15em); background: var(--ochre); }
+  .C .cornerC.hover { color: var(--paper); }
+
+  .demo-label { color: #e2d6cdb3; font-size: .87rem; margin: 0 0 .6em; }
+  .controls { display: flex; flex-wrap: wrap; gap: 1.4em 1.8em; align-items: center; }
+  .controls figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: .55em; }
+  .controls figcaption { font-size: .87rem; color: #e2d6cdb3; }
+
+  @media (max-width: 900px) {
+    main { padding: 20px 16px 40px; }
+    body { font-size: 13px; }
+    .A .help, .B .help .pages, .C .help .top { width: auto; max-width: 100%; }
+    .row { gap: 32px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="intro">
+    <h1>Les fenêtres en papier découpé</h1>
+    <p>Toutes les fenêtres du framework (aide, confirmation, fin de partie, journal, menu, tutoriel, boutons) repensées avec le papier découpé de la table. Trois façons de construire une fenêtre ; cliquez sur une lettre pour la mettre en avant.</p>
+  </header>
+
+  <div class="board" id="board">
+
+  <!-- ===================================== A ===================================== -->
+  <section class="dir A" id="A">
+    <button class="dirhead" aria-pressed="false">
+      <span class="disc pp letter"><span>A</span></span>
+      <span><h2>Feuille déchirée</h2><p>Chaque fenêtre est une seule grande feuille crème déchirée posée sur la table ; le titre est une banderole d'encre collée en travers du bord haut.</p></span>
+    </button>
+    <div class="row">
+      <div>
+        <div class="sheet pp help">
+          <span class="slip ink ribbon pp">Aide : Cerbère</span>
+          <button class="disc pp close" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+          <div class="card"></div>
+          <div class="right">
+            <h3 class="t">Cerbère</h3>
+            <div class="meta">Unité · 3 exemplaires</div>
+            <div class="ph"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="navA">
+            <button class="slip cream pp"><i class="fa-solid fa-chevron-left"></i> Précédente</button>
+            <span class="count">4 / 12</span>
+            <button class="slip rust pp">Suivante <i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <p class="caption"><b>Aide.</b> dialog.container = la feuille, dialog.closeIcon = disque rouille, dialog.navigation = deux languettes et le compteur.</p>
+      </div>
+      <div class="col">
+        <div>
+          <div class="sheet pp confirm">
+            <span class="slip ink ribbon pp">Annuler ?</span>
+            <p>Annuler mon dernier coup ? Le Dragon retourne dans votre main.</p>
+            <div class="btns"><button class="slip cream pp">Garder mon coup</button><button class="slip rust pp">Annuler le coup</button></div>
+          </div>
+          <p class="caption"><b>Confirmation.</b> Même feuille, deux languettes : crème pour renoncer, rouille pour agir.</p>
+        </div>
+        <div>
+          <div class="sheet pp tuto">
+            <p>Choisissez une carte à garder, puis passez le reste de votre main à votre voisin de gauche.</p>
+            <button class="slip rust pp">OK</button>
+          </div>
+          <p class="caption" style="margin-top:1.8em"><b>Tutoriel.</b> Bulle déchirée avec une pointe, bouton OK en languette.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="sheet pp result">
+          <span class="slip ink ribbon pp">Vert remporte la partie avec 26 points</span>
+          <div class="top"><button class="slip rust pp">Retour à Game Park</button></div>
+          <table class="score" data-score></table>
+        </div>
+        <p class="caption"><b>Fin de partie.</b> result.container = la feuille ; la ligne des Points de Légende est surlignée d'une bande ocre déchirée.</p>
+      </div>
+      <div>
+        <div class="sheet pp menu">
+          <span class="slip ink ribbon pp">Menu</span>
+          <button class="disc pp close" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
+          <div class="menu-items" data-menu="slip cream pp"></div>
+        </div>
+        <p class="caption"><b>Menu.</b> Les entrées sont des languettes crème alignées à droite, icône rouille.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="sheet pp journal">
+          <div class="tabs"><button class="slip pp off">Discuter</button><button class="slip rust pp">Historique</button></div>
+          <div class="log" data-log="pp"></div>
+          <div class="chat pp"><span>Tapez un message</span><button class="slip rust pp" aria-label="Envoyer"><i class="fa-solid fa-paper-plane"></i></button></div>
+        </div>
+        <p class="caption"><b>Journal.</b> journal.historyEntry = petite languette avec la bande de couleur du joueur, comme les étiquettes de la table.</p>
+      </div>
+      <div class="controls">
+        <figure><button class="slip rust pp corner"><i class="fa-solid fa-comment-dots"></i></button><figcaption>Discussion</figcaption></figure>
+        <figure><button class="slip rust pp corner hover"><i class="fa-solid fa-bars"></i></button><figcaption>Menu, survol</figcaption></figure>
+        <figure><button class="slip rust pp">Passer</button><figcaption>Bouton</figcaption></figure>
+        <figure><button class="slip rust pp hover">Passer</button><figcaption>Bouton, survol</figcaption></figure>
+        <figure><button class="slip cream pp">Revoir les règles</button><figcaption>Secondaire</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================== B ===================================== -->
+  <section class="dir B" id="B">
+    <button class="dirhead" aria-pressed="false">
+      <span class="disc pp letter"><span>B</span></span>
+      <span><h2>Livre de contes</h2><p>Les fenêtres sont les pages du livre de tours : couverture rouille, pli central, signet pour fermer, coin de page pour tourner.</p></span>
+    </button>
+    <div class="row">
+      <div>
+        <div class="book help">
+          <button class="bookmark" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+          <div class="pages">
+            <div class="page l"><div class="card"></div></div>
+            <div class="page r">
+              <h3 class="t">Cerbère</h3>
+              <div class="meta" style="margin-top:.5em">Unité · 3 exemplaires</div>
+              <div class="ph"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <span class="folio l">4</span><span class="folio r">sur 12</span>
+          </div>
+          <button class="curl prev" aria-label="Carte précédente"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="curl next" aria-label="Carte suivante"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <p class="caption"><b>Aide.</b> La carte sur la page de gauche, l'aide sur celle de droite ; le signet ferme, les coins cornés tournent la page.</p>
+      </div>
+      <div class="col">
+        <div>
+          <div class="book confirm">
+            <div class="pages"><div class="page">
+              <div class="orn">✦ ✦ ✦</div>
+              <h3 class="t">Annuler mon dernier coup ?</h3>
+              <p>Le Dragon retourne dans votre main.</p>
+              <div class="btns"><button class="slip cream pp">Garder mon coup</button><button class="slip rust pp">Annuler le coup</button></div>
+            </div></div>
+          </div>
+          <p class="caption"><b>Confirmation.</b> Une seule page, reliée de la même couverture.</p>
+        </div>
+        <div>
+          <div class="tuto"><div class="pagef">
+            <p>Choisissez une carte à garder, puis passez le reste de votre main à votre voisin de gauche.</p>
+            <div class="row2"><span class="folio">Tutoriel, page 2</span><button class="slip rust pp">OK</button></div>
+          </div></div>
+          <p class="caption"><b>Tutoriel.</b> Une page volante cornée, numérotée comme le livre.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="book result">
+          <div class="pages">
+            <div class="page l">
+              <div class="fin">Fin</div>
+              <span class="av winner"><img src="http://localhost:3100/src/images/pawns/pawn_green.png" alt=""></span>
+              <h3 class="t">Vert remporte la partie avec 26 points</h3>
+              <button class="slip rust pp">Retour à Game Park</button>
+            </div>
+            <div class="page r"><table class="score" data-score></table></div>
+          </div>
+        </div>
+        <p class="caption"><b>Fin de partie.</b> La dernière page du livre : « Fin » et le vainqueur à gauche, le décompte à droite.</p>
+      </div>
+      <div>
+        <div class="book menu">
+          <button class="bookmark" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
+          <div class="pages">
+            <h3 class="t">Sommaire</h3>
+            <nav class="toc" data-toc></nav>
+          </div>
+        </div>
+        <p class="caption"><b>Menu.</b> Une table des matières : libellé, pointillés, icône à la place du numéro de page.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="book journal">
+          <div class="tabs"><button>Discuter</button><button class="on">Historique</button></div>
+          <div class="pages">
+            <div class="log" data-log=""></div>
+            <div class="chatB"><span>Tapez un message</span><button aria-label="Envoyer"><i class="fa-solid fa-feather-pointed"></i></button></div>
+          </div>
+        </div>
+        <p class="caption"><b>Journal.</b> Un carnet ligné : onglets d'index en haut, une ligne par entrée, la discussion s'écrit sur la dernière ligne.</p>
+      </div>
+      <div class="controls">
+        <figure><span class="ribwrap"><button class="rib" aria-label="Discussion"><i class="fa-solid fa-comment-dots"></i></button></span><figcaption>Discussion</figcaption></figure>
+        <figure><span class="ribwrap"><button class="rib hover" aria-label="Menu"><i class="fa-solid fa-bars"></i></button></span><figcaption>Menu, survol</figcaption></figure>
+        <figure><button class="slip rust pp">Passer</button><figcaption>Bouton</figcaption></figure>
+        <figure><button class="slip rust pp hover">Passer</button><figcaption>Bouton, survol</figcaption></figure>
+        <figure><button class="slip cream pp">Revoir les règles</button><figcaption>Secondaire</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================== C ===================================== -->
+  <section class="dir C" id="C">
+    <button class="dirhead" aria-pressed="false">
+      <span class="disc pp letter"><span>C</span></span>
+      <span><h2>Collage</h2><p>Plusieurs papiers superposés et légèrement de travers : fond d'encre, papier de couleur, page crème ; le titre est une languette rouille collée par-dessus.</p></span>
+    </button>
+    <div class="row">
+      <div>
+        <div class="stack help">
+          <span class="slip rust pp label">Cerbère</span>
+          <button class="disc pp x" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+          <div class="top">
+            <div class="card"></div>
+            <div class="right">
+              <span class="pp sub t">Unité · 3 exemplaires</span>
+              <div class="ph"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+          </div>
+          <div class="navC">
+            <button class="disc pp" aria-label="Carte précédente"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="pp count">4 / 12</span>
+            <button class="disc pp" aria-label="Carte suivante"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <p class="caption"><b>Aide.</b> Le titre est une languette rouille collée sur le bord ; ronds d'encre pour naviguer, rond ocre pour fermer.</p>
+      </div>
+      <div class="col">
+        <div>
+          <div class="stack confirm">
+            <span class="slip rust pp label">Annuler ?</span>
+            <div class="top">
+              <p>Annuler mon dernier coup ? Le Dragon retourne dans votre main.</p>
+              <div class="btns"><button class="slip cream pp">Garder mon coup</button><button class="slip rust pp">Annuler le coup</button></div>
+            </div>
+          </div>
+          <p class="caption"><b>Confirmation.</b> Le papier du milieu passe au rouille pour une action qui défait.</p>
+        </div>
+        <div style="padding-left:2.4em">
+          <div class="stack tuto">
+            <span class="arrow"></span>
+            <div class="top">
+              <p>Choisissez une carte à garder, puis passez le reste de votre main à votre voisin de gauche.</p>
+              <button class="slip rust pp">OK</button>
+            </div>
+          </div>
+          <p class="caption" style="margin-top:1.2em"><b>Tutoriel.</b> Une flèche de papier découpée pointe vers l'élément visé.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="stack result">
+          <span class="slip rust pp label">Vert remporte la partie avec 26 points</span>
+          <div class="top">
+            <div class="home"><button class="slip ink pp">Retour à Game Park</button></div>
+            <table class="score" data-score></table>
+          </div>
+        </div>
+        <p class="caption"><b>Fin de partie.</b> Chaque ligne est une bande de papier ; les Points de Légende sur l'ocre.</p>
+      </div>
+      <div>
+        <div class="stack menu">
+          <span class="slip rust pp label">Menu</span>
+          <button class="disc pp x" aria-label="Fermer le menu"><i class="fa-solid fa-xmark"></i></button>
+          <div class="top"><div class="menu-items" data-menu="slip cream pp"></div></div>
+        </div>
+        <p class="caption"><b>Menu.</b> Languettes de travers, icône sur un carré d'encre.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <div class="stack journal">
+          <div class="top">
+            <div class="tabs"><button class="slip pp off">Discuter</button><button class="slip rust pp on">Historique</button></div>
+            <div class="log" data-log="pp"></div>
+            <div class="chatC"><span class="pp field">Tapez un message</span><button class="slip rust pp" aria-label="Envoyer"><i class="fa-solid fa-paper-plane"></i></button></div>
+          </div>
+        </div>
+        <p class="caption"><b>Journal.</b> Chaque entrée est un bout de papier, la couleur du joueur en vignette.</p>
+      </div>
+      <div class="controls">
+        <figure><button class="cornerC" aria-label="Discussion"><i class="fa-solid fa-comment-dots"></i></button><figcaption>Discussion</figcaption></figure>
+        <figure><button class="cornerC hover" aria-label="Menu"><i class="fa-solid fa-bars"></i></button><figcaption>Menu, survol</figcaption></figure>
+        <figure><button class="slip rust pp">Passer</button><figcaption>Bouton</figcaption></figure>
+        <figure><button class="slip rust pp hover">Passer</button><figcaption>Bouton, survol</figcaption></figure>
+        <figure><button class="slip cream pp">Revoir les règles</button><figcaption>Secondaire</figcaption></figure>
+      </div>
+    </div>
+  </section>
+  </div>
+</main>
+
+<script>
+  // Torn edges: same deterministic jitter as tableTheme.ts
+  const torn = (seed, depth, side, steps = 18) => {
+    let s = seed; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280; const p = []
+    for (let i = 0; i <= steps; i++) p.push(`${(i / steps * 100).toFixed(2)}% ${(r() * depth).toFixed(2)}%`)
+    for (let i = 0; i <= 6; i++) p.push(`${(100 - r() * side).toFixed(2)}% ${(i / 6 * 100).toFixed(2)}%`)
+    for (let i = steps; i >= 0; i--) p.push(`${(i / steps * 100).toFixed(2)}% ${(100 - r() * depth).toFixed(2)}%`)
+    for (let i = 6; i >= 0; i--) p.push(`${(r() * side).toFixed(2)}% ${(i / 6 * 100).toFixed(2)}%`)
+    return `polygon(${p.join(',')})`
+  }
+  const disc = (() => { let s = 11; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280; const p = []
+    for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2, rad = 45.5 + r() * 4.5; p.push(`${(50 + rad * Math.cos(a)).toFixed(1)}% ${(50 + rad * Math.sin(a)).toFixed(1)}%`) }
+    return `polygon(${p.join(',')})` })()
+  const root = document.documentElement.style
+  root.setProperty('--torn', torn(7, 9, 2.5))
+  root.setProperty('--torn2', torn(23, 10, 2.5))
+  root.setProperty('--big', torn(7, 1.3, .6, 44))
+  root.setProperty('--big2', torn(31, 1.6, .8, 40))
+  root.setProperty('--disc', disc)
+
+  const IMG = 'http://localhost:3100/src/images'
+  const players = [
+    { n: 'Vert', p: 'green', c: '#12985a', s: [21, 5, 26, 4], m: 1 },
+    { n: 'Anonyme', p: 'blue', c: '#2f5fb8', s: [23, 2, 25, 3], m: 2 },
+    { n: 'Blanc', p: 'white', c: '#bdb2a8', s: [17, 6, 23, 4], m: 3 },
+    { n: 'Violet', p: 'purple', c: '#7d2f9a', s: [19, 3, 22, 9] },
+    { n: 'Jaune', p: 'yellow', c: '#f5cf12', s: [15, 5, 20, 0] },
+    { n: 'Noir', p: 'black', c: '#2b2724', s: [16, 3, 19, 12] },
+    { n: 'Rouge', p: 'red', c: '#d0233a', s: [9, 3, 12, 5] }
+  ]
+  const av = (pl, medal) => `<span class="av" style="--pc:${pl.c}">${medal ? `<span class="medal m${medal}">${['I','II','III'][medal-1]}</span>` : ''}<img src="${IMG}/pawns/pawn_${pl.p}.png" alt=""></span>`
+  const rows = [
+    ['Guerres et effets', `<img src="${IMG}/tokens/bouclier_rouge.png" alt="">`, ''],
+    ['Bâtiments', '<i class="fa-solid fa-hammer"></i>', ''],
+    ['Points de Légende', '<i class="fa-solid fa-scroll"></i>', 'total'],
+    ['Or restant, départage', `<img class="round" src="${IMG}/tokens/Gold1.jpg" alt="">`, 'tie']
+  ]
+  const rot = [-3, 2, -1, 3, -2, 1.5, -2.5]
+  const table = `<thead><tr><th></th>${players.map((pl, i) => `<th><span class="who" style="--r:${rot[i]}deg">${av(pl, pl.m)}${pl.n}</span></th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r, ri) => `<tr class="${r[2]}"><td><span class="lbl">${r[1]}<span>${r[0]}</span></span></td>${players.map(pl => `<td class="num">${pl.s[ri]}</td>`).join('')}</tr>`).join('')}</tbody>`
+  document.querySelectorAll('[data-score]').forEach(t => t.innerHTML = table)
+
+  const P = Object.fromEntries(players.map(p => [p.n, p]))
+  const blue = { ...P.Anonyme, n: 'Bleu' }
+  const logs = [
+    [P.Rouge, '<b>Rouge</b> gagne 2 guerres : +6 PL'],
+    [blue, '<b>Bleu</b> reçoit 4 or'],
+    [P.Vert, '<b>Vert</b> construit la Taverne'],
+    [null, 'Le Dragon de <b>Jaune</b> meurt'],
+    [P.Jaune, '<b>Jaune</b> reçoit 2 or']
+  ]
+  document.querySelectorAll('[data-log]').forEach(el => {
+    const cls = el.dataset.log
+    el.innerHTML = logs.map(([pl, txt]) => pl
+      ? `<div class="entry ${cls}" style="--pc:${pl.c}">${av(pl)}<span>${txt}</span></div>`
+      : `<div class="entry depth ${cls}" style="--pc:#f5cf12"><span class="arrow">⤷</span><span>${txt}</span></div>`).join('')
+  })
+
+  const menu = [
+    ['fa-expand', 'Passer en plein écran'], ['fa-volume-xmark', 'Couper le son'], ['fa-clock-rotate-left', "Masquer l'historique"],
+    ['fa-rotate-left', 'Annuler mon dernier coup'], ['fa-bug', 'Signaler un bug'], ['fa-house', 'Retour à Game Park']
+  ]
+  document.querySelectorAll('[data-menu]').forEach(el => el.innerHTML = menu.map(([i, l]) => `<button class="${el.dataset.menu}"><i class="fa-solid ${i}"></i>${l}</button>`).join(''))
+  document.querySelectorAll('[data-toc]').forEach(el => el.innerHTML = menu.map(([i, l]) => `<a href="#"><span>${l}</span><i class="fa-solid ${i}"></i></a>`).join(''))
+
+  // Picking a direction
+  const board = document.getElementById('board')
+  document.querySelectorAll('.dirhead').forEach(h => h.addEventListener('click', () => {
+    const was = h.getAttribute('aria-pressed') === 'true'
+    document.querySelectorAll('.dirhead').forEach(o => o.setAttribute('aria-pressed', 'false'))
+    document.querySelectorAll('.dir').forEach(d => d.classList.remove('picked'))
+    board.classList.toggle('picking', !was)
+    if (!was) { h.setAttribute('aria-pressed', 'true'); h.closest('.dir').classList.add('picked') }
+  }))
+  // ?only=A renders a single direction (for captures)
+  const only = new URLSearchParams(location.search).get('only')
+  if (only) { document.querySelectorAll('.dir').forEach(d => d.style.display = d.id === only ? '' : 'none'); document.querySelector('.intro').style.display = 'none' }
+</script>
+</body>
+</html>

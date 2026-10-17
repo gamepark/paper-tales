@@ -1,0 +1,25 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Icônes Paper Tales</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:28px;background:#2f2a26;color:#f6ece6;font:500 15px/1.4 'Baloo 2',sans-serif}
+h1{font-weight:800;font-size:2rem;margin:0 0 4px}h2{font-weight:800;font-size:1.3rem;margin:28px 0 10px}
+p.note{margin:0 0 14px;color:#e2d6cd;max-width:80ch}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.tile{width:200px;background:#f6ece6;color:#4a4540;border-radius:6px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.tile .big{height:90px;display:grid;place-items:center}.tile .big img{max-height:90px;max-width:170px}
+.tile b{font-weight:800}.tile small{color:#7a716a;text-align:center;line-height:1.2}
+.inline{background:#4a4540;color:#f6ece6;border-radius:4px;padding:3px 8px;font-size:15px;display:flex;align-items:center;gap:4px;width:100%;justify-content:center}
+.inline img{height:1.3em}
+.src{font-size:12px;color:#9b8f86}
+</style></head><body>
+<h1>Icônes officielles à valider</h1>
+<p class="note">Source : dossier « 04 icons » et « 03 Components » de l'archive Portage numérique. Chaque icône en grand, puis dans une ligne de texte comme dans les aides.</p>
+<h2>Les 6 phases</h2><div class="grid" id="phases"></div>
+<h2>Ressources, force, Légende</h2><div class="grid" id="res"></div>
+<h2>Jetons et pion</h2><div class="grid" id="tok"></div>
+<script>
+const tiles=(id,list)=>document.getElementById(id).innerHTML=list.map(([f,name,ex,src])=>`<div class="tile"><div class="big"><img src="icons/${f}"></div><b>${name}</b><div class="inline">${ex.replace('@',`<img src="icons/${f}">`)}</div><span class="src">${src}</span></div>`).join('')
+tiles('phases',[['phase1.png','1. Recrutement','@ Gardez une carte','04 icons/phases'],['phase2.png','2. Déploiement','@ Vous payez 2 or','04 icons/phases'],['phase3.png','3. Guerres','@ +3 PL par guerre','04 icons/phases'],['phase4.png','4. Revenus','@ +2 or','04 icons/phases'],['phase5.png','5. Construction','@ Terrain : 2 or','04 icons/phases'],['phase6.png','6. Âge','@ Elle meurt','04 icons/phases']])
+tiles('res',[['ressources_bois.png','Bois','Produit 1 @','04 icons/ressources'],['ressources_viande.png','Viande','Produit 1 @','04 icons/ressources'],['ressources_minerai.png','Cristal','Produit 1 @','04 icons/ressources'],['bouclier_rouge.png','Force','Force @ 3','04 icons'],['legende.png','Point de Légende','+2 @','app (scoreIcon, à confirmer)']])
+tiles('tok',[['1gold_token_20mm.png','Or (1)','Vous avez 6 @','03 Components/tokens'],['5golds_token_25mm.png','Or (5)','Pièce de 5 @','03 Components/tokens'],['age_token_20mm.png','Jeton Âge','1 @ sur Cerberus','03 Components/tokens'],['score_pawn_red.png','Marqueur de score','@ Rouge','03 Components/pawns']])
+</script></body></html>

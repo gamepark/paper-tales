@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aides en livre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --paper: #f6ece6; --muted: #e2d6cd; --ink: #4a4540; --rust: #b5481f; --rustDeep: #8f3816; --ochre: #e9b534; --crimson: #9b2e4d;
+    --wood: #7b4a24; --teal: #2a7a85; --soft: #7a6f67; --fold: #d9cabe;
+    --hard: drop-shadow(.16em .2em 0 #00000059);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.45;
+    background: #1a140f url('http://localhost:3100/src/images/score/score_board.jpg') center top / 900px; }
+  body::before { content: ''; position: fixed; inset: 0; background: #17110cdb; z-index: -1; }
+  main { padding: 34px 0 70px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .intro { width: 1100px; color: var(--paper); margin-bottom: 6px; }
+  .intro h1 { font-family: 'Baloo 2'; font-weight: 800; font-size: 2.3rem; line-height: 1; margin: 0 0 6px; }
+  .intro p { margin: 0; max-width: 78ch; color: #e2d6cdcc; }
+  .caption { width: 1100px; color: #cdbfb3; font-size: .85rem; font-weight: 700; margin: 10px 0 -8px; }
+  .caption.small { width: 960px; }
+  p { margin: 0; }
+
+  /* ---------- the book (dialog shell: cover, pages, bookmark, corners) ---------- */
+  .book { position: relative; width: 1100px; font-size: 15px; padding: .55em .55em .9em; filter: var(--hard); }
+  .book.small { width: 960px; }
+  .book::before { content: ''; position: absolute; inset: 0; background: var(--rustDeep); clip-path: var(--big); }
+  .pages { position: relative; display: flex; min-height: 600px; background: var(--paper); border-radius: .2em;
+    box-shadow: 0 .18em 0 #e2d6cd, 0 .34em 0 #cdbfb3; }
+  .small .pages { min-height: 430px; }
+  /* the fold is the right edge of the left page: it follows the width of the visual */
+  .page.l { position: relative; flex: none; display: grid; place-items: center; padding: 2.4em 3.2em 3.4em 2.6em;
+    background: linear-gradient(90deg, var(--paper) calc(100% - 2.6em), var(--fold) 100%); border-right: 1px solid #4a454040; }
+  .page.r { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 2.1em 3.4em 3.2em 3em;
+    background: linear-gradient(90deg, var(--fold) 0, var(--paper) 2.6em); }
+  .bookmark { position: absolute; top: -.3em; right: 2.2em; width: 2.4em; height: 3.6em; display: grid; place-items: start center; padding-top: .8em;
+    border: 0; background: var(--crimson); color: var(--paper); font-size: 1.05em; z-index: 3; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
+  .curl { position: absolute; bottom: .9em; width: 3.4em; height: 3.4em; border: 0; background: none; z-index: 2; filter: drop-shadow(-.12em -.12em 0 #0003); }
+  .curl::before { content: ''; position: absolute; inset: 0; }
+  .curl.next { right: .55em; } .curl.next::before { background: linear-gradient(315deg, transparent 50%, var(--muted) 50%); }
+  .curl.prev { left: .55em; } .curl.prev::before { background: linear-gradient(45deg, transparent 50%, var(--muted) 50%); }
+  .curl i { position: absolute; top: .55em; color: var(--rust); font-size: 1.1em; }
+  .curl.next i { left: .55em; } .curl.prev i { right: .55em; }
+  .folio { position: absolute; bottom: 1.2em; left: 0; right: 0; text-align: center; font-family: 'Baloo 2'; font-weight: 700; color: #4a454099; }
+
+  /* ---------- paper bits ---------- */
+  .slip { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: .4em; padding: .3em 1em .2em;
+    font-family: 'Baloo 2'; font-weight: 800; filter: var(--hard); white-space: nowrap; line-height: 1.25; }
+  .slip::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--paper); clip-path: var(--torn); }
+  .slip.rust { color: #fff6ef; } .slip.rust::before { background: var(--rust); }
+  .slip.muted::before { background: var(--muted); }
+  .card-img { display: block; border-radius: 3.2% / 2.3%; box-shadow: 0 .5em 1.2em #0005, 0 .1em .25em #0005; }
+  .bld-img { display: block; border-radius: 3% / 4%; box-shadow: 0 .5em 1.2em #0005, 0 .1em .25em #0005; }
+  .tok { display: block; border-radius: 50%; box-shadow: 0 .2em .45em #0007; }
+  .i { display: inline-block; vertical-align: -.22em; height: 1.25em; }
+  .i.res { height: 1.3em; width: 1.3em; object-fit: contain; }
+  .i.coin, .i.age { width: 1.2em; height: 1.2em; border-radius: 50%; }
+  .sh { display: inline-grid; place-items: center; width: 1.15em; height: 1.3em; vertical-align: -.25em; color: #fff; font-family: 'Baloo 2'; font-weight: 800; font-size: .95em; line-height: 1;
+    background: var(--crimson); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); padding-bottom: .15em; }
+  .pl { display: inline-grid; place-items: center; height: 1.25em; padding: 0 .3em; vertical-align: -.2em; border-radius: .25em; background: var(--ochre); color: #5a3414; font-family: 'Baloo 2'; font-weight: 800; font-size: .82em; line-height: 1; }
+  .ph { position: relative; display: inline-block; flex: none; width: 2.3em; height: 1.75em; vertical-align: middle; }
+  .ph::before { content: ''; position: absolute; inset: 0 0 0 .35em; background: var(--pc, #6b6058); clip-path: polygon(0 0, 72% 0, 100% 50%, 72% 100%, 0 100%); }
+  .ph b { position: absolute; left: 0; bottom: -.15em; width: 1.15em; height: 1.15em; border-radius: 50%; background: #fff; color: #222; border: .1em solid #222;
+    display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; font-size: .8em; line-height: 1; }
+  .ph.p3 { --pc: var(--crimson); } .ph.p4 { --pc: var(--wood); } .ph.p6 { --pc: var(--teal); } .ph.end { --pc: var(--ochre); }
+  .ph.off { opacity: .32; }
+
+  /* ---------- right page: the B content ---------- */
+  h3.name { margin: 0; font-family: 'Baloo 2'; font-weight: 800; font-size: 2.1em; line-height: 1; padding-right: 2.4em; }
+  h3.name::after { content: ''; display: block; width: 3.2em; height: .32em; margin-top: .3em; background: var(--rust); clip-path: var(--torn); }
+  .lede { font-family: 'Baloo 2'; font-weight: 600; font-size: 1.22em; line-height: 1.3; margin: .55em 0 .15em; color: #4f4741; max-width: 34em; }
+  .facts { color: var(--soft); font-weight: 700; font-size: .95em; margin-bottom: .6em; }
+  .tl { position: relative; display: grid; gap: .15em; }
+  .tl::before { content: ''; position: absolute; left: 1.4em; top: .6em; bottom: .6em; width: .18em; background: var(--muted); }
+  .st { position: relative; display: grid; grid-template-columns: 2.9em 8.3em 1fr; align-items: center; min-height: 1.6em; padding: .05em .9em .05em 0; }
+  .st .ph { justify-self: center; }
+  .st .pn { font-family: 'Baloo 2'; font-weight: 800; color: #a59a91; font-size: .92em; }
+  .st .tx { color: #a59a91; font-size: .95em; }
+  .st.on { isolation: isolate; filter: var(--hard); padding: .45em 1.1em .4em 0; margin: .12em 0; }
+  .st.on::before { content: ''; position: absolute; inset: 0 0 0 .2em; z-index: -1; background: #fffaf6; clip-path: var(--sheet); }
+  .st.on .pn { color: var(--ink); font-size: 1.08em; }
+  .st.on .tx { color: var(--ink); font-size: 1.02em; }
+  .st.cur .pn { color: var(--ink); }
+  .st .now { display: block; width: max-content; margin-top: .05em; padding: 0 .5em; border-radius: .2em; background: var(--rust); color: #fff6ef; font-size: .74em; line-height: 1.5; transform: rotate(-2deg); }
+  .st .you { display: block; margin-top: .15em; color: var(--rust); font-weight: 800; font-size: .95em; }
+  .st ol { margin: .1em 0 0; padding-left: 1.2em; }
+  .live { position: relative; isolation: isolate; filter: var(--hard); margin-top: auto; padding: .9em 1.4em .85em; color: var(--paper); }
+  .live::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--ink); clip-path: var(--sheet); }
+  .live h4 { margin: 0 0 .3em; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.08em; color: var(--ochre); }
+  .live ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .25em; }
+  .live li { display: flex; gap: .6em; align-items: baseline; }
+  .live li::before { content: ''; flex: none; width: .45em; height: .45em; border-radius: 50%; background: var(--ochre); transform: translateY(-.1em); }
+  .live .act { margin-top: .7em; }
+  .gap { flex: 1; min-height: 1em; }
+</style>
+</head>
+<body>
+<main id="root"></main>
+<script>
+function torn(seed, depth, side, steps = 18) {
+  let s = seed; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280; const p = []
+  for (let i = 0; i <= steps; i++) p.push(`${(i / steps) * 100}% ${(rnd() * depth).toFixed(1)}%`)
+  for (let i = 0; i <= 4; i++) p.push(`${(100 - rnd() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  for (let i = steps; i >= 0; i--) p.push(`${(i / steps) * 100}% ${(100 - rnd() * depth).toFixed(1)}%`)
+  for (let i = 4; i >= 0; i--) p.push(`${(rnd() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  return `polygon(${p.join(',')})`
+}
+const R = document.documentElement.style
+R.setProperty('--torn', torn(7, 9, 2.5)); R.setProperty('--sheet', torn(7, 2.2, .8)); R.setProperty('--big', torn(7, 1.3, .6, 44))
+
+const H = 'http://localhost:3100/src/images/'
+const IMG = { unit: n => `${H}units/en/${n}.jpg`, bld: (l, n) => `${H}buildings/en/level${l}/${n}L${l}.jpg`,
+  age: `${H}tokens/Age.jpg`, g1: `${H}tokens/Gold1.jpg`, g5: `${H}tokens/Gold5.jpg`, back: `${H}units/en/CardBack.jpg`,
+  viande: `${H}ressources/ressources_viande.png`, bois: `${H}ressources/ressources_bois.png` }
+const ic = t => t
+  .replace(/\[viande\]/g, `<img class="i res" src="${IMG.viande}" alt="viande">`)
+  .replace(/\[bois\]/g, `<img class="i res" src="${IMG.bois}" alt="bois">`)
+  .replace(/\[or\]/g, `<img class="i coin" src="${IMG.g1}" alt="or">`)
+  .replace(/\[age\]/g, `<img class="i age" src="${IMG.age}" alt="jeton Âge">`)
+  .replace(/\[f(\d\*?)\]/g, '<span class="sh">$1</span>')
+  .replace(/\[pl\]/g, '<span class="pl">PL</span>')
+const PHASES = ['Recrutement', 'Déploiement', 'Guerres', 'Revenus', 'Construction', 'Âge']
+const badge = (n, off) => n === 'F' ? `<span class="ph end${off ? ' off' : ''}"><b>F</b></span>` : `<span class="ph p${n}${off ? ' off' : ''}"><b>${n}</b></span>`
+
+function timeline(rows, now) {
+  return `<div class="tl">${rows.map((r, i) => {
+    const end = r.end, cur = now === i, on = !!r.on
+    return `<div class="st${on ? ' on' : ''}${cur ? ' cur' : ''}">${badge(end ? 'F' : i + 1, !on && !cur)}
+      <span class="pn">${end ? 'Fin' : PHASES[i]}${cur ? '<span class="now">en cours</span>' : ''}</span>
+      <span class="tx">${ic(r.t || '')}${r.you ? `<span class="you">${ic(r.you)}</span>` : ''}</span></div>`
+  }).join('')}</div>`
+}
+function book(o) {
+  return `<div class="book${o.small ? ' small' : ''}">
+    <button class="bookmark" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+    <div class="pages">
+      <div class="page l">${o.vis}<span class="folio">${o.folio}</span></div>
+      <div class="page r"><h3 class="name">${o.name}</h3><p class="lede">${ic(o.lede)}</p>${o.facts ? `<p class="facts">${ic(o.facts)}</p>` : ''}
+        ${timeline(o.rows, o.now)}<div class="gap"></div>
+        <div class="live"><h4>${o.liveT}</h4><ul>${o.live.map(l => `<li><span>${ic(l)}</span></li>`).join('')}</ul>
+          ${o.btn ? `<div class="act"><span class="slip rust">${o.btn}</span></div>` : ''}</div></div>
+    </div>
+    <button class="curl prev" aria-label="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
+    <button class="curl next" aria-label="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>`
+}
+const unitVis = (img, token) => `<div style="position:relative;transform:rotate(-2.5deg)"><img class="card-img" src="${img}" style="width:300px">
+  ${token ? `<img class="tok" src="${IMG.age}" style="position:absolute;width:56px;right:28px;top:104px;transform:rotate(8deg)">` : ''}</div>`
+
+/* Ledes: printed card text only (translated), or a rulebook fact for the material without text */
+const POPUPS = [
+  ['1. Unité Cerberus', book({ name: 'Cerberus', folio: '4 / 12', vis: unitVis(IMG.unit('Cerberus'), true),
+    lede: 'Force [f3] au lieu de [f2] si votre Royaume produit au moins une [viande].',
+    facts: 'Unité, 3 exemplaires. Coût 0 or, force 2*, aucune ressource.', now: 4, rows: [
+      { t: 'Reçue au draft.' }, { t: 'Révélée : vous payez 0 or.' },
+      { on: 1, t: 'Seule la force des unités de l’Avant compte, contre chacun de vos voisins.', you: 'Votre royaume produit 1 [viande] : elle compte pour 3.' },
+      {}, {}, { on: 1, t: 'Elle porte déjà un jeton Âge.', you: 'Elle meurt à la fin de ce tour.' }],
+    liveT: 'Dans votre royaume', live: ['À l’Avant, 1 jeton [age].', 'Votre royaume produit 1 [viande].'] })],
+  ['2. Unité Mystical Healer', book({ name: 'Mystical Healer', folio: '5 / 12', vis: unitVis(IMG.unit('MysticalHealer')),
+    lede: 'Vous pouvez empêcher une de vos Unités portant un seul [age] de mourir.',
+    facts: 'Unité, 3 exemplaires. Coût 0 or, force 1, aucune ressource.', now: 4, rows: [
+      { t: 'Reçue au draft.' }, { t: 'Révélée : vous payez 0 or.' }, { t: 'Force 1 si elle est à l’Avant.' }, {}, {},
+      { on: 1, t: `Vous pouvez aussi ne sauver personne.<ol><li>Les unités à jeton meurent, sauf celle que vous sauvez.</li><li>Toute unité encore en jeu reçoit un jeton, la sauvée comprise (livret p. 8).</li></ol>`,
+        you: 'À sauver ce tour : Cerberus (1 [age]).' }],
+    liveT: 'Dans votre royaume', live: ['Ce Mystical Healer : à l’Arrière, sans jeton.', '1 sauvetage possible à la phase 6.'] })],
+  ['3. Bâtiment Tavern, deux niveaux', book({ name: 'Tavern', folio: '3 / 5',
+    vis: `<div style="position:relative;width:380px;height:470px"><img class="bld-img" src="${IMG.bld(1, 'Tavern')}" style="position:absolute;width:340px;left:0;top:0;transform:rotate(-2.5deg)">
+      <img class="bld-img" src="${IMG.bld(2, 'Tavern')}" style="position:absolute;width:340px;right:0;bottom:0;transform:rotate(2.5deg)"></div>`,
+    lede: 'Niveau 1 : 1 [or] pour chaque [viande] de votre Royaume. Niveau 2 : 1 [pl] pour chaque [viande] de votre Royaume.',
+    facts: 'Coût niveau 1 : [viande]. Coût niveau 2 : [bois] [viande]. Le niveau 2 ouvre le 5ᵉ emplacement de l’Avant.', now: 4, rows: [
+      {}, {}, { on: 1, t: 'Niveau 2 : 1 [pl] par [viande].' }, { on: 1, t: 'Niveaux 1 et 2 : 1 [or] par [viande].' },
+      { on: 1, t: 'Une action : niveau 1, niveau 2 direct (les deux coûts) ou amélioration (coût du niveau 2). Terrain : 2 or par bâtiment possédé. Ressources jamais dépensées.' },
+      {}, { end: 1, on: 1, t: '1 [pl] au niveau 1, 3 [pl] au niveau 2.' }],
+    liveT: 'Pour vous, maintenant', live: ['Terrain 2 or (vous avez la Mine). Vous avez 6 or.', 'Niveau 1 : vous produisez 1 [viande], c’est possible.', 'Niveau 2 direct : il manque du [bois].'],
+    btn: 'Construire au niveau 1, 2 or' })],
+  ['4a. Pioche et défausse', book({ small: 1, name: 'Pioche et défausse', folio: '1 / 2',
+    vis: `<div style="position:relative;width:250px;height:250px"><img class="card-img" src="${IMG.back}" style="position:absolute;width:130px;left:0;top:0;transform:rotate(-4deg)">
+      <img class="card-img" src="${IMG.back}" style="position:absolute;width:130px;right:0;top:28px;transform:rotate(5deg);filter:brightness(.6)">
+      <span class="slip" style="position:absolute;left:14px;bottom:4px;font-size:.9em">Pioche</span><span class="slip muted" style="position:absolute;right:0;bottom:-16px;font-size:.9em">Défausse</span></div>`,
+    lede: 'Face cachée toutes les deux : personne ne voit leurs cartes (livret p. 3).', now: 4, rows: [
+      { on: 1, t: '5 cartes chacun (9 à 2 joueurs). Pioche vide : la défausse est mélangée et la remplace (p. 5).' },
+      { on: 1, t: 'Cartes non gardées et unités retirées du royaume : à la défausse.' }, {}, {}, {},
+      { on: 1, t: 'Les unités mortes vont à la défausse avec leurs jetons.' }],
+    liveT: 'En ce moment', live: ['Pioche : 31 cartes. Défausse : 12 cartes.'] })],
+  ['4b. Or', book({ small: 1, name: 'Or', folio: '1 / 2',
+    vis: `<div style="position:relative;width:220px;height:200px"><img class="tok" src="${IMG.g5}" style="position:absolute;width:130px;left:0;top:0">
+      <img class="tok" src="${IMG.g1}" style="position:absolute;width:100px;right:0;bottom:0;transform:rotate(14deg)"></div>`,
+    lede: 'Pièces de 1 et de 5, visibles de tous (p. 3). Vous commencez avec 3 or.', now: 4, rows: [
+      {}, { on: 1, t: 'Payer le coût des unités révélées.' }, {}, { on: 1, t: '+2 or, plus vos effets de revenu.' },
+      { on: 1, t: 'Terrain : 2 or par bâtiment possédé. Coût en or du Temple.' }, {}, { end: 1, on: 1, t: 'Égalité : l’or restant départage.' }],
+    liveT: 'Vous', live: ['6 [or]. Construire maintenant coûte 2 or de terrain.'] })],
+  ['4c. Jeton Âge', book({ small: 1, name: 'Jeton Âge', folio: '2 / 2',
+    vis: `<div style="position:relative;width:190px;height:250px"><img class="card-img" src="${IMG.unit('Cerberus')}" style="width:165px;transform:rotate(-3deg)">
+      <img class="tok" src="${IMG.age}" style="position:absolute;width:88px;right:-8px;top:46px;transform:rotate(10deg)"></div>`,
+    lede: 'À la phase 6, une unité qui porte un jeton Âge meurt ; les autres en reçoivent un (livret p. 8).', now: 4, rows: [
+      {}, { on: 1, t: 'Certaines unités en reçoivent dès leur révélation (Veteran, Necromancer).' }, {}, {}, {},
+      { on: 1, t: 'L’unité qui meurt part à la défausse avec ses jetons.', you: 'Cerberus porte 1 [age] : elle mourra.' }],
+    liveT: 'Sur vos unités', live: ['Cerberus : 1 [age].', 'Mystical Healer : aucun jeton.'] })]
+]
+document.getElementById('root').innerHTML = `<header class="intro"><h1>Aides, livre de contes</h1>
+  <p>Direction B des aides dans la fenêtre « Livre de contes » : la page de gauche porte le matériel, sa pliure suit sa largeur ; la page de droite raconte le tour, phase par phase.</p></header>` +
+  POPUPS.map(([c, h], i) => `<p class="caption${i > 2 ? ' small' : ''}">${c}</p>${h}`).join('')
+</script>
+</body>
+</html>

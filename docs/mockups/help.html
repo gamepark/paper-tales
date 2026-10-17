@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper Tales, aides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mulish:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6ece6; --muted: #e2d6cd; --ink: #4a4540; --rust: #b5481f; --ochre: #e9b534; --crimson: #9b2e4d;
+    --wood: #7b4a24; --teal: #2a7a85; --frame: #fbf6f1; --soft: #7a6f67;
+    --shadow: drop-shadow(.16em .2em 0 #00000059);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: 'Mulish', sans-serif; font-weight: 500; line-height: 1.45;
+    background: #1b1511 url('http://localhost:3100/src/images/score/score_board.jpg') center top / 900px;
+  }
+  body::before { content: ''; position: fixed; inset: 0; background: #17110dcc; z-index: -1; }
+  main { padding: 36px 0 70px; display: flex; flex-direction: column; align-items: center; gap: 34px; position: relative; }
+  .dir-head { width: 1100px; color: var(--paper); }
+  .dir-head h1 { font-family: 'Baloo 2'; font-weight: 800; font-size: 2.3rem; line-height: 1; margin: 0 0 6px; display: flex; align-items: baseline; gap: 14px; }
+  .dir-head h1 .letter { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; position: relative; isolation: isolate; color: var(--paper); filter: var(--shadow); }
+  .dir-head h1 .letter::before { content: ''; position: absolute; inset: 0; background: var(--rust); clip-path: var(--disc); z-index: -1; }
+  .dir-head p { margin: 0; max-width: 75ch; color: #e8dcd2; font-size: 1.02rem; }
+  section.dir { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+  .caption { width: 1100px; color: #cdbfb3; font-size: .85rem; margin: 0 0 -22px; font-weight: 700; }
+
+  /* ---------- Neutral dialog shell (designed elsewhere) ---------- */
+  .dlg {
+    position: relative; width: 1100px; height: 600px; font-size: 15px; background: var(--frame); border-radius: 18px;
+    box-shadow: 0 18px 50px #000a; display: flex; overflow: hidden;
+  }
+  .dlg.small { height: 380px; }
+  .dlg.overflow { outline: 4px solid red; }
+  .shell-x { position: absolute; right: 16px; top: 14px; width: 30px; height: 30px; border-radius: 50%; background: #e9e1d9; z-index: 5; }
+  .shell-x::before, .shell-x::after { content: ''; position: absolute; left: 8px; right: 8px; top: 14px; height: 2px; background: #8d847c; transform: rotate(45deg); }
+  .shell-x::after { transform: rotate(-45deg); }
+  .shell-nav { position: absolute; top: 50%; width: 28px; height: 56px; margin-top: -28px; background: #e9e1d9; z-index: 5; }
+  .shell-nav.prev { left: 0; border-radius: 0 28px 28px 0; }
+  .shell-nav.next { right: 0; border-radius: 28px 0 0 28px; }
+  .shell-nav::before { content: ''; position: absolute; top: 22px; width: 10px; height: 10px; border: solid #8d847c; border-width: 0 0 2px 2px; }
+  .shell-nav.prev::before { left: 10px; transform: rotate(45deg); }
+  .shell-nav.next::before { right: 10px; transform: rotate(-135deg); }
+
+  .vis { position: relative; flex: none; display: grid; place-items: center; }
+  .help { flex: 1; min-width: 0; padding: 30px 54px 26px 6px; display: flex; flex-direction: column; }
+
+  /* ---------- Shared paper bits ---------- */
+  .slip { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: .4em; padding: .3em 1em .2em;
+    font-family: 'Baloo 2'; font-weight: 800; color: var(--ink); filter: var(--shadow); white-space: nowrap; line-height: 1.25; }
+  .slip::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--paper); clip-path: var(--torn); }
+  .slip.ink { color: var(--paper); } .slip.ink::before { background: var(--ink); }
+  .slip.rust { color: #fff6ef; } .slip.rust::before { background: var(--rust); }
+  .slip.ochre::before { background: var(--ochre); }
+  .slip.muted::before { background: var(--muted); }
+
+  .sheet { position: relative; isolation: isolate; filter: var(--shadow); }
+  .sheet::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--bg, var(--paper)); clip-path: var(--sheet); }
+  .sheet.ink { --bg: var(--ink); color: var(--paper); }
+
+  .card-img { display: block; border-radius: 3.2% / 2.3%; box-shadow: 0 .5em 1.2em #0006, 0 .1em .25em #0005; }
+  .bld-img { display: block; border-radius: 3% / 4%; box-shadow: 0 .5em 1.2em #0006, 0 .1em .25em #0005; }
+  .tok { border-radius: 50%; display: block; box-shadow: 0 .2em .45em #0007; }
+
+  /* inline icons */
+  .i { display: inline-block; vertical-align: -.22em; height: 1.25em; }
+  .i.res { height: 1.3em; width: 1.3em; object-fit: contain; }
+  .i.coin, .i.age { width: 1.2em; height: 1.2em; border-radius: 50%; }
+  .sh { display: inline-grid; place-items: center; width: 1.15em; height: 1.3em; vertical-align: -.25em; color: #fff; font-family: 'Baloo 2'; font-weight: 800; font-size: .95em; line-height: 1;
+    background: var(--crimson); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); padding-bottom: .15em; }
+  .pl { display: inline-grid; place-items: center; height: 1.25em; padding: 0 .3em; vertical-align: -.2em; border-radius: .25em; background: var(--ochre); color: #5a3414; font-family: 'Baloo 2'; font-weight: 800; font-size: .82em; line-height: 1; }
+
+  /* phase badge: the arrow of the cards with its number disc */
+  .ph { position: relative; display: inline-block; flex: none; width: 2.3em; height: 1.75em; vertical-align: middle; }
+  .ph::before { content: ''; position: absolute; inset: 0 0 0 .35em; background: var(--pc, var(--ink)); clip-path: polygon(0 0, 72% 0, 100% 50%, 72% 100%, 0 100%); }
+  .ph b { position: absolute; left: 0; bottom: -.15em; width: 1.15em; height: 1.15em; border-radius: 50%; background: #fff; color: #222; border: .1em solid #222;
+    display: grid; place-items: center; font-family: 'Baloo 2'; font-weight: 800; font-size: .8em; line-height: 1; }
+  .ph.p3 { --pc: var(--crimson); } .ph.p4 { --pc: var(--wood); } .ph.p6 { --pc: var(--teal); } .ph.p2 { --pc: #6b6058; } .ph.p1 { --pc: #6b6058; } .ph.p5 { --pc: #6b6058; }
+  .ph.end { --pc: var(--ochre); }
+  .ph.off { opacity: .32; }
+
+  h2.name { font-family: 'Baloo 2'; font-weight: 800; font-size: 2.3em; line-height: 1; margin: 0; color: var(--ink); letter-spacing: -.005em; }
+  .kind { color: var(--soft); font-weight: 700; margin: .25em 0 0; }
+  .muted-t { color: var(--soft); }
+  p { margin: 0; }
+  .ok { color: #2f6b3a; font-weight: 800; }
+  .ko { color: var(--crimson); font-weight: 800; }
+
+  /* =================== A: Fiche =================== */
+  .A .vis { width: 430px; }
+  .A .chips { display: flex; gap: .7em; flex-wrap: wrap; margin: 1em 0 1.1em; }
+  .A .chips .slip { font-size: 1.05em; }
+  .A .fx { display: grid; grid-template-columns: auto 1fr; gap: .25em .8em; align-items: start; margin-bottom: .9em; }
+  .A .fx .ph { margin-top: .15em; }
+  .A .fx h3 { margin: 0; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.2em; line-height: 1.3; color: var(--ink); }
+  .A .fx .t { font-size: 1.12em; line-height: 1.4; max-width: 40em; }
+  .A .fx .why { grid-column: 2; color: var(--soft); font-size: .95em; }
+  .A .rule { border-left: .25em solid var(--ochre); padding: .2em 0 .2em .8em; margin: 0 0 1em; font-size: .97em; max-width: 46em; }
+  .A .fx .ph { font-size: 1.2em; }
+  .A .cycle { display: grid; gap: .3em; margin: .2em 0 1em; color: #6d625a; font-size: .95em; }
+  .A .cycle h5 { margin: 0 0 .1em; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.05em; color: #8d8178; }
+  .A .cycle p { display: flex; align-items: center; gap: .6em; }
+  .A .cycle .ph { font-size: .85em; opacity: .75; }
+  .A .live { margin-top: auto; padding: 1em 1.4em .9em; }
+  .A .live h4 { margin: 0 0 .35em; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.12em; color: var(--ochre); }
+  .A .live ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .3em; }
+  .A .live li { display: flex; gap: .6em; align-items: baseline; }
+  .A .live li::before { content: ''; flex: none; width: .45em; height: .45em; border-radius: 50%; background: var(--ochre); transform: translateY(-.1em); }
+  .A .lv2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4em; margin: .9em 0 .8em; }
+  .A .lv2 h3 { margin: 0 0 .35em; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.15em; display: flex; align-items: center; gap: .5em; }
+  .A .lv2 .row { display: flex; align-items: center; gap: .55em; margin-bottom: .35em; }
+  .A .lv2 .row .lab { color: var(--soft); font-weight: 700; min-width: 4.4em; }
+  .A .act { display: flex; gap: .8em; align-items: center; margin-top: .7em; }
+
+  /* =================== B: Conte =================== */
+  .B .vis { width: 410px; }
+  .B .lede { font-family: 'Baloo 2'; font-weight: 600; font-size: 1.3em; line-height: 1.3; margin: .35em 0 .2em; max-width: 34em; color: #5d554e; }
+  .B .facts { color: var(--soft); font-weight: 700; margin-bottom: .8em; }
+  .B .tl { position: relative; display: grid; gap: .2em; }
+  .B .tl::before { content: ''; position: absolute; left: 1.4em; top: .6em; bottom: .6em; width: .18em; background: var(--muted); }
+  .B .st { position: relative; display: grid; grid-template-columns: 2.9em 8.2em 1fr; align-items: center; gap: 0 .5em; min-height: 2.15em; padding: .1em .9em .1em 0; }
+  .B .st .ph { justify-self: center; }
+  .B .st .pn { font-family: 'Baloo 2'; font-weight: 800; color: #a59a91; font-size: 1.02em; }
+  .B .st .tx { color: #a59a91; font-size: .97em; }
+  .B .st.on { padding: .55em 1.1em .5em 0; margin: .15em 0; }
+  .B .st.on::before { content: ''; position: absolute; inset: 0 0 0 .2em; z-index: -1; background: var(--paper); clip-path: var(--sheet); }
+  .B .st.on { isolation: isolate; filter: var(--shadow); }
+  .B .st.on .pn { color: var(--ink); font-size: 1.12em; }
+  .B .st.on .tx { color: var(--ink); font-size: 1.05em; }
+  .B .st .tx .you { display: block; margin-top: .2em; color: var(--rust); font-weight: 800; font-size: .95em; }
+  .B .st .now { display: block; width: max-content; margin-top: .05em; padding: 0 .5em; border-radius: .2em; background: var(--rust); color: #fff6ef; font-size: .74em; line-height: 1.5; transform: rotate(-2deg); }
+  .B .st.cur:not(.on) .pn { color: var(--ink); }
+  .B .st.thin { min-height: 1.6em; }
+  .B .st.thin .pn { font-size: .92em; }
+  .B .st .btn { margin-top: .45em; font-size: .95em; }
+  .B .st ol { margin: .15em 0 0; padding-left: 1.2em; }
+  .B .foot { margin-top: auto; display: flex; align-items: center; gap: .9em; }
+  .B.small { height: 480px; }
+  .B.small .lede { font-size: 1.15em; margin-bottom: .5em; }
+
+  /* =================== C: Étiquettes =================== */
+  .C .vis { width: 660px; }
+  .C .help { padding-left: 0; }
+  .C .stage { position: relative; }
+  .pin { position: absolute; width: 0; height: 0; z-index: 2; }
+  .pin .dot { position: absolute; left: -.38em; top: -.38em; width: .76em; height: .76em; border-radius: 50%; background: var(--rust); box-shadow: 0 0 0 .16em #fff, 0 .1em .3em #0008; }
+  .pin .lead { position: absolute; background: #fffaf4; box-shadow: 0 0 0 1px #4a4540b0, 0 .1em .2em #0006; }
+  .pin .lab { position: absolute; white-space: normal; width: max-content; max-width: var(--mw, 12em); font-size: 1em; line-height: 1.2; padding: .45em .9em .35em; display: block; }
+  .pin .lab small { display: block; font-family: 'Mulish'; font-weight: 600; font-size: .86em; color: #6d625a; margin-top: .1em; }
+  .pin .lab.ink small { color: #d9ccc1; }
+  .pin .lab img.i { vertical-align: -.25em; }
+  .pin.l .lead { right: 0; top: -1.5px; height: 3px; width: var(--len, 3em); }
+  .pin.l .lab { right: var(--len, 3em); top: 0; transform: translate(-.1em, -50%) rotate(var(--r, -1.5deg)); }
+  .pin.r .lead { left: 0; top: -1.5px; height: 3px; width: var(--len, 3em); }
+  .pin.r .lab { left: var(--len, 3em); top: 0; transform: translate(.1em, -50%) rotate(var(--r, 1.5deg)); }
+  .pin.t .lead { bottom: 0; left: -1.5px; width: 3px; height: var(--len, 2em); }
+  .pin.t .lab { bottom: var(--len, 2em); left: 0; transform: translate(-50%, -.1em) rotate(var(--r, -1deg)); }
+  .pin.b .lead { top: 0; left: -1.5px; width: 3px; height: var(--len, 2em); }
+  .pin.b .lab { top: var(--len, 2em); left: 0; transform: translate(-50%, .1em) rotate(var(--r, 1deg)); }
+  .C .live { padding: 1em 1.3em .9em; margin-top: 1em; }
+  .C .live h4 { margin: 0 0 .35em; font-family: 'Baloo 2'; font-weight: 800; font-size: 1.12em; color: var(--ochre); }
+  .C .live p + p { margin-top: .35em; }
+  .C .note { margin-top: 1em; font-size: .97em; border-left: .25em solid var(--ochre); padding: .15em 0 .15em .8em; }
+  .C .note + .note { margin-top: .6em; }
+  .C .help .slip.rust { align-self: flex-start; margin-top: auto; font-size: 1.05em; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main id="root"></main>
+
+<script>
+/* ---------- torn paper, same generator as tableTheme.ts ---------- */
+function torn(seed, depth, side) {
+  let s = seed; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280; const p = []; const n = 18
+  for (let i = 0; i <= n; i++) p.push(`${(i / n) * 100}% ${(rnd() * depth).toFixed(1)}%`)
+  for (let i = 0; i <= 4; i++) p.push(`${(100 - rnd() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  for (let i = n; i >= 0; i--) p.push(`${(i / n) * 100}% ${(100 - rnd() * depth).toFixed(1)}%`)
+  for (let i = 4; i >= 0; i--) p.push(`${(rnd() * side).toFixed(1)}% ${(i / 4) * 100}%`)
+  return `polygon(${p.join(',')})`
+}
+function disc() { let s = 11; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280; const p = []
+  for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2, r = 45.5 + rnd() * 4.5; p.push(`${(50 + r * Math.cos(a)).toFixed(1)}% ${(50 + r * Math.sin(a)).toFixed(1)}%`) }
+  return `polygon(${p.join(',')})` }
+const R = document.documentElement.style
+R.setProperty('--torn', torn(7, 9, 2.5)); R.setProperty('--sheet', torn(7, 2.2, .8)); R.setProperty('--disc', disc())
+
+/* ---------- assets & inline icons ---------- */
+const H = 'http://localhost:3100/src/images/'
+const IMG = {
+  unit: n => `${H}units/en/${n}.jpg`, bld: (l, n) => `${H}buildings/en/level${l}/${n}L${l}.jpg`,
+  age: `${H}tokens/Age.jpg`, g1: `${H}tokens/Gold1.jpg`, g5: `${H}tokens/Gold5.jpg`, back: `${H}units/en/CardBack.jpg`,
+  viande: `${H}ressources/ressources_viande.png`, bois: `${H}ressources/ressources_bois.png`, cristal: `${H}ressources/ressources_minerai.png`
+}
+const ic = t => t
+  .replace(/\[viande\]/g, `<img class="i res" src="${IMG.viande}" alt="viande">`)
+  .replace(/\[bois\]/g, `<img class="i res" src="${IMG.bois}" alt="bois">`)
+  .replace(/\[cristal\]/g, `<img class="i res" src="${IMG.cristal}" alt="cristal">`)
+  .replace(/\[or\]/g, `<img class="i coin" src="${IMG.g1}" alt="or">`)
+  .replace(/\[age\]/g, `<img class="i age" src="${IMG.age}" alt="jeton Âge">`)
+  .replace(/\[f(\d\*?)\]/g, '<span class="sh">$1</span>')
+  .replace(/\[pl\]/g, '<span class="pl">PL</span>')
+const ph = (n, off) => `<span class="ph p${n}${off ? ' off' : ''}"><b>${n}</b></span>`
+const phEnd = off => `<span class="ph end${off ? ' off' : ''}"><b>F</b></span>`
+const PHASES = ['Recrutement', 'Déploiement', 'Guerres', 'Revenus', 'Construction', 'Âge']
+const shell = '<i class="shell-x"></i><i class="shell-nav prev"></i><i class="shell-nav next"></i>'
+
+/* ---------- content: printed cards + rulebook only ---------- */
+const CERB = {
+  name: 'Cerberus', kind: 'Unité, 3 exemplaires', img: IMG.unit('Cerberus'), cost: 0, power: '2*', res: null, ages: 1,
+  effects: [{ p: 3, t: 'Force [f3] au lieu de [f2] si votre Royaume produit au moins une [viande].', why: 'Seule la force des unités de l’Avant compte à la Guerre.' }],
+  live: ['À l’Avant, 1 jeton [age] : elle mourra à la phase 6.', 'Votre royaume produit 1 [viande] : elle compte pour 3 à la Guerre.']
+}
+const HEAL = {
+  name: 'Mystical Healer', kind: 'Unité, 3 exemplaires', img: IMG.unit('MysticalHealer'), cost: 0, power: '1', res: null, ages: 0,
+  effects: [{ p: 6, t: 'Vous pouvez empêcher une de vos Unités portant un seul [age] de mourir.', why: 'C’est un choix : vous pouvez ne sauver personne.' }],
+  rule: 'L’unité sauvée reste en jeu et reçoit quand même un jeton Âge : à la phase 6, chaque unité encore en jeu en reçoit un (livret p. 8). Avec deux jetons, elle ne peut plus être sauvée.',
+  live: ['À l’Arrière, sans jeton Âge.', '1 sauvetage possible à la phase 6 : Cerberus (1 jeton [age]).']
+}
+const UNITS = [CERB, HEAL]
+
+/* =================== Direction A : Fiche =================== */
+function A_unit(u) {
+  const chips = `<div class="chips">
+    <span class="slip"><img class="i coin" src="${IMG.g1}" alt="">Coût ${u.cost} or</span>
+    <span class="slip">${ic(`[f${u.power}]`)} Force ${u.power}</span>
+    <span class="slip muted">Ressource : ${u.res || 'aucune'}</span></div>`
+  const fx = u.effects.map(e => `<div class="fx">${ph(e.p)}<div><h3>Phase ${e.p}, ${PHASES[e.p - 1]}</h3><p class="t">${ic(e.t)}</p></div>
+    <p class="why">${e.why}</p></div>`).join('')
+  const tokens = u.ages ? `<img class="tok" src="${IMG.age}" alt="" style="position:absolute;width:62px;right:38px;top:116px;transform:rotate(8deg)">` : ''
+  return `<div class="dlg A">${shell}
+    <div class="vis"><div style="position:relative;transform:rotate(-2.5deg)"><img class="card-img" src="${u.img}" style="width:330px">${tokens}</div></div>
+    <div class="help"><h2 class="name">${u.name}</h2><p class="kind">${u.kind}</p>${chips}${fx}
+      ${u.rule ? `<p class="rule">${u.rule}</p>` : ''}
+      <div class="cycle"><h5>Comme toute unité</h5>
+        <p>${ph(2)}<span>Posée face cachée puis révélée : vous payez son coût, ${u.cost} or.</span></p>
+        <p>${ph(3)}<span>À l’Avant, sa force compte contre chacun de vos voisins.</span></p>
+        <p>${ph(6)}<span>Sans jeton Âge, elle en reçoit un ; avec un jeton, elle meurt.</span></p></div>
+      <div class="live sheet ink"><h4>Dans votre royaume</h4><ul>${u.live.map(l => `<li><span>${ic(l)}</span></li>`).join('')}</ul></div>
+    </div></div>`
+}
+function A_tavern() {
+  return `<div class="dlg A">${shell}
+    <div class="vis"><div style="position:relative;width:390px;height:520px">
+      <img class="bld-img" src="${IMG.bld(2, 'Tavern')}" style="position:absolute;width:350px;right:0;bottom:0;transform:rotate(3deg)">
+      <img class="bld-img" src="${IMG.bld(1, 'Tavern')}" style="position:absolute;width:350px;left:0;top:10px;transform:rotate(-2.5deg)">
+    </div></div>
+    <div class="help"><h2 class="name">Tavern</h2><p class="kind">Bâtiment à deux faces : niveau 1, puis retourné en niveau 2</p>
+      <div class="lv2">
+        <div><h3><span class="slip muted" style="font-size:.85em">Niveau 1</span></h3>
+          <div class="row"><span class="lab">Coût</span>${ic('[viande]')}</div>
+          <div class="row"><span class="lab">Effet</span>${ph(4)}<span>${ic('1 [or] pour chaque [viande] de votre Royaume.')}</span></div>
+          <div class="row"><span class="lab">Fin</span>${ic('1 [pl]')}</div></div>
+        <div><h3><span class="slip muted" style="font-size:.85em">Niveau 2</span></h3>
+          <div class="row"><span class="lab">Coût</span>${ic('[bois] [viande]')}</div>
+          <div class="row"><span class="lab">Effet</span>${ph(3)}<span>${ic('1 [pl] pour chaque [viande] de votre Royaume.')}</span></div>
+          <div class="row"><span class="lab">Fin</span>${ic('3 [pl]')}</div>
+          <p class="muted-t" style="font-size:.92em">L’effet du niveau 1 reste actif. Ouvre le 5ᵉ emplacement de l’Avant.</p></div>
+      </div>
+      <p class="rule">Phase 5, une seule action. Terrain : 2 or par bâtiment déjà possédé. Les ressources ne se dépensent pas, votre royaume doit les produire. Niveau 2 directement : coûts des deux niveaux. Amélioration : coût du niveau 2.</p>
+      <div class="live sheet ink"><h4>Pour vous, maintenant</h4><ul>
+        <li><span>Vous possédez 1 bâtiment (Mine) : terrain 2 or. Vous avez 6 or.</span></li>
+        <li><span>${ic('Niveau 1 : votre royaume produit 1 [viande]')} <span class="ok" style="color:#9fd39f">possible</span>, il vous restera 4 or.</span></li>
+        <li><span>${ic('Niveau 2 direct : il manque du [bois].')}</span></li></ul>
+        <div class="act"><span class="slip rust">Construire au niveau 1, 2 or</span></div></div>
+    </div></div>`
+}
+function A_small(o) {
+  return `<div class="dlg A small">${shell}<div class="vis" style="width:360px">${o.vis}</div>
+    <div class="help" style="padding-top:26px"><h2 class="name">${o.name}</h2><p class="kind">${o.kind}</p>
+      <div style="display:grid;gap:.4em;margin:.8em 0;max-width:46em">${o.lines.map(l => `<p>${ic(l)}</p>`).join('')}</div>
+      <div class="live sheet ink"><h4>${o.liveT}</h4><ul>${o.live.map(l => `<li><span>${ic(l)}</span></li>`).join('')}</ul></div>
+    </div></div>`
+}
+
+/* small items: shared content */
+const DECK = {
+  name: 'Pioche et défausse', kind: 'Les deux sont face cachée : personne ne voit leurs cartes (livret p. 3)',
+  vis: `<div style="position:relative;width:260px;height:250px">
+      <img class="card-img" src="${IMG.back}" style="position:absolute;width:150px;left:0;top:6px;transform:rotate(-4deg)">
+      <img class="card-img" src="${IMG.back}" style="position:absolute;width:150px;right:0;top:30px;transform:rotate(5deg);filter:brightness(.6)">
+      <span class="slip" style="position:absolute;left:18px;bottom:-14px;font-size:.9em">Pioche</span>
+      <span class="slip muted" style="position:absolute;right:6px;bottom:-34px;font-size:.9em">Défausse</span></div>`,
+  lines: ['Au Recrutement, chacun reçoit 5 cartes de la pioche (9 à 2 joueurs).',
+    'Si la pioche s’épuise pendant la distribution, la défausse est mélangée et devient la pioche, puis la distribution reprend (p. 5).',
+    'Vont à la défausse : les cartes non gardées au Déploiement, les unités retirées de votre royaume, les unités mortes à l’Âge avec leurs jetons, et à 2 joueurs les cartes écartées au draft.'],
+  liveT: 'En ce moment', live: ['Pioche : 31 cartes. Défausse : 12 cartes.']
+}
+const GOLD = {
+  name: 'Or', kind: 'Pièces de 1 et de 5. L’or de chacun est visible de tous (p. 3)',
+  vis: `<div style="position:relative;width:230px;height:200px"><img class="tok" src="${IMG.g5}" style="position:absolute;width:140px;left:0;top:0">
+      <img class="tok" src="${IMG.g1}" style="position:absolute;width:105px;right:0;bottom:0;transform:rotate(14deg)"></div>`,
+  lines: ['Vous commencez avec 3 or.', 'Phase 2 : vous payez le coût des unités que vous révélez.', 'Phase 4 : vous gagnez 2 or, plus vos effets de revenu.',
+    'Phase 5 : le terrain (2 or par bâtiment possédé) et le coût en or du Temple.', 'Fin de partie : en cas d’égalité, l’or restant départage.'],
+  liveT: 'Vous', live: ['6 [or]. Construire maintenant coûte 2 or de terrain.']
+}
+const AGE = {
+  name: 'Jeton Âge', kind: 'Posé sur une unité, il compte son temps de vie',
+  vis: `<div style="position:relative;width:240px;height:250px"><img class="card-img" src="${IMG.unit('Cerberus')}" style="width:165px;transform:rotate(-3deg);margin:0 auto">
+      <img class="tok" src="${IMG.age}" style="position:absolute;width:96px;right:-6px;top:44px;transform:rotate(10deg)"></div>`,
+  lines: ['Phase 6 : une unité qui porte un jeton Âge meurt et part à la défausse avec ses jetons. Les autres en reçoivent un (p. 8).',
+    'Une unité arrivée sans jeton vit donc jusqu’à la deuxième phase d’Âge.',
+    'Certaines cartes en posent plus tôt (Veteran, Necromancer) ou agissent quand l’unité meurt.'],
+  liveT: 'Sur vos unités', live: ['Cerberus : 1 [age], elle mourra à la phase 6.', 'Mystical Healer : aucun jeton.']
+}
+
+/* =================== Direction B : Conte =================== */
+function B_line(rows, now) {
+  return `<div class="tl">${rows.map((r, i) => {
+    const on = !!r.on, n = r.end ? null : i + 1
+    return `<div class="st${on ? ' on' : ''}${!r.t ? ' thin' : ''}${now === i ? ' cur' : ''}">${r.end ? phEnd(!on && now !== i) : ph(n, !on && now !== i)}<span class="pn">${r.end ? 'Fin' : PHASES[i]}${now === i ? '<span class="now">en cours</span>' : ''}</span>
+      <span class="tx">${ic(r.t)}${r.you ? `<span class="you">${ic(r.you)}</span>` : ''}${r.btn ? `<span class="slip rust btn">${r.btn}</span>` : ''}</span></div>`
+  }).join('')}</div>`
+}
+function B_dlg(o) {
+  return `<div class="dlg B${o.small ? ' small' : ''}">${shell}<div class="vis" style="${o.visW ? `width:${o.visW}px` : ''}">${o.vis}</div>
+    <div class="help"><h2 class="name">${o.name}</h2><p class="lede">${ic(o.lede)}</p>${o.facts ? `<p class="facts">${ic(o.facts)}</p>` : ''}
+    ${B_line(o.rows, o.now)}${o.foot ? `<div class="foot">${o.foot}</div>` : ''}</div></div>`
+}
+const bCard = (u, w = 320) => `<div style="position:relative;transform:rotate(-3deg)"><img class="card-img" src="${u.img}" style="width:${w}px">
+  ${u.ages ? `<img class="tok" src="${IMG.age}" style="position:absolute;width:58px;right:30px;top:112px;transform:rotate(8deg)">` : ''}</div>`
+const B_cerb = () => B_dlg({ name: 'Cerberus', vis: bCard(CERB),
+  lede: 'Un gardien qui ne coûte rien : il se bat à 2, et à 3 si votre royaume a de la viande.',
+  facts: 'Unité, 3 exemplaires. Coût 0 or, force 2*, aucune ressource.', now: 4, rows: [
+  { t: 'Arrive dans une main pendant le draft.' },
+  { t: 'Posée face cachée, révélée : vous payez 0 or.' },
+  { on: 1, t: 'Force [f3] au lieu de [f2] si votre Royaume produit au moins une [viande]. Seulement à l’Avant.', you: 'Votre royaume produit 1 [viande] : elle compte pour 3.' },
+  { t: '' }, { t: '' },
+  { on: 1, t: 'Elle porte déjà un jeton Âge.', you: 'Elle meurt à la fin de ce tour.' }] })
+const B_heal = () => B_dlg({ name: 'Mystical Healer', vis: bCard(HEAL),
+  lede: 'Une fois par tour, elle peut garder en vie une unité qui devait mourir.',
+  facts: 'Unité, 3 exemplaires. Coût 0 or, force 1, aucune ressource.', now: 4, rows: [
+  { t: 'Arrive dans une main pendant le draft.' }, { t: 'Révélée : vous payez 0 or.' }, { t: 'Force 1 si elle est à l’Avant.' },
+  { t: '' }, { t: '' },
+  { on: 1, t: `Vous pouvez empêcher une de vos Unités portant un seul [age] de mourir, ou ne sauver personne.
+     <ol><li>Les unités à jeton meurent, sauf celle que vous sauvez.</li><li>Toute unité encore en jeu reçoit un jeton, la sauvée comprise (livret p. 8). Avec deux jetons, elle ne pourra plus être sauvée.</li></ol>`,
+    you: 'À sauver ce tour : Cerberus (1 [age]).' }] })
+const B_tav = () => B_dlg({ name: 'Tavern', visW: 420,
+  vis: `<div style="position:relative;width:380px;height:500px"><img class="bld-img" src="${IMG.bld(1, 'Tavern')}" style="position:absolute;width:340px;left:0;top:0;transform:rotate(-2.5deg)">
+    <img class="bld-img" src="${IMG.bld(2, 'Tavern')}" style="position:absolute;width:340px;right:0;bottom:10px;transform:rotate(2.5deg)"></div>`,
+  lede: 'La viande de votre royaume rapporte de l’or, et au niveau 2 des points de Légende.',
+  facts: 'Bâtiment. Coût niveau 1 : [viande]. Coût niveau 2 : [bois] [viande], ouvre le 5ᵉ emplacement de l’Avant.', now: 4, rows: [
+  { t: '' }, { t: '' },
+  { on: 1, t: 'Niveau 2 : 1 [pl] pour chaque [viande] de votre Royaume.' },
+  { on: 1, t: 'Niveaux 1 et 2 : 1 [or] pour chaque [viande] de votre Royaume.' },
+  { on: 1, t: 'Une action : niveau 1, niveau 2 direct (les deux coûts) ou amélioration (coût du niveau 2). Terrain : 2 or par bâtiment possédé. Ressources jamais dépensées.',
+    you: 'Terrain 2 or (vous avez la Mine), vous avez 6 or. Niveau 1 possible. Niveau 2 : il manque du [bois].', btn: 'Construire au niveau 1, 2 or' },
+  { t: '' }, { end: 1, on: 1, t: '1 [pl] au niveau 1, 3 [pl] au niveau 2.' }] })
+const B_deck = () => B_dlg({ small: 1, name: 'Pioche et défausse', visW: 330, vis: DECK.vis,
+  lede: 'Toutes deux face cachée. Pioche : 31 cartes, défausse : 12.', rows: [
+  { on: 1, t: 'Chacun reçoit 5 cartes (9 à 2 joueurs). Pioche vide : la défausse est mélangée et la remplace (p. 5).' },
+  { on: 1, t: 'Les cartes non gardées et les unités retirées du royaume vont à la défausse.' },
+  { t: '' }, { t: '' }, { t: '' },
+  { on: 1, t: 'Les unités mortes vont à la défausse avec leurs jetons.' }] })
+const B_gold = () => B_dlg({ small: 1, name: 'Or', visW: 330, vis: GOLD.vis,
+  lede: 'Vous avez 6 or. Pièces de 1 et de 5, visibles de tous. Départ : 3 or.', rows: [
+  { t: '' }, { on: 1, t: 'Payer le coût des unités révélées.' }, { t: '' },
+  { on: 1, t: '+2 or, plus vos effets de revenu.' }, { on: 1, t: 'Terrain : 2 or par bâtiment possédé. Coût en or du Temple.' }, { t: '' },
+  { end: 1, on: 1, t: 'Égalité : l’or restant départage.' }] })
+const B_age = () => B_dlg({ small: 1, name: 'Jeton Âge', visW: 330, vis: AGE.vis,
+  lede: 'Le temps de vie d’une unité : un jeton, puis la mort à l’Âge suivant.', rows: [
+  { t: '' }, { on: 1, t: 'Certaines unités en reçoivent dès leur révélation (Veteran, Necromancer).' }, { t: '' }, { t: '' }, { t: '' },
+  { on: 1, t: 'Une unité qui porte un jeton meurt, avec ses jetons. Les autres en reçoivent un (p. 8).', you: 'Cerberus porte 1 [age] : elle mourra.' }] })
+
+/* =================== Direction C : Étiquettes =================== */
+const pin = (x, y, dir, len, html, cls = '', r, mw) => `<div class="pin ${dir}" style="left:${x}%;top:${y}%;--len:${len}em${r != null ? `;--r:${r}deg` : ''}${mw ? `;--mw:${mw}em` : ''}"><i class="lead"></i><i class="dot"></i><span class="lab slip ${cls}">${ic(html)}</span></div>`
+function C_dlg(o) {
+  return `<div class="dlg C${o.small ? ' small' : ''}">${shell}<div class="vis" style="${o.visW ? `width:${o.visW}px` : ''}">${o.vis}</div>
+    <div class="help"><h2 class="name">${o.name}</h2><p class="kind">${ic(o.kind)}</p>
+      ${(o.notes || []).map(n => `<p class="note">${ic(n)}</p>`).join('')}
+      <div class="live sheet ink"><h4>${o.liveT || 'Dans votre royaume'}</h4>${o.live.map(l => `<p>${ic(l)}</p>`).join('')}</div>
+      ${o.btn ? `<span class="slip rust">${o.btn}</span>` : ''}</div></div>`
+}
+const cUnit = (u, pins, token) => `<div class="stage" style="width:300px;height:419px;margin-top:-40px"><img class="card-img" src="${u.img}" style="width:300px">
+  ${token ? `<img class="tok" src="${IMG.age}" style="position:absolute;width:54px;right:26px;top:100px;transform:rotate(8deg)">` : ''}${pins}</div>`
+const C_cerb = () => C_dlg({ name: 'Cerberus', kind: 'Unité, 3 exemplaires. Ne produit aucune ressource.',
+  vis: cUnit(CERB, `
+    ${pin(15, 10, 'l', 1.6, 'Coût 0 or<small>payé à la révélation</small>', '', -2, 9)}
+    ${pin(50, 74, 'l', 11.4, 'Force 2*<small>l’astérisque renvoie à l’effet</small>', '', -2, 9)}
+    ${pin(9, 89, 'l', 1.6, 'Phase 3<small>Guerres</small>', 'muted', 1.5)}
+    ${pin(85, 32, 'r', 2, 'Jeton Âge<small>mourra à la phase 6</small>', 'ink', 2, 9)}
+    ${pin(62, 97.5, 'b', 1.2, 'Force [f3] au lieu de [f2] si votre Royaume produit au moins une [viande].', '', 1, 21)}`, true),
+  notes: ['Seule la force des unités de l’Avant compte à la Guerre, contre chacun de vos voisins.'],
+  live: ['À l’Avant, 1 jeton [age] : elle mourra à la phase 6.', 'Votre royaume produit 1 [viande] : elle compte pour 3.'] })
+const C_heal = () => C_dlg({ name: 'Mystical Healer', kind: 'Unité, 3 exemplaires. Ne produit aucune ressource.',
+  vis: cUnit(HEAL, `
+    ${pin(15, 10, 'l', 1.6, 'Coût 0 or<small>payé à la révélation</small>', '', -2, 9)}
+    ${pin(50, 74, 'l', 11.4, 'Force 1', '', -2, 9)}
+    ${pin(9, 89, 'l', 1.6, 'Phase 6<small>Âge</small>', 'muted', 1.5)}
+    ${pin(62, 97.5, 'b', 1.2, 'Vous pouvez empêcher une de vos Unités portant un seul [age] de mourir.<small>C’est un choix : vous pouvez ne sauver personne.</small>', '', 1, 22)}`),
+  notes: ['L’unité sauvée reste en jeu et reçoit quand même un jeton Âge : chaque unité encore en jeu en reçoit un (livret p. 8).', 'Avec deux jetons, elle ne peut plus être sauvée.'],
+  live: ['Ce Mystical Healer : à l’Arrière, sans jeton.', 'À sauver à la phase 6 : Cerberus (1 [age]).'] })
+const C_tav = () => C_dlg({ name: 'Tavern', kind: 'Bâtiment. Sa face niveau 2 garde le cartouche du niveau 1 en grisé : il reste actif.',
+  vis: `<div class="stage" style="width:380px;height:272px;margin-top:-30px"><img class="bld-img" src="${IMG.bld(2, 'Tavern')}" style="width:380px">
+    ${pin(7, 10, 't', 1.4, 'Niveau 2', 'muted', -2)}
+    ${pin(67, 11, 't', 1.4, '5ᵉ emplacement à l’Avant', 'ink', 1.5, 13)}
+    ${pin(93, 10, 'r', 1.2, '3 [pl] en fin de partie<small>1 au niveau 1</small>', '', 2, 8.5)}
+    ${pin(13, 69, 'l', 1.2, 'Coût niv. 1 : [viande]', '', -2, 8)}
+    ${pin(88, 69, 'r', 1.2, 'Coût niv. 2 : [bois] [viande]', '', 2, 8)}
+    ${pin(27, 97, 'b', 1.2, 'Phase 4, Revenus : 1 [or] pour chaque [viande] de votre Royaume', '', -1.5, 11.5)}
+    ${pin(74, 97, 'b', 1.2, 'Phase 3, Guerres : 1 [pl] pour chaque [viande] de votre Royaume', '', 1.5, 11.5)}</div>`,
+  notes: ['Phase 5, une action : niveau 1, niveau 2 direct (les deux coûts) ou amélioration (coût du niveau 2). Terrain : 2 or par bâtiment possédé. Les ressources ne se dépensent pas.'],
+  liveT: 'Pour vous, maintenant', live: ['Terrain 2 or (vous avez la Mine). Vous avez 6 or.', 'Niveau 1 : vous produisez 1 [viande], c’est possible.', 'Niveau 2 direct : il manque du [bois].'],
+  btn: 'Construire au niveau 1, 2 or' })
+const C_deck = () => C_dlg({ small: 1, name: 'Pioche et défausse', kind: 'Face cachée toutes les deux (p. 3)', visW: 620,
+  vis: `<div class="stage" style="width:280px;height:230px;margin-top:-30px"><img class="card-img" src="${IMG.back}" style="position:absolute;width:130px;left:0;top:0;transform:rotate(-4deg)">
+    <img class="card-img" src="${IMG.back}" style="position:absolute;width:130px;right:0;top:26px;transform:rotate(5deg);filter:brightness(.6)">
+    ${pin(12, 25, 'l', 1.2, 'Pioche<small>5 cartes chacun au Recrutement, 9 à 2 joueurs</small>', '', -2, 9)}
+    ${pin(90, 50, 'r', 1.2, 'Défausse<small>cartes non gardées, unités retirées ou mortes</small>', 'muted', 2, 9.5)}
+    ${pin(50, 100, 'b', 1, 'Pioche vide : la défausse est mélangée et la remplace (p. 5)', 'ink', -1, 20)}</div>`,
+  liveT: 'En ce moment', live: ['Pioche : 31 cartes. Défausse : 12 cartes.'] })
+const C_gold = () => C_dlg({ small: 1, name: 'Or', kind: 'Pièces de 1 et de 5, visibles de tous (p. 3)', visW: 620,
+  vis: `<div class="stage" style="width:220px;height:200px;margin-top:-30px"><img class="tok" src="${IMG.g5}" style="position:absolute;width:130px;left:0;top:0">
+    <img class="tok" src="${IMG.g1}" style="position:absolute;width:100px;right:0;bottom:0;transform:rotate(14deg)">
+    ${pin(10, 25, 'l', 1.2, 'Gagné<small>3 au départ, +2 à chaque phase 4, effets de revenu</small>', '', -2, 10)}
+    ${pin(92, 60, 'r', 1.2, 'Dépensé<small>phase 2 : unités révélées ; phase 5 : terrain, Temple</small>', 'muted', 2, 10)}
+    ${pin(30, 100, 'b', 1, 'Égalité finale : l’or restant départage', 'ink', -1, 18)}</div>`,
+  liveT: 'Vous', live: ['6 [or]. Construire maintenant coûte 2 or de terrain.'] })
+const C_age = () => C_dlg({ small: 1, name: 'Jeton Âge', kind: 'Posé sur une unité', visW: 620,
+  vis: `<div class="stage" style="width:160px;height:224px"><img class="card-img" src="${CERB.img}" style="width:160px;transform:rotate(-3deg)">
+    <img class="tok" src="${IMG.age}" style="position:absolute;width:90px;right:-30px;top:40px;transform:rotate(10deg)">
+    ${pin(100, 38, 'r', 1.6, 'Phase 6 : avec un jeton, l’unité meurt avec ses jetons. Sans jeton, elle en reçoit un (p. 8).', '', 2, 13)}
+    ${pin(4, 70, 'l', 1.4, 'Parfois posé plus tôt<small>Veteran, Necromancer</small>', 'muted', -2, 10)}</div>`,
+  liveT: 'Sur vos unités', live: ['Cerberus : 1 [age], elle mourra à la phase 6.', 'Mystical Healer : aucun jeton.'] })
+
+/* =================== page =================== */
+const DIRS = {
+  A: { t: 'Fiche de carte', d: 'Une fiche rangée : coût, force et ressource en étiquettes, puis chaque effet sous le numéro de sa phase, et un encart sombre pour ce qui vous concerne maintenant.',
+    pages: [() => A_unit(CERB), () => A_unit(HEAL), A_tavern, () => A_small(DECK), () => A_small(GOLD), () => A_small(AGE)] },
+  B: { t: 'Conte', d: 'La vie de la carte sur un tour : les 6 phases dans l’ordre, celles où elle agit sur papier clair, la phase en cours marquée, et ce qui vous arrive écrit dans la ligne.',
+    pages: [B_cerb, B_heal, B_tav, B_deck, B_gold, B_age] },
+  C: { t: 'Étiquettes', d: 'Comme au musée : la carte en grand, une étiquette épinglée sur chaque partie imprimée (coût, force, phase, effet), et à droite seulement votre situation.',
+    pages: [C_cerb, C_heal, C_tav, C_deck, C_gold, C_age] }
+}
+const CAPS = ['1. Unité Cerberus', '2. Unité Mystical Healer', '3. Bâtiment Tavern, deux niveaux', '4a. Pioche et défausse', '4b. Or', '4c. Jeton Âge']
+const qs = new URLSearchParams(location.search), only = qs.get("d"), pg = qs.get("p")
+const root = document.getElementById('root')
+root.innerHTML = Object.entries(DIRS).filter(([k]) => !only || k === only).map(([k, d]) => `<section class="dir">
+  <header class="dir-head"><h1><span class="letter">${k}</span>${d.t}</h1><p>${d.d}</p></header>
+  ${d.pages.map((f, i) => pg && !pg.split(",").includes(String(i)) ? "" : `<p class="caption">${CAPS[i]}</p>${f()}`).join("")}</section>`).join('')
+// dev aid: outline any help column that overflows its dialog
+window.addEventListener('load', () => document.querySelectorAll('.dlg').forEach(d => {
+  const h = d.querySelector('.help'); if (h && h.scrollHeight > h.clientHeight + 2) d.classList.add('overflow')
+}))
+</script>
+</body>
+</html>
