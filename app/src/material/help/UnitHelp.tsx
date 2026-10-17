@@ -200,6 +200,7 @@ const EffectLines: FC<{ lines: ReactNode[] }> = ({ lines }) => (
 const effectLineCss = css`
   display: block;
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 600;
   font-size: 1.05em;
   line-height: 1.3;

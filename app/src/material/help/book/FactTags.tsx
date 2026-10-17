@@ -35,6 +35,7 @@ const tagCss = css`
   gap: 0.35em;
   padding: 0.25em 0.9em 0.2em;
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 800;
   font-size: 0.95em;
   line-height: 1.25;

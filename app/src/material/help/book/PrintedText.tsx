@@ -67,6 +67,7 @@ const lineCss = css`
   gap: 0.6em;
   margin: 0;
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 600;
   font-size: 1.18em;
   line-height: 1.3;

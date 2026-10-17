@@ -38,6 +38,7 @@ const liveCss = css`
 const titleCss = css`
   margin: 0 0 0.3em;
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 800;
   font-size: 1.08em;
   color: ${ochre};

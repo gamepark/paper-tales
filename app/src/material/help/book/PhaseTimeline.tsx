@@ -125,6 +125,7 @@ const offCss = css`
 
 const nameCss = css`
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 800;
   font-size: 0.92em;
 `

@@ -14,6 +14,7 @@ export const BookPage: FC<{ name: ReactNode; lede?: ReactNode; facts?: ReactNode
 )
 
 const pageCss = css`
+  --icon-shift: -0.15em;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -27,6 +28,7 @@ const nameCss = css`
   margin: 0;
   padding-right: 2.4em;
   font-family: 'Baloo 2', sans-serif;
+  --icon-shift: 0;
   font-weight: 800;
   font-size: 2.1em;
   line-height: 1;

@@ -72,6 +72,8 @@ const boxCss = css`
   justify-content: center;
   flex: none;
   vertical-align: middle;
+  /* vertical-align: middle sits on the x-height of the font: Mulish puts it lower than the middle of its letters */
+  translate: 0 var(--icon-shift, 0);
   margin: -0.2em 0.05em;
 `
 
