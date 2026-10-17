@@ -155,13 +155,13 @@ const WarLine: FC<{ front: boolean; strength: number; resource?: Resources; prod
     return (
       <Trans
         i18nKey="help.unit.war.you.resource"
-        defaults="Your Kingdom produces {count} <res/>: counts for {strength}."
-        values={{ count: produced, strength }}
-        components={{ res: <ResourceIcon resource={resource} /> }}
+        defaults="Your Kingdom produces {count} <res/>: counts for <s/>."
+        values={{ count: produced }}
+        components={{ res: <ResourceIcon resource={resource} />, s: <StrengthIcon value={strength} /> }}
       />
     )
   }
-  return <Trans i18nKey="help.unit.war.you" defaults="Counts for {strength}." values={{ strength }} />
+  return <Trans i18nKey="help.unit.war.you" defaults="Counts for <s/>." components={{ s: <StrengthIcon value={strength} /> }} />
 }
 
 /** The condition printed beside the produced resource (the scroll of the card), if any */
