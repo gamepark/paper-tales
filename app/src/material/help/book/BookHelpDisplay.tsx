@@ -24,17 +24,16 @@ export const BookHelpDisplay: FC<MaterialHelpDisplayProps & { scale?: number }> 
   )
 }
 
-/** The framework lays the item and the help in a row padded 3em 1em 3em 3em: the page covers that padding */
 const pageCss = css`
   position: relative;
   flex: none;
   display: grid;
   place-items: center;
   font-size: ${bookEm(1)};
-  margin: -1.41em 0 -1.41em -1.41em;
   padding: 2.4em 3.2em 3.4em 2.6em;
   background: linear-gradient(90deg, ${paper} calc(100% - 2.6em), ${pageFold} 100%);
   border-right: 1px solid #4a454040;
+  border-radius: ${bookEm(0.2)} 0 0 ${bookEm(0.2)};
 `
 
 const itemCss = css`

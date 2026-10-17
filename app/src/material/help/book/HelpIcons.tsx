@@ -77,17 +77,12 @@ const boxCss = css`
   margin: -0.2em 0.05em;
 `
 
-/**
- * The box decides the size, the image keeps its ratio inside. The framework sizes the images of the help texts
- * (`p img { height: 1em; top: 0.1em }`, more specific): `&&` raises the specificity above it.
- */
+/** The box decides the size, the image keeps its ratio inside */
 const imageCss = css`
-  && {
-    display: block;
-    position: static;
-    width: 100%;
-    height: 100%;
-  }
+  display: block;
+  position: static;
+  width: 100%;
+  height: 100%;
   max-width: none;
   max-height: none;
   object-fit: contain;

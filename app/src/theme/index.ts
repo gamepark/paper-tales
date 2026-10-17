@@ -1,9 +1,9 @@
 import { css } from '@emotion/react'
 import { GameTheme } from '@gamepark/react-game'
-import { bookContainerCss, bookContentCss } from './book'
+import { bookContainerCss, bookContentCss, bookHelpLayoutCss } from './book'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
 import { PageCornerNavigation } from './PageCornerNavigation'
-import { resultContainerCss } from './result'
+import { resultButtonsCss, resultContentCss, resultHeaderCss, resultTableCss } from './result'
 import { cutLine, paper, tableButtonCss } from './tableTheme'
 
 /**
@@ -15,6 +15,7 @@ export const theme: Partial<GameTheme> = {
     backgroundColor: paper,
     color: cutLine,
     container: bookContainerCss,
+    helpLayout: bookHelpLayoutCss,
     content: bookContentCss,
     closeButton: BookmarkCloseButton,
     navigation: PageCornerNavigation
@@ -22,7 +23,10 @@ export const theme: Partial<GameTheme> = {
   result: {
     border: '#4a454055',
     icon: '#b5481f',
-    container: resultContainerCss
+    content: resultContentCss,
+    header: resultHeaderCss,
+    buttons: resultButtonsCss,
+    table: resultTableCss
   },
   header: {
     buttons: css`

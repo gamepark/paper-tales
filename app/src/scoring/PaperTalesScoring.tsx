@@ -26,7 +26,7 @@ enum ScoringKey {
  * for, with its name under it. Everything is computed from the table.
  */
 export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperTalesRules, ScoringKey> {
-  ResultHeader = ResultPage
+  ResultDialogHeader = ResultPage
 
   getScoringKeys(rules: PaperTalesRules) {
     const relics = rules.players.some((player) => new EndScoreHelper(rules.game, player).relicsPoints > 0)

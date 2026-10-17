@@ -8,8 +8,8 @@ import { getColor } from '../utils/color'
 
 /**
  * The left page of the last page of the story book (validated mockup docs/mockups/theme.html, direction B): « Fin », the
- * avatar of the winner on a disc of their colour, and the result. The framework shows the same header in the bar
- * at the top: there, only the text (the result dialog shows the rest, see theme/result.ts).
+ * avatar of the winner on a disc of their colour, and the result. Only in the result dialog: the header bar keeps the
+ * result text.
  */
 export const ResultPage: FC = () => {
   const { t } = useTranslation()
@@ -17,21 +17,23 @@ export const ResultPage: FC = () => {
   const winner = useRankedPlayers<PlayerColor>()[0]?.id
   return (
     <span css={pageCss}>
-      <span css={endCss} data-book-only>{t('result.end', 'The End')}</span>
+      <span css={endCss}>{t('result.end', 'The End')}</span>
       {winner !== undefined && (
-        <span css={discCss} data-book-only style={{ '--pc': getColor(winner).substring(0, 7) } as Record<string, string>}>
+        <span css={discCss} style={{ '--pc': getColor(winner).substring(0, 7) } as Record<string, string>}>
           <Avatar playerId={winner} css={avatarCss} />
         </span>
       )}
-      <span data-book-text>{resultText}</span>
+      <span css={textCss}>{resultText}</span>
     </span>
   )
 }
 
 const pageCss = css`
-  [data-book-only] {
-    display: none;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9em;
+  text-align: center;
 `
 
 const endCss = css`
@@ -65,7 +67,6 @@ const discCss = css`
     inset: 0.22em;
     background: ${paper};
   }
-
 `
 
 const avatarCss = css`
@@ -73,4 +74,11 @@ const avatarCss = css`
   z-index: 1;
   width: 3.9em;
   height: 3.9em;
+`
+
+const textCss = css`
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 800;
+  font-size: 1.35em;
+  line-height: 1.2;
 `

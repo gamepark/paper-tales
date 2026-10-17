@@ -39,10 +39,10 @@ const pageCss = css`
   display: grid;
   place-items: center;
   font-size: ${bookEm(1)};
-  margin: -1.41em 0 -1.41em -1.41em;
   padding: 2.4em 3.2em 3.4em 2.6em;
   background: linear-gradient(90deg, ${paper} calc(100% - 2.6em), ${pageFold} 100%);
   border-right: 1px solid #4a454040;
+  border-radius: ${bookEm(0.2)} 0 0 ${bookEm(0.2)};
 `
 
 /** Both faces in a column, the level 2 one shifted to the right, overlapping a little like in the mockup */

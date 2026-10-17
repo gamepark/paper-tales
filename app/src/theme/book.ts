@@ -57,16 +57,19 @@ export const bookContainerCss = css`
   }
 `
 
-/**
- * The right page: the help column of the framework (font-size 2.4em, in a row padded 3em 1em 3em 3em) becomes a page
- * whose em is the em of the mockup, covering the padding of the row, with the fold on its left edge.
- */
+/** The row of a help dialog (item display, then help): the two pages touch, fill the book and carry their own margins */
+export const bookHelpLayoutCss = css`
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
+  min-height: 100%;
+`
+
+/** The right page: the help column of the framework becomes a page whose em is the em of the mockup, the fold on its left edge */
 export const bookContentCss = css`
-  && {
-    font-size: ${bookEm(1)};
-    margin: -1.41em -0.47em -1.41em 0;
-    padding: 2.1em 3.4em 3.2em 3em;
-  }
+  margin: 0;
+  padding: 2.1em 3.4em 3.2em 3em;
+  font-size: ${bookEm(1)};
   color: ${cutLine};
   background: linear-gradient(90deg, ${pageFold} 0, ${paper} 2.6em);
 `
