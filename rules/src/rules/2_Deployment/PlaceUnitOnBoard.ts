@@ -1,4 +1,4 @@
-import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
+import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
 import { isEqual, omit, sumBy } from 'es-toolkit/compat'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
@@ -16,12 +16,19 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     this.game.players.forEach((player) => {
       this.memorize(Memory.PlayedCardsDuringDeployment, [], player)
     })
-    // The hands are shuffled once the recruitment is over: the place of a card in a hand is seen by all and follows the
-    // order of the picks, so that a Monarch who passed a hand could follow the cards they left to their neighbour
+    // The last card of the recruitment, still on its way, joins the hand of its receiver, then the hand is shuffled (see
+    // afterItemMove). Once the recruitment is over, the place of a card in a hand is seen by all and follows the order of
+    // the picks: a Monarch who passed a hand could follow the cards they left to their neighbour.
     return this.game.players.flatMap((player) => {
-      const hand = this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(player)
-      return hand.length > 1 ? [hand.shuffle()] : []
+      const coming = this.material(MaterialType.Unit).location(LocationType.DraftTransit).player(player)
+      if (coming.length) return [coming.moveItemsAtOnce({ type: LocationType.PlayerUnitHand, player })]
+      return this.shuffleHand(player)
     })
+  }
+
+  private shuffleHand(player: number): MaterialMove[] {
+    const hand = this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(player)
+    return hand.length > 1 ? [hand.shuffle()] : []
   }
 
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
@@ -115,6 +122,8 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
   afterItemMove(move: ItemMove): MaterialMove[] {
     const moves: MaterialMove[] = []
+    // The last card of the recruitment has joined the hand: it is shuffled
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand) return this.shuffleHand(move.location.player!)
 
     if (isMoveItemType(MaterialType.Unit)(move)) {
       if (move.location.type === LocationType.PlayerUnitBoard && move.location.rotation === true) {

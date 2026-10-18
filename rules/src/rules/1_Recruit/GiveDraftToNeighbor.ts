@@ -16,11 +16,10 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
       // The hands are captured before any move: the same cards are then moved step by step
       const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player))
       const receivers = players.map((player) => this.getNextPlayer(player))
-      // The last card of each hand: nothing to choose, it is passed straight into the hand of its receiver, and the
-      // deployment begins
+      // The last card of each hand: nothing to choose, it is given, and the deployment begins: it lands in the hand of its
+      // receiver while the hand moves to its deployment place (see PlaceUnitOnBoard)
       if (hands.every((hand) => hand.length === 1)) {
         hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.DraftTransit, player: receivers[index] })))
-        hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerUnitHand, player: receivers[index] })))
         moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
         return moves
       }
