@@ -159,8 +159,8 @@ export class UnitCardDescription extends CardDescription {
           move={draft}
           label={wideFan ? undefined : <Trans i18nKey="move.keep" defaults="Keep" />}
           labelPosition="right"
-          radius={4.4}
-          angle={-28 + _item.location.x! * 1.5}
+          radius={4.6}
+          angle={-42 + _item.location.x! * 1.5}
         >
           <KeepIcon />
         </PaperMenuButton>
@@ -177,7 +177,7 @@ export class UnitCardDescription extends CardDescription {
 
     if (discard) {
       items.push(
-        <PaperMenuButton key="discard" move={discard} radius={2.6} angle={-55 + _item.location.x! * 1.5}>
+        <PaperMenuButton key="discard" move={discard} radius={3.4} angle={-70 + _item.location.x! * 1.5}>
           <DiscardIcon />
         </PaperMenuButton>
       )

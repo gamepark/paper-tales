@@ -50,8 +50,9 @@ export const AREA_RIGHT = BUILDINGS_X + BUILDING_COLUMN * 2 - 1
 const HANDS_Y = AREA_Y + KINGDOM_HEIGHT + 2.8 + unitCardDescription.height / 2
 // Hands row under the kingdom: the draft fan at the left, the kept hand at its right (deployment: the whole hand there)
 // The fan of 5 to 9 cards spreads to its left: centred far enough from the panels that its first card stays clear of them
-export const draftHandCoordinates = { x: AREA_X + 17, y: HANDS_Y }
-const KEPT_HAND_X = AREA_X + 42
+export const draftHandCoordinates = { x: AREA_X + 19, y: HANDS_Y }
+// During the recruitment, the kept cards pile up towards the discard, clear of the widest fan (9 cards at 2 players)
+const KEPT_HAND_X = AREA_X + 55
 export const playerGoldCoordinates = { x: 93.5, y: 44.8 }
 // Centered above the draft fan (the ribbon is translated by half its width)
 export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
