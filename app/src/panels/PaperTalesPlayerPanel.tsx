@@ -1,4 +1,4 @@
-import { css } from '@emotion/react'
+import { css, keyframes } from '@emotion/react'
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons/faHourglassHalf'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
@@ -57,7 +57,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
     <div css={panelCss(color, light)} {...props}>
       {rules.isTurnToPlay(player) && (
         <span css={activeTabCss} title={t('panel.active', 'Has to play')}>
-          <FontAwesomeIcon icon={faHourglassHalf} />
+          <FontAwesomeIcon icon={faHourglassHalf} css={hourglassCss} />
         </span>
       )}
       <Avatar playerId={player} css={avatarCss} />
@@ -152,6 +152,24 @@ const activeTabCss = css`
     z-index: -1;
     background: ${rust};
     clip-path: ${tornDiscClip};
+  }
+`
+
+/**
+ * The hourglass turns over every 3 seconds, slowly, then rests: a sign of life, never a flicker in the column. Two turns
+ * per cycle, so that the loop ends where it starts.
+ */
+const turnOver = keyframes`
+  0%, 35% { rotate: 0deg; }
+  50%, 85% { rotate: 180deg; }
+  100% { rotate: 360deg; }
+`
+
+const hourglassCss = css`
+  animation: ${turnOver} 6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `
 
