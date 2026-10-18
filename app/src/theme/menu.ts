@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { cutLine, paper, paperMuted, rust, rustDeep } from './tableTheme'
+import { coverTornClip, cutLine, paper, paperMuted, rust, rustDeep } from './tableTheme'
 
 /** The bookmark hanging from the top edge of the screen (validated mockup docs/mockups/theme.html, direction B) */
 const bookmarkClip = 'polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)'
@@ -79,40 +79,69 @@ export const popButtonCss = css`
   }
 `
 
+/** The cover of a side panel: as thin as the one of the small pages, torn on its free edges only */
+const cover = { side: '0.5em', bottom: '0.95em' }
+
 /**
- * The side panels of the framework, the menu and the journal: a page of the story book, bound on its outer edge. The
- * menu is laid out as a table of contents: each entry on its own line, a dotted leader, the icon where the page number
- * would be (the entries themselves are {@link menuEntryCss}, through theme.menu.button). The journal (told from the
- * menu by its tabs, without a title) keeps the page bare: its parts are themed one by one (tabs, entries).
+ * A side panel of the framework (the menu, the journal) as a page of the story book bound on the edge of the screen:
+ * the rust cover torn on its free edges (it runs past the screen on the others), the cream page set on it. Both
+ * panels share this; each adds its own padding and page.
  */
-export const panelCss = css`
-  background: ${paper};
+const panelCss = (bound: 'left' | 'right') => css`
+  background: none;
   color: ${cutLine};
+  border: 0;
+  border-radius: 0;
   box-shadow: none;
+  isolation: isolate;
 
-  &:has(> h2) {
-    && {
-      padding: 1.6em 1.8em 1.7em;
-    }
-    width: 23em;
-    border-left: 0.4em solid ${rustDeep};
-    border-bottom: 0.4em solid ${rustDeep};
-    border-radius: 0 0 0 0.3em;
-
-    > h2 {
-      align-self: center;
-      margin: 0 0 0.7em;
-      font-family: 'Baloo 2', sans-serif;
-      font-weight: 800;
-      font-size: 1.5em;
-      color: ${cutLine};
-    }
-
+  &::before {
+    content: '';
+    position: absolute;
+    inset: ${bound === 'right' ? '-2em -2em 0 0' : '-2em 0 0 -2em'};
+    z-index: -2;
+    background: ${rustDeep};
+    clip-path: ${coverTornClip};
   }
 
-  /* The journal: a page of the rulebook, with its chevron pattern (validated mockup docs/mockups/journal3.html) */
-  &:not(:has(> h2)) {
-    border-radius: 0 0 0.3em 0;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: ${bound === 'right' ? `${cover.side} 0 ${cover.bottom} ${cover.side}` : `${cover.side} ${cover.side} ${cover.bottom} 0`};
+    z-index: -1;
+    background: ${paper};
+    border-radius: ${bound === 'right' ? '0 0 0 0.2em' : '0 0 0.2em 0'};
+    box-shadow:
+      0 0.18em 0 ${paperMuted},
+      0 0.36em 0 #cdbfb3;
+  }
+`
+
+/**
+ * The menu: a table of contents. Each entry on its own line, a dotted leader, the icon where the page number would be
+ * (the entries themselves are {@link menuEntryCss}, through theme.menu.button).
+ */
+export const menuPanelCss = css`
+  ${panelCss('right')};
+  width: 23em;
+  padding: calc(${cover.side} + 1.4em) 1.8em calc(${cover.bottom} + 1.5em) calc(${cover.side} + 1.8em);
+
+  > h2 {
+    align-self: center;
+    margin: 0 0 0.7em;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 1.5em;
+    color: ${cutLine};
+  }
+`
+
+/** The journal: a page of the rulebook, with its chevron pattern (validated mockup docs/mockups/journal3.html) */
+export const journalPanelCss = css`
+  ${panelCss('left')};
+  padding: ${cover.side} ${cover.side} ${cover.bottom} 0;
+
+  &::after {
     background-color: #f4efe7;
     background-image:
       linear-gradient(135deg, #ffffff66 25%, transparent 25%),
@@ -120,14 +149,13 @@ export const panelCss = css`
       linear-gradient(45deg, #e6dfd466 25%, transparent 25%),
       linear-gradient(315deg, #e6dfd466 25%, transparent 25%);
     background-size: 3em 3em;
+  }
 
-    > div:first-of-type {
-      padding-top: 0.7em;
-      padding-bottom: 0.4em;
-    }
+  > div:first-of-type {
+    padding-top: 0.7em;
+    padding-bottom: 0.4em;
   }
 `
-
 
 /**
  * An entry of the menu: a line of the table of contents, the label, a dotted leader, the icon where the page number

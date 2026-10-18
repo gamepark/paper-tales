@@ -4,7 +4,7 @@ import { bookContainerCss, bookContentCss, bookHelpLayoutCss } from './book'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
 import { dialogButtonCss, dialogDangerButtonCss, dialogFieldsCss, dialogMessageCss, dialogTextCss, dialogTitleCss } from './dialogs'
 import { chatBarCss, historyEntryCss, tabCss, tabSelectedCss } from './journal'
-import { mainButtonCss, menuEntryCss, panelCss, popButtonCss } from './menu'
+import { journalPanelCss, mainButtonCss, menuEntryCss, menuPanelCss, popButtonCss } from './menu'
 import { PageCornerNavigation } from './PageCornerNavigation'
 import { resultButtonsCss, resultContentCss, resultHeaderCss, resultTableCss } from './result'
 import { cutLine, paper, tableButtonCss } from './tableTheme'
@@ -31,12 +31,13 @@ export const theme: Partial<GameTheme> = {
     message: dialogMessageCss
   },
   menu: {
-    panel: panelCss,
+    panel: menuPanelCss,
     button: menuEntryCss,
     mainButton: mainButtonCss,
     popButton: popButtonCss
   },
   journal: {
+    panel: journalPanelCss,
     tab: tabCss,
     tabSelected: tabSelectedCss,
     historyEntry: historyEntryCss,

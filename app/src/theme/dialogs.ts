@@ -70,6 +70,12 @@ export const dialogButtonCss = css`
     content: none;
   }
 
+  /* The menu entry theme underneath turns its text rust on hover: a slip keeps its paper text */
+  &:hover,
+  &:focus {
+    color: ${paper};
+  }
+
   /* A button that cannot be pressed yet: dull paper, flat on the page */
   &:disabled {
     opacity: 1;
@@ -86,6 +92,11 @@ export const dialogButtonCss = css`
 export const dialogDangerButtonCss = css`
   &::before {
     background: ${crimson};
+  }
+
+  &:hover,
+  &:focus {
+    color: ${paper};
   }
 `
 
