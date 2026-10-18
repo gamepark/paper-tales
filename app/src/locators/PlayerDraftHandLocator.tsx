@@ -1,6 +1,6 @@
 import { HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
-import { draftHandCoordinates, getPlayerPositionDependencies, isAreaDisplayed } from './TableLayout'
+import { draftHandCoordinates, getPlayerPositionDependencies, isAreaDisplayed, twoPlayersDraftHandCoordinates } from './TableLayout'
 
 /**
  * Cards to draft: a fan at the left of my hands row, during the recruitment only
@@ -13,21 +13,27 @@ export class PlayerDraftHandLocator extends HandLocator {
     return getPlayerPositionDependencies(context)
   }
 
+  getCoordinates(location: Location, context: MaterialContext) {
+    return context.player === location.player && context.rules.players.length === 2 ? { ...twoPlayersDraftHandCoordinates, z: 0.05 } : this.coordinates
+  }
+
   hide(item: MaterialItem, context: ItemContext) {
     return !isAreaDisplayed(context, item.location.player)
   }
 
   /**
-   * My fan of 5 cards (3 to 7 players) lies almost flat on a wide arc, so that the cards spread apart and stay readable,
-   * the curve of the hand still showing. With 2 players, the 9 cards (rulebook p.8) keep a tighter arc: the row has no
-   * room for them to spread more. The hands of the others stay small.
+   * My fan lies almost flat on a wide arc, so that the cards spread apart and stay readable, the curve of the hand still
+   * showing: 5 cards from 3 to 7 players, 9 cards with 2 players (rulebook p.8), a little closer to fit between the left
+   * edge and the kept cards. The hands of the others stay small.
    */
   getRadius(location: Location, context: ItemContext): number {
-    return this.isMyWideFan(location, context) ? 240 : this.radius
+    if (!this.isMine(location, context)) return this.radius
+    return context.rules.players.length === 2 ? 400 : 240
   }
 
   getGapMaxAngle(location: Location, context: ItemContext): number {
-    return this.isMyWideFan(location, context) ? 1.8 : this.gapMaxAngle
+    if (!this.isMine(location, context)) return this.gapMaxAngle
+    return context.rules.players.length === 2 ? 1.12 : 1.8
   }
 
   getMaxAngle(location: Location, context: ItemContext): number {
@@ -36,8 +42,8 @@ export class PlayerDraftHandLocator extends HandLocator {
     return context.rules.players.length === 2 ? 20 : 12
   }
 
-  private isMyWideFan(location: Location, context: ItemContext) {
-    return context.player === location.player && context.rules.players.length > 2
+  private isMine(location: Location, context: ItemContext) {
+    return context.player === location.player
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {

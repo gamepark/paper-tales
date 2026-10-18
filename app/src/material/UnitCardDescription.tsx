@@ -148,19 +148,18 @@ export class UnitCardDescription extends CardDescription {
 
     const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
 
-    // At the top of the card, within thumb reach, under the name and the cost so that they stay readable. In a wide fan (9 cards at 2 players) the cards overlap too much for
-    // a label: the icon alone
-    const wideFan = !!draft && context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(_item.location.player).length > 6
+    // At the top left of the card, within thumb reach, under the name and the cost so that they stay readable: the strip
+    // of a card that the next one leaves visible in the fan, whatever the number of cards, with room for the labels
     const items = []
     if (draft) {
       items.push(
         <PaperMenuButton
           key="draft"
           move={draft}
-          label={wideFan ? undefined : <Trans i18nKey="move.keep" defaults="Keep" />}
+          label={<Trans i18nKey="move.keep" defaults="Keep" />}
           labelPosition="right"
-          radius={4.6}
-          angle={-42 + _item.location.x! * 1.5}
+          radius={5}
+          angle={-46}
         >
           <KeepIcon />
         </PaperMenuButton>
@@ -177,7 +176,7 @@ export class UnitCardDescription extends CardDescription {
 
     if (discard) {
       items.push(
-        <PaperMenuButton key="discard" move={discard} radius={3.4} angle={-70 + _item.location.x! * 1.5}>
+        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" radius={3.7} angle={-77}>
           <DiscardIcon />
         </PaperMenuButton>
       )

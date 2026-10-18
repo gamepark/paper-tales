@@ -66,7 +66,8 @@ const discCss = css`
     color: ${cutLine};
     font-family: ${paperFont};
     font-weight: 800;
-    padding: 0.2em 0.8em 0.1em 1em;
+    font-size: 0.85em;
+    padding: 0.2em 0.6em 0.1em 1em;
     filter: drop-shadow(0.12em 0.16em 0 #00000059);
 
     &::before {

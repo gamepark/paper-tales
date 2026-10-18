@@ -23,7 +23,8 @@ import { TableAnchor } from './TableAnchor'
  */
 export const DraftDirection: FC = () => {
   const context = useMaterialContext()
-  if (!isDraftRule(context)) return null
+  // With 2 players, every card goes to the other Monarch: nothing to tell
+  if (!isDraftRule(context) || context.rules.players.length === 2) return null
   if (isSpectator(context)) return isWarView(context) ? null : <DraftRecipient player={getViewedPlayer(context)} />
   if (!isMyAreaDisplayed(context, getMe(context))) return null
   return <DraftRecipient player={getMe(context)} />
