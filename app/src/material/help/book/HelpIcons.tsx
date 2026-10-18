@@ -53,7 +53,7 @@ export const StrengthIcon: FC<{ value: number | string }> = ({ value }) => (
 export const LegendValueIcon: FC<{ value: number }> = ({ value }) => (
   <IconBox size={1.6}>
     <img css={imageCss} src={scoreIcon} alt="" />
-    <span css={[valueCss, legendValueCss]}>{value}</span>
+    <span css={[valueCss, legendValueCss, String(value).length > 1 && legendLongValueCss]}>{value}</span>
   </IconBox>
 )
 
@@ -114,6 +114,13 @@ const legendValueCss = css`
     0.06em 0 0 #7a4e0c,
     0 -0.06em 0 #7a4e0c,
     0 0.09em 0 #7a4e0c;
+`
+
+/** Two characters (-3, 12): smaller and nudged so that they fit the sheet of the scroll, between its two rolls */
+const legendLongValueCss = css`
+  padding: 0.12em 0 0 0.2em;
+  font-size: 0.68em;
+  letter-spacing: -0.04em;
 `
 
 const goldValueCss = css`
