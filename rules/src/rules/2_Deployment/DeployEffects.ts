@@ -1,4 +1,5 @@
 import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { sumBy } from 'es-toolkit/compat'
 import { AgeTokens } from '../helpers/AgeTokens'
 import {
   GainAgeToken,
@@ -86,7 +87,7 @@ export class DeployEffects extends SimultaneousRule {
         if (this.deck.length) {
           moves.push(this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: unit.location.x, y: unit.location.y }))
         } else {
-          moves.push(...(this.refillDeck(player) ?? [this.endPlayerTurn(player)]))
+          moves.push(...(this.refillDeck(player) ?? [...this.shapeshifterStays(player), this.endPlayerTurn(player)]))
         }
       } else {
         const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
@@ -116,7 +117,8 @@ export class DeployEffects extends SimultaneousRule {
         // The Shapeshifter leaves with the Age tokens it may have received (Necromancer, Kraken)
         for (const index of shapeShifterCard.getIndexes()) moves.push(...new AgeTokens(this).remove(index))
         moves.push(shapeShifterCard.moveItem({ type: LocationType.Discard }))
-        moves.push(new AgeTokens(this).add(move.itemIndex, player))
+        // Its Age token, plus the ones the other units revealed this turn give to it (Necromancer): it is in play at the end of the phase
+        moves.push(new AgeTokens(this).add(move.itemIndex, player, 1 + this.ageTokensFromOthers(player, move.itemIndex)))
         moves.push(this.endPlayerTurn(player))
       }
     }
@@ -235,9 +237,38 @@ export class DeployEffects extends SimultaneousRule {
     }
   }
 
+  /**
+   * A Shapeshifter revealed this turn is not in play at the end of the phase (rulebook p.12): the unit it draws takes its
+   * place. The Age tokens the other units give (Necromancer, Kraken) go to that unit once kept, never to the Shapeshifter.
+   */
+  private isLeavingShapeshifter(player: PlayerColor, unitIndex: number) {
+    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
+    return deployedUnitsIndexes.includes(unitIndex) && this.material(MaterialType.Unit).getItem<Unit>(unitIndex).id === Unit.Shapeshifter
+  }
+
+  /** The Age tokens the units revealed this turn give to the other units of their Monarch, received by the given unit */
+  private ageTokensFromOthers(player: PlayerColor, unitIndex: number) {
+    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
+    return sumBy(
+      this.getPlayerUnits(player).entries.filter(([index]) => index !== unitIndex && deployedUnitsIndexes.includes(index)),
+      ([, unit]) =>
+        sumBy(
+          (unitCardCaracteristics[unit.id as Unit].effect ?? []).filter((effect): effect is GainAgeToken => isGainAgeToken(effect) && effect.whichUnit === WhichUnit.Others),
+          (effect) => effect.amount
+        )
+    )
+  }
+
+  /** No unit of cost 3 or less left to draw: the Shapeshifter stays in play, and receives the tokens of the others */
+  private shapeshifterStays(player: PlayerColor): MaterialMove[] {
+    const shapeshifter = this.getPlayerUnits(player).id(Unit.Shapeshifter)
+    const quantity = shapeshifter.length ? this.ageTokensFromOthers(player, shapeshifter.getIndex()) : 0
+    return quantity ? [new AgeTokens(this).add(shapeshifter.getIndex(), player, quantity)] : []
+  }
+
   private onShapeShifter(player: PlayerColor, unit: MaterialItem): MaterialMove[] {
     const deck = this.deck
-    if (!deck.length) return this.refillDeck(player) ?? []
+    if (!deck.length) return this.refillDeck(player) ?? this.shapeshifterStays(player)
     return [
       deck.dealOne({
         type: LocationType.PlayerUnitBoard,
@@ -265,7 +296,7 @@ export class DeployEffects extends SimultaneousRule {
       const moves: MaterialMove[] = []
       for (const entry of playerUnitBoard.entries) {
         const spaceIndex = entry[0]
-        if (spaceIndex !== unitIndex) {
+        if (spaceIndex !== unitIndex && !this.isLeavingShapeshifter(player, spaceIndex)) {
           moves.push(
             new AgeTokens(this).add(spaceIndex, player, eff.amount)
           )

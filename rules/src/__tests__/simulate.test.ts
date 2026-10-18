@@ -96,8 +96,14 @@ describe('Random games on the rules alone', () => {
       const totalUnits = game.items[MaterialType.Unit]!.length
       let steps = 0
       while (game.rule && steps++ < 3000) {
-        play(rules, randomMove(rules), () => {})
-        checkInvariants(rules, totalUnits)
+        // The moves of the action, to tell which one broke an invariant
+        const played: string[] = []
+        play(rules, randomMove(rules), (move) => played.push(`rule ${rules.game.rule?.id}: ${JSON.stringify(move)}`))
+        try {
+          checkInvariants(rules, totalUnits)
+        } catch (error) {
+          throw new Error(`${(error as Error).message}\nafter the moves:\n${played.join('\n')}`, { cause: error })
+        }
       }
       expect(game.rule).toBeUndefined()
     }

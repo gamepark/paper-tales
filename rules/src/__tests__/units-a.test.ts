@@ -1,5 +1,8 @@
 import { CustomMove, isCustomMoveType, isEndPlayerTurn, isMoveItemType, MaterialGame, MaterialMove } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
+import { sumBy } from 'es-toolkit/compat'
+import { GainAgeToken, isGainAgeToken } from '../material/effects/2_DeploymentEffects'
+import { WhichUnit } from '../material/effects/Effect'
 import { Building } from '../material/Building'
 import { Gold } from '../material/Gold'
 import { LocationType } from '../material/LocationType'
@@ -543,12 +546,16 @@ describe('Shapeshifter', () => {
 
   it('phase 2, empty deck: the discard is shuffled into a new deck (rulebook p.5), and the draw goes on', () => {
     const { rules, shapeshifter } = revealShapeshifter([]) // every other card is in the discard
-    expect(rules.game.rule?.id).toBe(RuleId.War)
+    // The phase is over; a Time Master drawn at random first places its Age token on a unit of choice
+    expect([RuleId.War, RuleId.ChooseWherePlacingAgeToken]).toContain(rules.game.rule?.id)
     expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
     const kept = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(Blue)
     expect(kept.length).toBe(1)
-    expect(unitCardCaracteristics[kept.getItem<Unit>()!.id].cost).toBeLessThanOrEqual(3)
-    expect(ageOn(rules, kept.getIndex())).toBe(1)
+    const keptUnit = kept.getItem<Unit>()!.id
+    expect(unitCardCaracteristics[keptUnit].cost).toBeLessThanOrEqual(3)
+    // The Shapeshifter token, plus the ones a unit drawn at random gives itself when revealed (Veteran, Cave Spirit, Monkey)
+    const ownTokens = (unitCardCaracteristics[keptUnit].effect ?? []).filter((effect): effect is GainAgeToken => isGainAgeToken(effect) && effect.whichUnit === WhichUnit.Myself)
+    expect(ageOn(rules, kept.getIndex())).toBe(1 + sumBy(ownTokens, (effect) => effect.amount))
   })
 
   it('phase 2, empty deck and a discard without any unit of cost 3 or less: the discard is shuffled once, then the draw stops', () => {
@@ -566,6 +573,47 @@ describe('Shapeshifter', () => {
     expect(rules.game.rule?.id).toBe(RuleId.War)
     expect(location(rules, kraken).type).toBe(LocationType.Discard)
     expect(location(rules, shapeshifter).type).toBe(LocationType.PlayerUnitBoard)
+  })
+
+  /** No Age token is left on a card that is not on a board */
+  const orphanAgeTokens = (rules: PaperTalesRules) =>
+    rules
+      .material(MaterialType.Age)
+      .location(LocationType.OnCard)
+      .filter((token) => location(rules, token.location.parent!).type !== LocationType.PlayerUnitBoard).length
+
+  it('revealed with a Necromancer: the Necromancer token goes to the drawn unit, in play at the end of the phase (rulebook p.12)', () => {
+    cardsIndexes = []
+    const rules = newRules()
+    const shapeshifter = place(rules, Unit.Shapeshifter, Blue, 1, 0)
+    const necromancer = place(rules, Unit.Necromancer, Blue, 0, 0)
+    const militiaman = place(rules, Unit.Militiaman, Blue, 0, 1)
+    const [knight] = arrangeDeck(rules, [Unit.Knight, Unit.Woodcutter])
+    deployed(rules, { [Blue]: [necromancer, shapeshifter] })
+    runDeployEffects(rules)
+    expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
+    expect(ageOn(rules, shapeshifter)).toBe(0)
+    // Its own Age token and the Necromancer one
+    expect(ageOn(rules, knight)).toBe(2)
+    expect(ageOn(rules, militiaman)).toBe(1)
+    expect(ageOn(rules, necromancer)).toBe(0)
+    expect(orphanAgeTokens(rules)).toBe(0)
+  })
+
+  it('draws a Necromancer: its token goes to the other units, not to the Shapeshifter it replaces', () => {
+    cardsIndexes = []
+    const rules = newRules()
+    const shapeshifter = place(rules, Unit.Shapeshifter, Blue, 1, 0)
+    const militiaman = place(rules, Unit.Militiaman, Blue, 0, 1)
+    const [necromancer] = arrangeDeck(rules, [Unit.Necromancer, Unit.Knight])
+    deployed(rules, { [Blue]: [shapeshifter] })
+    runDeployEffects(rules)
+    expect(location(rules, necromancer)).toMatchObject({ type: LocationType.PlayerUnitBoard, player: Blue, x: 1, y: 0 })
+    expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
+    expect(ageOn(rules, shapeshifter)).toBe(0)
+    expect(ageOn(rules, necromancer)).toBe(1)
+    expect(ageOn(rules, militiaman)).toBe(1)
+    expect(orphanAgeTokens(rules)).toBe(0)
   })
 
   it('phase 2: nothing when it was not revealed this turn', () => {
