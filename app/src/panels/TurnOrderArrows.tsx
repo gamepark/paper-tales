@@ -42,11 +42,12 @@ export const TurnOrderArrows: FC = () => {
       })}
       <TableAnchor position={{ x: RETURN_X, y: top }} css={returnCss} title={title}>
         <svg viewBox={`0 0 ${width} ${height}`} width={`${width}em`} height={`${height}em`} css={returnSvgCss}>
-          <path d={`M ${width} ${height} H 0.2 Q 0 ${height} 0 ${height - 0.2} V 0.2 Q 0 0 0.2 0 H ${width}`} />
+          <path d={`M ${width} ${height} H 0.3 Q 0 ${height} 0 ${height - 0.3} V 0.3 Q 0 0 0.3 0 H ${width}`} />
+          {/* The head, as big as a chevron between the panels, pointing into the panel the cards come back to */}
           {down ? (
-            <path d={`M ${width - 0.22} -0.18 L ${width} 0 L ${width - 0.22} 0.18`} />
+            <path d={`M ${width - 0.36} -0.42 L ${width} 0 L ${width - 0.36} 0.42`} />
           ) : (
-            <path d={`M ${width - 0.22} ${height - 0.18} L ${width} ${height} L ${width - 0.22} ${height + 0.18}`} />
+            <path d={`M ${width - 0.36} ${height - 0.42} L ${width} ${height} L ${width - 0.36} ${height + 0.42}`} />
           )}
         </svg>
       </TableAnchor>
@@ -85,8 +86,9 @@ const returnSvgCss = css`
   overflow: visible;
   fill: none;
   stroke: ${paper};
-  stroke-width: 0.07;
+  /* As thick as the chevrons, with the same shadow: one sign, all along the round of the table */
+  stroke-width: 0.17;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.75;
+  filter: drop-shadow(0.06em 0.08em 0 #00000059);
 `
