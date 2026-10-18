@@ -26,17 +26,18 @@ import { unitCardDescription } from '../material/UnitCardDescription'
 // Ratio 2.1: between a desktop (16:9 minus the header, about 1.9) and a phone in landscape (2.16 to 2.22)
 export const tableBoundaries = { xMin: 0, xMax: 100, yMin: 0, yMax: 47.5 }
 
-// Panels column: the eye tab sticks out at the right of each panel
-export const PANEL_X = 0.8
+// Panels column: room at its left for the line of the turn order that goes back to the first panel, and between the
+// panels for its chevrons
+export const PANEL_X = 1.3
 export const PANEL_WIDTH = 16
 export const PANEL_HEIGHT = 5.4
 export const PANEL_Y = 0.8
-export const PANEL_STEP = 5.9
+export const PANEL_STEP = 6.4
 // My neighbours and I are the 3 first panels, a little apart from the others
 const PANELS_GROUP_GAP = 1
 
 // Player area
-const AREA_X = PANEL_X + PANEL_WIDTH + 3.8
+const AREA_X = PANEL_X + PANEL_WIDTH + 3.3
 const AREA_Y = 0.8
 const KINGDOM_COLUMN = unitCardDescription.width + 0.5
 const KINGDOM_ROW = unitCardDescription.height + 0.5
@@ -56,9 +57,9 @@ export const twoPlayersDraftHandCoordinates = { x: AREA_X + 17.7, y: HANDS_Y }
 // During the recruitment, the kept cards pile up towards the discard, clear of the widest fan (9 cards at 2 players)
 const KEPT_HAND_X = AREA_X + 59
 export const playerGoldCoordinates = { x: 93.5, y: 44.8 }
-// Above my kept cards, its right end before the right column (the ribbon is translated by its whole width): the row
-// above the draft fan holds the buttons of its cards
-export const handsLabelPosition = { x: KEPT_HAND_X + 6.5, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
+// The spectator's ribbon about the cards to draft: centred above the fan they are about (the ribbon is translated by
+// half its width). A spectator has no buttons above the cards.
+export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
 export const deployGoldPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
 export const buildInfoPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
 
@@ -279,6 +280,22 @@ export const getPanelsOrder = (context: MaterialContext): PlayerColor[] => {
 }
 
 export const getPanelPosition = (index: number) => ({ x: PANEL_X, y: PANEL_Y + index * PANEL_STEP + (index >= 3 ? PANELS_GROUP_GAP : 0) })
+
+/** The size of the cards of a hand that stands on its Monarch's panel, see {@link getHiddenHandCoordinates} */
+export const HIDDEN_HAND_SCALE = 0.3
+
+/**
+ * The hands of a Monarch whose area is not displayed stand on their panel, small and under it: the cards given to them
+ * during the recruitment fly into their panel, the cards they give come out of it, and what they keep stays there.
+ * Undefined when the area is displayed: the hand stands in the area.
+ */
+export const getHiddenHandCoordinates = (context: MaterialContext, player?: number) => {
+  if (player === undefined || isAreaDisplayed(context, player)) return undefined
+  const index = getPanelsOrder(context).indexOf(player)
+  if (index === -1) return undefined
+  const { x, y } = getPanelPosition(index)
+  return { x: x + PANEL_WIDTH / 2, y: y + PANEL_HEIGHT / 2, z: 0 }
+}
 
 /**
  * The draft goes to the left on rounds 1 and 3, to the right on rounds 2 and 4 (rulebook p.5)

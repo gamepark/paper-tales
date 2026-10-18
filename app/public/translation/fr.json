@@ -138,7 +138,6 @@
   "panel.right": "Droite",
   "panel.view": "Voir le royaume de {player}",
   "panel.receives": "Reçoit tes cartes",
-  "draft.recipient": "Tes autres cartes vont à {player}",
   "header.draft": "Garde une carte",
   "header.draft.two-players": "Garde une carte, défausses-en une autre",
   "header.draft.wait": "Les autres Monarques choisissent leur carte",

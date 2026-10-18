@@ -7,7 +7,7 @@ import { TableAnchor } from '../table/TableAnchor'
 import { paper } from '../theme/tableTheme'
 
 /** Room at the left of the column for the line that goes back from the last panel to the first one */
-const RETURN_X = 0.32
+const RETURN_X = 0.45
 
 /**
  * The round of the table, in the column of panels (laid in seating order): a small chevron between two panels, and a

@@ -13,17 +13,13 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
       moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
     } else {
       const players = this.game.players
-      players.forEach((player) => {
-        const playerRemainingUnits = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player)
-        moves.push(
-          playerRemainingUnits.moveItemsAtOnce({
-            type: LocationType.PlayerDraftHand,
-            player: this.getNextPlayer(player)
-          })
-        )
-        // The hand is shuffled once given: the Monarch who passed it cannot follow a card to what the neighbour keeps
-        if (playerRemainingUnits.length > 1) moves.push(playerRemainingUnits.shuffle())
-      })
+      // The hands are captured before any move: each one is then given, all at once
+      const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player))
+      hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player: this.getNextPlayer(players[index]) })))
+      // Each hand is shuffled once given, so that the Monarch who passed it cannot follow a card to what the neighbour
+      // keeps. Only once every hand is given: a hand shuffled earlier would be shuffled among the cards its receiver has
+      // not given yet.
+      for (const hand of hands) if (hand.length > 1) moves.push(hand.shuffle())
 
       moves.push(this.startSimultaneousRule(RuleId.Draft))
     }

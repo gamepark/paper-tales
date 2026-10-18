@@ -138,7 +138,6 @@
   "panel.right": "Right",
   "panel.view": "View the kingdom of {player}",
   "panel.receives": "Receives your cards",
-  "draft.recipient": "Your other cards go to {player}",
   "header.draft": "Keep a card",
   "header.draft.two-players": "Keep a card, discard another one",
   "header.draft.wait": "The other Monarchs choose their card",

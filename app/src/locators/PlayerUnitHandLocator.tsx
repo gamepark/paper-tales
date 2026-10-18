@@ -1,7 +1,14 @@
 import { DropAreaDescription, HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { getKeptHandCoordinates, getPlayerPositionDependencies, isDraftRule, isAreaDisplayed } from './TableLayout'
+import {
+  getHiddenHandCoordinates,
+  getKeptHandCoordinates,
+  getPlayerPositionDependencies,
+  HIDDEN_HAND_SCALE,
+  isAreaDisplayed,
+  isDraftRule
+} from './TableLayout'
 
 /**
  * My kept cards: at the right of the draft fan during the recruitment, in its place otherwise
@@ -34,6 +41,20 @@ export class PlayerUnitHandLocator extends HandLocator {
 
   getHoverTransform(item: MaterialItem, context: ItemContext): string[] {
     return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
+  }
+
+  // The kept cards of a Monarch whose area is not displayed stand on their panel (see getHiddenHandCoordinates)
+  getItemCoordinates(item: MaterialItem, context: ItemContext) {
+    return getHiddenHandCoordinates(context, item.location.player) ?? super.getItemCoordinates(item, context)
+  }
+
+  getItemRotateZ(item: MaterialItem, context: ItemContext): number {
+    return getHiddenHandCoordinates(context, item.location.player) ? 0 : super.getItemRotateZ(item, context)
+  }
+
+  placeItem(item: MaterialItem, context: ItemContext): string[] {
+    const transform = super.placeItem(item, context)
+    return getHiddenHandCoordinates(context, item.location.player) ? [...transform, `scale(${HIDDEN_HAND_SCALE})`] : transform
   }
 }
 
