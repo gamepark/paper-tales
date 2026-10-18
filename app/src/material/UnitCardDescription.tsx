@@ -58,6 +58,9 @@ import { PaperMenuButton } from './PaperMenuButton'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
 
+/** Just above the top left corner of a card of the draft fan (radius and angle from the centre of the card) */
+const aboveCardInFan = { radius: 9.3, angle: -23.5 }
+
 export class UnitCardDescription extends CardDescription {
   height = 14
   width = 10
@@ -148,19 +151,15 @@ export class UnitCardDescription extends CardDescription {
 
     const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
 
-    // At the top left of the card, within thumb reach, under the name and the cost so that they stay readable: the strip
-    // of a card that the next one leaves visible in the fan, whatever the number of cards, with room for the labels
+    // In the draft fan, one button just above the left edge of each card, whatever the number of cards: it never hides
+    // the name nor the cost, its label has the room up to the next card, and on a zoomed card it lands on the picture,
+    // not on the text. There is room for one row only (the kingdom is right above): with 2 players, Keep comes first,
+    // then Discard once a card is kept (the rules accept both orders, and the result is the same).
+    const inDraftFan = _item.location.type === LocationType.PlayerDraftHand
     const items = []
     if (draft) {
       items.push(
-        <PaperMenuButton
-          key="draft"
-          move={draft}
-          label={<Trans i18nKey="move.keep" defaults="Keep" />}
-          labelPosition="right"
-          radius={5}
-          angle={-46}
-        >
+        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" {...aboveCardInFan}>
           <KeepIcon />
         </PaperMenuButton>
       )
@@ -174,9 +173,10 @@ export class UnitCardDescription extends CardDescription {
       )
     }
 
-    if (discard) {
+    if (discard && !(inDraftFan && draft)) {
+      const position = inDraftFan ? aboveCardInFan : { radius: 8, angle: -40 }
       items.push(
-        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" radius={3.7} angle={-77}>
+        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" {...position}>
           <DiscardIcon />
         </PaperMenuButton>
       )
