@@ -18,7 +18,7 @@ import {
   MaterialMove
 } from '@gamepark/rules-api'
 import { fanCardLocator, receiverPanelLocator } from '../locators/DraftPassAnimationLocators'
-import { getPanelPosition, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_HEIGHT, PANEL_WIDTH, PANEL_X } from '../locators/TableLayout'
+import { getPanelsOrder, getViewedPlayer, isAreaDisplayed } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -143,11 +143,8 @@ paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(M
 
 /**
  * The hands passed during the recruitment: each Monarch passes the rest of their hand in their own action (see Draft),
- * so that the hands travel at the same time. A hand follows the turn order arrows: from a panel to the next one in the
- * room at the right of the column, from the last panel to the first one along the return line at its left.
+ * so that the hands travel at the same time, each one straight from the panel of its giver to the panel of its receiver.
  */
-const RIGHT_LANE_X = PANEL_X + PANEL_WIDTH + 2.4
-const LEFT_LANE_X = PANEL_X + 0.2
 const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory => {
   const giver = itemAt(context, context.type, context.index)?.location.player
   const receiver = isMoveItemsAtOnce(move) ? move.location.player : undefined
@@ -167,29 +164,8 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
       ]
     }
   }
-  // Between two panels, through the lanes of the turn order arrows. The pack speeds up as it leaves and slows down as
-  // it arrives only: the framework eases every stretch between two waypoints, which would stop the pack at each of
-  // them. The waypoints split the time as the distance, so that the pace stays even.
-  const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
-  const panelX = PANEL_X + PANEL_WIDTH / 2
-  if (Math.abs(from - to) === 1) {
-    return {
-      elevation: false,
-      easing: 'ease-in',
-      waypoints: [{ at: 0.5, coordinates: { x: RIGHT_LANE_X, y: (centerY(from) + centerY(to)) / 2 }, easing: 'ease-out' }]
-    }
-  }
-  const across = panelX - LEFT_LANE_X
-  const along = Math.abs(centerY(to) - centerY(from))
-  const leave = across / (2 * across + along)
-  return {
-    elevation: false,
-    easing: 'ease-in',
-    waypoints: [
-      { at: leave, coordinates: { x: LEFT_LANE_X, y: centerY(from) }, easing: 'linear' },
-      { at: 1 - leave, coordinates: { x: LEFT_LANE_X, y: centerY(to) }, easing: 'ease-out' }
-    ]
-  }
+  // Between two panels: a small hop above the panels it passes over
+  return { elevation: { height: 4 } }
 }
 paperTalesAnimation
   .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
