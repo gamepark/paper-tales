@@ -2,7 +2,8 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
-import { and, isRule, MaterialContext, MaterialGameAnimations, ShuffleAnimations } from '@gamepark/react-game'
+import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
+import { and, isRule, ItemContext, MaterialContext, MaterialGameAnimations, ShuffleAnimations, Trajectory } from '@gamepark/react-game'
 import {
   isCreateItem,
   isDeleteItem,
@@ -16,7 +17,7 @@ import {
   MaterialItem,
   MaterialMove
 } from '@gamepark/rules-api'
-import { getViewedPlayer, isAreaDisplayed } from '../locators/TableLayout'
+import { getPanelPosition, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_HEIGHT, PANEL_WIDTH, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -119,6 +120,38 @@ paperTalesAnimation
 
 // A building upgraded by a deployment effect (the Golem) turns over to its level 2 face, slowly enough to be seen
 paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(MaterialType.Building), isSeenMove)).duration(800)
+
+/**
+ * The hands passed during the recruitment: each Monarch passes the rest of their hand in their own action (see Draft),
+ * so that the hands travel at the same time. A hand follows the turn order arrows: from a panel to the next one in the
+ * room at the right of the column, from the last panel to the first one along the return line at its left.
+ */
+const RIGHT_LANE_X = PANEL_X + PANEL_WIDTH + 2.4
+const LEFT_LANE_X = PANEL_X + 0.2
+const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory => {
+  const giver = itemAt(context, context.type, context.index)?.location.player
+  const receiver = isMoveItemsAtOnce(move) ? move.location.player : undefined
+  const order = getPanelsOrder(context)
+  const from = order.indexOf(giver as PlayerColor)
+  const to = order.indexOf(receiver as PlayerColor)
+  // My own hand goes straight from my fan to the panel of its receiver
+  if (from === -1 || to === -1 || isAreaDisplayed(context, giver)) return { elevation: false }
+  const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
+  if (Math.abs(from - to) === 1) {
+    return { elevation: false, waypoints: [{ at: 0.5, coordinates: { x: RIGHT_LANE_X, y: (centerY(from) + centerY(to)) / 2 } }] }
+  }
+  return {
+    elevation: false,
+    waypoints: [
+      { at: 0.2, coordinates: { x: LEFT_LANE_X, y: centerY(from) } },
+      { at: 0.8, coordinates: { x: LEFT_LANE_X, y: centerY(to) } }
+    ]
+  }
+}
+paperTalesAnimation
+  .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
+  .duration(1200)
+  .trajectory(passTrajectory)
 
 // What nobody can see takes no time
 paperTalesAnimation.configure(isUnseen).skip()

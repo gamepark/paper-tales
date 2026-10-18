@@ -5,7 +5,6 @@ import { CardsCatalogue } from './dev/CardsCatalogue'
 import { TestStates } from './dev/TestStates'
 import { tableBoundaries } from './locators/TableLayout'
 import { PlayerPanels } from './panels/PlayerPanels'
-import { DraftPassFlights } from './panels/DraftPassFlights'
 import { TurnOrderArrows } from './panels/TurnOrderArrows'
 import { BuildInfo } from './table/BuildInfo'
 import { DeployGold } from './table/DeployGold'
@@ -21,7 +20,6 @@ export const GameDisplay: FC = () => (
     <GameTableNavigation css={navigationCss} />
     <PlayerPanels />
     <TurnOrderArrows />
-    <DraftPassFlights />
     <SideColumn />
     <DraftDirection />
     <DeployGold />

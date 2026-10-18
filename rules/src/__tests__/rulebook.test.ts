@@ -118,6 +118,11 @@ describe('Hidden information: the draft', () => {
   it('each hand given to a neighbour is shuffled, so the giver cannot follow its cards', () => {
     const players = [PlayerColor.Blue, PlayerColor.Red, PlayerColor.Green]
     const rules = new PaperTalesRules(newGame(players))
+    // Every Monarch has picked and passed the rest of their hand face down
+    for (const player of players) {
+      const hand = rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player)
+      rules.play(hand.moveItemsAtOnce({ type: LocationType.DraftTransit, player }))
+    }
     const consequences = rules.play(rules.startRule(RuleId.GiveDraftToNeighbor))
     const shuffles = consequences.filter((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Shuffle)
     expect(shuffles).toHaveLength(players.length)

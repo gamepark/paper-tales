@@ -50,7 +50,8 @@ const deletionTracker = () => {
   }
 }
 
-const unitLocations =[LocationType.Deck, LocationType.Discard, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand, LocationType.PlayerUnitBoard]
+// A hand passed during the recruitment waits in transit until every Monarch has picked (see Draft)
+const unitLocations = [LocationType.Deck, LocationType.Discard, LocationType.PlayerDraftHand, LocationType.DraftTransit, LocationType.PlayerUnitHand, LocationType.PlayerUnitBoard]
 
 /** What must hold at any time of a game, whatever the moves */
 const checkInvariants = (rules: PaperTalesRules, totalUnits: number) => {
