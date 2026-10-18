@@ -1,4 +1,4 @@
-import { isMoveItemType, isMoveItemTypeAtOnce, MaterialGame, MaterialMove, MaterialMoveRandomized } from '@gamepark/rules-api'
+import { isMoveItemType, isMoveItemTypeAtOnce, ItemMoveType, MaterialGame, MaterialMove, MaterialMoveRandomized, MoveKind } from '@gamepark/rules-api'
 import { omit } from 'es-toolkit/compat'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
@@ -30,7 +30,27 @@ const play = (rules: PaperTalesRules, move: MaterialMove, onMove: (move: Materia
   }
 }
 
-const unitLocations = [LocationType.Deck, LocationType.Discard, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand, LocationType.PlayerUnitBoard]
+/**
+ * Watches the moves of one action: no item may be deleted twice, unless an item of its type was created in between (it
+ * may have taken the freed index). The rules API throws on a second deletion, and the journal replays every action.
+ */
+const deletionTracker = () => {
+  const deleted = new Set<string>()
+  return (move: MaterialMove) => {
+    if (move.kind !== MoveKind.ItemMove) return
+    if (move.type === ItemMoveType.Create || move.type === ItemMoveType.CreateAtOnce) {
+      for (const key of [...deleted]) if (key.startsWith(`${move.itemType}:`)) deleted.delete(key)
+    }
+    const indexes = move.type === ItemMoveType.Delete ? [move.itemIndex] : move.type === ItemMoveType.DeleteAtOnce ? move.indexes : []
+    for (const index of indexes) {
+      const key = `${move.itemType}:${index}`
+      expect(deleted.has(key), `item ${index} of type ${move.itemType} deleted twice by one action`).toBe(false)
+      deleted.add(key)
+    }
+  }
+}
+
+const unitLocations =[LocationType.Deck, LocationType.Discard, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand, LocationType.PlayerUnitBoard]
 
 /** What must hold at any time of a game, whatever the moves */
 const checkInvariants = (rules: PaperTalesRules, totalUnits: number) => {
@@ -98,7 +118,11 @@ describe('Random games on the rules alone', () => {
       while (game.rule && steps++ < 3000) {
         // The moves of the action, to tell which one broke an invariant
         const played: string[] = []
-        play(rules, randomMove(rules), (move) => played.push(`rule ${rules.game.rule?.id}: ${JSON.stringify(move)}`))
+        const checkDeletion = deletionTracker()
+        play(rules, randomMove(rules), (move) => {
+          played.push(`rule ${rules.game.rule?.id}: ${JSON.stringify(move)}`)
+          checkDeletion(move)
+        })
         try {
           checkInvariants(rules, totalUnits)
         } catch (error) {
