@@ -2,7 +2,7 @@ import { css } from '@emotion/react'
 import { GameTheme } from '@gamepark/react-game'
 import { bookContainerCss, bookContentCss, bookHelpLayoutCss } from './book'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
-import { dialogButtonCss, dialogDangerButtonCss, dialogTextCss, dialogTitleCss } from './dialogs'
+import { dialogButtonCss, dialogDangerButtonCss, dialogFieldsCss, dialogTextCss, dialogTitleCss } from './dialogs'
 import { chatBarCss, historyEntryCss, tabCss, tabSelectedCss } from './journal'
 import { mainButtonCss, menuEntryCss, panelCss, popButtonCss } from './menu'
 import { PageCornerNavigation } from './PageCornerNavigation'
@@ -26,7 +26,8 @@ export const theme: Partial<GameTheme> = {
     title: dialogTitleCss,
     text: dialogTextCss,
     buttons: dialogButtonCss,
-    dangerButtons: dialogDangerButtonCss
+    dangerButtons: dialogDangerButtonCss,
+    fields: dialogFieldsCss
   },
   menu: {
     panel: panelCss,
