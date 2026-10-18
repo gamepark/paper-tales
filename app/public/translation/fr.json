@@ -403,5 +403,6 @@
   "header.deploy.spectator": "Les Monarques déploient leurs unités",
   "header.build.spectator": "Les Monarques construisent",
   "draft.recipient.spectator": "Les autres cartes de {giver} vont à {player}",
-  "view.player.neighbours": "Voisins de {player}"
+  "view.player.neighbours": "Voisins de {player}",
+  "panel.active": "Doit jouer"
 }

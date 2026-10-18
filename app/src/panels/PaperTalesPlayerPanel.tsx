@@ -1,4 +1,6 @@
 import { css } from '@emotion/react'
+import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons/faHourglassHalf'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
@@ -10,6 +12,7 @@ import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
 import { Avatar, PlayerTimer, usePlayerName, useRules } from '@gamepark/react-game'
 import { MaterialRules } from '@gamepark/rules-api'
 import { FC, HTMLAttributes, ReactNode, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import wood from '../images/ressources/ressources_bois.png'
 import diamond from '../images/ressources/ressources_minerai.png'
 import food from '../images/ressources/ressources_viande.png'
@@ -34,6 +37,7 @@ type PaperTalesPlayerPanelProps = {
  * Cut paper: a torn sheet of the player's colour, the counters on a piece of cream paper cut to their size.
  */
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, ...props }) => {
+  const { t } = useTranslation()
   const rules = useRules<MaterialRules>()!
   const name = usePlayerName(player)
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player), [rules.game, player])
@@ -50,7 +54,12 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
   const pale = player === PlayerColor.White
 
   return (
-    <div css={[panelCss(color, light), rules.isTurnToPlay(player) && activeCss]} {...props}>
+    <div css={panelCss(color, light)} {...props}>
+      {rules.isTurnToPlay(player) && (
+        <span css={activeTabCss} title={t('panel.active', 'Has to play')}>
+          <FontAwesomeIcon icon={faHourglassHalf} />
+        </span>
+      )}
       <Avatar playerId={player} css={avatarCss} />
       <div css={headCss}>
         <span css={nameCss}>{name}</span>
@@ -119,9 +128,22 @@ const panelCss = (color: string, light: boolean) => css`
   }
 `
 
-/** The player whose turn it is: a rust shadow and a warm glow */
-const activeCss = css`
-  filter: drop-shadow(0.16em 0.2em 0 ${rust}) drop-shadow(0 0 0.35em #e9b53499);
+/** The player who has to play: a rust tab with an hourglass, sticking out of the right edge of their sheet */
+const activeTabCss = css`
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: -1.15em;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.9em;
+  padding-left: 0.25em;
+  background: ${rust};
+  color: ${paper};
+  font-size: 0.95em;
+  clip-path: polygon(0 0, 100% 0, 82% 50%, 100% 100%, 0 100%);
 `
 
 const avatarCss = css`
