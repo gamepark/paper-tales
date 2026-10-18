@@ -410,5 +410,10 @@
   "war.result.2": "{player} gagne 2 guerres",
   "war.result.you": "Tu gagnes",
   "war.result.you.2": "Tu gagnes 2 guerres",
-  "war.result.tie": "Égalité : les deux gagnent"
+  "war.result.tie": "Égalité : les deux gagnent",
+  "age.fate.dies": "Meurt : porte un jeton Âge",
+  "age.fate.dies.many": "Meurt : {count} jetons Âge",
+  "age.fate.saved": "Sauvée par la Mystique",
+  "age.fate.never": "Ne meurt jamais",
+  "age.fate.lives": "Survit : {count} jeton Âge sur {needed}"
 }

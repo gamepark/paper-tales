@@ -410,5 +410,10 @@
   "war.result.2": "{player} wins 2 wars",
   "war.result.you": "You win",
   "war.result.you.2": "You win 2 wars",
-  "war.result.tie": "Tie: both win"
+  "war.result.tie": "Tie: both win",
+  "age.fate.dies": "Dies: it carries an Age token",
+  "age.fate.dies.many": "Dies: {count} Age tokens",
+  "age.fate.saved": "Saved by the Mystical Healer",
+  "age.fate.never": "Never dies",
+  "age.fate.lives": "Lives on: {count} Age token of {needed}"
 }

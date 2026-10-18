@@ -9,6 +9,9 @@ export class AgeUnitsAge extends MaterialRulesPart {
     const moves: MaterialMove[] = []
     const players = this.game.players
 
+    // The units saved by the Mystical Healer were kept until the deaths were shown (see AgeUnitsDie)
+    for (const player of players) this.forget(Memory.UnitSavedWithMystic, player)
+
     // Every unit still in play ages, the ones saved by the Mystical Healer included (rulebook p.8)
     players.forEach((player) => {
       const ageHelper = new AgeHelper(this.game, player)

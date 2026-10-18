@@ -15,6 +15,7 @@ import { SideColumn } from './table/SideColumn'
 import { ViewButtons } from './table/ViewButtons'
 import { WarInfo } from './table/WarInfo'
 import { WarResults } from './table/WarResults'
+import { AgeFates } from './table/AgeFates'
 
 export const GameDisplay: FC = () => (
   <GameTable {...tableBoundaries} verticalCenter css={process.env.NODE_ENV === 'development' && tableBorder}>
@@ -29,6 +30,7 @@ export const GameDisplay: FC = () => (
     <UnbuiltMarks />
     <WarInfo />
     <WarResults />
+    <AgeFates />
     <ViewButtons />
     {process.env.NODE_ENV === 'development' && (
       <DevToolsHub fabBottom="calc(5em)">

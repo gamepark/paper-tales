@@ -277,8 +277,18 @@ export const isDraftRule = (context: MaterialContext) => [RuleId.GiveDraftToNeig
 export const getPlayerPositionDependencies = (context: MaterialContext) => ({
   view: getViewedPlayer(context),
   war: isWarView(context),
-  draft: isDraftRule(context)
+  draft: isKeptHandAside(context)
 })
+
+/**
+ * The kept hand stands at the right of the draft fan during the recruitment, and until the last card of the recruitment
+ * has reached the hand: the move of that card then carries the hand to its deployment place, and the framework animates
+ * the slide with it
+ */
+const isKeptHandAside = (context: MaterialContext) =>
+  isDraftRule(context) ||
+  (context.rules.game.rule?.id === RuleId.PlaceUnitOnBoard &&
+    context.rules.material(MaterialType.Unit).location(LocationType.DraftTransit).player(getViewedPlayer(context)).length > 0)
 
 export const getKingdomScale = (context: MaterialContext, player?: number) => {
   if (!isWarView(context)) return 1
@@ -316,7 +326,7 @@ export const getBuildingSlotCoordinates = (building: Building): Coordinates => {
  * My kept cards: at the right of the draft fan during the recruitment, in its place otherwise
  */
 export const getKeptHandCoordinates = (context: MaterialContext) => ({
-  x: isDraftRule(context) ? KEPT_HAND_X : context.rules.game.rule?.id === RuleId.PlaceUnitOnBoard ? AREA_X + 26 : draftHandCoordinates.x,
+  x: isKeptHandAside(context) ? KEPT_HAND_X : context.rules.game.rule?.id === RuleId.PlaceUnitOnBoard ? AREA_X + 26 : draftHandCoordinates.x,
   y: HANDS_Y
 })
 
@@ -346,6 +356,8 @@ export const getPanelPosition = (index: number) => ({ x: PANEL_X, y: PANEL_Y + i
 export const HIDDEN_HAND_SCALE = 0.3
 /** The largest side of an item of a hidden area on its Monarch's panel, in em: a unit card at HIDDEN_HAND_SCALE */
 const PANEL_ITEM_SIZE = 14 * HIDDEN_HAND_SCALE
+/** The size of a coin or a token on a panel, in em */
+const PANEL_DISC_SIZE = 1.2
 
 /**
  * Where the material of a Monarch's area that is not displayed stands: small, on their panel. It is never shown at rest
@@ -356,8 +368,8 @@ export const getPanelTransform = (context: MaterialContext, player: number | und
   if (player === undefined) return undefined
   const center = getPanelCenter(context, player)
   if (!center) return undefined
-  // A card shrinks to the size of a small card on the panel; a coin or a token keeps its size, or it would vanish
-  const scale = Math.min(1, PANEL_ITEM_SIZE / size)
+  // A card shrinks to a small card on the panel, a coin or a token to a small disc: neither vanishes nor covers the panel
+  const scale = Math.min(1, (size > 4 ? PANEL_ITEM_SIZE : PANEL_DISC_SIZE) / size)
   return [`translate3d(${center.x}em, ${center.y}em, ${center.z}em)`, ...(scale < 1 ? [`scale(${scale.toFixed(3)})`] : [])]
 }
 

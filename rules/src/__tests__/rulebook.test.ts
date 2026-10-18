@@ -9,6 +9,8 @@ import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
 import { Memory } from '../rules/Memory'
+import { Unit } from '../material/Unit'
+import { unitCardCaracteristics } from '../material/UnitCaracteristics'
 import { War } from '../rules/3_War/War'
 import { RuleId } from '../rules/RuleId'
 
@@ -119,5 +121,49 @@ describe('Hidden information: the draft', () => {
     const consequences = rules.play(rules.startRule(RuleId.GiveDraftToNeighbor))
     const shuffles = consequences.filter((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Shuffle)
     expect(shuffles).toHaveLength(players.length)
+  })
+})
+
+describe('Rulebook p.5: deploying on a taken space', () => {
+  /** Blue holds 2 cards of cost 0 in hand and has an older unit with an Age token on the front left space */
+  const deployment = () => {
+    const game = newGame([PlayerColor.Blue, PlayerColor.Red, PlayerColor.Green])
+    const rules = new PaperTalesRules(game)
+    const free = units(rules, LocationType.PlayerDraftHand).getIndexes()
+    // Cheap cards: the 3 gold of Blue pay for each one
+    const cheap = units(rules, LocationType.Deck)
+      .filter<Unit>((item) => unitCardCaracteristics[item.id].cost <= 1 && !(unitCardCaracteristics[item.id].effect ?? []).length)
+      .getIndexes()
+    const [older, first, second] = cheap
+    const items = game.items[MaterialType.Unit]!
+    items[older].location = { type: LocationType.PlayerUnitBoard, player: PlayerColor.Blue, x: 0, y: 0, rotation: false }
+    for (const index of [first, second]) items[index].location = { type: LocationType.PlayerUnitHand, player: PlayerColor.Blue }
+    for (const index of free) items[index].location = { type: LocationType.Deck }
+    playConsequences(rules, rules.material(MaterialType.Age).createItem({ location: { type: LocationType.OnCard, parent: older, player: PlayerColor.Blue } }))
+    playConsequences(rules, rules.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
+    return { rules, older, first, second }
+  }
+  const placeOnFrontLeft = (rules: PaperTalesRules, card: number) => {
+    const move = rules
+      .getLegalMoves(PlayerColor.Blue)
+      .find((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Move && move.itemIndex === card && move.location.type === LocationType.PlayerUnitBoard && move.location.x === 0 && move.location.y === 0)
+    expect(move, 'a unit of the hand can be laid on a taken space').toBeDefined()
+    playConsequences(rules, move!)
+  }
+
+  it('discards an older unit with its Age tokens, and the new unit takes its space', () => {
+    const { rules, older, first } = deployment()
+    placeOnFrontLeft(rules, first)
+    expect(rules.material(MaterialType.Unit).getItem(older).location.type).toBe(LocationType.Discard)
+    expect(rules.material(MaterialType.Age).location(LocationType.OnCard).parent(older).length).toBe(0)
+    expect(rules.material(MaterialType.Unit).getItem(first).location).toMatchObject({ type: LocationType.PlayerUnitBoard, x: 0, y: 0 })
+  })
+
+  it('sends a unit placed this turn back to the hand', () => {
+    const { rules, first, second } = deployment()
+    placeOnFrontLeft(rules, first)
+    placeOnFrontLeft(rules, second)
+    expect(rules.material(MaterialType.Unit).getItem(first).location).toMatchObject({ type: LocationType.PlayerUnitHand, player: PlayerColor.Blue })
+    expect(rules.remind<number[]>(Memory.PlayedCardsDuringDeployment, PlayerColor.Blue)).toEqual([second])
   })
 })

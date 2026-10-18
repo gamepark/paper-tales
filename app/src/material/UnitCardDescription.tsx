@@ -117,8 +117,6 @@ export class UnitCardDescription extends CardDescription {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
     // In the neighbours view, the back row is shaded: only the front row fights (p.6).
     if (item.location.type === LocationType.Discard) return [discardCss]
-    // Never while the card is held: it must follow the pointer
-    if (item.location.type === LocationType.PlayerUnitHand && !context.isDragging) return [hoveredItemMenuAboveCss, handSlideCss]
     if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
       return [hoveredItemMenuAboveCss, backRowCss]
     }
@@ -196,17 +194,6 @@ const backRowCss = css`
 `
 
 // A veil on the faces, not a filter: a filter flattens the 3D of the card, and the back (turned with rotateY) vanished
-/**
- * My kept cards stand at the right during the recruitment and take the place of the draft fan for the deployment: no
- * move brings them there, the hand moves with the phase. The framework slides a moved item in 0.2s, too quick to be
- * seen as a move across the table.
- */
-const handSlideCss = css`
-  && {
-    transition: transform 0.7s ease-in-out;
-  }
-`
-
 const discardCss = css`
   > * > *::before {
     content: '';

@@ -35,7 +35,6 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     const moves = []
 
     const placedIndexes: number[] = this.getCardJustDeployed(playerId)
-    const remainingSpaces = this.getRemainingSpaces(playerId)
     const playerGold = this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).money(golds).count
     const placedUnits = this.material(MaterialType.Unit).index(placedIndexes).getItems<Unit>()
     const goldAlreadySpent = sumBy(placedUnits, (unit) => unitCardCaracteristics[unit.id].cost)
@@ -45,8 +44,10 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     //.index((index) => !placedIndexes.includes(index))
 
+    // A unit of the hand goes on any space of the kingdom: on an empty one, or on a unit, which then leaves (see
+    // beforeItemMove)
     moves.push(
-      ...remainingSpaces.flatMap((space) => {
+      ...this.getBoardSpaces(playerId).flatMap((space) => {
         return [
           ...playerHandPlayable.moveItems({
             type: LocationType.PlayerUnitBoard,
@@ -112,7 +113,18 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
           return isEqual(location, omit(l, 'rotation'))
         })
       const movedCard = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
-      if (cardOnPlace.length) {
+      if (cardOnPlace.length && movedCard.location.type === LocationType.PlayerUnitHand) {
+        // A unit of the hand laid on a space taken: the unit placed there this turn goes back to the hand, an older unit
+        // is discarded with its Age tokens (the card laid stays where it was dropped meanwhile, then takes the space)
+        const player = movedCard.location.player!
+        const justPlaced = this.getCardJustDeployed(player).includes(cardOnPlace.getIndex())
+        if (justPlaced) {
+          this.removeCardFromDeployment(player, cardOnPlace.getIndex())
+          moves.push(cardOnPlace.moveItem({ type: LocationType.PlayerUnitHand, player }))
+        } else {
+          moves.push(cardOnPlace.moveItem({ type: LocationType.Discard }))
+        }
+      } else if (cardOnPlace.length) {
         moves.push(cardOnPlace.moveItem((item) => ({ ...movedCard.location, rotation: item.location.rotation })))
       }
     }
