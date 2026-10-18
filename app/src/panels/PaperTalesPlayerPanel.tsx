@@ -21,7 +21,7 @@ import gold from '../images/tokens/Gold1.jpg'
 import { PANEL_HEIGHT } from '../locators/TableLayout'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { cutLine, paper, paperFont, patchTornClip, roundImageCss, rust, sheetTornClip } from '../theme/tableTheme'
+import { cutLine, paper, paperFont, patchTornClip, roundImageCss, rust, sheetTornClip, tornDiscClip } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { DeltaBubble } from './DeltaBubble'
 import { useValueDelta } from './useValueDelta'
@@ -128,22 +128,31 @@ const panelCss = (color: string, light: boolean) => css`
   }
 `
 
-/** The player who has to play: a rust tab with an hourglass, sticking out of the right edge of their sheet */
+/**
+ * The player who has to play: a disc of rust paper with an hourglass in its centre, half out of the right edge of their
+ * sheet, at mid-height. The disc keeps the paper's shadow, as the slips laid on the table.
+ */
 const activeTabCss = css`
   position: absolute;
   z-index: 1;
   top: 50%;
-  right: -1.15em;
-  translate: 0 -50%;
+  right: 0;
+  translate: 50% -50%;
   display: grid;
   place-items: center;
-  width: 1.6em;
+  width: 1.9em;
   height: 1.9em;
-  padding-left: 0.25em;
-  background: ${rust};
   color: ${paper};
   font-size: 0.95em;
-  clip-path: polygon(0 0, 100% 0, 82% 50%, 100% 100%, 0 100%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: ${rust};
+    clip-path: ${tornDiscClip};
+  }
 `
 
 const avatarCss = css`
