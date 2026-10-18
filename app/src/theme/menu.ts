@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { cutLine, paper, paperMuted, rust, rustDeep, tableButtonCss } from './tableTheme'
+import { cutLine, paper, paperMuted, rust, rustDeep } from './tableTheme'
 
 /** The bookmark hanging from the top edge of the screen (validated mockup docs/mockups/theme.html, direction B) */
 const bookmarkClip = 'polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)'
@@ -186,9 +186,3 @@ export const panelCss = css`
   }
 `
 
-/** The buttons of the dialogs the menu opens (give up, eject, full screen…): the rust slips of the table */
-export const dialogButtonCss = css`
-  ${tableButtonCss};
-  margin: 0.2em 0.4em;
-  font-size: 1em;
-`

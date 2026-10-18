@@ -10,7 +10,7 @@ import { paper } from './tableTheme'
 export const BookmarkCloseButton: FC<{ onClick: () => void }> = ({ onClick }) => {
   const { t } = useTranslation()
   return (
-    <button css={bookmarkCss} onClick={onClick} title={t('dialog.close', 'Close')} data-bookmark>
+    <button css={bookmarkCss} onClick={onClick} title={t('dialog.close', 'Close')}>
       <FontAwesomeIcon icon={faXmark} />
     </button>
   )
