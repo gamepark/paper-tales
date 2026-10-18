@@ -82,8 +82,8 @@ export const popButtonCss = css`
 /**
  * The side panels of the framework, the menu and the journal: a page of the story book, bound on its outer edge. The
  * menu is laid out as a table of contents: each entry on its own line, a dotted leader, the icon where the page number
- * would be. The journal (told from the menu by its tabs, without a title) keeps the page bare: its parts are themed
- * one by one (tabs, entries).
+ * would be (the entries themselves are {@link menuEntryCss}, through theme.menu.button). The journal (told from the
+ * menu by its tabs, without a title) keeps the page bare: its parts are themed one by one (tabs, entries).
  */
 export const panelCss = css`
   background: ${paper};
@@ -110,62 +110,6 @@ export const panelCss = css`
       color: ${cutLine};
     }
 
-    /* Not the rust slips of the dialogs: plain lines of a table of contents */
-    > button {
-      display: flex;
-      align-items: baseline;
-      justify-content: flex-start;
-      gap: 0.4em;
-      width: 100%;
-      margin: 0;
-      padding: 0.38em 0;
-      border: 0;
-      border-radius: 0;
-      background: none;
-      color: ${cutLine};
-      font-family: 'Baloo 2', sans-serif;
-      font-weight: 600;
-      font-size: 1.08em;
-      letter-spacing: 0;
-      text-align: left;
-      white-space: normal;
-      filter: none;
-      transform: none;
-      cursor: pointer;
-
-      &::before {
-        content: none;
-      }
-
-      &::after {
-        content: '';
-        order: 2;
-        flex: 1;
-        border-bottom: 2px dotted #4a454066;
-        transform: translateY(-0.25em);
-      }
-
-      > svg {
-        order: 3;
-        flex: none;
-        width: 1.4em;
-        margin: 0;
-        color: ${rust};
-        fill: ${rust};
-      }
-
-      &:focus,
-      &:hover {
-        background: none;
-        color: ${rust};
-      }
-
-      &:disabled {
-        color: ${cutLine};
-        opacity: 0.45;
-        cursor: default;
-      }
-    }
   }
 
   /* The journal: a page of the rulebook, with its chevron pattern (validated mockup docs/mockups/journal3.html) */
@@ -186,3 +130,55 @@ export const panelCss = css`
   }
 `
 
+
+/**
+ * An entry of the menu: a line of the table of contents, the label, a dotted leader, the icon where the page number
+ * would be. Through theme.menu.button; the buttons of the dialogs have their own hook, theme.dialog.buttons.
+ */
+export const menuEntryCss = css`
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.4em;
+  width: 100%;
+  margin: 0;
+  padding: 0.38em 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: ${cutLine};
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 600;
+  font-size: 1.08em;
+  text-align: left;
+  cursor: pointer;
+
+  &::after {
+    content: '';
+    order: 2;
+    flex: 1;
+    border-bottom: 2px dotted #4a454066;
+    transform: translateY(-0.25em);
+  }
+
+  > svg {
+    order: 3;
+    flex: none;
+    width: 1.4em;
+    margin: 0;
+    color: ${rust};
+    fill: ${rust};
+  }
+
+  &:focus,
+  &:hover {
+    background: none;
+    color: ${rust};
+  }
+
+  &:disabled {
+    color: ${cutLine};
+    opacity: 0.45;
+    cursor: default;
+  }
+`

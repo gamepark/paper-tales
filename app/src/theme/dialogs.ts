@@ -31,10 +31,16 @@ export const dialogTextCss = css`
   font-weight: 500;
 `
 
+/** After theme.menu.button in the framework: the leader and the full width of a menu entry are undone here */
 export const dialogButtonCss = css`
   ${tableButtonCss};
+  width: auto;
   margin: 0.2em 0.4em;
   font-size: 1em;
+
+  &::after {
+    content: none;
+  }
 `
 
 /** What calls for care (give up, eject): the same slip, in the crimson of the bookmarks */
