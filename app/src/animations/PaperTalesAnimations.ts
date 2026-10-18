@@ -1,6 +1,7 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
+import { css } from '@emotion/react'
 import { MaterialContext, MaterialGameAnimations, ShuffleAnimations } from '@gamepark/react-game'
 import {
   isCreateItem,
@@ -23,10 +24,29 @@ type ItemAnimationArgs = Parameters<MaterialGameAnimations['getItemAnimation']>
  */
 const handShuffle = (duration: number) => new ShuffleAnimations(duration, { spread: 0.22, lift: 1.5, riffles: 2 })
 
+/**
+ * When the deployment begins, my kept hand slides from the right to its deployment place (a transition, see
+ * UnitCardDescription), then it is shuffled there. The shuffle waits for the slide: its keyframes set the final place
+ * at once, and would make the hand jump. Without a backwards fill, the delayed animation leaves the slide alone.
+ */
+export const HAND_SLIDE = 0.7
+const DEPLOY_SHUFFLE = 0.8
+const isDeploymentShuffle = (context: MaterialContext) => context.rules.game.rule?.id === RuleId.PlaceUnitOnBoard
+
 class PaperTalesMaterialAnimation extends MaterialGameAnimations {
   getItemAnimation(...[context, animation, action, boundaries]: ItemAnimationArgs) {
-    if (isShuffle(animation.move)) return handShuffle(animation.duration).getItemAnimation(context, animation as never)
-    return super.getItemAnimation(context, animation, action, boundaries)
+    if (!isShuffle(animation.move)) return super.getItemAnimation(context, animation, action, boundaries)
+    if (!isDeploymentShuffle(context)) return handShuffle(animation.duration).getItemAnimation(context, animation as never)
+    const riffle = { ...animation, duration: Math.max(0.1, animation.duration - HAND_SLIDE) }
+    return [
+      handShuffle(riffle.duration).getItemAnimation(context, riffle as never),
+      css`
+        &&,
+        && > * {
+          animation-delay: ${HAND_SLIDE}s;
+        }
+      `
+    ]
   }
 }
 
@@ -97,6 +117,13 @@ paperTalesAnimation
   .when()
   .move((move, context) => isShuffle(move) && itemAt(context, move.itemType, move.indexes[0])?.location.type === LocationType.Discard)
   .none()
+
+// The shuffle of my hand when the deployment begins: the slide of the hand, then the riffle
+paperTalesAnimation
+  .when()
+  .rule(RuleId.PlaceUnitOnBoard)
+  .move((move, context) => isShuffle(move) && !isUnseen(move, context))
+  .duration(HAND_SLIDE + DEPLOY_SHUFFLE)
 
 // First of all: what nobody can see takes no time
 paperTalesAnimation.when().move(isUnseen).none()
