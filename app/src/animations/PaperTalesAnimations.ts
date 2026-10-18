@@ -160,6 +160,13 @@ paperTalesAnimation
 // enough to follow them
 paperTalesAnimation.when().rule(RuleId.Income).move(isCreateItem).duration(0.7)
 
+// A building built stays on its slot of the grid (from the unbuilt to the built buildings): nothing moves, the band and
+// the veil fade by themselves (see BuildingCardDescription). A move animation would only hold the table still.
+paperTalesAnimation
+  .when()
+  .move((move) => isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard)
+  .none()
+
 // First of all: what nobody can see takes no time
 paperTalesAnimation.when().move(isUnseen).none()
 
