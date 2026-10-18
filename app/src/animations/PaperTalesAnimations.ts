@@ -18,7 +18,7 @@ import {
   MaterialMove
 } from '@gamepark/rules-api'
 import { fanCardLocator, receiverPanelLocator } from '../locators/DraftPassAnimationLocators'
-import { getPanelsOrder, getViewedPlayer, isAreaDisplayed } from '../locators/TableLayout'
+import { getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -143,8 +143,32 @@ paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(M
 
 /**
  * The hands passed during the recruitment: each Monarch passes the rest of their hand in their own action (see Draft),
- * so that the hands travel at the same time, each one straight from the panel of its giver to the panel of its receiver.
+ * so that the hands travel at the same time. A hand goes from the panel of its giver to the panel of its receiver in a
+ * gentle curve: a little to the right from a panel to the next one, along the return line of the turn order arrows, at
+ * the left of the panels, from one end of the column to the other.
  */
+const NEXT_PANEL_BEND = 2
+const RETURN_LINE_X = PANEL_X + 0.2
+const CURVE_STEPS = 8
+// The pack speeds up as it leaves and slows down as it arrives, at the pace of the linear stretches in between: the
+// framework eases every stretch between two waypoints, and ease-in / ease-out would change speed from one to the next
+const SPEED_UP = 'cubic-bezier(0.5, 0, 0.75, 0.75)'
+const SLOW_DOWN = 'cubic-bezier(0.25, 0.25, 0.5, 1)'
+/** A curve from the panel of the giver to the panel of the receiver, bent sideways in its middle by bend(x of the giver) em */
+const curveTrajectory = (context: ItemContext, giver: PlayerColor, receiver: PlayerColor, bend: (x: number) => number): Trajectory => {
+  const from = getPanelCenter(context, giver)!
+  const to = getPanelCenter(context, receiver)!
+  // Sampled at even steps, so that the pace stays even
+  const waypoints = Array.from({ length: CURVE_STEPS - 1 }, (_, step) => {
+    const at = (step + 1) / CURVE_STEPS
+    return {
+      at,
+      coordinates: { x: from.x + bend(from.x) * Math.sin(at * Math.PI), y: from.y + (to.y - from.y) * at },
+      easing: step === CURVE_STEPS - 2 ? SLOW_DOWN : 'linear'
+    }
+  })
+  return { elevation: { height: 4 }, easing: SPEED_UP, waypoints }
+}
 const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory => {
   const giver = itemAt(context, context.type, context.index)?.location.player
   const receiver = isMoveItemsAtOnce(move) ? move.location.player : undefined
@@ -164,8 +188,9 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
       ]
     }
   }
-  // Between two panels: a small hop above the panels it passes over
-  return { elevation: { height: 4 } }
+  // Between two panels, in a small hop above the panels it passes over
+  const bend = Math.abs(from - to) === 1 ? () => NEXT_PANEL_BEND : (x: number) => RETURN_LINE_X - x
+  return curveTrajectory(context, giver as PlayerColor, receiver as PlayerColor, bend)
 }
 paperTalesAnimation
   .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
