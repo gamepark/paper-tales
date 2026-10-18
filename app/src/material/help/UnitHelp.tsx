@@ -64,22 +64,23 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   }
   if (dying) steps[5].you = t('help.unit.age.dies', 'Dies in the Aging phase of this turn.')
   return (
-    <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />}>
+    <BookPage
+      key={itemIndex}
+      name={name}
+      lede={<PrintedText lines={lines} />}
+      facts={<FactTags tags={facts} />}
+      actions={available.map((action) => {
+        const Icon = unitActionIcons[action]
+        return (
+          <HelpActionButton key={action} move={actions[action]!} icon={<Icon />} onPlay={props.closeDialog}>
+            <UnitActionLabel action={action} />
+          </HelpActionButton>
+        )
+      })}
+    >
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
-      {available.length > 0 && (
-        <LiveBox
-          title={t('help.live.now', 'For you, now')}
-          lines={actions[UnitAction.AddAge] ? [t('help.unit.age.choose', 'The Age tokens of the effect can go on this unit.')] : []}
-        >
-          {available.map((action) => {
-            const Icon = unitActionIcons[action]
-            return (
-              <HelpActionButton key={action} move={actions[action]!} icon={<Icon />} onPlay={props.closeDialog}>
-                <UnitActionLabel action={action} />
-              </HelpActionButton>
-            )
-          })}
-        </LiveBox>
+      {actions[UnitAction.AddAge] && (
+        <LiveBox title={t('help.live.now', 'For you, now')} lines={[t('help.unit.age.choose', 'The Age tokens of the effect can go on this unit.')]} />
       )}
     </BookPage>
   )

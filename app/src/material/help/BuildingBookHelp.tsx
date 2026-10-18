@@ -47,19 +47,27 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
   const buildLevel2 = useLegalMove(moveTo(true, false))
   const upgrade = useLegalMove(moveTo(true, true))
 
+  // The constructions possible now: the same hammer and level badge as the buttons on the card
+  const button = (level: number, move?: MaterialMove) =>
+    move && (
+      <HelpActionButton key={level} move={move} icon={<BuildIcon />} level={level} onPlay={closeDialog}>
+        {t('help.building.do', 'Build')}
+      </HelpActionButton>
+    )
+  const buttons = mine ? (built ? [button(2, upgrade)] : [button(1, buildLevel1), button(2, buildLevel2)]).filter(Boolean) : []
+
   const { name, lines, facts, steps } = buildingPrintedContent(building, i18n)
   return (
-    <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} rule={false} />} facts={<FactTags tags={facts} />}>
+    <BookPage
+      key={itemIndex}
+      name={name}
+      lede={<PrintedText lines={lines} rule={false} />}
+      facts={<FactTags tags={facts} />}
+      actions={buttons.length > 0 && buttons}
+    >
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
       {mine && (
-        <BuildLiveBox
-          building={building}
-          player={owner}
-          built={built}
-          level2={level2}
-          buttons={[buildLevel1, buildLevel2, upgrade]}
-          onBuild={closeDialog}
-        />
+        <BuildLiveBox building={building} player={owner} built={built} level2={level2} />
       )}
       {!mine && owner !== undefined && (
         <LiveBox
@@ -77,16 +85,7 @@ const BuildLiveBox: FC<{
   player: number
   built: boolean
   level2: boolean
-  buttons: (MaterialMove | undefined)[]
-  onBuild?: () => void
-}> = ({
-  onBuild,
-  building,
-  player,
-  built,
-  level2,
-  buttons: [buildLevel1, buildLevel2, upgrade]
-}) => {
+}> = ({ building, player, built, level2 }) => {
   const { t } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const helper = new BuildHelper(rules.game, player)
@@ -110,24 +109,13 @@ const BuildLiveBox: FC<{
     if (goldOnly.length) return <Trans i18nKey="help.building.lacking.gold" defaults="{what}: you lack {gold} <coin/>." values={values} components={{ coin: <CoinIcon /> }} />
     return <Trans i18nKey="help.building.lacking" defaults="{what}: your Kingdom lacks <res/>." values={values} components={{ res: <Cost cost={resources} /> }} />
   }
-  const line = (action: BuildAction, label: string, level: number, move?: MaterialMove) => {
+  const line = (action: BuildAction, label: string) => {
     const what = t(label)
     const gold = helper.getGoldToPay(building, action)
     if (gold === undefined) return lacks(what, helper.getCostOptions(building, action))
-    return (
-      <span>
-        <Trans i18nKey="help.building.price" defaults="{what}: {gold} <coin/> in all." values={{ what, gold }} components={{ coin: <CoinIcon /> }} />
-        {move && (
-          <>
-            {' '}
-            <HelpActionButton move={move} icon={<BuildIcon />} level={level} onPlay={onBuild}>
-              {t('help.building.do', 'Build')}
-            </HelpActionButton>
-          </>
-        )}
-      </span>
-    )
+    return <Trans i18nKey="help.building.price" defaults="{what}: {gold} <coin/> in all." values={{ what, gold }} components={{ coin: <CoinIcon /> }} />
   }
+
 
   // Where the building stands in the kingdom, then what each construction costs in all
   const state = level2 ? 'help.building.state.2' : built ? 'help.building.state.1' : 'help.building.state.0'
@@ -136,11 +124,10 @@ const BuildLiveBox: FC<{
     <Trans key="gold" i18nKey="help.building.gold" defaults="You have {gold} <coin/>." values={{ gold: helper.gold }} components={{ coin: <CoinIcon /> }} />
   ]
   if (level2) return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines.slice(0, 1)} />
-  // The same hammer and level badge as the buttons on the card
-  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade', 2, upgrade))
+  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade'))
   else {
-    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1', 1, buildLevel1))
-    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2', 2, buildLevel2))
+    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1'))
+    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2'))
   }
   return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines} />
 }

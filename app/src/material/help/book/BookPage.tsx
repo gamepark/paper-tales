@@ -1,15 +1,26 @@
 import { css } from '@emotion/react'
 import { FC, ReactNode } from 'react'
 import { bookBodyFont, pageTurnCss } from '../../../theme/book'
-import { cutLine, rust, tornClip } from '../../../theme/tableTheme'
+import { cutLine, paper, rust, tornClip } from '../../../theme/tableTheme'
 
-/** The right page of the story book: the name, the printed text, the facts, then the timeline and the live box */
-export const BookPage: FC<{ name: ReactNode; lede?: ReactNode; facts?: ReactNode; children: ReactNode }> = ({ name, lede, facts, children }) => (
+/**
+ * The right page of the story book: the name, the printed text, the facts, then the timeline and the live box. The
+ * actions stand at the foot of the page, where they stay when the player turns the pages: the book keeps its height
+ * and the actions stick to the bottom of the page while the text scrolls above them.
+ */
+export const BookPage: FC<{ name: ReactNode; lede?: ReactNode; facts?: ReactNode; actions?: ReactNode; children: ReactNode }> = ({
+  name,
+  lede,
+  facts,
+  actions,
+  children
+}) => (
   <div css={[pageCss, pageTurnCss]}>
     <h3 css={nameCss}>{name}</h3>
     {lede}
     {facts}
-    {children}
+    <div css={bodyCss}>{children}</div>
+    {actions && <div css={actionsCss}>{actions}</div>}
   </div>
 )
 
@@ -24,6 +35,38 @@ const pageCss = css`
   font-weight: 500;
   line-height: 1.45;
   color: ${cutLine};
+`
+
+/** Fills the page, so that the live box can sit at its bottom (margin-top: auto) */
+const bodyCss = css`
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+`
+
+/** On the paper of the page, so that the text scrolls under it; the padding of the page goes on below it */
+const actionsCss = css`
+  position: sticky;
+  bottom: -3.2em;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em 1em;
+  margin: 0 -0.6em -3.2em;
+  padding: 0.9em 0.6em 3.2em;
+  background: ${paper};
+
+  /* The text that scrolls under the actions fades out instead of being cut */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 1.6em;
+    background: linear-gradient(transparent, ${paper});
+    pointer-events: none;
+  }
 `
 
 const nameCss = css`

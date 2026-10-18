@@ -61,9 +61,11 @@ export const bookHelpLayoutCss = css`
   padding: ${coverMargin.side} ${coverMargin.side} ${coverMargin.bottom};
   gap: 0;
   align-items: stretch;
-  min-height: 100%;
-  /* The window is capped at 90dvh by the framework: a page taller than that scrolls instead of running past the cover */
-  max-height: 90dvh;
+  /* A book keeps its size from page to page, so that the actions at the foot of the page stay where they are when the
+     player turns the pages: the height of the framework's window with page arrows (85dvh, not stretched by its column),
+     the same without them. A taller page scrolls instead */
+  flex: none;
+  height: 85dvh;
   box-sizing: border-box;
 `
 
