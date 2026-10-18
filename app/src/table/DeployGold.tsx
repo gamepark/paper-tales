@@ -27,15 +27,30 @@ export const DeployGold: FC = () => {
   const placed = context.rules.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, me) ?? []
   const units = context.rules.material(MaterialType.Unit).index(placed).getItems<Unit>()
   const cost = sumBy(units, (unit) => unitCardCaracteristics[unit.id]?.cost ?? 0)
-  const goldCount = new BuildHelper(context.rules.game, me).gold
+  const left = new BuildHelper(context.rules.game, me).gold - cost
   return (
-    <TableAnchor position={deployGoldPosition} css={[labelCss, centeredCss]}>
-      <img src={gold} alt="" css={roundImageCss} />
-      {t('deploy.gold', { defaultValue: '{gold} gold: {cost} to pay, {left} left', gold: goldCount, cost, left: goldCount - cost })}
+    <TableAnchor position={deployGoldPosition} css={columnCss}>
+      <span css={labelCss}>
+        {t('deploy.gold.cost', { defaultValue: 'To pay: {cost}', cost })}
+        <img src={gold} alt="" css={roundImageCss} />
+      </span>
+      <span css={labelCss}>
+        {left >= 0 ? t('deploy.gold.left', { defaultValue: 'Left: {left}', left }) : t('deploy.gold.missing', { defaultValue: 'Missing: {missing}', missing: -left })}
+        <img src={gold} alt="" css={roundImageCss} />
+      </span>
     </TableAnchor>
   )
 }
 
-const centeredCss = css`
+/** One line each, centred under my pile of gold: what the units I placed cost, and what is left of my gold */
+const columnCss = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
   transform: translateX(-50%);
+
+  > span {
+    position: relative;
+  }
 `

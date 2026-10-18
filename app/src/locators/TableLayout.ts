@@ -60,7 +60,7 @@ const KEPT_HAND_X = AREA_X + 59
 // back), between the units and the buildings
 export const playerGoldCoordinates = {
   x: AREA_X + KINGDOM_COLUMN * 2 + unitCardDescription.width / 2,
-  y: AREA_Y + KINGDOM_ROW + unitCardDescription.height / 2
+  y: AREA_Y + KINGDOM_ROW + 4
 }
 // The spectator's ribbon about the cards to draft: centred above the fan they are about (the ribbon is translated by
 // half its width). A spectator has no buttons above the cards.
@@ -108,12 +108,17 @@ const WAR_BOTTOM_Y = WAR_TOP_Y + KINGDOM_HEIGHT * NEIGHBOUR_SCALE + 1.4 + 2.6 + 
 type WarSeat = { kingdomX: number; buildingsX: number; y: number; scale: number }
 const WAR_BUILDINGS_GAP = 1
 const WAR_SEAT_WIDTH = KINGDOM_WIDTH + WAR_BUILDINGS_GAP + buildingCardDescription.width
+// With 2 players, the two seats side by side, as large as they can be with a margin at each end and a gap between them:
+// a kingdom with its 5th slot and its buildings never runs into the other one
+const TWO_SEATS_MARGIN = 1
+const TWO_SEATS_GAP = 2.5
+const TWO_SEATS_SCALE = Math.min(CENTER_SCALE, (WAR_RIGHT - AREA_X - 2 * TWO_SEATS_MARGIN - TWO_SEATS_GAP) / (2 * WAR_SEAT_WIDTH))
 const getWarSeat = (index: number, count: number): WarSeat => {
   const right = (x: number, scale: number) => ({ kingdomX: x, buildingsX: x + (KINGDOM_WIDTH + WAR_BUILDINGS_GAP) * scale, scale })
   if (count === 2)
     return index === 0
-      ? { ...right(AREA_X + 1, CENTER_SCALE), y: AREA_Y + 2 }
-      : { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * CENTER_SCALE - 1, CENTER_SCALE), y: AREA_Y + 2 }
+      ? { ...right(AREA_X + TWO_SEATS_MARGIN, TWO_SEATS_SCALE), y: AREA_Y + 2 }
+      : { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * TWO_SEATS_SCALE - TWO_SEATS_MARGIN, TWO_SEATS_SCALE), y: AREA_Y + 2 }
   if (index === 0) return { ...right(AREA_X, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
   if (index === 2) return { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * NEIGHBOUR_SCALE, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
   return { ...right(WAR_CENTER_X - (WAR_SEAT_WIDTH * CENTER_SCALE) / 2, CENTER_SCALE), y: WAR_BOTTOM_Y }

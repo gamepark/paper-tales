@@ -125,7 +125,6 @@
   "time.awaited": "A fait attendre les autres (moyenne)",
   "tuto.over": "Félicitations, vous avez terminé le tutoriel !\nPrêt⸱e à jouer avec d’autres joueurs ?",
   "quantity.tooltip": "Quantité : {n}",
-  "deploy.gold": "{gold} or : {cost} à payer, reste {left}",
   "build.field-cost": "Terrain : {cost} or",
   "header.build": "Construis ou améliore un bâtiment, ou <0>passe</0>",
   "header.build.wait": "Les autres Monarques construisent",
@@ -404,5 +403,8 @@
   "view.player.neighbours": "Voisins de {player}",
   "panel.active": "Doit jouer",
   "panel.order.left": "Les cartes vont à gauche à cette manche",
-  "panel.order.right": "Les cartes vont à droite à cette manche"
+  "panel.order.right": "Les cartes vont à droite à cette manche",
+  "deploy.gold.cost": "À payer : {cost}",
+  "deploy.gold.left": "Reste : {left}",
+  "deploy.gold.missing": "Manque : {missing}"
 }

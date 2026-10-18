@@ -31,15 +31,18 @@ export const tabSelectedCss = css`
 
 /** One event of the journal: a line of the rulebook page. The Monarch, when there is one, is drawn by the entry itself */
 export const historyEntryCss = css`
-  background: none;
   color: ${cutLine};
-  border-radius: 0;
-  margin: 0;
-  padding: 0.15em 0.6em 0.15em 1em;
+  /* Each line on a light slip of the page paper, a little apart from the next one, so that it reads at a glance */
+  margin: 0.25em 0.7em 0 0.6em;
+  width: auto;
+  padding: 0.3em 0.6em 0.3em 0.4em;
+  border-radius: 0.3em;
+  background: #ffffff8c;
+  box-shadow: 0 0.04em 0.08em #4a454026;
   font-family: 'Mulish', sans-serif;
   font-weight: 500;
   font-size: 1.5em;
-  line-height: 1.3;
+  line-height: 1.35;
 `
 
 /** Where a message is typed: the white box of the rulebook, bordered in teal */

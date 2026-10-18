@@ -16,7 +16,7 @@ import { TableAnchor } from './TableAnchor'
 
 /**
  * During the Build phase: the resources my kingdom produces (they are never spent, rulebook p.7), my gold and the cost
- * of the land
+ * of the land, one line each, in the width of the empty corner of the kingdom
  */
 export const BuildInfo: FC = () => {
   const { t } = useTranslation()
@@ -34,6 +34,8 @@ export const BuildInfo: FC = () => {
         {resources.getResource(Resources.Food)}
         <img src={diamond} alt="" />
         {resources.getResource(Resources.Diamond)}
+      </span>
+      <span css={labelCss}>
         <img src={gold} alt="" css={roundImageCss} />
         {buildHelper.gold}
       </span>
@@ -47,7 +49,7 @@ const columnCss = css`
   flex-direction: column;
   align-items: center;
   transform: translateX(-50%);
-  gap: 0.4em;
+  gap: 0.3em;
 
   > span {
     position: relative;

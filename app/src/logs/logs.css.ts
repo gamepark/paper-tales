@@ -4,6 +4,12 @@ import { rust } from '../theme/tableTheme'
 /** The heading of a turn: the open book of the turn counter and its number, in rust (mockup docs/mockups/journal3.html) */
 export const turnLogCss = css`
   padding-top: 0.5em;
+  /* A heading, not a line: no slip of paper behind it */
+  &&& {
+    background: none;
+    box-shadow: none;
+  }
+
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
   font-size: 1.3em;
@@ -19,6 +25,12 @@ export const turnBookCss = css`
 /** A phase of the turn: the arrow banner of the rulebook, with the icon of the phase */
 export const phaseLogCss = css`
   padding-top: 0.5em;
+  /* A heading, not a line: no slip of paper behind it */
+  &&& {
+    background: none;
+    box-shadow: none;
+  }
+
 `
 
 export const phaseBannerCss = (color: string) => css`
@@ -56,15 +68,22 @@ export const whoCss = css`
   vertical-align: middle;
 `
 
+/**
+ * The avatar on a disc of the Monarch's colour, its head over the rim: the avatar draws its own disc (a light grey rim,
+ * a blue background) with the head above it, so that disc is painted in the Monarch's colour (a CSS fill wins over the
+ * fill attribute of the SVG)
+ */
 export const whoAvatarCss = (color: string) => css`
   position: relative;
-  width: 2em;
-  height: 2em;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 0.16em ${color},
-    0 0.1em 0.15em #0005;
+  flex: none;
+  width: 2.1em;
+  height: 2.1em;
+  box-shadow: none;
+
+  svg [fill='#E6E6E6'],
+  svg [fill='#65C9FF'] {
+    fill: ${color};
+  }
 `
 
 export const whoNameCss = (color: string) => css`

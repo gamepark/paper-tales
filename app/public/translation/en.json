@@ -125,7 +125,6 @@
   "quantity.tooltip": "Quantity: {n}",
   "card.player.draft.you": "This card is in your hand.",
   "card.player.draft.them": "This card is in the hand of {player}",
-  "deploy.gold": "{gold} gold: {cost} to pay, {left} left",
   "build.field-cost": "Landcost: {cost} gold",
   "header.build": "Build or upgrade a building, or <0>pass</0>",
   "header.build.wait": "The other Monarchs build",
@@ -404,5 +403,8 @@
   "view.player.neighbours": "Neighbours of {player}",
   "panel.active": "Has to play",
   "panel.order.left": "The cards go to the left this round",
-  "panel.order.right": "The cards go to the right this round"
+  "panel.order.right": "The cards go to the right this round",
+  "deploy.gold.cost": "To pay: {cost}",
+  "deploy.gold.left": "Left: {left}",
+  "deploy.gold.missing": "Missing: {missing}"
 }
