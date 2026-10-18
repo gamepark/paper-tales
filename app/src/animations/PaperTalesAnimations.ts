@@ -189,6 +189,12 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
   if (Math.abs(from - to) === 1) return { elevation: { height: 4 } }
   return returnLineTrajectory(context, giver as PlayerColor, receiver as PlayerColor)
 }
+// The hand passed to me stays on the panel of its giver until it reaches me (see DraftTransitLocator): nothing moves
+paperTalesAnimation
+  .configure(
+    and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit), (move, context) => isMoveItemsAtOnce(move) && isAreaDisplayed(context, move.location.player))
+  )
+  .skip()
 paperTalesAnimation
   .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
   .duration(1200)
