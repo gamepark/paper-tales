@@ -8,7 +8,7 @@ import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
  */
 class PlayerGoldStockLocator extends PileLocator {
   coordinates = playerGoldCoordinates
-  radius = { x: 2, y: 2 }
+  radius = { x: 3.2, y: 4.5 }
   limit = 100
 
   getPositionDependencies(_location: Location, context: MaterialContext) {

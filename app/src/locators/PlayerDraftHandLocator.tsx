@@ -4,8 +4,10 @@ import {
   draftHandCoordinates,
   getPlayerPositionDependencies,
   isAreaDisplayed,
-  twoPlayersDraftHandCoordinates
+  twoPlayersDraftHandCoordinates,
+  getHoverShift
 } from './TableLayout'
+import { unitCardDescription } from '../material/UnitCardDescription'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
@@ -52,8 +54,12 @@ export class PlayerDraftHandLocator extends HandLocator {
     return context.player === location.player
   }
 
-  getHoverTransform(item: MaterialItem, context: ItemContext) {
-    return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
+  // The card zooms in above its place in the hand, kept inside the table (the first card of a wide fan is near its left edge)
+  getHoverTransform(item: MaterialItem, context: ItemContext): string[] {
+    const { x = 0, y = 0 } = this.getItemCoordinates(item, context)
+    const { width, height } = unitCardDescription
+    const shift = getHoverShift({ x, y: y - height / 2, width, height, zoom: 2 })
+    return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)', ...shift]
   }
 
   placeItem(item: MaterialItem, context: ItemContext): string[] {

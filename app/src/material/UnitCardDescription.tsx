@@ -117,6 +117,8 @@ export class UnitCardDescription extends CardDescription {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
     // In the neighbours view, the back row is shaded: only the front row fights (p.6).
     if (item.location.type === LocationType.Discard) return [discardCss]
+    // Never while the card is held: it must follow the pointer
+    if (item.location.type === LocationType.PlayerUnitHand && !context.isDragging) return [hoveredItemMenuAboveCss, handSlideCss]
     if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
       return [hoveredItemMenuAboveCss, backRowCss]
     }
@@ -154,7 +156,13 @@ export class UnitCardDescription extends CardDescription {
     // they never hide the name nor the cost, and on a zoomed card they land on the picture, not on the text. No label,
     // for the 2 buttons to fit side by side with 2 players (the help of the card names them)
     if (item.location.type === LocationType.PlayerDraftHand) {
-      return [button(UnitAction.Keep, { radius: 9.3, angle: -23.5 }, false), button(UnitAction.Discard, { radius: 8.55, angle: -6 }, false)]
+      // The framework places the menu without the rotation of the card: the angles turn with the card in the fan, so
+      // that the buttons stand at the same place on every card
+      const tilt = context.locators[item.location.type]?.getItemRotateZ(item, context) ?? 0
+      return [
+        button(UnitAction.Keep, { radius: 9.3, angle: -23.5 + tilt }, false),
+        button(UnitAction.Discard, { radius: 8.55, angle: -6 + tilt }, false)
+      ]
     }
     return [
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
@@ -186,6 +194,17 @@ const backRowCss = css`
 `
 
 // A veil on the faces, not a filter: a filter flattens the 3D of the card, and the back (turned with rotateY) vanished
+/**
+ * My kept cards stand at the right during the recruitment and take the place of the draft fan for the deployment: no
+ * move brings them there, the hand moves with the phase. The framework slides a moved item in 0.2s, too quick to be
+ * seen as a move across the table.
+ */
+const handSlideCss = css`
+  && {
+    transition: transform 0.7s ease-in-out;
+  }
+`
+
 const discardCss = css`
   > * > *::before {
     content: '';

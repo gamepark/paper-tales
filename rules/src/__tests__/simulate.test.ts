@@ -39,7 +39,7 @@ const deletionTracker = () => {
   return (move: MaterialMove) => {
     if (move.kind !== MoveKind.ItemMove) return
     if (move.type === ItemMoveType.Create || move.type === ItemMoveType.CreateAtOnce) {
-      for (const key of [...deleted]) if (key.startsWith(`${move.itemType}:`)) deleted.delete(key)
+      for (const key of deleted) if (key.startsWith(`${move.itemType}:`)) deleted.delete(key)
     }
     const indexes = move.type === ItemMoveType.Delete ? [move.itemIndex] : move.type === ItemMoveType.DeleteAtOnce ? move.indexes : []
     for (const index of indexes) {

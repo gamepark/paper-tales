@@ -56,7 +56,12 @@ export const draftHandCoordinates = { x: AREA_X + 19, y: HANDS_Y }
 export const twoPlayersDraftHandCoordinates = { x: AREA_X + 17.7, y: HANDS_Y }
 // During the recruitment, the kept cards pile up towards the discard, clear of the widest fan (9 cards at 2 players)
 const KEPT_HAND_X = AREA_X + 59
-export const playerGoldCoordinates = { x: 93.5, y: 44.8 }
+// The gold of the displayed kingdom: in the empty corner of the kingdom, under its 5th slot (there is no 5th slot at the
+// back), between the units and the buildings
+export const playerGoldCoordinates = {
+  x: AREA_X + KINGDOM_COLUMN * 2 + unitCardDescription.width / 2,
+  y: AREA_Y + KINGDOM_ROW + unitCardDescription.height / 2
+}
 // The spectator's ribbon about the cards to draft: centred above the fan they are about (the ribbon is translated by
 // half its width). A spectator has no buttons above the cards.
 export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }

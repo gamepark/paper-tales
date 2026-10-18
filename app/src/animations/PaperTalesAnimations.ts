@@ -1,7 +1,7 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
-import { MaterialContext, MaterialGameAnimations } from '@gamepark/react-game'
+import { MaterialContext, MaterialGameAnimations, ShuffleAnimations } from '@gamepark/react-game'
 import {
   isCreateItem,
   isDeleteItem,
@@ -15,7 +15,20 @@ import {
 } from '@gamepark/rules-api'
 import { isAreaDisplayed } from '../locators/TableLayout'
 
-class PaperTalesMaterialAnimation extends MaterialGameAnimations {}
+type ItemAnimationArgs = Parameters<MaterialGameAnimations['getItemAnimation']>
+
+/**
+ * A hand is shuffled where it lies, face down, between other cards: the packets stay close to the pile and low, so
+ * that they never pass over the cards around it (the default riffle pulls them a whole card width apart)
+ */
+const handShuffle = (duration: number) => new ShuffleAnimations(duration, { spread: 0.22, lift: 1.5, riffles: 2 })
+
+class PaperTalesMaterialAnimation extends MaterialGameAnimations {
+  getItemAnimation(...[context, animation, action, boundaries]: ItemAnimationArgs) {
+    if (isShuffle(animation.move)) return handShuffle(animation.duration).getItemAnimation(context, animation as never)
+    return super.getItemAnimation(context, animation, action, boundaries)
+  }
+}
 
 export const paperTalesAnimation = new PaperTalesMaterialAnimation()
 
@@ -78,6 +91,12 @@ const isUnseenMove = (move: MaterialMove, context: MaterialContext): boolean => 
   }
   return false
 }
+
+// The discard shuffled to become the deck again is face down in its pile: nothing to see, it takes no time
+paperTalesAnimation
+  .when()
+  .move((move, context) => isShuffle(move) && itemAt(context, move.itemType, move.indexes[0])?.location.type === LocationType.Discard)
+  .none()
 
 // First of all: what nobody can see takes no time
 paperTalesAnimation.when().move(isUnseen).none()

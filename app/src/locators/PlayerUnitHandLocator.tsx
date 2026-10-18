@@ -5,7 +5,8 @@ import {
   getKeptHandCoordinates,
   getPlayerPositionDependencies,
   isAreaDisplayed,
-  isDraftRule
+  isDraftRule,
+  getHoverShift
 } from './TableLayout'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
@@ -35,11 +36,16 @@ export class PlayerUnitHandLocator extends HandLocator {
 
   getMaxAngle(location: Location, context: ItemContext): number {
     if (!isDraftRule(context)) return context.player === location.player ? 12 : 3
-    return context.player === location.player ? 4 : 1
+    // During the recruitment, my kept cards are a tight fan: it stays clear of the discard and its label at its right
+    return context.player === location.player ? 1.6 : 1
   }
 
+  // The card zooms in above its place in the hand, kept inside the table (the first card of a wide fan is near its left edge)
   getHoverTransform(item: MaterialItem, context: ItemContext): string[] {
-    return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
+    const { x = 0, y = 0 } = this.getItemCoordinates(item, context)
+    const { width, height } = unitCardDescription
+    const shift = getHoverShift({ x, y: y - height / 2, width, height, zoom: 2 })
+    return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)', ...shift]
   }
 
   placeItem(item: MaterialItem, context: ItemContext): string[] {
