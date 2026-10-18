@@ -14,7 +14,7 @@ export const PageCornerNavigation: FC<DialogNavigationProps> = ({ onPrevious, on
   return (
     <>
       {onPrevious && (
-        <button css={[cornerCss, previousCss]} onClick={onPrevious} title={t('dialog.previous', 'Previous')}>
+        <button css={[cornerCss, previousCss]} data-page-corner onClick={onPrevious} title={t('dialog.previous', 'Previous')}>
           <FontAwesomeIcon icon={faChevronLeft} />
         </button>
       )}
@@ -22,7 +22,7 @@ export const PageCornerNavigation: FC<DialogNavigationProps> = ({ onPrevious, on
         {currentIndex + 1} / {total}
       </span>
       {onNext && (
-        <button css={[cornerCss, nextCss]} onClick={onNext} title={t('dialog.next', 'Next')}>
+        <button css={[cornerCss, nextCss]} data-page-corner onClick={onNext} title={t('dialog.next', 'Next')}>
           <FontAwesomeIcon icon={faChevronRight} />
         </button>
       )}
