@@ -23,7 +23,7 @@ export const buildingPrintedContent = (building: Building, i18n: I18n, lng = i18
   const t = i18n.getFixedT(lng)
   const pattern = buildingCardCaracteristics[building]
   const levelLabel = (level: number) => (
-    <LevelLabel level={level} label={t(level ? 'help.building.level.2' : 'help.building.level.1', level ? 'Level 2:' : 'Level 1:')} />
+    <LevelLabel level={level} label={t(level ? 'help.building.level.2' : 'help.building.level.1', level ? 'Level 2:' : 'Level 1+:')} />
   )
 
   const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]

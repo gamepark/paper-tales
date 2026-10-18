@@ -327,7 +327,7 @@
   "help.building.upgrade": "Upgrade it to level 2",
   "help.building.lacking": "{what}: your Kingdom lacks <res/>.",
   "help.building.do": "Build",
-  "help.building.level.1": "Level 1:",
+  "help.building.level.1": "Level 1+:",
   "help.building.level.2": "Level 2:",
   "help.building.price": "{what}: {gold} <coin/> in all.",
   "help.building.lacking.gold": "{what}: you lack {gold} <coin/>.",

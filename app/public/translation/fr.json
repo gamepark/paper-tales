@@ -327,7 +327,7 @@
   "help.building.upgrade": "L’améliorer au niveau 2",
   "help.building.lacking": "{what} : il manque <res/> à votre Royaume.",
   "help.building.do": "Construire",
-  "help.building.level.1": "Niveau 1 :",
+  "help.building.level.1": "Niveau 1+ :",
   "help.building.level.2": "Niveau 2 :",
   "help.building.price": "{what} : {gold} <coin/> en tout.",
   "help.building.lacking.gold": "{what} : il vous manque {gold} <coin/>.",
