@@ -397,5 +397,6 @@
   "log.build": "<who/> construit {building}",
   "log.build.level2": "<who/> construit {building} directement au niveau 2",
   "log.upgrade": "<who/> améliore {building} au niveau 2",
-  "log.age.saved": "<who/> sauve {unit}"
+  "log.age.saved": "<who/> sauve {unit}",
+  "help.unit.age.choose": "Les jetons Âge de l’effet peuvent aller sur cette Unité."
 }

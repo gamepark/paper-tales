@@ -27,19 +27,14 @@ const tornPolygon = (seed: number, depth: number, side: number, steps = 18, side
   let state = seed
   const random = () => (state = (state * 9301 + 49297) % 233280) / 233280
   const points: string[] = []
-  // The corners are nipped: a right angle next to a torn edge that dips just before it reads as a spike
-  const nip = side * 1.5
-  const top = (x: number) => `${x.toFixed(1)}% ${(random() * depth).toFixed(1)}%`
-  const bottom = (x: number) => `${x.toFixed(1)}% ${(100 - random() * depth).toFixed(1)}%`
-  for (let i = 0; i <= steps; i++) points.push(top(i === 0 ? nip : i === steps ? 100 - nip : (i / steps) * 100))
+  // The corner points sit at the bottom of the tear, so that the edge never rises toward a corner
+  const top = (x: number, corner = false) => `${x.toFixed(1)}% ${(corner ? depth : random() * depth).toFixed(1)}%`
+  const bottom = (x: number, corner = false) => `${x.toFixed(1)}% ${(100 - (corner ? depth : random() * depth)).toFixed(1)}%`
+  for (let i = 0; i <= steps; i++) points.push(top((i / steps) * 100, i === 0 || i === steps))
   // The sides start inside the edges: a side point on a corner would stick out of the torn top or bottom edge as a spike
-  points.push(`100% ${depth + nip}%`)
   for (let i = 1; i < sideSteps; i++) points.push(`${(100 - random() * side).toFixed(1)}% ${((i / sideSteps) * 100).toFixed(1)}%`)
-  points.push(`100% ${100 - depth - nip}%`)
-  for (let i = steps; i >= 0; i--) points.push(bottom(i === steps ? 100 - nip : i === 0 ? nip : (i / steps) * 100))
-  points.push(`0% ${100 - depth - nip}%`)
+  for (let i = steps; i >= 0; i--) points.push(bottom((i / steps) * 100, i === 0 || i === steps))
   for (let i = sideSteps - 1; i > 0; i--) points.push(`${(random() * side).toFixed(1)}% ${((i / sideSteps) * 100).toFixed(1)}%`)
-  points.push(`0% ${depth + nip}%`)
   return `polygon(${points.join(',')})`
 }
 
@@ -176,7 +171,9 @@ export const tableButtonCss = css`
   ${paperCss(rust, paper)};
   ${paperButtonResetCss};
   font-size: 1em;
-  transition: transform 0.15s, filter 0.15s;
+  transition:
+    transform 0.15s,
+    filter 0.15s;
 
   &:hover:not(:disabled) {
     transform: translate(-0.05em, -0.08em);

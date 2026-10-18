@@ -9,9 +9,9 @@ import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
-import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
+import { MaterialHelpProps, PlayMoveButton, useLegalMove, useRules } from '@gamepark/react-game'
 import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
-import { FC, ReactNode } from 'react'
+import { FC } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { tableButtonCss } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
@@ -33,8 +33,6 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const { item, itemIndex } = props
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
-  const me = usePlayerId()
-  const ownerName = usePlayerName(item.location?.player)
   const chooseWhereToPlaceTokenMove = useLegalMove((move: MaterialMove) => {
     if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
     return (move.data as GainAgeTokenOnChosenUnitEffect).unitIndex === itemIndex
@@ -58,31 +56,24 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   if (inKingdom) {
     steps[2].you = <WarLine front={front || effects.some(isWarFromBacklane)} strength={strength} resource={resourceCondition} produced={produced} />
   }
-  if (tokens > 0) {
-    steps[5].on = true
-    steps[5].text ??= t('help.unit.age.token', 'Already carries an Age token.')
+  // Its Age tokens, on the aging step: does it die at the end of the turn? (said once, here, not in a box below)
+  if (inKingdom) {
+    const age = !tokens ? 'help.unit.live.age.none' : dying ? 'help.unit.live.age.dies' : 'help.unit.live.age.survives'
+    steps[5].you = (
+      <Trans
+        i18nKey={age}
+        defaults={!tokens ? 'No Age token: gets one at the end of the turn.' : dying ? '{tokens} <age/>: dies at the end of the turn.' : '{tokens} <age/>: survives, and gets one more.'}
+        values={{ tokens }}
+        components={helpIconComponents}
+      />
+    )
   }
-  if (dying) steps[5].you = t('help.unit.age.dies', 'Dies at the end of this turn.')
-
-  // Two separate facts: where the unit stands (does it fight?) and its Age tokens (does it die?)
-  const fightsFromBack = effects.some(isWarFromBacklane)
-  const place = front ? 'help.unit.live.front' : fightsFromBack ? 'help.unit.live.back.fights' : 'help.unit.live.back'
-  const age = !tokens ? 'help.unit.live.age.none' : dying ? 'help.unit.live.age.dies' : 'help.unit.live.age.survives'
-  const liveLines: ReactNode[] = [
-    t(place, front ? 'In the Front: fights.' : fightsFromBack ? 'In the Back: fights anyway.' : 'In the Back: does not fight.'),
-    <Trans
-      i18nKey={age}
-      defaults={!tokens ? 'No Age token: gets one at the end of the turn.' : dying ? '{tokens} <age/>: dies at the end of the turn.' : '{tokens} <age/>: survives, and gets one more.'}
-      values={{ tokens }}
-      components={helpIconComponents}
-    />
-  ]
   return (
     <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />}>
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
-      {inKingdom && (
-        <LiveBox title={owner === me ? t('help.live.kingdom', 'In your Kingdom') : t('help.live.kingdom.other', { defaultValue: 'In the Kingdom of {player}', player: ownerName })} lines={liveLines}>
-          {chooseWhereToPlaceTokenMove && <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />}
+      {chooseWhereToPlaceTokenMove && (
+        <LiveBox title={t('help.live.now', 'For you, now')} lines={[t('help.unit.age.choose', 'The Age tokens of the effect can go on this unit.')]}>
+          <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />
         </LiveBox>
       )}
     </BookPage>

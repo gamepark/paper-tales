@@ -5,8 +5,9 @@ import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { EndScoreHelper } from '@gamepark/paper-tales/rules/helpers/EndScoreHelper'
 import { ScoringDescription } from '@gamepark/react-game'
 import { Trans } from 'react-i18next'
+import legend from '../images/icons/legend.webp'
 import gold from '../images/tokens/Gold1.jpg'
-import { AgeIcon, BuildIcon, LegendIcon, NeighboursIcon } from '../material/icons/PaperIcons'
+import { AgeIcon, BuildIcon, NeighboursIcon } from '../material/icons/PaperIcons'
 import { ResultPage } from './ResultPage'
 import { ScoringHeader as Header } from './ScoringHeader'
 
@@ -55,7 +56,7 @@ export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperT
         )
       case ScoringKey.Total:
         return (
-          <Header icon={<LegendIcon />} strong>
+          <Header icon={<img src={legend} alt="" css={scrollCss} />} strong>
             <Trans i18nKey="scoring.total" defaults="Legend points" />
           </Header>
         )
@@ -95,6 +96,20 @@ const totalCss = css`
 const mutedCss = css`
   font-style: italic;
   opacity: 0.75;
+`
+
+/**
+ * The Legend point scroll printed on the cards, with the thin dark line of the paper icons around it. Shadows without
+ * blur, in the four directions, draw a crisp outline around a bitmap.
+ */
+const outline = (width: string, color: string) =>
+  [`${width} 0`, `-${width} 0`, `0 ${width}`, `0 -${width}`].map((offset) => `drop-shadow(${offset} 0 ${color})`).join(' ')
+
+const scrollCss = css`
+  width: 1.4em;
+  height: 1.4em;
+  object-fit: contain;
+  filter: ${outline('0.05em', '#2e2a26')};
 `
 
 /** The coin, outlined like the paper icons around it: a white fringe, then a dark line */
