@@ -11,8 +11,8 @@ class PlayerGoldStockLocator extends PileLocator {
   radius = { x: 3.2, y: 2.6 }
   limit = 100
 
-  getPositionDependencies(_location: Location, context: MaterialContext) {
-    return getPlayerPositionDependencies(context)
+  getPositionDependencies(location: Location, context: MaterialContext) {
+    return { ...getPlayerPositionDependencies(context), items: super.getPositionDependencies(location, context) }
   }
 
   hide(item: MaterialItem, context: ItemContext) {

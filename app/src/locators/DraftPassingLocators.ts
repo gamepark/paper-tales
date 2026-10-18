@@ -44,8 +44,8 @@ export class DraftWaitingLocator extends HandLocator {
   radius = 125
   maxAngle = 4
 
-  getPositionDependencies(_location: Location, context: MaterialContext) {
-    return getPlayerPositionDependencies(context)
+  getPositionDependencies(location: Location, context: MaterialContext) {
+    return { ...getPlayerPositionDependencies(context), items: super.getPositionDependencies(location, context) }
   }
 
   getCoordinates(_location: Location, context: MaterialContext) {

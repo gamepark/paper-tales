@@ -8,8 +8,8 @@ import { getHoverShift, getKingdomScale, getKingdomSlotCoordinates, getPlayerPos
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 class PlayerUnitBoardLocator extends FlexLocator {
-  getPositionDependencies(_location: Location, context: MaterialContext) {
-    return getPlayerPositionDependencies(context)
+  getPositionDependencies(location: Location, context: MaterialContext) {
+    return { ...getPlayerPositionDependencies(context), items: super.getPositionDependencies(location, context) }
   }
 
   getCoordinates(location: Location, context: MaterialContext) {

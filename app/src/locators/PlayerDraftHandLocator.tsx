@@ -17,8 +17,8 @@ export class PlayerDraftHandLocator extends HandLocator {
   coordinates = { ...draftHandCoordinates, z: 0.05 }
   radius = 125
 
-  getPositionDependencies(_location: Location, context: MaterialContext) {
-    return getPlayerPositionDependencies(context)
+  getPositionDependencies(location: Location, context: MaterialContext) {
+    return { ...getPlayerPositionDependencies(context), items: super.getPositionDependencies(location, context) }
   }
 
   getCoordinates(location: Location, context: MaterialContext) {
