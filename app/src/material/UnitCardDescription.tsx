@@ -149,10 +149,20 @@ export class UnitCardDescription extends CardDescription {
 
     const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
 
+    // At the top of the card, within thumb reach. In a wide fan (9 cards at 2 players) the cards overlap too much for
+    // a label: the icon alone
+    const wideFan = !!draft && context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(_item.location.player).length > 6
     const items = []
     if (draft) {
       items.push(
-        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" radius={8} angle={-150 + _item.location.x! * 1.5}>
+        <PaperMenuButton
+          key="draft"
+          move={draft}
+          label={wideFan ? undefined : <Trans i18nKey="move.keep" defaults="Keep" />}
+          labelPosition="right"
+          radius={6.6}
+          angle={-28 + _item.location.x! * 1.5}
+        >
           <KeepIcon />
         </PaperMenuButton>
       )
@@ -186,8 +196,7 @@ export class UnitCardDescription extends CardDescription {
 }
 
 /** A unit of the back row that still fights (rulebook p.6, the ranged units): not shaded in the neighbours view */
-const fightsFromBackRow = (item: MaterialItem) =>
-  item.id !== undefined && (unitCardCaracteristics[item.id as Unit].effect ?? []).some(isWarFromBacklane)
+const fightsFromBackRow = (item: MaterialItem) => item.id !== undefined && (unitCardCaracteristics[item.id as Unit].effect ?? []).some(isWarFromBacklane)
 
 const backRowCss = css`
   > * > *:first-of-type::before {
