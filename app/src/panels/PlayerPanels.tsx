@@ -13,6 +13,7 @@ import {
   getRightNeighbour,
   getViewedPlayer,
   isDraftRule,
+  isSpectator,
   isWarView,
   PANEL_HEIGHT,
   PANEL_WIDTH
@@ -32,11 +33,13 @@ export const PlayerPanels: FC = () => {
   const context = useMaterialContext()
   const me = getMe(context)
   const viewed = isWarView(context) ? undefined : getViewedPlayer(context)
-  const recipient = isDraftRule(context) ? getDraftRecipient(context) : undefined
+  // Left, right and who receives the cards are told from my seat: a spectator has none
+  const spectator = isSpectator(context)
+  const recipient = isDraftRule(context) && !spectator ? getDraftRecipient(context) : undefined
   const twoPlayers = context.rules.players.length === 2
 
   const neighbourTag = (player: PlayerColor) => {
-    if (player === me) return undefined
+    if (spectator || player === me) return undefined
     if (twoPlayers) return t('panel.neighbour', 'Neighbour')
     if (player === getLeftNeighbour(context)) return t('panel.left', 'Left')
     if (player === getRightNeighbour(context)) return t('panel.right', 'Right')

@@ -398,5 +398,10 @@
   "log.build.level2": "<who/> builds {building} directly at level 2",
   "log.upgrade": "<who/> upgrades {building} to level 2",
   "log.age.saved": "<who/> saves {unit}",
-  "help.unit.age.choose": "The Age tokens of the effect can go on this unit."
+  "help.unit.age.choose": "The Age tokens of the effect can go on this unit.",
+  "header.draft.spectator": "The Monarchs choose their card",
+  "header.deploy.spectator": "The Monarchs deploy their units",
+  "header.build.spectator": "The Monarchs build",
+  "draft.recipient.spectator": "The other cards of {giver} go to {player}",
+  "view.player.neighbours": "Neighbours of {player}"
 }

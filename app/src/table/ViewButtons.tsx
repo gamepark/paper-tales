@@ -1,61 +1,96 @@
-import { css } from '@emotion/react'
+import { css, Interpolation, Theme } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getMe, getViewedPlayer, isWarView, NEIGHBOURS_VIEW, SIDE_COLUMN_WIDTH, viewsPosition } from '../locators/TableLayout'
+import { getMe, getNeighboursView, getViewedPlayer, getWarCenter, isSpectator, isWarView, SIDE_COLUMN_WIDTH, viewsPosition } from '../locators/TableLayout'
 import { CrownIcon, NeighboursIcon } from '../material/icons/PaperIcons'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { cutLine, paper, paperCss, paperMuted, rust, tableButtonCss } from '../theme/tableTheme'
 import { TableAnchor } from './TableAnchor'
 
 /**
- * The views of the table, written in words under the turn: my kingdom and my neighbours, always listed, and the
- * kingdom of the player I look at (by clicking their panel), with their pawn. The displayed view is on rust paper;
- * the others are paler slips that play a transient changeView.
+ * The views of the table, written in words under the turn. A Monarch always has their kingdom and their neighbours;
+ * when they look at another kingdom (by clicking its panel), that kingdom and its neighbours are added, with the pawn
+ * of its Monarch, on one row (the neighbours as a square button) so that the views never run into the deck. A spectator
+ * has no kingdom of their own: they get the kingdom and the neighbours of the Monarch they look at, on two full lines.
+ * The displayed view is on rust paper; the others are paler slips that play a transient changeView.
  */
 export const ViewButtons: FC = () => {
   const { t } = useTranslation()
   const context = useMaterialContext()
   const me = getMe(context)
+  const spectator = isSpectator(context)
   const war = isWarView(context)
-  const viewed = war ? undefined : getViewedPlayer(context)
+  // The Monarch the views are about: the center of the neighbours view, else the displayed kingdom
+  const subject = war ? getWarCenter(context) : getViewedPlayer(context)
   return (
     <TableAnchor position={viewsPosition} css={listCss}>
-      <ViewLine view={me} current={viewed === me} icon={<CrownIcon />}>
-        {t('view.my-kingdom', 'My kingdom')}
-      </ViewLine>
-      <ViewLine view={NEIGHBOURS_VIEW} current={war} icon={<NeighboursIcon />}>
-        {t('view.neighbours', 'My neighbours')}
-      </ViewLine>
-      {viewed !== undefined && viewed !== me && <OtherPlayerLine player={viewed} />}
+      {!spectator && (
+        <>
+          <ViewLine view={me} current={!war && subject === me} icon={<CrownIcon />}>
+            {t('view.my-kingdom', 'My kingdom')}
+          </ViewLine>
+          <ViewLine view={getNeighboursView(context, me)} current={war && subject === me} icon={<NeighboursIcon />}>
+            {t('view.neighbours', 'My neighbours')}
+          </ViewLine>
+        </>
+      )}
+      {(spectator || subject !== me) && <OtherPlayerLines player={subject} war={war} compact={!spectator} />}
     </TableAnchor>
   )
 }
 
-const OtherPlayerLine: FC<{ player: PlayerColor }> = ({ player }) => {
+const OtherPlayerLines: FC<{ player: PlayerColor; war: boolean; compact: boolean }> = ({ player, war, compact }) => {
   const { t } = useTranslation()
+  const context = useMaterialContext()
   const name = usePlayerName(player)
-  return (
-    <ViewLine view={player} current icon={<img src={scoreTokenDescription.images[player]} alt="" css={pawnCss} />}>
+  const neighbours = t('view.player.neighbours', { defaultValue: 'Neighbours of {player}', player: name })
+  const kingdom = (
+    <ViewLine view={player} current={!war} icon={<img src={scoreTokenDescription.images[player]} alt="" css={pawnCss} />} rowCss={compact && wideCss}>
       {t('view.player', { defaultValue: 'Kingdom of {player}', player: name })}
     </ViewLine>
+  )
+  if (compact) {
+    return (
+      <div css={rowCss}>
+        {kingdom}
+        <ViewLine view={getNeighboursView(context, player)} current={war} icon={<NeighboursIcon />} rowCss={squareCss} title={neighbours} />
+      </div>
+    )
+  }
+  return (
+    <>
+      {kingdom}
+      <ViewLine view={getNeighboursView(context, player)} current={war} icon={<NeighboursIcon />}>
+        {neighbours}
+      </ViewLine>
+    </>
   )
 }
 
 /** A view: its icon, then its name on up to 2 lines (a long player name wraps, then is cut) */
-const ViewLine: FC<{ view: number; current: boolean; icon: ReactNode; children: ReactNode }> = ({ view, current, icon, children }) => {
+const ViewLine: FC<{ view: number; current: boolean; icon: ReactNode; children?: ReactNode; rowCss?: Interpolation<Theme>; title?: string }> = ({
+  view,
+  current,
+  icon,
+  children,
+  rowCss,
+  title
+}) => {
   const content = (
     <>
       {icon}
-      <span css={labelCss}>{children}</span>
+      {children && <span css={labelCss}>{children}</span>}
     </>
   )
   return current ? (
-    <div css={[currentCss, lineCss]}>{content}</div>
+    <div css={[currentCss, lineCss, rowCss]} title={title}>
+      {content}
+    </div>
   ) : (
-    <PlayMoveButton css={[otherCss, lineCss]} move={MaterialMoveBuilder.changeView(view)} transient>
+    <PlayMoveButton css={[otherCss, lineCss, rowCss]} move={MaterialMoveBuilder.changeView(view)} transient title={title}>
       {content}
     </PlayMoveButton>
   )
@@ -101,6 +136,33 @@ const lineCss = css`
     width: 1.45em;
     height: 1.45em;
     margin-top: -0.1em;
+  }
+`
+
+/** The kingdom and its neighbours on one row: the kingdom takes the room, the neighbours a square */
+const rowCss = css`
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.35em;
+`
+
+const wideCss = css`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+`
+
+const squareCss = css`
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.6em;
+  padding: 0.3em 0 0.2em;
+
+  > svg {
+    grid-column: auto;
   }
 `
 

@@ -13,5 +13,7 @@ export const DraftHeader = () => {
   const me = usePlayerId<PlayerColor>()
   const active = me !== undefined && rules.isTurnToPlay(me)
   if (active) return <>{rules.players.length === 2 ? t('header.draft.two-players', 'Keep a card, discard another one') : t('header.draft', 'Keep a card')}</>
+  // A spectator has no card to keep: the Monarchs, not the other ones
+  if (me === undefined) return <>{t('header.draft.spectator', 'The Monarchs choose their card')}</>
   return <>{t('header.draft.wait', 'The other Monarchs choose their card')}</>
 }

@@ -97,7 +97,10 @@ const WAR_BUILDINGS_GAP = 1
 const WAR_SEAT_WIDTH = KINGDOM_WIDTH + WAR_BUILDINGS_GAP + buildingCardDescription.width
 const getWarSeat = (index: number, count: number): WarSeat => {
   const right = (x: number, scale: number) => ({ kingdomX: x, buildingsX: x + (KINGDOM_WIDTH + WAR_BUILDINGS_GAP) * scale, scale })
-  if (count === 2) return index === 0 ? { ...right(AREA_X + 1, CENTER_SCALE), y: AREA_Y + 2 } : { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * CENTER_SCALE - 1, CENTER_SCALE), y: AREA_Y + 2 }
+  if (count === 2)
+    return index === 0
+      ? { ...right(AREA_X + 1, CENTER_SCALE), y: AREA_Y + 2 }
+      : { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * CENTER_SCALE - 1, CENTER_SCALE), y: AREA_Y + 2 }
   if (index === 0) return { ...right(AREA_X, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
   if (index === 2) return { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * NEIGHBOUR_SCALE, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
   return { ...right(WAR_CENTER_X - (WAR_SEAT_WIDTH * CENTER_SCALE) / 2, CENTER_SCALE), y: WAR_BOTTOM_Y }
@@ -114,6 +117,9 @@ export const getWarRibbonPosition = (index: number, count: number) => {
 }
 
 export const getMe = (context: MaterialContext): PlayerColor => (context.player ?? context.rules.players[0]) as PlayerColor
+
+/** A spectator plays no seat: "me" is then only the first player, and nothing should be told as if they were them */
+export const isSpectator = (context: MaterialContext) => context.player === undefined
 
 const getPlayerAt = (context: MaterialContext, from: PlayerColor, offset: number): PlayerColor => {
   const players = context.rules.players as PlayerColor[]
@@ -148,14 +154,33 @@ export const NEIGHBOURS_VIEW = 100
 // From the reveal to the income, all automatic: the neighbours view stays, so that the outcome of the wars can be read
 const warRules = [RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects, RuleId.War, RuleId.Income]
 
-export const isWarView = (context: MaterialContext) =>
-  context.rules.game.view === NEIGHBOURS_VIEW || warRules.includes(context.rules.game.rule?.id as RuleId)
+/**
+ * The view of the neighbours of a player: NEIGHBOURS_VIEW for mine, NEIGHBOURS_VIEW + the player for anybody's (a
+ * spectator, or a Monarch looking at another kingdom, can look at its neighbours too)
+ */
+export const getNeighboursView = (context: MaterialContext, player: PlayerColor) =>
+  player === getMe(context) && !isSpectator(context) ? NEIGHBOURS_VIEW : NEIGHBOURS_VIEW + player
+
+const isNeighboursView = (context: MaterialContext) => (context.rules.game.view ?? 0) >= NEIGHBOURS_VIEW
+
+export const isWarView = (context: MaterialContext) => isNeighboursView(context) || warRules.includes(context.rules.game.rule?.id as RuleId)
+
+/**
+ * The player in the middle of the neighbours view: the one whose neighbours were asked for, else the displayed player
+ * (the automatic view of the wars)
+ */
+export const getWarCenter = (context: MaterialContext): PlayerColor => {
+  const view = context.rules.game.view ?? 0
+  if (view === NEIGHBOURS_VIEW) return getMe(context)
+  if (view > NEIGHBOURS_VIEW) return (view - NEIGHBOURS_VIEW) as PlayerColor
+  return getViewedPlayer(context)
+}
 
 /**
  * Kingdoms displayed in the neighbours view, from left to right, around the displayed player
  */
 export const getWarPlayers = (context: MaterialContext): PlayerColor[] => {
-  const center = context.rules.game.view === NEIGHBOURS_VIEW ? getMe(context) : getViewedPlayer(context)
+  const center = getWarCenter(context)
   const left = getLeftNeighbour(context, center)
   const right = getRightNeighbour(context, center)
   return left === right ? [center, left] : [left, center, right]
@@ -174,8 +199,7 @@ export const isMyAreaDisplayed = (context: MaterialContext, player?: number) =>
 
 export const isBuildRule = (context: MaterialContext) => context.rules.game.rule?.id === RuleId.Build
 
-export const isDraftRule = (context: MaterialContext) =>
-  [RuleId.GiveDraftToNeighbor, RuleId.Draft, RuleId.Deal].includes(context.rules.game.rule?.id as RuleId)
+export const isDraftRule = (context: MaterialContext) => [RuleId.GiveDraftToNeighbor, RuleId.Draft, RuleId.Deal].includes(context.rules.game.rule?.id as RuleId)
 
 export const getPlayerPositionDependencies = (context: MaterialContext) => ({
   view: getViewedPlayer(context),
@@ -249,7 +273,8 @@ export const getPanelPosition = (index: number) => ({ x: PANEL_X, y: PANEL_Y + i
  */
 export const getRound = (context: MaterialContext) => context.rules.remind<number>(Memory.Time) ?? 1
 
-export const getDraftRecipient = (context: MaterialContext) => (getRound(context) % 2 === 1 ? getLeftNeighbour(context) : getRightNeighbour(context))
+export const getDraftRecipient = (context: MaterialContext, player = getMe(context)) =>
+  getRound(context) % 2 === 1 ? getLeftNeighbour(context, player) : getRightNeighbour(context, player)
 
 /**
  * Neighbours view: the built buildings of a kingdom, at its right, at the same scale as its units, cascaded so that

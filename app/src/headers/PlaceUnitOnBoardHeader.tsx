@@ -15,7 +15,8 @@ export const PlaceUnitOnBoardHeader = () => {
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId<PlayerColor>()
   const endMove = useLegalMove<MaterialMove>(isEndPlayerTurn)
-  if (me === undefined || !rules.isTurnToPlay(me)) return <>{t('header.deploy.wait', 'The other Monarchs deploy their units')}</>
+  if (me === undefined) return <>{t('header.deploy.spectator', 'The Monarchs deploy their units')}</>
+  if (!rules.isTurnToPlay(me)) return <>{t('header.deploy.wait', 'The other Monarchs deploy their units')}</>
   const inHand = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(me).length
   if (endMove) {
     return (
