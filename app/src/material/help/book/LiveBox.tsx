@@ -6,14 +6,16 @@ import { bookSheetClip, cutLine, ochre, paper } from '../../../theme/tableTheme'
 export const LiveBox: FC<{ title: ReactNode; lines: ReactNode[]; children?: ReactNode }> = ({ title, lines, children }) => (
   <div css={liveCss}>
     <h4 css={titleCss}>{title}</h4>
-    <ul css={listCss}>
-      {lines.map((line, index) => (
-        <li key={index}>
-          <span>{line}</span>
-        </li>
-      ))}
-    </ul>
-    {children && <div css={actionCss}>{children}</div>}
+    {lines.length > 0 && (
+      <ul css={listCss}>
+        {lines.map((line, index) => (
+          <li key={index}>
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+    {children && <div css={[actionCss, lines.length > 0 && actionAfterLinesCss]}>{children}</div>}
   </div>
 )
 
@@ -68,6 +70,14 @@ const listCss = css`
   }
 `
 
+/** The action buttons, in a row that wraps */
 const actionCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em 0.8em;
+  margin-top: 0.4em;
+`
+
+const actionAfterLinesCss = css`
   margin-top: 0.7em;
 `

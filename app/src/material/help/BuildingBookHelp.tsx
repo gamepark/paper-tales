@@ -5,15 +5,16 @@ import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { BuildAction, BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
-import { MaterialHelpProps, PlayMoveButton, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
+import { MaterialHelpProps, useLegalMove, usePlayerId, usePlayerName, useRules } from '@gamepark/react-game'
 import { isMoveItemType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { tableButtonCss } from '../../theme/tableTheme'
+import { BuildIcon } from '../icons/PaperIcons'
 import { BookPage } from './book/BookPage'
 import { buildingPrintedContent } from './book/buildingPrinted'
 import { Cost } from './book/Cost'
 import { FactTags } from './book/FactTags'
+import { HelpActionButton } from './book/HelpActionButton'
 import { CoinIcon } from './book/HelpIcons'
 import { LiveBox } from './book/LiveBox'
 import { currentPhaseIndex } from './book/phases'
@@ -109,7 +110,7 @@ const BuildLiveBox: FC<{
     if (goldOnly.length) return <Trans i18nKey="help.building.lacking.gold" defaults="{what}: you lack {gold} <coin/>." values={values} components={{ coin: <CoinIcon /> }} />
     return <Trans i18nKey="help.building.lacking" defaults="{what}: your Kingdom lacks <res/>." values={values} components={{ res: <Cost cost={resources} /> }} />
   }
-  const line = (action: BuildAction, label: string, move?: MaterialMove) => {
+  const line = (action: BuildAction, label: string, level: number, move?: MaterialMove) => {
     const what = t(label)
     const gold = helper.getGoldToPay(building, action)
     if (gold === undefined) return lacks(what, helper.getCostOptions(building, action))
@@ -119,9 +120,9 @@ const BuildLiveBox: FC<{
         {move && (
           <>
             {' '}
-            <PlayMoveButton css={tableButtonCss} move={move} onPlay={onBuild}>
+            <HelpActionButton move={move} icon={<BuildIcon />} level={level} onPlay={onBuild}>
               {t('help.building.do', 'Build')}
-            </PlayMoveButton>
+            </HelpActionButton>
           </>
         )}
       </span>
@@ -135,10 +136,11 @@ const BuildLiveBox: FC<{
     <Trans key="gold" i18nKey="help.building.gold" defaults="You have {gold} <coin/>." values={{ gold: helper.gold }} components={{ coin: <CoinIcon /> }} />
   ]
   if (level2) return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines.slice(0, 1)} />
-  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade', upgrade))
+  // The same hammer and level badge as the buttons on the card
+  if (built) lines.push(line(BuildAction.Upgrade, 'help.building.upgrade', 2, upgrade))
   else {
-    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1', buildLevel1))
-    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2', buildLevel2))
+    lines.push(line(BuildAction.BuildLevel1, 'help.building.level1', 1, buildLevel1))
+    lines.push(line(BuildAction.BuildLevel2, 'help.building.level2', 2, buildLevel2))
   }
   return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines} />
 }

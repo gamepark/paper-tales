@@ -1,13 +1,11 @@
 import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
-import { CustomMoveType, GainAgeTokenOnChosenUnitEffect, MysticEffectType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
-import { isCustomMoveType, isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
-import { Trans } from 'react-i18next'
+import { MaterialItem, MaterialMove } from '@gamepark/rules-api'
+import i18next from 'i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
 import Blacksmith from '../images/units/en/Blacksmith.jpg'
@@ -53,8 +51,9 @@ import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 import { isWarView } from '../locators/TableLayout'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
-import { AgeIcon, DiscardIcon, KeepIcon, SaveIcon } from './icons/PaperIcons'
-import { PaperMenuButton } from './PaperMenuButton'
+import { UnitActionLabel } from './actions/UnitActionLabel'
+import { getUnitActions, UnitAction, unitActionIcons, unitActionTexts } from './actions/UnitActions'
+import { MenuPosition, PaperMenuButton } from './PaperMenuButton'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
 
@@ -118,9 +117,6 @@ export class UnitCardDescription extends CardDescription {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
     // In the neighbours view, the back row is shaded: only the front row fights (p.6).
     if (item.location.type === LocationType.Discard) return [discardCss]
-    // In the draft fan, a zoomed card covers its own buttons, which sit on its text once zoomed: the pointer that goes
-    // for a button leaves the card, which shrinks back and shows them again
-    if (item.location.type === LocationType.PlayerDraftHand) return []
     if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
       return [hoveredItemMenuAboveCss, backRowCss]
     }
@@ -134,59 +130,37 @@ export class UnitCardDescription extends CardDescription {
 
   menuAlwaysVisible = true
 
-  getItemMenu(_item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
-    const age = legalMoves.find((move) => {
-      if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
-      const data: GainAgeTokenOnChosenUnitEffect = move.data
-      return data.unitIndex === context.index
-    })
-
-    // The neighbours view is for looking at the war, not for arranging my kingdom: no discard button there
-    const discard =
-      !isWarView(context) &&
-      legalMoves.find((move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.Discard && move.itemIndex === context.index)
-    const draft = legalMoves.find(
-      (move) => isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand && move.itemIndex === context.index
-    )
-
-    const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
-
-    // At the top left of the card, within thumb reach, under the name and the cost so that they stay readable: the strip
-    // of a card that the next one leaves visible in the fan, whatever the number of cards, with room for the labels.
-    // With 2 players, Keep and Discard one under the other: both choices at once, in any order (rulebook p.8).
-    const items = []
-    if (draft) {
-      items.push(
-        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" radius={5} angle={-46}>
-          <KeepIcon />
+  getItemMenu(item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
+    const actions = getUnitActions(legalMoves, context.index, isWarView(context))
+    const button = (action: UnitAction, position: MenuPosition, labelled: boolean) => {
+      const move = actions[action]
+      if (!move) return undefined
+      const Icon = unitActionIcons[action]
+      const [key, defaults] = unitActionTexts[action]
+      return (
+        <PaperMenuButton
+          key={action}
+          move={move}
+          label={labelled ? <UnitActionLabel action={action} /> : undefined}
+          labelPosition="right"
+          title={labelled ? undefined : i18next.t(key, defaults)}
+          {...position}
+        >
+          <Icon />
         </PaperMenuButton>
       )
     }
-
-    if (save) {
-      items.push(
-        <PaperMenuButton key="save" label={<Trans i18nKey="move.save" />} labelPosition="right" move={save} radius={3} angle={-110}>
-          <SaveIcon />
-        </PaperMenuButton>
-      )
+    // In the draft fan, the buttons stand in a row just above the left edge of each card, whatever the number of cards:
+    // they never hide the name nor the cost, and on a zoomed card they land on the picture, not on the text. No label,
+    // for the 2 buttons to fit side by side with 2 players (the help of the card names them)
+    if (item.location.type === LocationType.PlayerDraftHand) {
+      return [button(UnitAction.Keep, { radius: 9.3, angle: -23.5 }, false), button(UnitAction.Discard, { radius: 8.55, angle: -6 }, false)]
     }
-
-    if (discard) {
-      items.push(
-        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" radius={3.7} angle={-77}>
-          <DiscardIcon />
-        </PaperMenuButton>
-      )
-    }
-    if (age) {
-      items.push(
-        <PaperMenuButton key="age" move={age} label={<Trans i18nKey="move.add.age" />} angle={260} radius={3.7} labelPosition={'right'}>
-          <AgeIcon />
-        </PaperMenuButton>
-      )
-    }
-
-    return items
+    return [
+      button(UnitAction.Save, { radius: 3, angle: -110 }, true),
+      button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
+      button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true)
+    ]
   }
 }
 

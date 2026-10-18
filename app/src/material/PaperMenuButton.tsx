@@ -17,12 +17,18 @@ type PaperMenuButtonProps = ItemButtonProps &
 export const PaperMenuButton: FC<PaperMenuButtonProps> = ({ children, level, ...props }) => (
   <ItemMenuButton css={discCss} {...props}>
     {children}
-    {level !== undefined && (
-      <span css={levelCss} data-level>
-        {level}
-      </span>
-    )}
+    {level !== undefined && <LevelBadge level={level} />}
   </ItemMenuButton>
+)
+
+/** Where a menu button stands, from the centre of its card */
+export type MenuPosition = { radius: number; angle: number }
+
+/** The level of a building, in a corner badge like on the building cards */
+export const LevelBadge: FC<{ level: number }> = ({ level }) => (
+  <span css={levelCss} data-level>
+    {level}
+  </span>
 )
 
 const discCss = css`

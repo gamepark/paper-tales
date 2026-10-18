@@ -56,8 +56,9 @@ export const twoPlayersDraftHandCoordinates = { x: AREA_X + 17.7, y: HANDS_Y }
 // During the recruitment, the kept cards pile up towards the discard, clear of the widest fan (9 cards at 2 players)
 const KEPT_HAND_X = AREA_X + 59
 export const playerGoldCoordinates = { x: 93.5, y: 44.8 }
-// Centered above the draft fan (the ribbon is translated by half its width)
-export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
+// Above my kept cards, its right end before the right column (the ribbon is translated by its whole width): the row
+// above the draft fan holds the buttons of its cards
+export const handsLabelPosition = { x: KEPT_HAND_X + 6.5, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
 export const deployGoldPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
 export const buildInfoPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
 

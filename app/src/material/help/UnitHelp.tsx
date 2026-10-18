@@ -5,15 +5,16 @@ import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
-import { CustomMoveType, GainAgeTokenOnChosenUnitEffect } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
-import { MaterialHelpProps, PlayMoveButton, useLegalMove, useRules } from '@gamepark/react-game'
-import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
+import { MaterialHelpProps, useLegalMoves, useMaterialContext, useRules } from '@gamepark/react-game'
 import { FC } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { tableButtonCss } from '../../theme/tableTheme'
+import { isWarView } from '../../locators/TableLayout'
+import { UnitActionLabel } from '../actions/UnitActionLabel'
+import { getUnitActions, UnitAction, unitActionIcons, unitActions } from '../actions/UnitActions'
+import { HelpActionButton } from './book/HelpActionButton'
 import { BookPage } from './book/BookPage'
 import { FactTags } from './book/FactTags'
 import { HiddenUnitHelp } from './HiddenUnitHelp'
@@ -33,10 +34,11 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const { item, itemIndex } = props
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
-  const chooseWhereToPlaceTokenMove = useLegalMove((move: MaterialMove) => {
-    if (!isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return false
-    return (move.data as GainAgeTokenOnChosenUnitEffect).unitIndex === itemIndex
-  })
+  const context = useMaterialContext()
+  const legalMoves = useLegalMoves()
+  // The same actions as the buttons on the card, with their icons and words
+  const actions = itemIndex !== undefined ? getUnitActions(legalMoves, itemIndex, isWarView(context)) : {}
+  const available = unitActions.filter((action) => actions[action])
   const unit = item.id as Unit | undefined
   if (unit === undefined) return <HiddenUnitHelp {...props} />
 
@@ -64,9 +66,19 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   return (
     <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />}>
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
-      {chooseWhereToPlaceTokenMove && (
-        <LiveBox title={t('help.live.now', 'For you, now')} lines={[t('help.unit.age.choose', 'The Age tokens of the effect can go on this unit.')]}>
-          <PlayMoveButton css={tableButtonCss} move={chooseWhereToPlaceTokenMove} onPlay={props.closeDialog} />
+      {available.length > 0 && (
+        <LiveBox
+          title={t('help.live.now', 'For you, now')}
+          lines={actions[UnitAction.AddAge] ? [t('help.unit.age.choose', 'The Age tokens of the effect can go on this unit.')] : []}
+        >
+          {available.map((action) => {
+            const Icon = unitActionIcons[action]
+            return (
+              <HelpActionButton key={action} move={actions[action]!} icon={<Icon />} onPlay={props.closeDialog}>
+                <UnitActionLabel action={action} />
+              </HelpActionButton>
+            )
+          })}
         </LiveBox>
       )}
     </BookPage>
