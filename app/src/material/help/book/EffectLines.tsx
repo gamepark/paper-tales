@@ -18,5 +18,6 @@ const effectLineCss = css`
   --icon-shift: 0;
   font-weight: 600;
   font-size: 1.05em;
-  line-height: 1.3;
+  /* Room for the printed icons (the Legend scroll is taller than a letter) between the lines of an effect */
+  line-height: 1.6;
 `
