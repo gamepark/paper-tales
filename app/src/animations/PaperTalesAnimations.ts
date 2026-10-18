@@ -120,8 +120,8 @@ const isUnseen = (move: MaterialMove, context: MaterialContext): boolean => {
 const isUnseenMove = (move: MaterialMove, context: MaterialContext): boolean => {
   if (isMoveItem(move)) return !moveSeen(context, move.itemType, move.itemIndex, move.location)
   if (isMoveItemsAtOnce(move)) return !move.indexes.some((index) => moveSeen(context, move.itemType, index, move.location))
-  // What comes from a reserve on the table, or goes back to it (gold, Age tokens), is seen leaving or reaching it
-  if ((isCreateItem(move) || isDeleteItem(move)) && hasReserve(context, move.itemType)) return false
+  // The gold earned comes from the reserve on the table: it is seen leaving it, even towards a panel
+  if (isCreateItem(move) && move.itemType === MaterialType.Gold && hasReserve(context, move.itemType)) return false
   if (isCreateItem(move)) return !isSeen(context, move.itemType, -1, move.item as MaterialItem)
   if (isDeleteItem(move)) {
     const item = itemAt(context, move.itemType, move.itemIndex)
@@ -175,16 +175,14 @@ paperTalesAnimation
   .move((move) => passedTo(move, LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand))
   .duration(0.6)
 
-// What another Monarch discards comes out of their panel as a small card: quickly, they are not looked at
-paperTalesAnimation
-  .when()
-  .move(
-    (move, context) =>
-      isMoveItem(move) &&
-      move.location.type === LocationType.Discard &&
-      !isAreaDisplayed(context, itemAt(context, move.itemType, move.itemIndex)?.location.player)
-  )
-  .duration(0.35)
+// What a Monarch who is not looked at discards (deployment, Age): not shown, the card lands on the discard at once.
+// A card that leaves a kingdom on the table (the neighbours view) still flies to the discard.
+const fromUnseenPlace = (move: MaterialMove, context: MaterialContext) => {
+  if (!isMoveItem(move) || move.location.type !== LocationType.Discard) return false
+  const item = itemAt(context, move.itemType, move.itemIndex)
+  return !!item && !isSeen(context, move.itemType, move.itemIndex, item)
+}
+paperTalesAnimation.when().move(fromUnseenPlace).none()
 
 // The card I keep, or put back into my hand
 paperTalesAnimation
