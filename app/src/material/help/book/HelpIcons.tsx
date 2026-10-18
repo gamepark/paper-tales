@@ -118,7 +118,7 @@ const legendValueCss = css`
 
 /** Two characters (-3, 12): smaller and nudged so that they fit the sheet of the scroll, between its two rolls */
 const legendLongValueCss = css`
-  padding: 0.12em 0 0 0.2em;
+  padding: 0.12em 0.14em 0 0;
   font-size: 0.68em;
   letter-spacing: -0.04em;
 `
