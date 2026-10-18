@@ -23,21 +23,23 @@ export const paperFont = "'Baloo 2', 'Mulish', sans-serif"
  * A torn edge, as a clip-path polygon: a deterministic jitter, so that the paper tears the same way at every render.
  * Depths are in % of the box, so the tear scales with the slip.
  */
-const tornPolygon = (seed: number, depth: number, side: number, steps = 18) => {
+const tornPolygon = (seed: number, depth: number, side: number, steps = 18, sideSteps = 4) => {
   let state = seed
   const random = () => (state = (state * 9301 + 49297) % 233280) / 233280
   const points: string[] = []
-  for (let i = 0; i <= steps; i++) points.push(`${(i / steps) * 100}% ${(random() * depth).toFixed(1)}%`)
+  // The corners are nipped: a right angle next to a torn edge that dips just before it reads as a spike
+  const nip = side * 1.5
+  const top = (x: number) => `${x.toFixed(1)}% ${(random() * depth).toFixed(1)}%`
+  const bottom = (x: number) => `${x.toFixed(1)}% ${(100 - random() * depth).toFixed(1)}%`
+  for (let i = 0; i <= steps; i++) points.push(top(i === 0 ? nip : i === steps ? 100 - nip : (i / steps) * 100))
   // The sides start inside the edges: a side point on a corner would stick out of the torn top or bottom edge as a spike
-  for (let i = 0; i <= 4; i++) {
-    const x = (100 - random() * side).toFixed(1)
-    if (i > 0 && i < 4) points.push(`${x}% ${(i / 4) * 100}%`)
-  }
-  for (let i = steps; i >= 0; i--) points.push(`${(i / steps) * 100}% ${(100 - random() * depth).toFixed(1)}%`)
-  for (let i = 4; i >= 0; i--) {
-    const x = (random() * side).toFixed(1)
-    if (i > 0 && i < 4) points.push(`${x}% ${(i / 4) * 100}%`)
-  }
+  points.push(`100% ${depth + nip}%`)
+  for (let i = 1; i < sideSteps; i++) points.push(`${(100 - random() * side).toFixed(1)}% ${((i / sideSteps) * 100).toFixed(1)}%`)
+  points.push(`100% ${100 - depth - nip}%`)
+  for (let i = steps; i >= 0; i--) points.push(bottom(i === steps ? 100 - nip : i === 0 ? nip : (i / steps) * 100))
+  points.push(`0% ${100 - depth - nip}%`)
+  for (let i = sideSteps - 1; i > 0; i--) points.push(`${(random() * side).toFixed(1)}% ${((i / sideSteps) * 100).toFixed(1)}%`)
+  points.push(`0% ${depth + nip}%`)
   return `polygon(${points.join(',')})`
 }
 
@@ -46,6 +48,8 @@ export const tornClip = tornPolygon(7, 9, 2.5)
 export const sheetTornClip = tornPolygon(7, 4, 1.2)
 /** The cover of the story book: a long sheet, torn very shallow */
 export const coverTornClip = tornPolygon(7, 1.3, 0.6, 44)
+/** The cover of a side panel, as tall as the screen: its free side is torn all along, like the top and bottom edges */
+export const panelTornClip = tornPolygon(7, 1.3, 1.4, 24, 40)
 /** A light sheet glued in the story book (the rows of the help) */
 export const bookSheetClip = tornPolygon(7, 2.2, 0.8)
 export const patchTornClip = tornPolygon(31, 4, 1.5)

@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { coverTornClip, cutLine, paper, paperMuted, rust, rustDeep } from './tableTheme'
+import { cutLine, panelTornClip, paper, paperMuted, rust, rustDeep } from './tableTheme'
 
 /** The bookmark hanging from the top edge of the screen (validated mockup docs/mockups/theme.html, direction B) */
 const bookmarkClip = 'polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)'
@@ -101,13 +101,14 @@ const panelCss = (bound: 'left' | 'right') => css`
     inset: ${bound === 'right' ? '-2em -2em 0 0' : '-2em 0 0 -2em'};
     z-index: -2;
     background: ${rustDeep};
-    clip-path: ${coverTornClip};
+    clip-path: ${panelTornClip};
   }
 
+  /* The page runs to the top of the screen: no cover above it, only on its free side and under it */
   &::after {
     content: '';
     position: absolute;
-    inset: ${bound === 'right' ? `${cover.side} 0 ${cover.bottom} ${cover.side}` : `${cover.side} ${cover.side} ${cover.bottom} 0`};
+    inset: ${bound === 'right' ? `0 0 ${cover.bottom} ${cover.side}` : `0 ${cover.side} ${cover.bottom} 0`};
     z-index: -1;
     background: ${paper};
     border-radius: ${bound === 'right' ? '0 0 0 0.2em' : '0 0 0.2em 0'};
@@ -124,7 +125,7 @@ const panelCss = (bound: 'left' | 'right') => css`
 export const menuPanelCss = css`
   ${panelCss('right')};
   width: 23em;
-  padding: calc(${cover.side} + 1.4em) 1.8em calc(${cover.bottom} + 1.5em) calc(${cover.side} + 1.8em);
+  padding: 1.4em 1.8em calc(${cover.bottom} + 1.5em) calc(${cover.side} + 1.8em);
 
   > h2 {
     align-self: center;
@@ -139,7 +140,7 @@ export const menuPanelCss = css`
 /** The journal: a page of the rulebook, with its chevron pattern (validated mockup docs/mockups/journal3.html) */
 export const journalPanelCss = css`
   ${panelCss('left')};
-  padding: ${cover.side} ${cover.side} ${cover.bottom} 0;
+  padding: 0 ${cover.side} ${cover.bottom} 0;
 
   &::after {
     background-color: #f4efe7;

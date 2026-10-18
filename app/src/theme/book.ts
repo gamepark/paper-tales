@@ -57,14 +57,20 @@ export const bookContainerCss = css`
 
 /** The row of a help dialog (item display, then help): the two pages touch, fill the book and carry their own margins */
 export const bookHelpLayoutCss = css`
-  padding: 0;
+  /* The framework sets the padding of the help on this row, not on the window: the cover margin goes here */
+  padding: ${coverMargin.side} ${coverMargin.side} ${coverMargin.bottom};
   gap: 0;
   align-items: stretch;
   min-height: 100%;
+  /* The window is capped at 90dvh by the framework: a page taller than that scrolls instead of running past the cover */
+  max-height: 90dvh;
+  box-sizing: border-box;
 `
 
 /** The right page: the help column of the framework becomes a page whose em is the em of the mockup, the fold on its left edge */
 export const bookContentCss = css`
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 2.1em 3.4em 3.2em 3em;
   font-size: ${bookEm(1)};

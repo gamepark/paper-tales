@@ -17,7 +17,9 @@ const pageCss = css`
   --icon-shift: -0.15em;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  /* Fills the page column (a flex column) without overflowing it: a min-height of 100% plus the padding of the column
+     would leave a tiny scroll when the left page is the taller one */
+  flex: 1 0 auto;
   font-family: ${bookBodyFont};
   font-weight: 500;
   line-height: 1.45;
