@@ -111,7 +111,7 @@ const passedTo = (move: MaterialMove, ...types: LocationType[]) => isMoveItemTyp
 paperTalesAnimation
   .when()
   .rule(RuleId.GiveDraftToNeighbor)
-  .move((move) => passedTo(move, LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand))
+  .move((move) => passedTo(move, LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand))
   .duration(0.6)
 
 // What another Monarch discards comes out of their panel as a small card: quickly, they are not looked at

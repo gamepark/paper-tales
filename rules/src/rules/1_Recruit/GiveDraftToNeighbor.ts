@@ -16,6 +16,14 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
       // The hands are captured before any move: the same cards are then moved step by step
       const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player))
       const receivers = players.map((player) => this.getNextPlayer(player))
+      // The last card of each hand: nothing to choose, it is passed straight into the hand of its receiver, and the
+      // deployment begins
+      if (hands.every((hand) => hand.length === 1)) {
+        hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.DraftTransit, player: receivers[index] })))
+        hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerUnitHand, player: receivers[index] })))
+        moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
+        return moves
+      }
       // In steps that every Monarch goes through at the same time: each hand is given face down (it leaves its giver),
       // then lands face down in front of its receiver, is shuffled there, and the receiver takes it in hand. A hand that
       // would land before its receiver's own hand is given would make one Monarch wait for another all around the table.

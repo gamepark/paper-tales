@@ -16,7 +16,12 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     this.game.players.forEach((player) => {
       this.memorize(Memory.PlayedCardsDuringDeployment, [], player)
     })
-    return []
+    // The hands are shuffled once the recruitment is over: the place of a card in a hand is seen by all and follows the
+    // order of the picks, so that a Monarch who passed a hand could follow the cards they left to their neighbour
+    return this.game.players.flatMap((player) => {
+      const hand = this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(player)
+      return hand.length > 1 ? [hand.shuffle()] : []
+    })
   }
 
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
