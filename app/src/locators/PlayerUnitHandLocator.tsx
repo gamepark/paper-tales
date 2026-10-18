@@ -1,3 +1,4 @@
+import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { DropAreaDescription, HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
@@ -32,6 +33,25 @@ export class PlayerUnitHandLocator extends HandLocator {
 
   hide(item: MaterialItem, context: ItemContext) {
     return !isAreaDisplayed(context, item.location.player)
+  }
+
+  /**
+   * The cards I see lie in a fixed order, by cost then by unit: the hand is shuffled against cheating when the deployment
+   * begins (see PlaceUnitOnBoard), which swaps the cards between their places in the game, and that must not show. The
+   * cards I cannot see keep the order of the game.
+   */
+  getItemIndex(item: MaterialItem, context: ItemContext): number {
+    if (item.id === undefined) return super.getItemIndex(item, context)
+    return context.rules
+      .material(context.type)
+      .location(item.location.type)
+      .player(item.location.player)
+      .sort(
+        (card) => (card.id === undefined ? Infinity : unitCardCaracteristics[card.id].cost),
+        (card) => card.id ?? Infinity
+      )
+      .getIndexes()
+      .indexOf(context.index)
   }
 
   getMaxAngle(location: Location, context: ItemContext): number {
