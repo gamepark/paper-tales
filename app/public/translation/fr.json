@@ -198,7 +198,7 @@
   "help.unit.war.you": "Compte pour <s/>.",
   "help.unit.war.you.resource": "Le royaume produit {count} <res/> : compte pour <s/>.",
   "help.unit.age.token": "Porte déjà <age/>.",
-  "help.unit.age.dies": "Meurt à la fin de ce tour.",
+  "help.unit.age.dies": "Meurt à la phase Âge de ce tour.",
   "help.live.kingdom": "Dans votre royaume",
   "help.unit.live.front": "À l’Avant : combat.",
   "help.unit.live.back": "À l’Arrière : ne combat pas.",

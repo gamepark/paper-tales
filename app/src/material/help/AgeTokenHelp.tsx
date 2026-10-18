@@ -42,7 +42,7 @@ export const AgeTokenHelp: FC<MaterialHelpProps> = ({ item }) => {
         'help.age.aging',
         'All Units that already have one or more Age tokens on them die: they are discarded with all the Age tokens placed on them. Then add one Age token on each Unit that is still in play.'
       ),
-      you: dying ? t('help.unit.age.dies', 'Dies at the end of this turn.') : undefined
+      you: dying ? t('help.unit.age.dies', 'Dies in the Aging phase of this turn.') : undefined
     },
     { on: true, text: t('help.age.end', 'Relics grant Legend points for each Age token they carry.') }
   ]

@@ -60,7 +60,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
     steps[5].on = true
     steps[5].text ??= <Trans i18nKey="help.unit.age.token" defaults="Already carries <age/>." components={helpIconComponents} />
   }
-  if (dying) steps[5].you = t('help.unit.age.dies', 'Dies at the end of this turn.')
+  if (dying) steps[5].you = t('help.unit.age.dies', 'Dies in the Aging phase of this turn.')
   return (
     <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />}>
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
