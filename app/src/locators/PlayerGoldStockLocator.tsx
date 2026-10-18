@@ -1,9 +1,9 @@
 import { ItemContext, MaterialContext, PileLocator } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
-import { getPlayerPositionDependencies, isMyAreaDisplayed, playerGoldCoordinates } from './TableLayout'
+import { getPlayerPositionDependencies, isAreaDisplayed, playerGoldCoordinates } from './TableLayout'
 
 /**
- * Only my gold is on the table, the gold of the others is counted in their panel
+ * The gold of the displayed kingdom is on the table (never hidden, rulebook p.3); the others are counted in their panel
  */
 class PlayerGoldStockLocator extends PileLocator {
   coordinates = playerGoldCoordinates
@@ -15,7 +15,7 @@ class PlayerGoldStockLocator extends PileLocator {
   }
 
   hide(item: MaterialItem, context: ItemContext) {
-    return !isMyAreaDisplayed(context, item.location.player)
+    return !isAreaDisplayed(context, item.location.player)
   }
 
   getPileId(item: MaterialItem) {

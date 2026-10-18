@@ -1,7 +1,7 @@
 import { DropAreaDescription, HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { getKeptHandCoordinates, getPlayerPositionDependencies, isDraftRule, isMyAreaDisplayed } from './TableLayout'
+import { getKeptHandCoordinates, getPlayerPositionDependencies, isDraftRule, isAreaDisplayed } from './TableLayout'
 
 /**
  * My kept cards: at the right of the draft fan during the recruitment, in its place otherwise
@@ -24,7 +24,7 @@ export class PlayerUnitHandLocator extends HandLocator {
   }
 
   hide(item: MaterialItem, context: ItemContext) {
-    return !isMyAreaDisplayed(context, item.location.player)
+    return !isAreaDisplayed(context, item.location.player)
   }
 
   getMaxAngle(location: Location, context: ItemContext): number {

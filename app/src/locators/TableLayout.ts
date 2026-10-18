@@ -194,6 +194,12 @@ export const isBuildingsDisplayed = (context: MaterialContext, player?: number) 
 /**
  * My hands and gold are displayed only in my area
  */
+/**
+ * The area of a player (hands, gold) is displayed with their kingdom: mine, or the one I look at. The hands of the
+ * others are face down (rulebook p.5), which still tells how many cards they hold.
+ */
+export const isAreaDisplayed = (context: MaterialContext, player?: number) => !isWarView(context) && getViewedPlayer(context) === player
+
 export const isMyAreaDisplayed = (context: MaterialContext, player?: number) =>
   player === getMe(context) && !isWarView(context) && getViewedPlayer(context) === player
 

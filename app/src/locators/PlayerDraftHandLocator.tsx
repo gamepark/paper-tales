@@ -1,6 +1,6 @@
 import { HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
-import { draftHandCoordinates, getPlayerPositionDependencies, isMyAreaDisplayed } from './TableLayout'
+import { draftHandCoordinates, getPlayerPositionDependencies, isAreaDisplayed } from './TableLayout'
 
 /**
  * Cards to draft: a fan at the left of my hands row, during the recruitment only
@@ -14,7 +14,7 @@ export class PlayerDraftHandLocator extends HandLocator {
   }
 
   hide(item: MaterialItem, context: ItemContext) {
-    return !isMyAreaDisplayed(context, item.location.player)
+    return !isAreaDisplayed(context, item.location.player)
   }
 
   getMaxAngle(location: Location, context: ItemContext): number {
