@@ -1,7 +1,6 @@
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
-import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -16,7 +15,8 @@ import {
   isSpectator,
   isWarView,
   PANEL_HEIGHT,
-  PANEL_WIDTH
+  PANEL_WIDTH,
+  viewMove
 } from '../locators/TableLayout'
 import { TableAnchor } from '../table/TableAnchor'
 import { paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
@@ -66,11 +66,12 @@ export const PlayerPanels: FC = () => {
 /** The panel of a player whose area is not displayed: clicking it displays their area */
 const ViewPanelButton: FC<{ player: PlayerColor }> = ({ player }) => {
   const { t } = useTranslation()
+  const context = useMaterialContext()
   const name = usePlayerName(player)
   return (
     <PlayMoveButton
       css={panelButtonCss}
-      move={MaterialMoveBuilder.changeView(player)}
+      move={viewMove(context, player)}
       transient
       title={t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })}
     >

@@ -20,3 +20,10 @@ export const getColor = (color: PlayerColor): string => {
 
   return ''
 }
+
+/** The colour of a Monarch as it reads on paper (names, rings): the pale ones darkened */
+export const inkOf = (player: PlayerColor) => {
+  if (player === PlayerColor.Yellow) return '#b8900e'
+  if (player === PlayerColor.White) return '#8d8782'
+  return getColor(player).substring(0, 7)
+}

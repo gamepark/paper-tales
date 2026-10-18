@@ -1,10 +1,9 @@
 import { css, Interpolation, Theme } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
-import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getMe, getNeighboursView, getViewedPlayer, getWarCenter, isSpectator, isWarView, SIDE_COLUMN_WIDTH, viewsPosition } from '../locators/TableLayout'
+import { getMe, getNeighboursView, getViewedPlayer, getWarCenter, isSpectator, isWarView, SIDE_COLUMN_WIDTH, viewMove, viewsPosition } from '../locators/TableLayout'
 import { CrownIcon, NeighboursIcon } from '../material/icons/PaperIcons'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { cutLine, paper, paperCss, paperMuted, rust, tableButtonCss } from '../theme/tableTheme'
@@ -79,6 +78,7 @@ const ViewLine: FC<{ view: number; current: boolean; icon: ReactNode; children?:
   rowCss,
   title
 }) => {
+  const context = useMaterialContext()
   const content = (
     <>
       {icon}
@@ -90,7 +90,7 @@ const ViewLine: FC<{ view: number; current: boolean; icon: ReactNode; children?:
       {content}
     </div>
   ) : (
-    <PlayMoveButton css={[otherCss, lineCss, rowCss]} move={MaterialMoveBuilder.changeView(view)} transient title={title}>
+    <PlayMoveButton css={[otherCss, lineCss, rowCss]} move={viewMove(context, view)} transient title={title}>
       {content}
     </PlayMoveButton>
   )

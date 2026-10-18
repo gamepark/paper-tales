@@ -5,7 +5,7 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext } from '@gamepark/react-game'
-import { Coordinates, XYCoordinates } from '@gamepark/rules-api'
+import { Coordinates, MaterialMoveBuilder, XYCoordinates } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import { unitCardDescription } from '../material/UnitCardDescription'
 
@@ -134,6 +134,22 @@ export const getWarRibbonPosition = (index: number, count: number) => {
   return { x: seat.kingdomX + (WAR_SEAT_WIDTH * seat.scale) / 2, y: seat.y + KINGDOM_HEIGHT * seat.scale + 1.4, beside: false }
 }
 
+/**
+ * Where the result of a war of the neighbours view is told: with 3 kingdoms, in the empty room at the side of the
+ * central kingdom where the neighbour sits (left or right); with 2, centred under both kingdoms. The anchor is the top
+ * centre of the banner.
+ */
+export const getWarResultPosition = (neighbourIndex: number, count: number): XYCoordinates => {
+  if (count === 2) {
+    const seat = getWarSeat(0, 2)
+    return { x: WAR_CENTER_X, y: seat.y + KINGDOM_HEIGHT * seat.scale + 4.2 }
+  }
+  const center = getWarSeat(1, 3)
+  const centerRight = center.kingdomX + WAR_SEAT_WIDTH * center.scale
+  const x = neighbourIndex === 0 ? (AREA_X + center.kingdomX) / 2 : (centerRight + WAR_RIGHT) / 2
+  return { x, y: center.y + 1.5 }
+}
+
 export const getMe = (context: MaterialContext): PlayerColor => (context.player ?? context.rules.players[0]) as PlayerColor
 
 /** A spectator plays no seat: "me" is then only the first player, and nothing should be told as if they were them */
@@ -156,10 +172,33 @@ export const isNeighbour = (context: MaterialContext, player: number) =>
   player !== getMe(context) && (player === getLeftNeighbour(context) || player === getRightNeighbour(context))
 
 /**
+ * The view chosen by a Monarch (a transient changeView) holds for the part of the turn it was chosen in: the turn, and
+ * whether its wars were fought yet. A new turn starts in my area, and the wars, once fought, are shown to everyone
+ * until they move on (see isWarResultsPending), whatever was looked at during the deployment. The part of the turn is
+ * stamped on the view number.
+ */
+const VIEW_STAMP = 1000
+const isAfterWars = (context: MaterialContext) => {
+  const rule = context.rules.game.rule?.id as RuleId | undefined
+  return rule !== undefined && rule >= RuleId.War && rule !== RuleId.EndGame
+}
+const getViewStamp = (context: MaterialContext) => getRound(context) * 2 + (isAfterWars(context) ? 1 : 0)
+
+/** The move that displays a view: a player's area, or the neighbours of a player (see getNeighboursView) */
+export const viewMove = (context: MaterialContext, view: number) => MaterialMoveBuilder.changeView(getViewStamp(context) * VIEW_STAMP + view)
+
+/** The view chosen for the current part of the turn, undefined when none was */
+const getChosenView = (context: MaterialContext): number | undefined => {
+  const view = context.rules.game.view
+  if (view === undefined || Math.floor(view / VIEW_STAMP) !== getViewStamp(context)) return undefined
+  return view % VIEW_STAMP
+}
+
+/**
  * Player whose area is displayed: chosen with a transient changeView, me by default
  */
 export const getViewedPlayer = (context: MaterialContext): PlayerColor => {
-  const view = context.rules.game.view as PlayerColor | undefined
+  const view = getChosenView(context) as PlayerColor | undefined
   return view !== undefined && context.rules.players.includes(view) ? view : getMe(context)
 }
 
@@ -179,16 +218,26 @@ const warRules = [RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEff
 export const getNeighboursView = (context: MaterialContext, player: PlayerColor) =>
   player === getMe(context) && !isSpectator(context) ? NEIGHBOURS_VIEW : NEIGHBOURS_VIEW + player
 
-const isNeighboursView = (context: MaterialContext) => (context.rules.game.view ?? 0) >= NEIGHBOURS_VIEW
+const isNeighboursView = (context: MaterialContext) => (getChosenView(context) ?? 0) >= NEIGHBOURS_VIEW
 
-export const isWarView = (context: MaterialContext) => isNeighboursView(context) || warRules.includes(context.rules.game.rule?.id as RuleId)
+/**
+ * Once the wars are fought, the construction begins on the neighbours view and its war results, until the Monarch
+ * moves on (Continue, or any other view): the wars resolve at once, and would otherwise be gone before they are read
+ */
+export const isWarResultsPending = (context: MaterialContext) => context.rules.game.rule?.id === RuleId.Build && getChosenView(context) === undefined
+
+/** The wars of this turn are fought and their results can be shown */
+export const areWarsFought = (context: MaterialContext) => [RuleId.War, RuleId.Income, RuleId.Build].includes(context.rules.game.rule?.id as RuleId)
+
+export const isWarView = (context: MaterialContext) =>
+  isNeighboursView(context) || warRules.includes(context.rules.game.rule?.id as RuleId) || isWarResultsPending(context)
 
 /**
  * The player in the middle of the neighbours view: the one whose neighbours were asked for, else the displayed player
  * (the automatic view of the wars)
  */
 export const getWarCenter = (context: MaterialContext): PlayerColor => {
-  const view = context.rules.game.view ?? 0
+  const view = getChosenView(context) ?? 0
   if (view === NEIGHBOURS_VIEW) return getMe(context)
   if (view > NEIGHBOURS_VIEW) return (view - NEIGHBOURS_VIEW) as PlayerColor
   return getViewedPlayer(context)

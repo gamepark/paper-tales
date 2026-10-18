@@ -16,10 +16,23 @@ import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 import { AgeTokens } from '../helpers/AgeTokens'
 
+/**
+ * The wars won against one neighbour (rulebook p.6): one when the strength is not below the neighbour's, so that both
+ * win on a tie. At 2 players (p.8), a strength at least double wins two.
+ */
+export const warsWonAgainst = (power: number, otherPower: number, twoPlayers: boolean): number => {
+  if (power < otherPower) return 0
+  return twoPlayers && power >= otherPower * 2 ? 2 : 1
+}
+
+export type WarStrengths = Partial<Record<number, number>>
+
 export class War extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
     const players = this.game.players
+    // Read from the revealed kingdoms only: the same on every client
+    this.memorize(Memory.WarStrengths, Object.fromEntries(players.map((player) => [player, this.getPlayerPower(player)])))
 
     players.forEach((player) => {
       this.forget(Memory.PlayedCardsDuringDeployment, player)
@@ -56,12 +69,9 @@ export class War extends MaterialRulesPart {
     const index = players.indexOf(player)
     const power = this.getPlayerPower(player)
     const leftPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'left')])
-    if (players.length === 2) {
-      if (power < leftPower) return 0
-      return power >= leftPower * 2 ? 2 : 1
-    }
+    if (players.length === 2) return warsWonAgainst(power, leftPower, true)
     const rightPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'right')])
-    return (power >= leftPower ? 1 : 0) + (power >= rightPower ? 1 : 0)
+    return warsWonAgainst(power, leftPower, false) + warsWonAgainst(power, rightPower, false)
   }
 
   getGainScoreIfWinWarAmount(player: number): number {

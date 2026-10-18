@@ -404,5 +404,11 @@
   "panel.active": "Doit jouer",
   "panel.order.left": "Les cartes vont à gauche à cette manche",
   "panel.order.right": "Les cartes vont à droite à cette manche",
-  "deploy.gold.help": "Ton or, moins le coût des unités posées : ce qu’il te restera"
+  "deploy.gold.help": "Ton or, moins le coût des unités posées : ce qu’il te restera",
+  "header.war.results": "Les guerres sont jouées : lis les résultats, puis <0>continue</0>",
+  "war.result": "{player} gagne",
+  "war.result.2": "{player} gagne 2 guerres",
+  "war.result.you": "Tu gagnes",
+  "war.result.you.2": "Tu gagnes 2 guerres",
+  "war.result.tie": "Égalité : les deux gagnent"
 }

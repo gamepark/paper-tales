@@ -14,8 +14,8 @@ import { TableAnchor } from './TableAnchor'
 
 /**
  * In the neighbours view, under each kingdom: the Monarch's name in their colour and the strength of their front row
- * (plus ranged units, rulebook p.6). The central kingdom is the one displayed, in a larger ribbon. The outcome of the
- * wars is not shown as a state: it is read in the score animation and the journal.
+ * (plus ranged units, rulebook p.6). The central kingdom is the one displayed, in a larger ribbon. Once the wars are
+ * fought, their outcome is told in banners beside (see WarResults).
  */
 export const WarInfo: FC = () => {
   const context = useMaterialContext()
