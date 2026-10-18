@@ -1,4 +1,3 @@
-import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
@@ -12,11 +11,12 @@ import {
   isMoveItemType,
   isMoveItemTypeAtOnce,
   isShuffle,
+  isStartRule,
   Location,
   MaterialItem,
   MaterialMove
 } from '@gamepark/rules-api'
-import { isAreaDisplayed } from '../locators/TableLayout'
+import { getViewedPlayer, isAreaDisplayed } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -160,36 +160,21 @@ paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).dura
 paperTalesAnimation.configure(and(isRule(RuleId.War), isMoveItemType(MaterialType.ScoreToken))).duration(700)
 
 /**
- * The Age, in the kingdom displayed: the bands on the units (see AgeFates) are read before the first unit dies; the
- * card, and its Age tokens with it, wait in place, then go to the discard. The dying units of the others go quickly.
+ * The Age, in the kingdom displayed: the bands on the units (see AgeFates) are read before the units die. The start of
+ * the deaths is a pause of the timeline when a unit of the displayed kingdom dies, then the dying units go to the
+ * discard, slowly in the displayed kingdom, quickly from the panels of the others.
  */
-const AGE_READING = 1.8
-const AGE_DEATH = 0.9
-const isFirstDeathShown = (move: MaterialMove, context: MaterialContext) => {
-  if (!isMoveItemType(MaterialType.Unit)(move) || move.location.type !== LocationType.Discard) return false
-  const unit = itemAt(context, MaterialType.Unit, move.itemIndex)
-  if (!unit || isUnseen(move, context)) return false
-  const dying = new AgeHelper(context.rules.game, unit.location.player!).dyingUnits.getIndexes()
-  return Math.min(...dying) === move.itemIndex
+const AGE_READING = 1800
+const AGE_DEATH = 900
+const deathsShown = (move: MaterialMove, context: MaterialContext) => {
+  if (!isStartRule(move) || move.id !== RuleId.AgeUnitsDie) return false
+  const player = getViewedPlayer(context)
+  return isAreaDisplayed(context, player) && new AgeHelper(context.rules.game, player).dyingUnits.length > 0
 }
 const fromDisplayedArea = (move: MaterialMove, context: MaterialContext) =>
   isMoveItem(move) && isAreaDisplayed(context, itemAt(context, move.itemType, move.itemIndex)?.location.player)
-const ageBuilder = new MaterialGameAnimations()
-const deathMove = ageBuilder.configure(isMoveItem).duration(AGE_DEATH * 1000)
-paperTalesAnimation
-  .configure(and(isRule(RuleId.AgeUnitsDie), isFirstDeathShown))
-  .duration((AGE_READING + AGE_DEATH) * 1000)
-  .itemAnimation((context, animation, boundaries) => [
-    // Without a backwards fill, the delayed animation leaves the card in place until it starts
-    deathMove.getItemAnimation(context, { ...animation, duration: animation.duration - AGE_READING }, boundaries),
-    css`
-      &&,
-      && > * {
-        animation-delay: ${AGE_READING}s;
-      }
-    `
-  ])
-paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), fromDisplayedArea)).duration(AGE_DEATH * 1000)
+paperTalesAnimation.configure(deathsShown).duration(AGE_READING)
+paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), fromDisplayedArea)).duration(AGE_DEATH)
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isMoveItem)).duration(300)
 // The Age tokens of the dead go back to the reserve, the new ones land on the units that live on
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isDeleteItem)).duration(400)
