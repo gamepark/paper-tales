@@ -42,12 +42,12 @@ const DraftRecipient: FC<{ player: number }> = ({ player }) => {
     ? t('draft.recipient.spectator', { defaultValue: 'The other cards of {giver} go to {player}', giver, player: name })
     : t('draft.recipient', { defaultValue: 'Your other cards go to {player}', player: name })
   return (
-    <TableAnchor position={handsLabelPosition} css={[labelCss, colorStripCss(getColor(recipient).substring(0, 7)), rightAlignedCss]}>
+    <TableAnchor position={handsLabelPosition} css={[labelCss, colorStripCss(getColor(recipient).substring(0, 7)), centeredCss]}>
       {text} {arrow}
     </TableAnchor>
   )
 }
 
-const rightAlignedCss = css`
-  transform: translateX(-100%);
+const centeredCss = css`
+  transform: translateX(-50%);
 `

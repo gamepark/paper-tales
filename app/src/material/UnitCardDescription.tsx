@@ -58,9 +58,6 @@ import { PaperMenuButton } from './PaperMenuButton'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
 
-/** Just above the top left corner of a card of the draft fan (radius and angle from the centre of the card) */
-const aboveCardInFan = { radius: 9.3, angle: -23.5 }
-
 export class UnitCardDescription extends CardDescription {
   height = 14
   width = 10
@@ -121,6 +118,9 @@ export class UnitCardDescription extends CardDescription {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
     // In the neighbours view, the back row is shaded: only the front row fights (p.6).
     if (item.location.type === LocationType.Discard) return [discardCss]
+    // In the draft fan, a zoomed card covers its own buttons, which sit on its text once zoomed: the pointer that goes
+    // for a button leaves the card, which shrinks back and shows them again
+    if (item.location.type === LocationType.PlayerDraftHand) return []
     if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
       return [hoveredItemMenuAboveCss, backRowCss]
     }
@@ -151,15 +151,13 @@ export class UnitCardDescription extends CardDescription {
 
     const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
 
-    // In the draft fan, one button just above the left edge of each card, whatever the number of cards: it never hides
-    // the name nor the cost, its label has the room up to the next card, and on a zoomed card it lands on the picture,
-    // not on the text. There is room for one row only (the kingdom is right above): with 2 players, Keep comes first,
-    // then Discard once a card is kept (the rules accept both orders, and the result is the same).
-    const inDraftFan = _item.location.type === LocationType.PlayerDraftHand
+    // At the top left of the card, within thumb reach, under the name and the cost so that they stay readable: the strip
+    // of a card that the next one leaves visible in the fan, whatever the number of cards, with room for the labels.
+    // With 2 players, Keep and Discard one under the other: both choices at once, in any order (rulebook p.8).
     const items = []
     if (draft) {
       items.push(
-        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" {...aboveCardInFan}>
+        <PaperMenuButton key="draft" move={draft} label={<Trans i18nKey="move.keep" defaults="Keep" />} labelPosition="right" radius={5} angle={-46}>
           <KeepIcon />
         </PaperMenuButton>
       )
@@ -173,10 +171,9 @@ export class UnitCardDescription extends CardDescription {
       )
     }
 
-    if (discard && !(inDraftFan && draft)) {
-      const position = inDraftFan ? aboveCardInFan : { radius: 8, angle: -40 }
+    if (discard) {
       items.push(
-        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" {...position}>
+        <PaperMenuButton key="discard" move={discard} label={<Trans i18nKey="move.discard" defaults="Discard" />} labelPosition="right" radius={3.7} angle={-77}>
           <DiscardIcon />
         </PaperMenuButton>
       )
