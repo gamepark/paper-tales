@@ -29,7 +29,11 @@ type Point = { x: number; y: number }
  */
 export const DraftPassFlights: FC = () => {
   const context = useMaterialContext()
-  if (context.rules.game.rule?.id !== RuleId.GiveDraftToNeighbor) return null
+  // Out of the pass, the back of a card stays drawn, invisible: decoded, it shows at once on the packs (without it, the
+  // packs show their outline only for a moment)
+  if (context.rules.game.rule?.id !== RuleId.GiveDraftToNeighbor) {
+    return <img src={unitCardDescription.backImage} alt="" decoding="sync" css={warmCss} />
+  }
   const displayed = getViewedPlayer(context)
   const order = getPanelsOrder(context)
   const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
@@ -57,7 +61,7 @@ export const DraftPassFlights: FC = () => {
         return (
           <TableAnchor key={giver} position={path[0]} css={flightCss(path)}>
             {[0, 1, 2].map((card) => (
-              <img key={card} src={unitCardDescription.backImage} alt="" css={cardCss(card)} />
+              <img key={card} src={unitCardDescription.backImage} alt="" decoding="sync" css={cardCss(card)} />
             ))}
           </TableAnchor>
         )
@@ -96,6 +100,14 @@ const flightCss = (path: Point[]) => css`
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+`
+
+const warmCss = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0.01;
+  pointer-events: none;
 `
 
 const cardCss = (card: number) => css`

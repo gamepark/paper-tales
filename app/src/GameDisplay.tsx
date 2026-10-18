@@ -8,7 +8,6 @@ import { PlayerPanels } from './panels/PlayerPanels'
 import { DraftPassFlights } from './panels/DraftPassFlights'
 import { TurnOrderArrows } from './panels/TurnOrderArrows'
 import { BuildInfo } from './table/BuildInfo'
-import { UnbuiltMarks } from './table/UnbuiltMarks'
 import { DeployGold } from './table/DeployGold'
 import { DraftDirection } from './table/DraftDirection'
 import { SideColumn } from './table/SideColumn'
@@ -27,7 +26,6 @@ export const GameDisplay: FC = () => (
     <DraftDirection />
     <DeployGold />
     <BuildInfo />
-    <UnbuiltMarks />
     <WarInfo />
     <WarResults />
     <AgeFates />
