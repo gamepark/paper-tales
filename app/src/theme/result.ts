@@ -54,7 +54,10 @@ export const resultTableCss = css`
   font-weight: 600;
   font-size: 1.1em;
 
+  /* The cells stretch to the height of their row (the icons make it tall): their content is centred in it */
   > div {
+    display: grid;
+    align-content: center;
     border-left: 0;
     background-color: transparent;
     text-align: center;
