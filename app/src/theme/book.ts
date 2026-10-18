@@ -73,6 +73,8 @@ export const bookContentCss = css`
   flex-direction: column;
   margin: 0;
   padding: 2.1em 3.4em 3.2em 3em;
+  /* Rounded on its outer side, like the left page on its own */
+  border-radius: 0 ${bookEm(0.2)} ${bookEm(0.2)} 0;
   font-size: ${bookEm(1)};
   color: ${cutLine};
   background: linear-gradient(90deg, ${pageFold} 0, ${paper} 2.6em);

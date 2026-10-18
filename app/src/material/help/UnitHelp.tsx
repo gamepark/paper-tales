@@ -56,18 +56,11 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   if (inKingdom) {
     steps[2].you = <WarLine front={front || effects.some(isWarFromBacklane)} strength={strength} resource={resourceCondition} produced={produced} />
   }
-  // Its Age tokens, on the aging step: does it die at the end of the turn? (said once, here, not in a box below)
-  if (inKingdom) {
-    const age = !tokens ? 'help.unit.live.age.none' : dying ? 'help.unit.live.age.dies' : 'help.unit.live.age.survives'
-    steps[5].you = (
-      <Trans
-        i18nKey={age}
-        defaults={!tokens ? 'No Age token: gets one at the end of the turn.' : dying ? '{tokens} <age/>: dies at the end of the turn.' : '{tokens} <age/>: survives, and gets one more.'}
-        values={{ tokens }}
-        components={helpIconComponents}
-      />
-    )
+  if (tokens > 0) {
+    steps[5].on = true
+    steps[5].text ??= <Trans i18nKey="help.unit.age.token" defaults="Already carries <age/>." components={helpIconComponents} />
   }
+  if (dying) steps[5].you = t('help.unit.age.dies', 'Dies at the end of this turn.')
   return (
     <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />}>
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />

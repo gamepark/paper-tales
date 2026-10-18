@@ -197,7 +197,7 @@
   "help.unit.war.back": "In the Back: does not fight.",
   "help.unit.war.you": "Counts for <s/>.",
   "help.unit.war.you.resource": "The Kingdom produces {count} <res/>: counts for <s/>.",
-  "help.unit.age.token": "Already carries an Age token.",
+  "help.unit.age.token": "Already carries <age/>.",
   "help.unit.age.dies": "Dies at the end of this turn.",
   "help.live.kingdom": "In your Kingdom",
   "help.unit.live.front": "In the Front: fights.",
