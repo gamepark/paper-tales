@@ -65,8 +65,10 @@ export const playerGoldCoordinates = {
 // The spectator's ribbon about the cards to draft: centred above the fan they are about (the ribbon is translated by
 // half its width). A spectator has no buttons above the cards.
 export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
-export const deployGoldPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
-export const buildInfoPosition = { x: BUILDINGS_X, y: AREA_Y + BUILDING_ROW * 3 }
+// What my gold is spent on (deployment, construction): right under my pile of gold, centred on it (the labels are
+// translated by half their width)
+export const deployGoldPosition = { x: playerGoldCoordinates.x, y: playerGoldCoordinates.y + 4.2 }
+export const buildInfoPosition = deployGoldPosition
 
 // Right column. From the top: the current turn, the views, the deck, the discard, then the reserves next to my gold.
 // The turn and the piles have a short ribbon 0.5 em under them, which frames the column.

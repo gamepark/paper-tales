@@ -45,7 +45,8 @@ export const BuildInfo: FC = () => {
 const columnCss = css`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  transform: translateX(-50%);
   gap: 0.4em;
 
   > span {

@@ -155,15 +155,17 @@ export class UnitCardDescription extends CardDescription {
     // In the draft fan, the buttons stand in a row just above the left edge of each card, whatever the number of cards:
     // they never hide the name nor the cost, and on a zoomed card they land on the picture, not on the text. No label,
     // for the 2 buttons to fit side by side with 2 players (the help of the card names them)
+    // The framework places the menu without the rotation of the card: the angles turn with the card in a fan, so that the
+    // buttons stand at the same place on every card
+    const tilt = context.locators[item.location.type]?.getItemRotateZ(item, context) ?? 0
     if (item.location.type === LocationType.PlayerDraftHand) {
-      // The framework places the menu without the rotation of the card: the angles turn with the card in the fan, so
-      // that the buttons stand at the same place on every card
-      const tilt = context.locators[item.location.type]?.getItemRotateZ(item, context) ?? 0
       return [
         button(UnitAction.Keep, { radius: 9.3, angle: -23.5 + tilt }, false),
         button(UnitAction.Discard, { radius: 8.55, angle: -6 + tilt }, false)
       ]
     }
+    // In my hand during the deployment, the discard stands above the card, where Keep stood during the recruitment
+    if (item.location.type === LocationType.PlayerUnitHand) return [button(UnitAction.Discard, { radius: 9.3, angle: -23.5 + tilt }, false)]
     return [
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
       button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
