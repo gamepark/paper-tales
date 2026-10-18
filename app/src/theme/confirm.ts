@@ -32,7 +32,8 @@ export const confirmDialogCss = css`
     font-weight: 500;
   }
 
-  > button,
+  /* The bookmark that closes the window is a button of the dialog too: left as it is */
+  > button:not([data-bookmark]),
   > div > button {
     ${dialogButtonCss};
   }
