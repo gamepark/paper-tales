@@ -75,6 +75,8 @@ export class PaperTalesRules
     [MaterialType.Unit]: {
       [LocationType.Deck]: hideItemId,
       [LocationType.PlayerDraftHand]: hideItemIdToOthers,
+      [LocationType.DraftTransit]: hideItemId,
+      [LocationType.DraftWaiting]: hideItemId,
       [LocationType.PlayerUnitHand]: hideItemIdToOthers,
       [LocationType.Discard]: hideItemId,
       [LocationType.PlayerUnitBoard]: hideRotatedCardToOthers

@@ -291,11 +291,29 @@ export const HIDDEN_HAND_SCALE = 0.3
  */
 export const getHiddenHandCoordinates = (context: MaterialContext, player?: number) => {
   if (player === undefined || isAreaDisplayed(context, player)) return undefined
+  return getPanelCenter(context, player)
+}
+
+/** The centre of a Monarch's panel, in table coordinates */
+export const getPanelCenter = (context: MaterialContext, player: number) => {
   const index = getPanelsOrder(context).indexOf(player)
   if (index === -1) return undefined
   const { x, y } = getPanelPosition(index)
   return { x: x + PANEL_WIDTH / 2, y: y + PANEL_HEIGHT / 2, z: 0 }
 }
+
+/** Who gives their hand to this Monarch during the recruitment of this round: the inverse of {@link getDraftRecipient} */
+export const getDraftGiver = (context: MaterialContext, player = getMe(context)) =>
+  getRound(context) % 2 === 1 ? getRightNeighbour(context, player) : getLeftNeighbour(context, player)
+
+/**
+ * A passed hand lands face down at the right of the place of the draft fan of its receiver, before they take it: the
+ * fan is empty by then (the receiver has already given theirs)
+ */
+export const getDraftWaitingCoordinates = (context: MaterialContext) => ({
+  x: (context.rules.players.length === 2 ? twoPlayersDraftHandCoordinates : draftHandCoordinates).x + 24,
+  y: HANDS_Y
+})
 
 /**
  * The draft goes to the left on rounds 1 and 3, to the right on rounds 2 and 4 (rulebook p.5)

@@ -2,7 +2,7 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext, MaterialGameAnimations } from '@gamepark/react-game'
-import { isCreateItem, isMoveItem, isMoveItemTypeAtOnce, isShuffle } from '@gamepark/rules-api'
+import { isCreateItem, isMoveItem, isMoveItemTypeAtOnce, isShuffle, MaterialMove, MoveItemsAtOnce } from '@gamepark/rules-api'
 import { isAreaDisplayed } from '../locators/TableLayout'
 
 class PaperTalesMaterialAnimation extends MaterialGameAnimations {}
@@ -11,20 +11,36 @@ export const paperTalesAnimation = new PaperTalesMaterialAnimation()
 
 paperTalesAnimation.when().rule(RuleId.Deal).move(isMoveItem).duration(0.2)
 
-// The hands given during the recruitment fly from panel to panel when neither area is displayed (see
-// getHiddenHandCoordinates): quickly, one after the other, so that the hand that comes into the displayed area is not
-// kept waiting. Their shuffle, out of sight, takes no time.
+// The hands passed during the recruitment, in steps that every Monarch goes through at once (see GiveDraftToNeighbor
+// and DraftPassingLocators): what happens in the displayed area takes its time, the rest happens under the panels
 const handOwner = (index: number, context: MaterialContext) => context.rules.material(MaterialType.Unit).index(index).getItem()?.location.player
+const passedTo = (move: MaterialMove, ...types: LocationType[]) => isMoveItemTypeAtOnce(MaterialType.Unit)(move) && types.includes(move.location.type)
+// 1. Each hand leaves its giver face down: slowly from the displayed area, quickly from panel to panel
+paperTalesAnimation
+  .when()
+  .rule(RuleId.GiveDraftToNeighbor)
+  .move((move, context) => passedTo(move, LocationType.DraftTransit) && isAreaDisplayed(context, handOwner((move as MoveItemsAtOnce).indexes[0], context)))
+  .duration(0.6)
+paperTalesAnimation
+  .when()
+  .rule(RuleId.GiveDraftToNeighbor)
+  .move((move) => passedTo(move, LocationType.DraftTransit))
+  .duration(0.15)
+// 2. It lands face down in front of its receiver, 3. who takes it in hand, 4. and shuffles it: seen in the displayed area
+// only
 paperTalesAnimation
   .when()
   .rule(RuleId.GiveDraftToNeighbor)
   .move(
     (move, context) =>
-      isMoveItemTypeAtOnce(MaterialType.Unit)(move) &&
-      !isAreaDisplayed(context, handOwner(move.indexes[0], context)) &&
-      !isAreaDisplayed(context, move.location.player)
+      passedTo(move, LocationType.DraftWaiting, LocationType.PlayerDraftHand) && isAreaDisplayed(context, (move as MoveItemsAtOnce).location.player)
   )
-  .duration(0.2)
+  .duration(0.6)
+paperTalesAnimation
+  .when()
+  .rule(RuleId.GiveDraftToNeighbor)
+  .move((move) => passedTo(move, LocationType.DraftWaiting, LocationType.PlayerDraftHand))
+  .none()
 paperTalesAnimation
   .when()
   .rule(RuleId.GiveDraftToNeighbor)

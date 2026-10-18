@@ -13,12 +13,17 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
       moves.push(this.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
     } else {
       const players = this.game.players
-      // The hands are captured before any move: each one is then given, all at once
+      // The hands are captured before any move: the same cards are then moved step by step
       const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player))
-      hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player: this.getNextPlayer(players[index]) })))
-      // Each hand is shuffled once given, so that the Monarch who passed it cannot follow a card to what the neighbour
-      // keeps. Only once every hand is given: a hand shuffled earlier would be shuffled among the cards its receiver has
-      // not given yet.
+      const receivers = players.map((player) => this.getNextPlayer(player))
+      // In steps that every Monarch goes through at the same time: each hand is given face down (it leaves its giver),
+      // then lands face down in front of its receiver, then the receiver takes it in hand. A hand that would land before
+      // its receiver's own hand is given would make one Monarch wait for another all around the table.
+      hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.DraftTransit, player: receivers[index] })))
+      hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.DraftWaiting, player: receivers[index] })))
+      hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player: receivers[index] })))
+      // Each hand is shuffled once taken, so that the Monarch who passed it cannot follow a card to what the neighbour
+      // keeps
       for (const hand of hands) if (hand.length > 1) moves.push(hand.shuffle())
 
       moves.push(this.startSimultaneousRule(RuleId.Draft))
