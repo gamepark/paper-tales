@@ -11,9 +11,10 @@ import { DeployEffectsHeader } from './DeployEffectsHeader'
 import { ChooseWherePlacingAgeTokenHeader } from './ChooseWherePlacingAgeTokenHeader'
 import { IncomeHeader } from './IncomeHeader'
 import { WarHeader } from './WarHeader'
+import { withPhaseIcon } from './withPhaseIcon'
 import { AgeEffectsHeader, AgeUnitsAgeHeader, AgeUnitsDieHeader, EndGameHeader, NextTurnHeader, SaveUnitsWithMysticEffectHeader } from './AgeHeaders'
 
-export const Headers: Partial<Record<RuleId, ComponentType>> = {
+const headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.Deal]: DealHeader,
   [RuleId.Draft]: DraftHeader,
   [RuleId.GiveDraftToNeighbor]: GiveDraftToNeighborHeader,
@@ -33,3 +34,8 @@ export const Headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.SaveUnitsWithMysticEffect]: SaveUnitsWithMysticEffectHeader,
   [RuleId.ChooseUnpaidUnits]: () => <>ChooseUnpaidUnits</>
 }
+
+/** Every header begins with the icon of its phase */
+export const Headers: Partial<Record<RuleId, ComponentType>> = Object.fromEntries(
+  Object.entries(headers).map(([rule, Header]) => [rule, withPhaseIcon(Header)])
+)
