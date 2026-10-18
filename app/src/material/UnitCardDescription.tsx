@@ -148,7 +148,7 @@ export class UnitCardDescription extends CardDescription {
 
     const save = legalMoves.find((move) => isCustomMoveType(CustomMoveType.MysticEffect)(move) && (move.data as MysticEffectType).unitIndex === context.index)
 
-    // At the top of the card, within thumb reach. In a wide fan (9 cards at 2 players) the cards overlap too much for
+    // At the top of the card, within thumb reach, under the name and the cost so that they stay readable. In a wide fan (9 cards at 2 players) the cards overlap too much for
     // a label: the icon alone
     const wideFan = !!draft && context.rules.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(_item.location.player).length > 6
     const items = []
@@ -159,7 +159,7 @@ export class UnitCardDescription extends CardDescription {
           move={draft}
           label={wideFan ? undefined : <Trans i18nKey="move.keep" defaults="Keep" />}
           labelPosition="right"
-          radius={6.6}
+          radius={4.4}
           angle={-28 + _item.location.x! * 1.5}
         >
           <KeepIcon />
@@ -177,7 +177,7 @@ export class UnitCardDescription extends CardDescription {
 
     if (discard) {
       items.push(
-        <PaperMenuButton key="discard" move={discard} radius={8} angle={-40 + _item.location.x! * 1.5}>
+        <PaperMenuButton key="discard" move={discard} radius={2.6} angle={-55 + _item.location.x! * 1.5}>
           <DiscardIcon />
         </PaperMenuButton>
       )
