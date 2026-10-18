@@ -3,6 +3,7 @@ import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import { BUILDING_SCALE, getBuildingSlotCoordinates, getHoverShift, getPlayerPositionDependencies, isBuildingsDisplayed, scaleTransform } from './TableLayout'
+import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
  * Buildings not built yet: the same fixed slot as once built, greyed out (see BuildingCardDescription)
@@ -21,7 +22,7 @@ export class PlayerBuildingHandLocator extends Locator {
   }
 
   placeItem(item: MaterialItem, context: ItemContext) {
-    return [...super.placeItem(item, context), ...scaleTransform(BUILDING_SCALE)]
+    return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...scaleTransform(BUILDING_SCALE)])
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {

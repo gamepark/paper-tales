@@ -2,12 +2,11 @@ import { HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import {
   draftHandCoordinates,
-  getHiddenHandCoordinates,
   getPlayerPositionDependencies,
-  HIDDEN_HAND_SCALE,
   isAreaDisplayed,
   twoPlayersDraftHandCoordinates
 } from './TableLayout'
+import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
  * Cards to draft: a fan at the left of my hands row, during the recruitment only
@@ -57,19 +56,8 @@ export class PlayerDraftHandLocator extends HandLocator {
     return ['translateZ(20em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(2)', 'translateY(-25%)']
   }
 
-  // The cards to draft of a Monarch whose area is not displayed stand on their panel (see getHiddenHandCoordinates):
-  // the hands passed during the recruitment fly from panel to panel
-  getItemCoordinates(item: MaterialItem, context: ItemContext) {
-    return getHiddenHandCoordinates(context, item.location.player) ?? super.getItemCoordinates(item, context)
-  }
-
-  getItemRotateZ(item: MaterialItem, context: ItemContext): number {
-    return getHiddenHandCoordinates(context, item.location.player) ? 0 : super.getItemRotateZ(item, context)
-  }
-
   placeItem(item: MaterialItem, context: ItemContext): string[] {
-    const transform = super.placeItem(item, context)
-    return getHiddenHandCoordinates(context, item.location.player) ? [...transform, `scale(${HIDDEN_HAND_SCALE})`] : transform
+    return placeAtPanelWhenHidden(this, item, context, () => super.placeItem(item, context))
   }
 }
 

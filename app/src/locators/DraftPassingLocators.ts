@@ -3,12 +3,12 @@ import { Location, MaterialItem } from '@gamepark/rules-api'
 import {
   getDraftGiver,
   getDraftWaitingCoordinates,
-  getHiddenHandCoordinates,
   getPanelCenter,
   getPlayerPositionDependencies,
   HIDDEN_HAND_SCALE,
   isAreaDisplayed
 } from './TableLayout'
+import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
  * A hand on its way to its receiver (the player of the location), face down, small, under a panel, and never shown at
@@ -56,17 +56,8 @@ export class DraftWaitingLocator extends HandLocator {
     return !isAreaDisplayed(context, item.location.player)
   }
 
-  getItemCoordinates(item: MaterialItem, context: ItemContext) {
-    return getHiddenHandCoordinates(context, item.location.player) ?? super.getItemCoordinates(item, context)
-  }
-
-  getItemRotateZ(item: MaterialItem, context: ItemContext): number {
-    return getHiddenHandCoordinates(context, item.location.player) ? 0 : super.getItemRotateZ(item, context)
-  }
-
   placeItem(item: MaterialItem, context: ItemContext): string[] {
-    const transform = super.placeItem(item, context)
-    return getHiddenHandCoordinates(context, item.location.player) ? [...transform, `scale(${HIDDEN_HAND_SCALE})`] : transform
+    return placeAtPanelWhenHidden(this, item, context, () => super.placeItem(item, context))
   }
 }
 

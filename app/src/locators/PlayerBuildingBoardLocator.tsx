@@ -14,6 +14,7 @@ import {
   isWarView,
   scaleTransform
 } from './TableLayout'
+import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
  * Built buildings: each building has a fixed slot in the grid at the right of the kingdom. In the neighbours view,
@@ -35,7 +36,7 @@ export class PlayerBuildingBoardLocator extends Locator {
 
   placeItem(item: MaterialItem, context: ItemContext) {
     const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : BUILDING_SCALE
-    return [...super.placeItem(item, context), ...scaleTransform(scale)]
+    return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...scaleTransform(scale)])
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {

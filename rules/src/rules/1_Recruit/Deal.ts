@@ -26,7 +26,8 @@ export class Deal extends PlayerTurnRule {
     if (missingSomewhere) {
       // The deck is empty: the discard becomes the new deck, and the deal goes on
       const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
-      moves.push(discard.shuffle(), ...discard.moveItems({ type: LocationType.Deck }), this.startPlayerTurn(RuleId.Deal, this.game.players[0]))
+      // All the cards at once: one card at a time would hold the table for a minute
+      moves.push(discard.shuffle(), discard.moveItemsAtOnce({ type: LocationType.Deck }), this.startPlayerTurn(RuleId.Deal, this.game.players[0]))
     } else {
       moves.push(this.startSimultaneousRule(RuleId.Draft))
     }

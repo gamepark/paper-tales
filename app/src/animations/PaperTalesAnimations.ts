@@ -2,57 +2,103 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext, MaterialGameAnimations } from '@gamepark/react-game'
-import { isCreateItem, isMoveItem, isMoveItemTypeAtOnce, isShuffle, MaterialMove, MoveItemsAtOnce } from '@gamepark/rules-api'
+import {
+  isCreateItem,
+  isDeleteItem,
+  isMoveItem,
+  isMoveItemsAtOnce,
+  isMoveItemTypeAtOnce,
+  isShuffle,
+  Location,
+  MaterialItem,
+  MaterialMove
+} from '@gamepark/rules-api'
 import { isAreaDisplayed } from '../locators/TableLayout'
 
 class PaperTalesMaterialAnimation extends MaterialGameAnimations {}
 
 export const paperTalesAnimation = new PaperTalesMaterialAnimation()
 
-paperTalesAnimation.when().rule(RuleId.Deal).move(isMoveItem).duration(0.2)
+/**
+ * The table shows one area at a time: the material of the other areas stands small on their Monarch's panel, hidden
+ * (see placeAtPanelWhenHidden). What moves between the table and a hidden area flies from or into its panel; what moves
+ * from a hidden place to another hidden place is not seen at all: it would only make cards hop on the panels.
+ */
+const areaLocations = [
+  LocationType.PlayerUnitHand,
+  LocationType.PlayerDraftHand,
+  LocationType.DraftWaiting,
+  LocationType.DraftTransit,
+  LocationType.PlayerUnitBoard,
+  LocationType.PlayerBuildingBoard,
+  LocationType.PlayerBuildingHand,
+  LocationType.PlayerGoldStock
+]
 
-// The hands passed during the recruitment, in steps that every Monarch goes through at once (see GiveDraftToNeighbor
-// and DraftPassingLocators): what happens in the displayed area takes its time, the rest happens under the panels
-const handOwner = (index: number, context: MaterialContext) => context.rules.material(MaterialType.Unit).index(index).getItem()?.location.player
+const isSeen = (context: MaterialContext, type: number, index: number, item: MaterialItem): boolean => {
+  if (item.location.type === LocationType.OnCard) {
+    const unit = itemAt(context, MaterialType.Unit, item.location.parent!)
+    return !!unit && isSeen(context, MaterialType.Unit, item.location.parent!, unit)
+  }
+  if (!areaLocations.includes(item.location.type)) return true
+  const locator = context.locators[item.location.type]
+  return !!locator && !locator.hide(item, { ...context, type, index, displayIndex: 0 })
+}
+
+const itemAt = (context: MaterialContext, type: number, index: number): MaterialItem | undefined => context.rules.material(type).index(index).getItem()
+
+const moveSeen = (context: MaterialContext, type: number, index: number, location: Location) => {
+  const item = itemAt(context, type, index)
+  if (!item) return false
+  return isSeen(context, type, index, item) || isSeen(context, type, index, { ...item, location: { ...item.location, ...location } })
+}
+
+const isUnseen = (move: MaterialMove, context: MaterialContext): boolean => {
+  try {
+    return isUnseenMove(move, context)
+  } catch {
+    // A move that cannot be read against the displayed state: let the framework animate it as usual
+    return false
+  }
+}
+
+const isUnseenMove = (move: MaterialMove, context: MaterialContext): boolean => {
+  if (isMoveItem(move)) return !moveSeen(context, move.itemType, move.itemIndex, move.location)
+  if (isMoveItemsAtOnce(move)) return !move.indexes.some((index) => moveSeen(context, move.itemType, index, move.location))
+  if (isCreateItem(move)) return !isSeen(context, move.itemType, -1, move.item as MaterialItem)
+  if (isDeleteItem(move)) {
+    const item = itemAt(context, move.itemType, move.itemIndex)
+    return !item || !isSeen(context, move.itemType, move.itemIndex, item)
+  }
+  if (isShuffle(move)) {
+    return !move.indexes.some((index) => {
+      const item = itemAt(context, move.itemType, index)
+      return item && isSeen(context, move.itemType, index, item)
+    })
+  }
+  return false
+}
+
+// First of all: what nobody can see takes no time
+paperTalesAnimation.when().move(isUnseen).none()
+
+// The deal: a pack of cards from the deck to each Monarch, into my fan or into their panel
+paperTalesAnimation.when().rule(RuleId.Deal).move(isMoveItemsAtOnce).duration(0.35)
+
+// The hands passed during the recruitment (see GiveDraftToNeighbor): my hand leaves face down to the panel of its
+// receiver, the hand given to me lands face down at the right of my fan, I take it, it is shuffled. The hands passed
+// between the other Monarchs fly together from panel to panel (see DraftPassFlights), not one after the other.
 const passedTo = (move: MaterialMove, ...types: LocationType[]) => isMoveItemTypeAtOnce(MaterialType.Unit)(move) && types.includes(move.location.type)
-// 1. Each hand leaves its giver face down: slowly from the displayed area, quickly from panel to panel
 paperTalesAnimation
   .when()
   .rule(RuleId.GiveDraftToNeighbor)
-  .move((move, context) => passedTo(move, LocationType.DraftTransit) && isAreaDisplayed(context, handOwner((move as MoveItemsAtOnce).indexes[0], context)))
+  .move((move) => passedTo(move, LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand))
   .duration(0.6)
+
+// The card I keep, or put back into my hand
 paperTalesAnimation
   .when()
-  .rule(RuleId.GiveDraftToNeighbor)
-  .move((move) => passedTo(move, LocationType.DraftTransit))
-  .duration(0.15)
-// 2. It lands face down in front of its receiver, 3. who takes it in hand, 4. and shuffles it: seen in the displayed area
-// only
-paperTalesAnimation
-  .when()
-  .rule(RuleId.GiveDraftToNeighbor)
-  .move(
-    (move, context) =>
-      passedTo(move, LocationType.DraftWaiting, LocationType.PlayerDraftHand) && isAreaDisplayed(context, (move as MoveItemsAtOnce).location.player)
-  )
-  .duration(0.6)
-paperTalesAnimation
-  .when()
-  .rule(RuleId.GiveDraftToNeighbor)
-  .move((move) => passedTo(move, LocationType.DraftWaiting, LocationType.PlayerDraftHand))
-  .none()
-paperTalesAnimation
-  .when()
-  .rule(RuleId.GiveDraftToNeighbor)
-  .move((move, context) => isShuffle(move) && !isAreaDisplayed(context, handOwner(move.indexes[0], context)))
-  .none()
-paperTalesAnimation
-  .when()
-  .move((move) => isMoveItem(move) && move.location.type === LocationType.PlayerDraftHand)
-  .duration(0.5)
-paperTalesAnimation
-  .when()
-  .move((move) => isMoveItem(move) && move.location.type === LocationType.PlayerUnitHand)
+  .move((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type))
   .duration(0.5)
 paperTalesAnimation.when().rule(RuleId.RevealBoards).move(isMoveItem).duration(0.5)
 // The score markers are not on the table (the score is in the panels): their moves still take a while, so that the
@@ -62,7 +108,10 @@ paperTalesAnimation
   .rule(RuleId.War)
   .move((move) => isMoveItem(move) && move.itemType === MaterialType.ScoreToken)
   .duration(0.7)
-// The Age is resolved at once: the dying units go to the discard one after the other, slowly enough to see which, then
-// the new Age tokens land on the units that live on
-paperTalesAnimation.when().rule(RuleId.AgeUnitsDie).move(isMoveItem).duration(0.8)
+// The Age is resolved at once: the dying units go to the discard one after the other, slowly enough to see which in the
+// displayed kingdom, quickly from the panels of the others; then the new Age tokens land on the units that live on
+const fromDisplayedArea = (move: MaterialMove, context: MaterialContext) =>
+  isMoveItem(move) && isAreaDisplayed(context, itemAt(context, move.itemType, move.itemIndex)?.location.player)
+paperTalesAnimation.when().rule(RuleId.AgeUnitsDie).move(fromDisplayedArea).duration(0.8)
+paperTalesAnimation.when().rule(RuleId.AgeUnitsDie).move(isMoveItem).duration(0.3)
 paperTalesAnimation.when().rule(RuleId.AgeUnitsAge).move(isCreateItem).duration(0.4)

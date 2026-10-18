@@ -281,25 +281,27 @@ export const getPanelsOrder = (context: MaterialContext): PlayerColor[] => {
 
 export const getPanelPosition = (index: number) => ({ x: PANEL_X, y: PANEL_Y + index * PANEL_STEP + (index >= 3 ? PANELS_GROUP_GAP : 0) })
 
-/** The size of the cards of a hand that stands on its Monarch's panel, see {@link getHiddenHandCoordinates} */
+/** The size of the material of a hidden area on its Monarch's panel, see {@link getPanelTransform} */
 export const HIDDEN_HAND_SCALE = 0.3
 
 /**
- * The hands of a Monarch whose area is not displayed stand on their panel, small and under it: the cards given to them
- * during the recruitment fly into their panel, the cards they give come out of it, and what they keep stays there.
- * Undefined when the area is displayed: the hand stands in the area.
+ * Where the material of a Monarch's area that is not displayed stands: small, on their panel. It is never shown at rest
+ * (the locators hide it), only while it moves: what leaves a hidden area comes out of the panel, what goes into it flies
+ * into the panel. Undefined when the Monarch has no panel.
  */
-export const getHiddenHandCoordinates = (context: MaterialContext, player?: number) => {
-  if (player === undefined || isAreaDisplayed(context, player)) return undefined
-  return getPanelCenter(context, player)
+export const getPanelTransform = (context: MaterialContext, player?: number): string[] | undefined => {
+  if (player === undefined) return undefined
+  const center = getPanelCenter(context, player)
+  if (!center) return undefined
+  return [`translate3d(${center.x}em, ${center.y}em, ${center.z}em)`, `scale(${HIDDEN_HAND_SCALE})`]
 }
 
-/** The centre of a Monarch's panel, in table coordinates */
+/** The centre of a Monarch's panel, in table coordinates, just over the panels (laid 10em high, see TableAnchor) */
 export const getPanelCenter = (context: MaterialContext, player: number) => {
   const index = getPanelsOrder(context).indexOf(player)
   if (index === -1) return undefined
   const { x, y } = getPanelPosition(index)
-  return { x: x + PANEL_WIDTH / 2, y: y + PANEL_HEIGHT / 2, z: 0 }
+  return { x: x + PANEL_WIDTH / 2, y: y + PANEL_HEIGHT / 2, z: 12 }
 }
 
 /** Who gives their hand to this Monarch during the recruitment of this round: the inverse of {@link getDraftRecipient} */

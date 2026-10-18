@@ -5,6 +5,7 @@ import { DropAreaDescription, FlexLocator, ItemContext, MaterialContext } from '
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { getHoverShift, getKingdomScale, getKingdomSlotCoordinates, getPlayerPositionDependencies, isKingdomDisplayed, scaleTransform } from './TableLayout'
+import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 class PlayerUnitBoardLocator extends FlexLocator {
   getPositionDependencies(_location: Location, context: MaterialContext) {
@@ -20,7 +21,10 @@ class PlayerUnitBoardLocator extends FlexLocator {
   }
 
   placeItem(item: MaterialItem, context: ItemContext) {
-    return [...super.placeItem(item, context), ...scaleTransform(getKingdomScale(context, item.location.player))]
+    return placeAtPanelWhenHidden(this, item, context, () => [
+      ...super.placeItem(item, context),
+      ...scaleTransform(getKingdomScale(context, item.location.player))
+    ])
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
