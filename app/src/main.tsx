@@ -1,7 +1,9 @@
+import { PaperTalesBot } from '@gamepark/paper-tales/PaperTalesBot'
 import { PaperTalesOptionsSpecV2 } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PaperTalesSetup } from '@gamepark/paper-tales/PaperTalesSetup'
 import { GameProvider } from '@gamepark/react-game'
+import { MaterialGame } from '@gamepark/rules-api'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { paperTalesAnimation } from './animations/PaperTalesAnimations'
@@ -26,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
       theme={theme}
       logs={new PaperTalesLogs()}
       scoring={new PaperTalesScoring()}
+      ai={(game: MaterialGame, playerId: number) => Promise.resolve(new PaperTalesBot(playerId).run(game))}
     >
       <App />
     </GameProvider>
