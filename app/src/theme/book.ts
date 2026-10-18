@@ -20,9 +20,7 @@ export const bookEm = (mockupEm: number) => `${+(mockupEm * 2.13).toFixed(2)}em`
 export const coverMargin = { side: bookEm(0.55), bottom: bookEm(0.9) }
 
 export const bookContainerCss = css`
-  && {
-    padding: ${coverMargin.side} ${coverMargin.side} ${coverMargin.bottom};
-  }
+  padding: ${coverMargin.side} ${coverMargin.side} ${coverMargin.bottom};
   background: none;
   border-radius: 0;
   box-shadow: none;

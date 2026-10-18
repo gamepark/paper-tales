@@ -88,9 +88,7 @@ export const popButtonCss = css`
 export const panelCss = css`
   background: ${paper};
   color: ${cutLine};
-  box-shadow:
-    0 0.18em 0 ${paperMuted},
-    0 0.34em 0 #cdbfb3;
+  box-shadow: none;
 
   &:has(> h2) {
     && {

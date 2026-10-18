@@ -10,8 +10,9 @@ import { cutLine, ochre, paper, paperMuted, rust, tableButtonCss } from './table
  * dangerButtons.
  */
 
-/** The cover of a small page: thinner than the book of the help, and the page gets real margins */
-const cover = { side: '0.45em', bottom: '0.65em' }
+/** The cover of a small page: thinner than the book of the help, and the page gets real margins. The bottom keeps the
+ * stacked sheets of the page inside the cover. */
+const cover = { side: '0.45em', bottom: '0.95em' }
 
 export const dialogMessageCss = css`
   width: min(30em, 92dvw);
@@ -21,6 +22,9 @@ export const dialogMessageCss = css`
   &::after {
     inset: ${cover.side} ${cover.side} ${cover.bottom};
     background: linear-gradient(90deg, ${pageFold} 0, ${paper} 1.2em);
+    box-shadow:
+      0 0.18em 0 ${paperMuted},
+      0 0.36em 0 #cdbfb3;
   }
 `
 
