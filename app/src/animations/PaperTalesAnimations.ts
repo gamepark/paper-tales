@@ -134,8 +134,18 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
   const order = getPanelsOrder(context)
   const from = order.indexOf(giver as PlayerColor)
   const to = order.indexOf(receiver as PlayerColor)
-  // My own hand goes straight from my fan to the panel of its receiver
-  if (from === -1 || to === -1 || isAreaDisplayed(context, giver)) return { elevation: false }
+  if (from === -1 || to === -1) return { elevation: false }
+  // My own hand goes straight from my fan to the panel of its receiver: it rises over the panels (laid 10em high) as
+  // it leaves, so that it passes above them
+  if (isAreaDisplayed(context, giver)) {
+    return {
+      elevation: false,
+      waypoints: [
+        { at: 0.15, offset: { z: 12 } },
+        { at: 0.6, offset: { z: 5 } }
+      ]
+    }
+  }
   const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
   if (Math.abs(from - to) === 1) {
     return { elevation: false, waypoints: [{ at: 0.5, coordinates: { x: RIGHT_LANE_X, y: (centerY(from) + centerY(to)) / 2 } }] }
