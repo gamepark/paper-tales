@@ -95,6 +95,17 @@ paperTalesAnimation
   .move((move) => passedTo(move, LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand))
   .duration(0.6)
 
+// What another Monarch discards comes out of their panel as a small card: quickly, they are not looked at
+paperTalesAnimation
+  .when()
+  .move(
+    (move, context) =>
+      isMoveItem(move) &&
+      move.location.type === LocationType.Discard &&
+      !isAreaDisplayed(context, itemAt(context, move.itemType, move.itemIndex)?.location.player)
+  )
+  .duration(0.35)
+
 // The card I keep, or put back into my hand
 paperTalesAnimation
   .when()
