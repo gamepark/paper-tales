@@ -6,10 +6,10 @@ import { RuleId } from '../RuleId'
 
 export class GiveDraftToNeighbor extends MaterialRulesPart {
   /**
-   * Every Monarch has passed their hand face down (see Draft): each one takes the hand passed to them. It lands face down
-   * in front of them, is shuffled there, so that the Monarch who passed it cannot follow a card to what the neighbour
-   * keeps, then it is taken in hand. The last card of each hand: nothing to choose, the deployment begins and the card
-   * lands in the hand of its receiver (see PlaceUnitOnBoard).
+   * Every Monarch has passed their hand face down (see Draft): each one takes the hand passed to them. It is shuffled
+   * while it is still face down, so that the Monarch who passed it cannot follow a card to what the neighbour keeps, then
+   * it is taken in hand. The last card of each hand: nothing to choose, the deployment begins and the card lands in the
+   * hand of its receiver (see PlaceUnitOnBoard).
    */
   onRuleStart(): MaterialMove[] {
     const players = this.game.players
@@ -17,7 +17,6 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
     const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.DraftTransit).player(player))
     if (hands.every((hand) => hand.length <= 1)) return [this.startSimultaneousRule(RuleId.PlaceUnitOnBoard)]
     const moves: MaterialMove[] = []
-    hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.DraftWaiting, player: players[index] })))
     for (const hand of hands) if (hand.length > 1) moves.push(hand.shuffle())
     hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player: players[index] })))
     moves.push(this.startSimultaneousRule(RuleId.Draft))

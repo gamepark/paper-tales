@@ -2,8 +2,9 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
+import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { and, Fade, isRule, ItemContext, MaterialContext, MaterialGameAnimations, ShuffleAnimations, Trajectory } from '@gamepark/react-game'
+import { and, Fade, isRule, ItemContext, MaterialContext, MaterialGameAnimations, Trajectory } from '@gamepark/react-game'
 import {
   isCreateItem,
   isDeleteItem,
@@ -17,8 +18,8 @@ import {
   MaterialItem,
   MaterialMove
 } from '@gamepark/rules-api'
-import { fanCardLocator, receiverPanelLocator } from '../locators/DraftPassAnimationLocators'
-import { getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
+import { fanCardFrame, fanCardLocator, FrameLocator, panelCardLocator } from '../locators/DraftPassAnimationLocators'
+import { getDraftGiver, getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -34,7 +35,6 @@ export const paperTalesAnimation = new MaterialGameAnimations()
 const areaLocations = [
   LocationType.PlayerUnitHand,
   LocationType.PlayerDraftHand,
-  LocationType.DraftWaiting,
   LocationType.DraftTransit,
   LocationType.PlayerUnitBoard,
   LocationType.PlayerBuildingBoard,
@@ -114,19 +114,14 @@ paperTalesAnimation
   .configure((move, context) => isShuffle(move) && itemAt(context, move.itemType, move.indexes[0])?.location.type === LocationType.Discard)
   .skip()
 
-/**
- * A hand is shuffled where it lies, face down, between other cards: the packets stay close to the pile and low, so
- * that they never pass over the cards around it (the default riffle pulls them a whole card width apart)
- */
-const handShuffle = { spread: 0.22, lift: 1.5, riffles: 2 }
+// The hands are shuffled against cheating only (see GiveDraftToNeighbor and PlaceUnitOnBoard): nothing to see
+const isSecurityShuffle = (move: MaterialMove, context: MaterialContext) =>
+  isShuffle(move) && [RuleId.GiveDraftToNeighbor, RuleId.PlaceUnitOnBoard].includes(context.rules.game.rule?.id as RuleId)
+paperTalesAnimation.configure(isSecurityShuffle).skip()
 
 // When the deployment begins, the last card of the recruitment lands in my hand while the hand moves to its
-// deployment place, then the hand is shuffled there
+// deployment place
 paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(LocationType.PlayerUnitHand), isSeenMove)).duration(700).trajectory(fadeAtPanels)
-paperTalesAnimation
-  .configure(and(isRule(RuleId.PlaceUnitOnBoard), isShuffle, isSeenMove))
-  .duration(800)
-  .itemAnimation((context, animation) => new ShuffleAnimations(animation.duration, handShuffle).getItemAnimation(context, animation as never))
 
 // The income: the coins of each Monarch fly from the reserve into their panel, one Monarch after the other, slowly
 // enough to follow them
@@ -181,7 +176,7 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
       elevation: { height: 16, peak: 0.4 },
       waypoints: [
         { at: 0, locator: fanCardLocator, location: (item) => item.location },
-        { at: 1, locator: receiverPanelLocator, location: { player: receiver } }
+        { at: 1, locator: panelCardLocator, location: { player: receiver } }
       ]
     }
   }
@@ -206,20 +201,27 @@ paperTalesAnimation.configure(isUnseen).skip()
 // The deal: a pack of cards from the deck to each Monarch, into my fan or into their panel
 paperTalesAnimation.configure(and(isRule(RuleId.Deal), isMoveItemsAtOnce)).duration(350).trajectory(fadeAtPanels)
 
-// The hands passed during the recruitment (see GiveDraftToNeighbor): my hand leaves face down to the panel of its
-// receiver, the hand given to me lands face down at the right of my fan, it is shuffled, I take it
-paperTalesAnimation
-  .configure(
-    and(
-      isRule(RuleId.GiveDraftToNeighbor),
-      passedTo(LocationType.DraftTransit, LocationType.DraftWaiting, LocationType.PlayerDraftHand, LocationType.PlayerUnitHand)
-    )
-  )
-  .duration(600)
-  .trajectory(fadeAtPanels)
-paperTalesAnimation
-  .configure(and(isRule(RuleId.GiveDraftToNeighbor), isShuffle))
-  .itemAnimation((context, animation) => new ShuffleAnimations(animation.duration, handShuffle).getItemAnimation(context, animation as never))
+/**
+ * The hands passed during the recruitment (see GiveDraftToNeighbor): the hand given to me flies from the panel of its
+ * giver into my fan, turning face up on the way. Its start and end frames come from the animation locators, so that
+ * both have the same list of transforms and the card never jumps; the end one is where the card lies in my fan once
+ * the hand is mine.
+ */
+const receivedHandTrajectory = (context: ItemContext, move: MaterialMove): Trajectory => {
+  const fade = panelFade(context, move)
+  if (!isMoveItemsAtOnce(move) || !isAreaDisplayed(context, move.location.player)) return { fade }
+  const future = new PaperTalesRules(JSON.parse(JSON.stringify(context.rules.game)), { player: context.player })
+  future.play(move)
+  const card = future.material(MaterialType.Unit).getItem(context.index)
+  return {
+    fade,
+    waypoints: [
+      { at: 0, locator: panelCardLocator, location: { player: getDraftGiver(context, move.location.player) } },
+      { at: 1, locator: new FrameLocator(fanCardFrame(card, { ...context, rules: future })) }
+    ]
+  }
+}
+paperTalesAnimation.configure(and(isRule(RuleId.GiveDraftToNeighbor), passedTo(LocationType.PlayerDraftHand))).duration(600).trajectory(receivedHandTrajectory)
 
 // What a Monarch who is not looked at discards (deployment, Age): not shown, the card lands on the discard at once. A
 // card that leaves a kingdom on the table (the neighbours view) still flies to the discard.

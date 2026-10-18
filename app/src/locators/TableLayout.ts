@@ -387,15 +387,6 @@ export const getDraftGiver = (context: MaterialContext, player = getMe(context))
   getRound(context) % 2 === 1 ? getRightNeighbour(context, player) : getLeftNeighbour(context, player)
 
 /**
- * A passed hand lands face down at the right of the place of the draft fan of its receiver, before they take it: the
- * fan is empty by then (the receiver has already given theirs)
- */
-export const getDraftWaitingCoordinates = (context: MaterialContext) => ({
-  x: (context.rules.players.length === 2 ? twoPlayersDraftHandCoordinates : draftHandCoordinates).x + 24,
-  y: HANDS_Y
-})
-
-/**
  * The draft goes to the left on rounds 1 and 3, to the right on rounds 2 and 4 (rulebook p.5)
  */
 export const getRound = (context: MaterialContext) => context.rules.remind<number>(Memory.Time) ?? 1

@@ -4,10 +4,10 @@ import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 import { getPanelCenter, HIDDEN_HAND_SCALE } from './TableLayout'
 
 /**
- * Animation-only locators, used as the start and end frames when my hand is passed to my neighbour (see
- * PaperTalesAnimations): both are built with the same list of transforms (position, turn, face, size), so that the
- * browser goes from one to the other step by step. A frame built by the framework from the fan (turned, face up,
- * full size) and the panel (not turned, face down, small) would not have the same list, and the card would jump.
+ * Animation-only frames, used as the start and end frames when a hand is passed between my fan and a panel (see
+ * PaperTalesAnimations): all are built with the same list of transforms (position, turn, face, size), so that the
+ * browser goes from one to the other step by step. A frame built by the framework from the fan (turned, face up, full
+ * size) and the panel (not turned, face down, small) would not have the same list, and the card would jump.
  */
 const frame = (position: string[], turn: string, faceDown: boolean, scale: number) => [
   ...position,
@@ -16,24 +16,28 @@ const frame = (position: string[], turn: string, faceDown: boolean, scale: numbe
   `scale(${scale})`
 ]
 
-/** The card in my fan, face up: where the hand locator lays it */
+/** A card in my fan, face up: where the hand locator lays it in the state of the context */
+export const fanCardFrame = (card: MaterialItem, context: ItemContext): string[] => {
+  const transforms = playerDraftHandLocator.placeItem(card, context)
+  const turn = transforms.find((transform) => transform.startsWith('rotateZ')) ?? 'rotateZ(0deg)'
+  return frame(
+    transforms.filter((transform) => !transform.startsWith('rotateZ')),
+    turn,
+    false,
+    1
+  )
+}
+
+/** The card in my fan, before it leaves it */
 class FanCardLocator extends Locator {
   placeItem(_item: MaterialItem, context: ItemContext): string[] {
     // The waypoint is given a location only: the card is the animated item itself
-    const card = context.rules.material(context.type).getItem(context.index)!
-    const transforms = playerDraftHandLocator.placeItem(card, context)
-    const turn = transforms.find((transform) => transform.startsWith('rotateZ')) ?? 'rotateZ(0deg)'
-    return frame(
-      transforms.filter((transform) => !transform.startsWith('rotateZ')),
-      turn,
-      false,
-      1
-    )
+    return fanCardFrame(context.rules.material(context.type).getItem(context.index)!, context)
   }
 }
 
-/** The card on the panel of the Monarch who receives my hand: small and face down */
-class ReceiverPanelLocator extends Locator {
+/** A card on the panel of a Monarch (the player of the location): small and face down */
+class PanelCardLocator extends Locator {
   placeItem(item: MaterialItem, context: ItemContext): string[] {
     const center = getPanelCenter(context, item.location.player!)
     if (!center) return []
@@ -41,5 +45,16 @@ class ReceiverPanelLocator extends Locator {
   }
 }
 
+/** A frame computed beforehand, e.g. in the state after the move */
+export class FrameLocator extends Locator {
+  constructor(private readonly transforms: string[]) {
+    super()
+  }
+
+  placeItem(): string[] {
+    return this.transforms
+  }
+}
+
 export const fanCardLocator = new FanCardLocator()
-export const receiverPanelLocator = new ReceiverPanelLocator()
+export const panelCardLocator = new PanelCardLocator()

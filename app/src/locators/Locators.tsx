@@ -5,7 +5,7 @@ import { Locator } from '@gamepark/react-game'
 import { ageStockLocator } from './AgeStockLocator'
 import { unitDeckLocator } from './DeckLocator'
 import { discardLocator } from './DiscardLocator'
-import { draftTransitLocator, draftWaitingLocator } from './DraftPassingLocators'
+import { draftTransitLocator } from './DraftPassingLocators'
 import { onCardLocator } from './OnCardLocator'
 import { goldStockLocator } from './GoldStockLocator'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
@@ -33,6 +33,5 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.PlayerScore]: scoreTokenLocator,
   [LocationType.OnCard]: onCardLocator,
   [LocationType.ShieldIcon]: shieldLocator,
-  [LocationType.DraftTransit]: draftTransitLocator,
-  [LocationType.DraftWaiting]: draftWaitingLocator
+  [LocationType.DraftTransit]: draftTransitLocator
 }
