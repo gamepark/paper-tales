@@ -3,7 +3,7 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { and, isRule, ItemContext, MaterialContext, MaterialGameAnimations, ShuffleAnimations, Trajectory } from '@gamepark/react-game'
+import { and, Fade, isRule, ItemContext, MaterialContext, MaterialGameAnimations, ShuffleAnimations, Trajectory } from '@gamepark/react-game'
 import {
   isCreateItem,
   isDeleteItem,
@@ -81,6 +81,25 @@ const isUnseen = (move: MaterialMove, context: MaterialContext): boolean => {
 
 const isSeenMove = (move: MaterialMove, context: MaterialContext) => !isUnseen(move, context)
 
+/**
+ * The material of a hidden area is not displayed: what comes from a panel fades in as it leaves it, what goes to a
+ * panel fades out as it reaches it, instead of popping in or vanishing at once at the ends of its animation
+ */
+const PANEL_FADE = 0.25
+const panelFade = (context: ItemContext, move: MaterialMove): Fade | undefined => {
+  if (!isMoveItem(move) && !isMoveItemsAtOnce(move)) return undefined
+  // The moved item, also for the items placed on it
+  const index = isMoveItem(move) ? move.itemIndex : move.indexes.includes(context.index) ? context.index : move.indexes[0]
+  const item = itemAt(context, move.itemType, index)
+  if (!item) return undefined
+  const target = { ...item, location: { ...item.location, ...move.location } }
+  return {
+    in: isSeen(context, move.itemType, index, item) ? 0 : PANEL_FADE,
+    out: isSeen(context, move.itemType, index, target) ? 0 : PANEL_FADE
+  }
+}
+const fadeAtPanels = (context: ItemContext, move: MaterialMove): Trajectory => ({ fade: panelFade(context, move) })
+
 const passedTo =
   (...types: LocationType[]) =>
   (move: MaterialMove) =>
@@ -103,7 +122,7 @@ const handShuffle = { spread: 0.22, lift: 1.5, riffles: 2 }
 
 // When the deployment begins, the last card of the recruitment lands in my hand while the hand moves to its
 // deployment place, then the hand is shuffled there
-paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(LocationType.PlayerUnitHand), isSeenMove)).duration(700)
+paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(LocationType.PlayerUnitHand), isSeenMove)).duration(700).trajectory(fadeAtPanels)
 paperTalesAnimation
   .configure(and(isRule(RuleId.PlaceUnitOnBoard), isShuffle, isSeenMove))
   .duration(800)
@@ -120,7 +139,7 @@ paperTalesAnimation
   .skip()
 
 // A building upgraded by a deployment effect (the Golem) turns over to its level 2 face, slowly enough to be seen
-paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(MaterialType.Building), isSeenMove)).duration(800)
+paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(MaterialType.Building), isSeenMove)).duration(800).trajectory(fadeAtPanels)
 
 /**
  * The hands passed during the recruitment: each Monarch passes the rest of their hand in their own action (see Draft),
@@ -175,13 +194,13 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
 paperTalesAnimation
   .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
   .duration(1200)
-  .trajectory(passTrajectory)
+  .trajectory((context, move) => ({ ...passTrajectory(context, move), fade: panelFade(context, move) }))
 
 // What nobody can see takes no time
 paperTalesAnimation.configure(isUnseen).skip()
 
 // The deal: a pack of cards from the deck to each Monarch, into my fan or into their panel
-paperTalesAnimation.configure(and(isRule(RuleId.Deal), isMoveItemsAtOnce)).duration(350)
+paperTalesAnimation.configure(and(isRule(RuleId.Deal), isMoveItemsAtOnce)).duration(350).trajectory(fadeAtPanels)
 
 // The hands passed during the recruitment (see GiveDraftToNeighbor): my hand leaves face down to the panel of its
 // receiver, the hand given to me lands face down at the right of my fan, it is shuffled, I take it
@@ -193,6 +212,7 @@ paperTalesAnimation
     )
   )
   .duration(600)
+  .trajectory(fadeAtPanels)
 paperTalesAnimation
   .configure(and(isRule(RuleId.GiveDraftToNeighbor), isShuffle))
   .itemAnimation((context, animation) => new ShuffleAnimations(animation.duration, handShuffle).getItemAnimation(context, animation as never))
@@ -208,9 +228,9 @@ paperTalesAnimation
   .skip()
 
 // The card I keep, or put back into my hand
-paperTalesAnimation.configure((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500)
+paperTalesAnimation.configure((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(fadeAtPanels)
 
-paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).duration(500)
+paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).duration(500).trajectory(fadeAtPanels)
 
 // The score markers are not on the table (the score is in the panels): their moves still take a while, so that the
 // neighbours view stays long enough to read the outcome of the wars, and the panels show each gain one after the other
@@ -231,8 +251,8 @@ const deathsShown = (move: MaterialMove, context: MaterialContext) => {
 const fromDisplayedArea = (move: MaterialMove, context: MaterialContext) =>
   isMoveItem(move) && isAreaDisplayed(context, itemAt(context, move.itemType, move.itemIndex)?.location.player)
 paperTalesAnimation.configure(deathsShown).duration(AGE_READING)
-paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), fromDisplayedArea)).duration(AGE_DEATH)
-paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isMoveItem)).duration(300)
+paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), fromDisplayedArea)).duration(AGE_DEATH).trajectory(fadeAtPanels)
+paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isMoveItem)).duration(300).trajectory(fadeAtPanels)
 // The Age tokens of the dead go back to the reserve, the new ones land on the units that live on
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isDeleteItem)).duration(400)
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsAge), isCreateItem)).duration(400)
