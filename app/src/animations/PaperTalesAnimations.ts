@@ -135,26 +135,30 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
   const from = order.indexOf(giver as PlayerColor)
   const to = order.indexOf(receiver as PlayerColor)
   if (from === -1 || to === -1) return { elevation: false }
-  // My own hand goes straight from my fan to the panel of its receiver: it rises over the panels (laid 10em high) as
-  // it leaves, so that it passes above them
-  if (isAreaDisplayed(context, giver)) {
+  // My own hand goes straight from my fan to the panel of its receiver, in an arc high enough to pass over the panels
+  // (laid 10em high): no waypoint, so the flight is one smooth move
+  if (isAreaDisplayed(context, giver)) return { elevation: { height: 16, peak: 0.25 } }
+  // Between two panels, through the lanes of the turn order arrows. The pack speeds up as it leaves and slows down as
+  // it arrives only: the framework eases every stretch between two waypoints, which would stop the pack at each of
+  // them. The waypoints split the time as the distance, so that the pace stays even.
+  const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
+  const panelX = PANEL_X + PANEL_WIDTH / 2
+  if (Math.abs(from - to) === 1) {
     return {
       elevation: false,
-      waypoints: [
-        { at: 0.15, offset: { z: 12 } },
-        { at: 0.6, offset: { z: 5 } }
-      ]
+      easing: 'ease-in',
+      waypoints: [{ at: 0.5, coordinates: { x: RIGHT_LANE_X, y: (centerY(from) + centerY(to)) / 2 }, easing: 'ease-out' }]
     }
   }
-  const centerY = (index: number) => getPanelPosition(index).y + PANEL_HEIGHT / 2
-  if (Math.abs(from - to) === 1) {
-    return { elevation: false, waypoints: [{ at: 0.5, coordinates: { x: RIGHT_LANE_X, y: (centerY(from) + centerY(to)) / 2 } }] }
-  }
+  const across = panelX - LEFT_LANE_X
+  const along = Math.abs(centerY(to) - centerY(from))
+  const leave = across / (2 * across + along)
   return {
     elevation: false,
+    easing: 'ease-in',
     waypoints: [
-      { at: 0.2, coordinates: { x: LEFT_LANE_X, y: centerY(from) } },
-      { at: 0.8, coordinates: { x: LEFT_LANE_X, y: centerY(to) } }
+      { at: leave, coordinates: { x: LEFT_LANE_X, y: centerY(from) }, easing: 'linear' },
+      { at: 1 - leave, coordinates: { x: LEFT_LANE_X, y: centerY(to) }, easing: 'ease-out' }
     ]
   }
 }
