@@ -344,17 +344,21 @@ export const getPanelPosition = (index: number) => ({ x: PANEL_X, y: PANEL_Y + i
 
 /** The size of the material of a hidden area on its Monarch's panel, see {@link getPanelTransform} */
 export const HIDDEN_HAND_SCALE = 0.3
+/** The largest side of an item of a hidden area on its Monarch's panel, in em: a unit card at HIDDEN_HAND_SCALE */
+const PANEL_ITEM_SIZE = 14 * HIDDEN_HAND_SCALE
 
 /**
  * Where the material of a Monarch's area that is not displayed stands: small, on their panel. It is never shown at rest
  * (the locators hide it), only while it moves: what leaves a hidden area comes out of the panel, what goes into it flies
  * into the panel. Undefined when the Monarch has no panel.
  */
-export const getPanelTransform = (context: MaterialContext, player?: number): string[] | undefined => {
+export const getPanelTransform = (context: MaterialContext, player: number | undefined, size: number): string[] | undefined => {
   if (player === undefined) return undefined
   const center = getPanelCenter(context, player)
   if (!center) return undefined
-  return [`translate3d(${center.x}em, ${center.y}em, ${center.z}em)`, `scale(${HIDDEN_HAND_SCALE})`]
+  // A card shrinks to the size of a small card on the panel; a coin or a token keeps its size, or it would vanish
+  const scale = Math.min(1, PANEL_ITEM_SIZE / size)
+  return [`translate3d(${center.x}em, ${center.y}em, ${center.z}em)`, ...(scale < 1 ? [`scale(${scale.toFixed(3)})`] : [])]
 }
 
 /** The centre of a Monarch's panel, in table coordinates, just over the panels (laid 10em high, see TableAnchor) */

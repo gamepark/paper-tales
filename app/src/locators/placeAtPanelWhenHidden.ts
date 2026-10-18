@@ -7,5 +7,8 @@ import { getPanelTransform } from './TableLayout'
  * Monarch's panel when the locator hides it (see getPanelTransform). Every locator of a Monarch's area places its items
  * through it, so that every move from or to a hidden area goes through the panel.
  */
-export const placeAtPanelWhenHidden = (locator: Locator, item: MaterialItem, context: ItemContext, place: () => string[]): string[] =>
-  (locator.hide(item, context) && getPanelTransform(context, item.location.player)) || place()
+export const placeAtPanelWhenHidden = (locator: Locator, item: MaterialItem, context: ItemContext, place: () => string[]): string[] => {
+  if (!locator.hide(item, context)) return place()
+  const { width, height } = context.material[context.type]?.getSize(item.id) ?? { width: 1, height: 1 }
+  return getPanelTransform(context, item.location.player, Math.max(width, height)) ?? place()
+}

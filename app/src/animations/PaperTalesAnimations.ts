@@ -67,6 +67,8 @@ const isSeen = (context: MaterialContext, type: number, index: number, item: Mat
   return !!locator && !locator.hide(item, { ...context, type, index, displayIndex: 0 })
 }
 
+const hasReserve = (context: MaterialContext, type: number) => !!context.material[type]?.stockLocation
+
 const itemAt = (context: MaterialContext, type: number, index: number): MaterialItem | undefined => context.rules.material(type).index(index).getItem()
 
 const moveSeen = (context: MaterialContext, type: number, index: number, location: Location) => {
@@ -87,6 +89,8 @@ const isUnseen = (move: MaterialMove, context: MaterialContext): boolean => {
 const isUnseenMove = (move: MaterialMove, context: MaterialContext): boolean => {
   if (isMoveItem(move)) return !moveSeen(context, move.itemType, move.itemIndex, move.location)
   if (isMoveItemsAtOnce(move)) return !move.indexes.some((index) => moveSeen(context, move.itemType, index, move.location))
+  // What comes from a reserve on the table, or goes back to it (gold, Age tokens), is seen leaving or reaching it
+  if ((isCreateItem(move) || isDeleteItem(move)) && hasReserve(context, move.itemType)) return false
   if (isCreateItem(move)) return !isSeen(context, move.itemType, -1, move.item as MaterialItem)
   if (isDeleteItem(move)) {
     const item = itemAt(context, move.itemType, move.itemIndex)
@@ -120,6 +124,10 @@ paperTalesAnimation
   .rule(RuleId.PlaceUnitOnBoard)
   .move((move, context) => isShuffle(move) && !isUnseen(move, context))
   .duration(DEPLOY_SHUFFLE)
+
+// The income: the coins of each Monarch fly from the reserve into their panel, one Monarch after the other, slowly
+// enough to follow them
+paperTalesAnimation.when().rule(RuleId.Income).move(isCreateItem).duration(0.7)
 
 // First of all: what nobody can see takes no time
 paperTalesAnimation.when().move(isUnseen).none()
