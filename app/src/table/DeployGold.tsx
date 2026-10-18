@@ -27,30 +27,35 @@ export const DeployGold: FC = () => {
   const placed = context.rules.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, me) ?? []
   const units = context.rules.material(MaterialType.Unit).index(placed).getItems<Unit>()
   const cost = sumBy(units, (unit) => unitCardCaracteristics[unit.id]?.cost ?? 0)
-  const left = new BuildHelper(context.rules.game, me).gold - cost
+  const goldCount = new BuildHelper(context.rules.game, me).gold
+  const left = goldCount - cost
+  // My gold, minus the cost of the units I placed, gives what will be left: in crimson when it is not enough
   return (
-    <TableAnchor position={deployGoldPosition} css={columnCss}>
-      <span css={labelCss}>
-        {t('deploy.gold.cost', { defaultValue: 'To pay: {cost}', cost })}
-        <img src={gold} alt="" css={roundImageCss} />
-      </span>
-      <span css={labelCss}>
-        {left >= 0 ? t('deploy.gold.left', { defaultValue: 'Left: {left}', left }) : t('deploy.gold.missing', { defaultValue: 'Missing: {missing}', missing: -left })}
-        <img src={gold} alt="" css={roundImageCss} />
-      </span>
+    <TableAnchor
+      position={deployGoldPosition}
+      css={[labelCss, equationCss]}
+      title={t('deploy.gold.help', { defaultValue: 'Your gold, minus the cost of the units you placed: what you will have left', gold: goldCount, cost, left })}
+    >
+      <img src={gold} alt="" css={roundImageCss} />
+      <span>{goldCount}</span>
+      <span css={operatorCss}>−</span>
+      <span>{cost}</span>
+      <span css={operatorCss}>=</span>
+      <span css={left < 0 && lackCss}>{left}</span>
     </TableAnchor>
   )
 }
 
-/** One line each, centred under my pile of gold: what the units I placed cost, and what is left of my gold */
-const columnCss = css`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/** A short sum centred under my pile of gold */
+const equationCss = css`
   gap: 0.3em;
   transform: translateX(-50%);
+`
 
-  > span {
-    position: relative;
-  }
+const operatorCss = css`
+  opacity: 0.6;
+`
+
+const lackCss = css`
+  color: #9b2e4d;
 `

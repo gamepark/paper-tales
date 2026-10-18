@@ -404,7 +404,5 @@
   "panel.active": "Has to play",
   "panel.order.left": "The cards go to the left this round",
   "panel.order.right": "The cards go to the right this round",
-  "deploy.gold.cost": "To pay: {cost}",
-  "deploy.gold.left": "Left: {left}",
-  "deploy.gold.missing": "Missing: {missing}"
+  "deploy.gold.help": "Your gold, minus the cost of the units you placed: what you will have left"
 }

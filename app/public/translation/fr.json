@@ -404,7 +404,5 @@
   "panel.active": "Doit jouer",
   "panel.order.left": "Les cartes vont à gauche à cette manche",
   "panel.order.right": "Les cartes vont à droite à cette manche",
-  "deploy.gold.cost": "À payer : {cost}",
-  "deploy.gold.left": "Reste : {left}",
-  "deploy.gold.missing": "Manque : {missing}"
+  "deploy.gold.help": "Ton or, moins le coût des unités posées : ce qu’il te restera"
 }
