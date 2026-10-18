@@ -17,6 +17,7 @@ import {
   MaterialItem,
   MaterialMove
 } from '@gamepark/rules-api'
+import { fanCardLocator, receiverPanelLocator } from '../locators/DraftPassAnimationLocators'
 import { getPanelPosition, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_HEIGHT, PANEL_WIDTH, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
@@ -135,9 +136,18 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
   const from = order.indexOf(giver as PlayerColor)
   const to = order.indexOf(receiver as PlayerColor)
   if (from === -1 || to === -1) return { elevation: false }
-  // My own hand goes straight from my fan to the panel of its receiver, in an arc high enough to pass over the panels
-  // (laid 10em high): no waypoint, so the flight is one smooth move
-  if (isAreaDisplayed(context, giver)) return { elevation: { height: 16, peak: 0.25 } }
+  // My own hand goes from my fan to the panel of its receiver, turning face down on the way, in an arc high enough to
+  // pass over the panels (laid 10em high). Its start and end frames come from the animation locators, so that both have
+  // the same list of transforms and the card never jumps.
+  if (isAreaDisplayed(context, giver)) {
+    return {
+      elevation: { height: 16, peak: 0.4 },
+      waypoints: [
+        { at: 0, locator: fanCardLocator, location: (item) => item.location },
+        { at: 1, locator: receiverPanelLocator, location: { player: receiver } }
+      ]
+    }
+  }
   // Between two panels, through the lanes of the turn order arrows. The pack speeds up as it leaves and slows down as
   // it arrives only: the framework eases every stretch between two waypoints, which would stop the pack at each of
   // them. The waypoints split the time as the distance, so that the pace stays even.
