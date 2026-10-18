@@ -85,7 +85,7 @@ const isSeenMove = (move: MaterialMove, context: MaterialContext) => !isUnseen(m
  * The material of a hidden area is not displayed: what comes from a panel fades in as it leaves it, what goes to a
  * panel fades out as it reaches it, instead of popping in or vanishing at once at the ends of its animation
  */
-const PANEL_FADE = 0.25
+const PANEL_FADE = 0.1
 const panelFade = (context: ItemContext, move: MaterialMove): Fade | undefined => {
   if (!isMoveItem(move) && !isMoveItemsAtOnce(move)) return undefined
   // The moved item, also for the items placed on it
