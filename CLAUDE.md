@@ -314,7 +314,7 @@ Effects grouped by phase in `rules/src/material/effects/`:
 
 ## Player Panels
 
-Panels are React components laid in the game table, in a column on the left: left neighbour, me, right neighbour, then the others. The eye of a panel plays a transient changeView to display that player area.
+Panels are React components laid in the game table, in a column on the left, in seating order: right neighbour, me, left neighbour, then the others (arrows between them show the draft direction of the round). The eye of a panel plays a transient changeView to display that player area.
 
 ## Table layout
 

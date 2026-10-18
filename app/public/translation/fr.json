@@ -134,7 +134,6 @@
   "view.my-kingdom": "Mon royaume",
   "view.neighbours": "Mes voisins",
   "view.player": "Royaume de {player}",
-  "panel.neighbour": "Voisin",
   "panel.left": "Gauche",
   "panel.right": "Droite",
   "panel.view": "Voir le royaume de {player}",
@@ -404,5 +403,7 @@
   "header.build.spectator": "Les Monarques construisent",
   "draft.recipient.spectator": "Les autres cartes de {giver} vont à {player}",
   "view.player.neighbours": "Voisins de {player}",
-  "panel.active": "Doit jouer"
+  "panel.active": "Doit jouer",
+  "panel.order.left": "Les cartes vont à gauche à cette manche",
+  "panel.order.right": "Les cartes vont à droite à cette manche"
 }

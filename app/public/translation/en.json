@@ -134,7 +134,6 @@
   "view.my-kingdom": "My kingdom",
   "view.neighbours": "My neighbours",
   "view.player": "Kingdom of {player}",
-  "panel.neighbour": "Neighbour",
   "panel.left": "Left",
   "panel.right": "Right",
   "panel.view": "View the kingdom of {player}",
@@ -404,5 +403,7 @@
   "header.build.spectator": "The Monarchs build",
   "draft.recipient.spectator": "The other cards of {giver} go to {player}",
   "view.player.neighbours": "Neighbours of {player}",
-  "panel.active": "Has to play"
+  "panel.active": "Has to play",
+  "panel.order.left": "The cards go to the left this round",
+  "panel.order.right": "The cards go to the right this round"
 }

@@ -12,7 +12,7 @@ import { unitCardDescription } from '../material/UnitCardDescription'
 /**
  * The whole table, in em: the same on a phone in landscape and on a desktop (see docs/table-spec.md).
  *
- * - Left: the players' panels in a column (left neighbour, me, right neighbour, then the others).
+ * - Left: the players' panels in a column, in seating order (right neighbour, me, left neighbour, then the others).
  * - Center: one player area at full size: mine by default, or the player chosen with the eye of their panel (a transient
  *   changeView). The neighbours view shows instead the kingdoms of the displayed player's 2 neighbours on each side of
  *   theirs: war is only fought between neighbours (rulebook p.6).
@@ -262,13 +262,14 @@ export const scaleTransform = (scale: number) => (scale === 1 ? [] : [`scale(${s
 export const tablePosition = ({ x, y }: XYCoordinates) => ({ left: `${x - tableBoundaries.xMin}em`, top: `${y - tableBoundaries.yMin}em` })
 
 /**
- * Panels order: my left neighbour above me, my right neighbour below me, then the other players in seating order
+ * Panels order: the seating order, starting from my right neighbour, so that the column reads the round of the table
+ * from top to bottom (my right neighbour above me, my left neighbour below me, then the others) and back to the top
  */
 export const getPanelsOrder = (context: MaterialContext): PlayerColor[] => {
   const players = context.rules.players
   const me = getMe(context)
   if (players.length === 2) return [me, getLeftNeighbour(context)]
-  const order = [getLeftNeighbour(context), me, getRightNeighbour(context)]
+  const order = [getRightNeighbour(context), me, getLeftNeighbour(context)]
   for (let offset = 2; offset <= players.length - 2; offset++) order.push(getPlayerAt(context, me, offset))
   return order
 }

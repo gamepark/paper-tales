@@ -23,7 +23,8 @@ import { paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } fro
 import { PaperTalesPlayerPanel } from './PaperTalesPlayerPanel'
 
 /**
- * The panels, laid on the table in a column: my left neighbour above me, my right neighbour below me, then the others.
+ * The panels, laid on the table in a column in seating order: my right neighbour above me, my left neighbour below me,
+ * then the others.
  * A whole panel is the button that displays that player's area: a view change nobody else sees, so the move is
  * transient. The panel of the displayed area is pulled out of the column. During the recruitment, the panel of the
  * Monarch who receives my cards is tagged.
@@ -35,12 +36,12 @@ export const PlayerPanels: FC = () => {
   const viewed = isWarView(context) ? undefined : getViewedPlayer(context)
   // Left, right and who receives the cards are told from my seat: a spectator has none
   const spectator = isSpectator(context)
-  const recipient = isDraftRule(context) && !spectator ? getDraftRecipient(context) : undefined
   const twoPlayers = context.rules.players.length === 2
+  // With 2 players, the other Monarch is the only neighbour and receives every card: no tags at all
+  const recipient = isDraftRule(context) && !spectator && !twoPlayers ? getDraftRecipient(context) : undefined
 
   const neighbourTag = (player: PlayerColor) => {
-    if (spectator || player === me) return undefined
-    if (twoPlayers) return t('panel.neighbour', 'Neighbour')
+    if (spectator || twoPlayers || player === me) return undefined
     if (player === getLeftNeighbour(context)) return t('panel.left', 'Left')
     if (player === getRightNeighbour(context)) return t('panel.right', 'Right')
     return undefined
