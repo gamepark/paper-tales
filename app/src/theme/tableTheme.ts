@@ -209,16 +209,6 @@ export const appearCss = css`
   }
 `
 
-/**
- * The same fade for a card, given by getItemExtraCss: on its faces, never on the card itself. A face has no 3D inside,
- * so its opacity flattens nothing, while an opacity on the card would show its back face mirrored when it turns over.
- */
-export const cardAppearCss = css`
-  > * > * {
-    ${appearCss};
-  }
-`
-
 export const roundImageCss = css`
   border-radius: 50%;
 `

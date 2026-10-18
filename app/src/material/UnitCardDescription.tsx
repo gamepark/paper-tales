@@ -52,7 +52,6 @@ import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
 import { isWarView } from '../locators/TableLayout'
-import { cardAppearCss } from '../theme/tableTheme'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { AgeIcon, DiscardIcon, KeepIcon, SaveIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
@@ -118,11 +117,11 @@ export class UnitCardDescription extends CardDescription {
   getItemExtraCss(item: MaterialItem, context: ItemContext) {
     // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
     // In the neighbours view, the back row is shaded: only the front row fights (p.6).
-    if (item.location.type === LocationType.Discard) return [cardAppearCss, discardCss]
+    if (item.location.type === LocationType.Discard) return [discardCss]
     if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
-      return [cardAppearCss, hoveredItemMenuAboveCss, backRowCss]
+      return [hoveredItemMenuAboveCss, backRowCss]
     }
-    return [cardAppearCss, hoveredItemMenuAboveCss]
+    return [hoveredItemMenuAboveCss]
   }
 
   // The neighbours view is for looking at the war, not for arranging my kingdom: no drag there (discard nor slot change)

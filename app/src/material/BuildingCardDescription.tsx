@@ -19,7 +19,6 @@ import { BuildingBookHelp } from './help/BuildingBookHelp'
 import { BuildingBookHelpDisplay } from './help/book/BuildingBookHelpDisplay'
 import { BuildIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
-import { cardAppearCss } from '../theme/tableTheme'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 
 export class BuildingCardDescription extends CardDescription {
@@ -56,7 +55,7 @@ export class BuildingCardDescription extends CardDescription {
     // Not built yet: dimmed, unless I can build it right now (I have the resources, the gold and the land, rulebook
     // p.7). Hovered: above its neighbours in the grid, in colour.
     const dimmed = item.location.type === LocationType.PlayerBuildingHand && !this.canBuildNow(context)
-    return [cardAppearCss, hoverAboveCss, hoveredItemMenuAboveCss, veilCss, dimmed && dimmedCss]
+    return [hoverAboveCss, hoveredItemMenuAboveCss, veilCss, dimmed && dimmedCss]
   }
 
   /** During my construction, a legal move builds this building */
