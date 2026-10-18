@@ -167,6 +167,13 @@ paperTalesAnimation
   .move((move) => isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard)
   .none()
 
+// A building upgraded by a deployment effect (the Golem) turns over to its level 2 face, slowly enough to be seen
+paperTalesAnimation
+  .when()
+  .rule(RuleId.DeployEffects)
+  .move((move, context) => isMoveItemType(MaterialType.Building)(move) && !isUnseen(move, context))
+  .duration(0.8)
+
 // First of all: what nobody can see takes no time
 paperTalesAnimation.when().move(isUnseen).none()
 

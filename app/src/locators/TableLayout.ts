@@ -207,9 +207,10 @@ export const getViewedPlayer = (context: MaterialContext): PlayerColor => {
  * so the view is also displayed automatically from the reveal to the war, long enough to see the new units.
  */
 export const NEIGHBOURS_VIEW = 100
-// ChooseWherePlacingAgeToken is left out: the Monarch who chooses needs their own kingdom in front of them
-// From the reveal to the income, all automatic: the neighbours view stays, so that the outcome of the wars can be read
-const warRules = [RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects, RuleId.War, RuleId.Income]
+// The reveal, the payment and the deployment effects stay in my kingdom: they happen there (a Golem upgrading my
+// buildings, Age tokens on my units). The wars and the income are shown on the neighbours view, so that the outcome of
+// the wars can be read (then the construction opens on it, see isWarResultsPending).
+const warRules = [RuleId.War, RuleId.Income]
 
 /**
  * The view of the neighbours of a player: NEIGHBOURS_VIEW for mine, NEIGHBOURS_VIEW + the player for anybody's (a
