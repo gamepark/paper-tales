@@ -19,6 +19,7 @@ import {
   MaterialMove
 } from '@gamepark/rules-api'
 import { fanCardFrame, fanCardLocator, FrameLocator, panelCardLocator } from '../locators/DraftPassAnimationLocators'
+import { playerUnitHandLocator } from '../locators/PlayerUnitHandLocator'
 import { getDraftGiver, getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
@@ -100,6 +101,40 @@ const panelFade = (context: ItemContext, move: MaterialMove): Fade | undefined =
 }
 const fadeAtPanels = (context: ItemContext, move: MaterialMove): Trajectory => ({ fade: panelFade(context, move) })
 
+/** Whether the item of the context is moved by the move (a trajectory is asked for every item, siblings included) */
+const isMovedItem = (context: ItemContext, move: MaterialMove) =>
+  context.type === (move as { itemType?: number }).itemType &&
+  (isMoveItem(move) ? move.itemIndex === context.index : isMoveItemsAtOnce(move) && move.indexes.includes(context.index))
+
+/** The game once the move is played, seen by the player of the context */
+const stateAfter = (context: ItemContext, move: MaterialMove) => {
+  const future = new PaperTalesRules(JSON.parse(JSON.stringify(context.rules.game)), { player: context.player })
+  future.play(move)
+  return future
+}
+
+/**
+ * A card that joins my kept cards lands among them, in the order of their costs: often between 2 of them, under the one
+ * at its right. Coming from above the table, it would cover that card until the very end, then pass under it at once.
+ * Its arc ends before, at the depth of its place: it slides in flat for the end of its way, under the card at its right
+ * and over the one at its left.
+ */
+const KEPT_LANDING = 0.65
+const keptHandLanding = (context: ItemContext, move: MaterialMove): Trajectory => {
+  const fade = panelFade(context, move)
+  if ((!isMoveItem(move) && !isMoveItemsAtOnce(move)) || move.location.type !== LocationType.PlayerUnitHand) return { fade }
+  if (!isMovedItem(context, move) || !isAreaDisplayed(context, move.location.player)) return { fade }
+  const future = stateAfter(context, move)
+  const card = future.material(context.type).getItem(context.index)
+  const { z } = playerUnitHandLocator.getItemCoordinates(card, { ...context, rules: future })
+  return {
+    fade,
+    elevation: { height: 10, peak: KEPT_LANDING / 2, landAt: KEPT_LANDING },
+    easing: 'ease-in',
+    waypoints: [{ at: KEPT_LANDING, coordinates: { z }, easing: 'ease-out' }]
+  }
+}
+
 const passedTo =
   (...types: LocationType[]) =>
   (move: MaterialMove) =>
@@ -121,7 +156,7 @@ paperTalesAnimation.configure(isSecurityShuffle).skip()
 
 // When the deployment begins, the last card of the recruitment lands in my hand while the hand moves to its
 // deployment place
-paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(LocationType.PlayerUnitHand), isSeenMove)).duration(700).trajectory(fadeAtPanels)
+paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(LocationType.PlayerUnitHand), isSeenMove)).duration(700).trajectory(keptHandLanding)
 
 // The income: the coins of each Monarch fly from the reserve into their panel, one Monarch after the other, slowly
 // enough to follow them
@@ -209,9 +244,8 @@ paperTalesAnimation.configure(and(isRule(RuleId.Deal), isMoveItemsAtOnce)).durat
  */
 const receivedHandTrajectory = (context: ItemContext, move: MaterialMove): Trajectory => {
   const fade = panelFade(context, move)
-  if (!isMoveItemsAtOnce(move) || !isAreaDisplayed(context, move.location.player)) return { fade }
-  const future = new PaperTalesRules(JSON.parse(JSON.stringify(context.rules.game)), { player: context.player })
-  future.play(move)
+  if (!isMoveItemsAtOnce(move) || !isMovedItem(context, move) || !isAreaDisplayed(context, move.location.player)) return { fade }
+  const future = stateAfter(context, move)
   const card = future.material(MaterialType.Unit).getItem(context.index)
   return {
     fade,
@@ -234,7 +268,7 @@ paperTalesAnimation
   .skip()
 
 // The card I keep, or put back into my hand
-paperTalesAnimation.configure((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(fadeAtPanels)
+paperTalesAnimation.configure((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(keptHandLanding)
 
 paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).duration(500).trajectory(fadeAtPanels)
 
