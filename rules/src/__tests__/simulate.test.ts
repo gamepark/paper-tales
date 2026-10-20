@@ -4,11 +4,26 @@ import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
+import { Card, isArtifact, isUnit } from '../material/Artifact'
+import { PaperTalesOptions } from '../PaperTalesOptions'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
 
-const newGame = (count: number) => new PaperTalesSetup().setup({ players: Array.from({ length: count }, (_, i) => ({ id: (i + 1) as PlayerColor })) }) as MaterialGame
+type Expansions = Omit<PaperTalesOptions, 'players'>
+
+const newGame = (count: number, expansions: Expansions = {}) =>
+  new PaperTalesSetup().setup({ players: Array.from({ length: count }, (_, i) => ({ id: (i + 1) as PlayerColor })), ...expansions }) as MaterialGame
+
+const allExpansions: Expansions = { beyondTheGatesUnits: true, beyondTheGatesBuildings: true, whatForgesLegends: true }
+
+/** The game options the random games are played with: the base game, each expansion, both */
+const optionSets: [string, Expansions, number][] = [
+  ['base game', {}, 10],
+  ['Beyond the gates', { beyondTheGatesUnits: true, beyondTheGatesBuildings: true }, 4],
+  ['What forges legends', { whatForgesLegends: true }, 4],
+  ['both expansions', allExpansions, 4]
+]
 
 /** A random legal move of a random active Monarch; every active Monarch must have a move */
 const randomMove = (rules: PaperTalesRules): MaterialMove => {
@@ -51,10 +66,18 @@ const deletionTracker = () => {
 }
 
 // A hand passed during the recruitment waits in transit until every Monarch has picked (see Draft)
-const unitLocations = [LocationType.Deck, LocationType.Discard, LocationType.PlayerDraftHand, LocationType.DraftTransit, LocationType.PlayerUnitHand, LocationType.PlayerUnitBoard]
+const unitLocations = [
+  LocationType.Deck,
+  LocationType.Discard,
+  LocationType.PlayerDraftHand,
+  LocationType.DraftTransit,
+  LocationType.PlayerUnitHand,
+  LocationType.PlayerUnitBoard,
+  LocationType.PlayerArtifacts
+]
 
 /** What must hold at any time of a game, whatever the moves */
-const checkInvariants = (rules: PaperTalesRules, totalUnits: number) => {
+const checkInvariants = (rules: PaperTalesRules, totalUnits: number, totalBuildings: number) => {
   const game = rules.game
   const units = game.items[MaterialType.Unit] ?? []
   expect(units.length, 'units are neither created nor deleted').toBe(totalUnits)
@@ -67,13 +90,17 @@ const checkInvariants = (rules: PaperTalesRules, totalUnits: number) => {
     const spots = board.map((unit) => `${unit.location.x},${unit.location.y}`)
     expect(new Set(spots).size, `two units on one spot of ${player}: ${spots}`).toBe(spots.length)
     for (const unit of board) {
+      expect(isUnit(unit.id), 'a Legendary Artifact among the units').toBe(true)
       expect([0, 1]).toContain(unit.location.y)
       expect(unit.location.y === 0 ? [0, 1, 2] : [0, 1], `spot ${unit.location.x},${unit.location.y}`).toContain(unit.location.x)
     }
-    // Every Monarch keeps their 5 Buildings, in hand or built
+    for (const artifact of rules.material(MaterialType.Unit).location(LocationType.PlayerArtifacts).player(player).getItems<Card>()) {
+      expect(isArtifact(artifact.id), 'a unit among the Legendary Artifacts').toBe(true)
+    }
+    // Every Monarch keeps their Buildings (5, or 7 with an expansion), in hand or built
     const buildings = rules.material(MaterialType.Building).player(player)
-    expect(buildings.length).toBe(5)
-    expect(new Set(buildings.getItems<Building>().map((building) => building.id)).size).toBe(5)
+    expect(buildings.length).toBe(totalBuildings)
+    expect(new Set(buildings.getItems<Building>().map((building) => building.id)).size).toBe(totalBuildings)
     for (const building of buildings.getItems()) {
       expect([LocationType.PlayerBuildingHand, LocationType.PlayerBuildingBoard]).toContain(building.location.type)
     }
@@ -110,11 +137,13 @@ describe('Random games on the rules alone', () => {
    * unit lost or duplicated, two units never on one spot, no orphan Age token, 5 Buildings per Monarch, one score
    * token each.
    */
+  describe.each(optionSets)('%s', (_, expansions, games) => {
   it.each([2, 4, 7])('%i players: the game ends and the invariants hold after every action', (count) => {
-    for (let g = 0; g < 10; g++) {
-      const game = newGame(count)
+    for (let g = 0; g < games; g++) {
+      const game = newGame(count, expansions)
       const rules = new PaperTalesRules(game)
       const totalUnits = game.items[MaterialType.Unit]!.length
+      const totalBuildings = rules.material(MaterialType.Building).player(rules.players[0]).length
       let steps = 0
       while (game.rule && steps++ < 3000) {
         // The moves of the action, to tell which one broke an invariant
@@ -125,7 +154,7 @@ describe('Random games on the rules alone', () => {
           checkDeletion(move)
         })
         try {
-          checkInvariants(rules, totalUnits)
+          checkInvariants(rules, totalUnits, totalBuildings)
         } catch (error) {
           throw new Error(`${(error as Error).message}\nafter the moves:\n${played.join('\n')}`, { cause: error })
         }
@@ -133,6 +162,7 @@ describe('Random games on the rules alone', () => {
       expect(game.rule).toBeUndefined()
     }
   }, 600000)
+  })
 
   /**
    * The deck runs out at 7 players (42 cards, 35 dealt each turn): the discard is shuffled into a new deck, and a game
@@ -156,8 +186,14 @@ describe('Random games on the rules alone', () => {
    * consequences equal to the ones the server plays: a rule that reads a hidden id, or memorizes something computed
    * from one, breaks this.
    */
-  it.each([2, 4, 7])('%i players: every Monarch, and a spectator, replay the game from their view and stay in sync', (count) => {
-    const game = newGame(count)
+  it.each([
+    [2, {}],
+    [4, {}],
+    [7, {}],
+    [3, allExpansions],
+    [6, allExpansions]
+  ] as [number, Expansions][])('%i players %o: every Monarch, and a spectator, replay the game from their view and stay in sync', (count, expansions) => {
+    const game = newGame(count, expansions)
     const rules = new PaperTalesRules(game)
     const viewers: (PlayerColor | undefined)[] = [...rules.players, undefined]
     // A client knows who it is: the framework then hides the items that leave its sight

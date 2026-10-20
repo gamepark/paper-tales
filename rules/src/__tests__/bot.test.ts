@@ -8,7 +8,10 @@ import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
 import { RuleId } from '../rules/RuleId'
 
-const newGame = (count: number) => new PaperTalesSetup().setup({ players: Array.from({ length: count }, (_, i) => ({ id: (i + 1) as PlayerColor })) }) as MaterialGame
+const allExpansions = { beyondTheGatesUnits: true, beyondTheGatesBuildings: true, whatForgesLegends: true }
+
+const newGame = (count: number, expansions = {}) =>
+  new PaperTalesSetup().setup({ players: Array.from({ length: count }, (_, i) => ({ id: (i + 1) as PlayerColor })), ...expansions }) as MaterialGame
 
 const play = (rules: PaperTalesRules, move: MaterialMove) => {
   const queue: MaterialMove[] = [move]
@@ -48,9 +51,12 @@ describe('PaperTalesBot', () => {
     }
   })
 
-  it('ends every deployment in a move per card of its hand, and the game', () => {
+  it.each([
+    ['the base game', {}],
+    ['both expansions', allExpansions]
+  ])('ends every deployment in a move per card of its hand, and the game, with %s', (_, expansions) => {
     for (const count of [2, 3, 5, 7]) {
-      const rules = new PaperTalesRules(newGame(count))
+      const rules = new PaperTalesRules(newGame(count, expansions))
       let actions = 0
       // The moves left to each Monarch in the deployment: one per card of their hand, and the end of their turn
       let movesLeft: Map<number, number> | undefined
