@@ -125,7 +125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@datadog/browser-logs@npm:^7.13.0":
+"@datadog/browser-logs@npm:^7.16.0":
   version: 7.16.0
   resolution: "@datadog/browser-logs@npm:7.16.0"
   dependencies:
@@ -329,12 +329,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/icu-messageformat-parser@npm:3.5.21":
-  version: 3.5.21
-  resolution: "@formatjs/icu-messageformat-parser@npm:3.5.21"
+"@formatjs/icu-messageformat-parser@npm:3.5.22":
+  version: 3.5.22
+  resolution: "@formatjs/icu-messageformat-parser@npm:3.5.22"
   dependencies:
     "@formatjs/icu-skeleton-parser": "npm:2.1.12"
-  checksum: 10c0/4f94c09df9495fbf4d79eb458a85d8abbb10d288cdd8443f089b2c1748be74495f0bf2da154af81ced1a44896bc414421dbb5ebf1fdabd9f8175d23bcd3bffbc
+  checksum: 10c0/b28638f59498ddc40a2916b3cd419e624c83a36adaa87a284f2311aea603792cead28969719e44989d0c21fb6559858e9f7750eaa463a033be756fa87bd8e4bd
   languageName: node
   linkType: hard
 
@@ -417,7 +417,7 @@ __metadata:
     "@fortawesome/free-regular-svg-icons": "npm:^7.3.1"
     "@fortawesome/free-solid-svg-icons": "npm:^7.3.1"
     "@fortawesome/react-fontawesome": "npm:^3.5.0"
-    "@gamepark/react-game": "npm:~7.8.1"
+    "@gamepark/react-game": "npm:~7.9.0"
     "@gamepark/rules-api": "npm:~7.8.0"
     "@types/node": "npm:^26.6.5"
     "@types/react": "npm:^19.3.0"
@@ -451,17 +451,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@gamepark/react-client@npm:^7.8.0":
-  version: 7.8.0
-  resolution: "@gamepark/react-client@npm:7.8.0"
+"@gamepark/react-client@npm:^7.9.0":
+  version: 7.9.0
+  resolution: "@gamepark/react-client@npm:7.9.0"
   dependencies:
-    "@reduxjs/toolkit": "npm:^2.12.0"
-    "@tanstack/react-query": "npm:^5.103.1"
+    "@reduxjs/toolkit": "npm:^2.13.0"
+    "@tanstack/react-query": "npm:^5.104.3"
     "@trpc/client": "npm:^11.19.0"
     "@trpc/react-query": "npm:^11.19.0"
     "@trpc/server": "npm:^11.19.0"
     assert: "npm:^2.1.0"
-    immer: "npm:^11.1.18"
+    immer: "npm:^11.1.21"
     pusher-js: "npm:^8.6.0"
     redux: "npm:^5.0.1"
     superjson: "npm:^2.2.6"
@@ -474,25 +474,26 @@ __metadata:
     react-dom: ^19.2.4
     react-redux: ^9.2.0
     rxjs: ^7.8.2
-  checksum: 10c0/c76f878c4021c97357bd54349a4a45937bec7d0f907c8714868ac67e2399127bc24ee964e2f7d81912f5c37707a866b4565a63f3735704725536b37bbd64c41a
+  checksum: 10c0/28570510dd494387437379ced1cb70f36639174ce478a540d4a147e4d0ac5a5c7bdbee6ecb0d875a22d211efc825f4b467c54638a93dbc339f91b7835b1cc158
   languageName: node
   linkType: hard
 
-"@gamepark/react-game@npm:~7.8.1":
-  version: 7.8.1
-  resolution: "@gamepark/react-game@npm:7.8.1"
+"@gamepark/react-game@npm:~7.9.0":
+  version: 7.9.0
+  resolution: "@gamepark/react-game@npm:7.9.0"
   dependencies:
-    "@datadog/browser-logs": "npm:^7.13.0"
+    "@datadog/browser-logs": "npm:^7.16.0"
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@gamepark/api-types": "npm:^1.0.3"
     "@gamepark/avataaars": "npm:^3.0.0"
-    "@gamepark/react-client": "npm:^7.8.0"
+    "@gamepark/react-client": "npm:^7.9.0"
+    "@trpc/server": "npm:^11.19.0"
     dayjs: "npm:^1.11.23"
     fscreen: "npm:^1.2.0"
-    i18next-http-backend: "npm:^4.0.2"
-    i18next-icu: "npm:^2.4.4"
-    immer: "npm:^11.1.18"
-    intl-messageformat: "npm:^12.1.2"
+    i18next-http-backend: "npm:^4.0.4"
+    i18next-icu: "npm:^2.6.1"
+    immer: "npm:^11.1.21"
+    intl-messageformat: "npm:^12.1.3"
     nosleep.js: "npm:^0.12.0"
     o9n: "npm:^2.1.1"
     react-infinite-scroll-component: "npm:^7.2.1"
@@ -514,7 +515,8 @@ __metadata:
     react-dom: 19.x
     react-i18next: 17.x
     react-redux: 9.x
-  checksum: 10c0/ffc4a7f0a18fca55c117ed52c1a503a4160710627e71e55449c26f3fc14a2b2af50f7ffd0d0d55790fb415cada357a74ac9dbce250f1005cd100928abaf81237
+    typescript: ">=5.7.2"
+  checksum: 10c0/e3680fe73218f5becbad1de4cf0a370cab0fca2d01fdc30e3e9782983db230488ec32b6601ee1e7fa2c433625d72fb32c656df01ff31360304c7c1d45ba021f8
   languageName: node
   linkType: hard
 
@@ -980,7 +982,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.12.0":
+"@reduxjs/toolkit@npm:^2.13.0":
   version: 2.13.0
   resolution: "@reduxjs/toolkit@npm:2.13.0"
   dependencies:
@@ -1296,21 +1298,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.104.3":
-  version: 5.104.3
-  resolution: "@tanstack/query-core@npm:5.104.3"
-  checksum: 10c0/2d21f625818069d907d5d7a09555a0687a445bdf929891214a804636987dd8c4fb7b35468cecb0d9c353c9012fca431a105314bd0ada726537c1188711376e83
+"@tanstack/query-core@npm:5.104.5":
+  version: 5.104.5
+  resolution: "@tanstack/query-core@npm:5.104.5"
+  checksum: 10c0/bc2f0626e33ccb1c881343e2b351168d6c07df01f42ed0b4f679d4ecc753af5864678f3e09f57bef500a02de5fc52cfef13aa7c3f2d3be6b62297bac024acaed
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.103.1":
-  version: 5.104.3
-  resolution: "@tanstack/react-query@npm:5.104.3"
+"@tanstack/react-query@npm:^5.104.3":
+  version: 5.104.5
+  resolution: "@tanstack/react-query@npm:5.104.5"
   dependencies:
-    "@tanstack/query-core": "npm:5.104.3"
+    "@tanstack/query-core": "npm:5.104.5"
   peerDependencies:
+    "@types/react": ^18 || ^19
     react: ^18 || ^19
-  checksum: 10c0/ff797cfb3d4c6cbe49c3bfae9475df50985fbe2064e470325c287d3b86d019d8be7f25291a9c02ccc319fcf8df968181088278472cf72b9cb68a4f6786263721
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/eaff9dd4cec0cc43cf835d780efeaf0a2603b792cc2f5f5800a73b4f62b4562cce54b88885f74be72ea0fa7fc721636884ec4bae152b24aea9ce49544fb4c5d1
   languageName: node
   linkType: hard
 
@@ -2051,19 +2057,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next-http-backend@npm:^4.0.2":
-  version: 4.0.3
-  resolution: "i18next-http-backend@npm:4.0.3"
-  checksum: 10c0/61650dbea6c16499d67ec738b76fd73bd55df3b6bfd2ee60c85f8070974f6cfada18ce63983430f826556720fb8995bef8542b3829a0397bd09eccad5651e3ef
+"i18next-http-backend@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "i18next-http-backend@npm:4.0.4"
+  checksum: 10c0/f7b6a07820f2a4917da1bd8af70c27ec6dfdfbb9b954240ad5d914cfcabc4b75288b821aa54e9394319e22d6db116b1a9af7a9346cca7f06966257c22872fe0d
   languageName: node
   linkType: hard
 
-"i18next-icu@npm:^2.4.4":
-  version: 2.5.0
-  resolution: "i18next-icu@npm:2.5.0"
+"i18next-icu@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "i18next-icu@npm:2.6.1"
   peerDependencies:
     intl-messageformat: ">=10.3.3 <13.0.0"
-  checksum: 10c0/90e0f959e385383b6629330574cadd082df6f6139610ea3b762c00facff275df644309a8ee565c816374e4e21e9f2941a8e0e7134ad6c44a6c323cbd469b55b7
+  checksum: 10c0/490e1ae0ca6cd4b08432a9e78750dd504a2d27e501c1c26986ee52b07a5bc5710de3fa0c4c4bf3644a9e4dcef5c6eb341a1f35d5bd7685a4081495a6ff498c09
   languageName: node
   linkType: hard
 
@@ -2086,10 +2092,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^11.0.0, immer@npm:^11.1.18":
+"immer@npm:^11.0.0":
   version: 11.1.21
   resolution: "immer@npm:11.1.21"
   checksum: 10c0/0c29182c98d0cea079fc679a198a9bccc4d7d70b528d85f52707e606fbe6fc8fea0a3d583e86ff2d3eb75cd42e25aa359466e8e8edde316db436bb92a917fe84
+  languageName: node
+  linkType: hard
+
+"immer@npm:^11.1.21":
+  version: 11.2.3
+  resolution: "immer@npm:11.2.3"
+  checksum: 10c0/99ae2cb0e094faacf826d91269bcbd7cac2500ce823e1415f0432ae9081620715a0ab0aabb378e1a6597960141c6b7a6ec0960711bcf02250d2515604b084e6a
   languageName: node
   linkType: hard
 
@@ -2110,13 +2123,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"intl-messageformat@npm:^12.1.2":
-  version: 12.1.3
-  resolution: "intl-messageformat@npm:12.1.3"
+"intl-messageformat@npm:^12.1.3":
+  version: 12.1.4
+  resolution: "intl-messageformat@npm:12.1.4"
   dependencies:
     "@formatjs/fast-memoize": "npm:3.1.7"
-    "@formatjs/icu-messageformat-parser": "npm:3.5.21"
-  checksum: 10c0/39e29ac1102cab336e9d1e78b1530fa6d32156f30dcaae4e8bb441bc68e49c797b4477a73ce68a16846d23495d98ec760c8165bf0d450589faa8b9a7e9763e01
+    "@formatjs/icu-messageformat-parser": "npm:3.5.22"
+  checksum: 10c0/30b989f90b33e57c8d73afcfc8b5936555a407d9a976d1966b968660c716892019c1221422f63438cad64a06c6e55be3726bd8f7b91d4f4f331b2c56cd38bfff
   languageName: node
   linkType: hard
 
