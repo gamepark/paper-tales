@@ -3,6 +3,7 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { Locator } from '@gamepark/react-game'
 import { ageStockLocator } from './AgeStockLocator'
+import { artifactCostLocator } from './ArtifactCostLocator'
 import { unitDeckLocator } from './DeckLocator'
 import { discardLocator } from './DiscardLocator'
 import { draftTransitLocator } from './DraftPassingLocators'
@@ -40,5 +41,6 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.DraftTransit]: draftTransitLocator,
   [LocationType.UnitVeil]: unitVeilLocator,
   [LocationType.BuildingVeil]: buildingVeilLocator,
-  [LocationType.ExpansionRules]: expansionRulesLocator
+  [LocationType.ExpansionRules]: expansionRulesLocator,
+  [LocationType.ArtifactCost]: artifactCostLocator
 }

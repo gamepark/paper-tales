@@ -1,7 +1,7 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
-import { Artifact } from '@gamepark/paper-tales/material/Artifact'
+import { Artifact, isArtifact } from '@gamepark/paper-tales/material/Artifact'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { isMoveItemType, Location, MaterialItem, MaterialMove } from '@gamepark/rules-api'
@@ -92,6 +92,9 @@ import { getUnitActions, UnitAction, unitActionIcons, unitActionTexts } from './
 import { MenuPosition, PaperMenuButton } from './PaperMenuButton'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
+
+/** Where a Legendary Artifact shows its cost: in my hands, before it is deployed */
+const artifactCostLocations = [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand]
 
 export class UnitCardDescription extends CardDescription {
   height = 14
@@ -197,9 +200,16 @@ export class UnitCardDescription extends CardDescription {
 
   menuAlwaysVisible = true
 
-  /** An Age token can be moved onto this unit (the Wizard Apprentice): the card is a drop area for it */
-  getLocations(_item: MaterialItem, context: ItemContext): Location[] {
-    if (context.player === undefined || context.rules.game.rule?.id !== RuleId.DeployEffects) return []
+  /**
+   * On my Legendary Artifacts in hand, their cost of the moment (they have none printed, see ArtifactCostLocator). On a
+   * unit, a drop area when an Age token can be moved onto it (the Wizard Apprentice).
+   */
+  getLocations(item: MaterialItem, context: ItemContext): Location[] {
+    if (context.player === undefined) return []
+    if (isArtifact(item.id) && item.location.player === context.player && artifactCostLocations.includes(item.location.type)) {
+      return [{ type: LocationType.ArtifactCost, parent: context.index }]
+    }
+    if (context.rules.game.rule?.id !== RuleId.DeployEffects) return []
     const destination = context.rules
       .getLegalMoves(context.player)
       .filter(isMoveItemType(MaterialType.Age))
