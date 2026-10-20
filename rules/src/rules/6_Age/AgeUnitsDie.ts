@@ -12,10 +12,10 @@ export class AgeUnitsDie extends MaterialRulesPart {
     players.forEach((player) => {
       const ageHelper = new AgeHelper(this.game, player)
       const dyingUnits = ageHelper.dyingUnits
-      // The Age tokens go back to the reserve from the unit, still in its place (its band tells why it dies, see AgeFates),
-      // then the unit leaves for the discard: a card turned face down on its way would cross the tokens laid on it
-      for (const index of dyingUnits.getIndexes()) moves.push(...new AgeTokens(this).remove(index))
+      // Each unit leaves with its Age tokens, the reason of its death, then the tokens go back to the reserve
+      const indexes = dyingUnits.getIndexes()
       moves.push(...dyingUnits.moveItems({ type: LocationType.Discard }))
+      for (const index of indexes) moves.push(...new AgeTokens(this).remove(index))
     })
     moves.push(this.startRule(RuleId.AgeUnitsAge))
     return moves
