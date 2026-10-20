@@ -1,15 +1,18 @@
 import { css } from '@emotion/react'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { MaterialComponent, PlayMoveButton } from '@gamepark/react-game'
-import { MaterialMoveBuilder } from '@gamepark/rules-api'
+import { HelpDisplayType, HelpHistory, MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC } from 'react'
-import displayMaterialHelp = MaterialMoveBuilder.displayMaterialHelp
+import displayHelp = MaterialMoveBuilder.displayHelp
 
-/** The cards of an expansion, small, side by side: a click opens the help of the card */
+/**
+ * The cards of an expansion, small, side by side: a click opens the help of the card, keeping the rules of the
+ * expansions in history so that the bookmark on the left page goes back to them
+ */
 export const ExpansionCards: FC<{ type: MaterialType; ids: number[] }> = ({ type, ids }) => (
   <div css={galleryCss}>
     {ids.map((id) => (
-      <PlayMoveButton key={id} css={cardCss} move={displayMaterialHelp(type, { id })} transient>
+      <PlayMoveButton key={id} css={cardCss} move={displayHelp({ type: HelpDisplayType.Material, itemType: type, item: { id } }, HelpHistory.Keep)} transient>
         <MaterialComponent type={type} itemId={id} />
       </PlayMoveButton>
     ))}
