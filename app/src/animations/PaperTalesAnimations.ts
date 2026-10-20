@@ -65,8 +65,9 @@ const moveSeen = (context: MaterialContext, type: number, index: number, locatio
 const isUnseen = (move: MaterialMove, context: MaterialContext): boolean => {
   if (isMoveItem(move)) return !moveSeen(context, move.itemType, move.itemIndex, move.location)
   if (isMoveItemsAtOnce(move)) return !move.indexes.some((index) => moveSeen(context, move.itemType, index, move.location))
-  // The gold earned comes from the reserve on the table: it is seen leaving it, even towards a panel
-  if (isCreateItem(move) && move.itemType === MaterialType.Gold) return false
+  // The income comes from the reserve on the table: it is seen leaving it, even towards a panel. The change given back
+  // to a Monarch who pays is not: it is created on their panel.
+  if (isCreateItem(move) && move.itemType === MaterialType.Gold && context.rules.game.rule?.id === RuleId.Income) return false
   if (isCreateItem(move)) return !isSeen(context, move.itemType, -1, move.item as MaterialItem)
   if (isDeleteItem(move)) {
     const item = itemAt(context, move.itemType, move.itemIndex)
@@ -162,6 +163,10 @@ paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(Loca
 // The income: the coins of each Monarch fly from the reserve into their panel, one Monarch after the other, slowly
 // enough to follow them
 paperTalesAnimation.configure(and(isRule(RuleId.Income), isCreateItem)).duration(700)
+
+// The payment of the new units: the coins of the Monarch looked at leave their stock, at the pace of the income. What the
+// others pay is not seen (see isUnseen).
+paperTalesAnimation.configure(and(isRule(RuleId.PayDeployedUnits), (move: MaterialMove) => isCreateItem(move) || isDeleteItem(move), isSeenMove)).duration(700)
 
 // A building built stays on its slot of the grid (from the unbuilt to the built buildings): nothing moves, the band and
 // the veil fade by themselves (see BuildingCardDescription)
@@ -322,6 +327,6 @@ paperTalesAnimation.configure(starts(RuleId.Income)).duration(WAR_RESULTS_READIN
  */
 const STEP_READING = 1200
 paperTalesAnimation
-  .configure(starts(RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects, RuleId.War, RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge))
+  .configure(starts(RuleId.RevealBoards, RuleId.DeployEffects, RuleId.War, RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge))
   .duration(STEP_READING)
   .postMove()

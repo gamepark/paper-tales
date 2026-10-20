@@ -1,4 +1,6 @@
 import { css } from '@emotion/react'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 import { useMaterialContext, usePlayerName } from '@gamepark/react-game'
@@ -7,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
 import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView } from '../locators/TableLayout'
 import { unitCardDescription } from '../material/UnitCardDescription'
+import { fightsFromBackRow } from '../material/fightsFromBackRow'
 import { colorStripCss, paper, paperBackgroundCss, rust, tagPaperCss } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { Sash } from './Sash'
@@ -35,14 +38,20 @@ export const WarInfo: FC = () => {
   )
 }
 
-/** The back row of a kingdom does not fight (rulebook p.6): a "Not fighting" band across it */
+/**
+ * The back row of a kingdom does not fight (rulebook p.6): a "Not fighting" band across its spaces, but the ones of the
+ * units that fight from there (the ranged units)
+ */
 const BackRowStamp: FC<{ player: PlayerColor }> = ({ player }) => {
   const { t } = useTranslation()
   const context = useMaterialContext()
+  const backRow = context.rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).location((location) => location.y === 1)
+  const columns = [0, 1].filter((x) => !backRow.filter((item) => item.location.x === x).getItems().some(fightsFromBackRow))
+  if (!columns.length) return null
   const scale = getKingdomScale(context, player)
   const width = unitCardDescription.width * scale
   const height = unitCardDescription.height * scale
-  const slots = [0, 1].map((x) => getKingdomSlotCoordinates(context, player, x, 1))
+  const slots = columns.map((x) => getKingdomSlotCoordinates(context, player, x, 1))
   const left = Math.min(...slots.map((slot) => slot.x)) - width / 2
   const right = Math.max(...slots.map((slot) => slot.x)) + width / 2
   const rect = { x: left, y: slots[0].y - height / 2, width: right - left, height }

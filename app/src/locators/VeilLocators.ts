@@ -1,12 +1,10 @@
 import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
-import { isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { ItemContext, LocationContext, LocationDescription, Locator, MaterialContext, ParentFace } from '@gamepark/react-game'
-import { isMoveItemType, Location, MaterialItem } from '@gamepark/rules-api'
+import { isMoveItemType, Location } from '@gamepark/rules-api'
+import { fightsFromBackRow } from '../material/fightsFromBackRow'
 import { isWarView } from './TableLayout'
 
 /**
@@ -29,9 +27,6 @@ const seenFace = (context: MaterialContext, type: MaterialType, location: Locati
   const item = context.rules.material(type).getItem(location.parent!)
   return item && context.material[type]?.isFlipped(item, context) ? ParentFace.Back : ParentFace.Front
 }
-
-/** A unit of the back row that still fights (rulebook p.6, the ranged units) */
-const fightsFromBackRow = (item: MaterialItem) => item.id !== undefined && (unitCardCaracteristics[item.id as Unit].effect ?? []).some(isWarFromBacklane)
 
 /**
  * The discard is face down like the deck (rulebook p.3): darkened to tell them apart. In the neighbours view, the back row
