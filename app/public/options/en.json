@@ -6,5 +6,11 @@
   "identities.4": "Yellow",
   "identities.5": "Black",
   "identities.6": "Purple",
-  "identities.7": "White"
+  "identities.7": "White",
+  "option.beyondTheGatesUnits": "Beyond the gates: the Units",
+  "option.beyondTheGatesUnits.help": "Adds the 20 Units of the expansion to the draw pile.",
+  "option.beyondTheGatesBuildings": "Beyond the gates: the Buildings",
+  "option.beyondTheGatesBuildings.help": "Each Monarch has the Mine, the Tavern, the Temple and the Town, plus 3 Buildings drawn at random among the Barracks and those of the expansions played.",
+  "option.whatForgesLegends": "What forges legends",
+  "option.whatForgesLegends.help": "Adds 26 Units, 18 Legendary Artifacts and 3 Buildings. The expansion is played as a whole."
 }
