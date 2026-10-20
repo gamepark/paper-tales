@@ -52,7 +52,8 @@ const actionsCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: 0.6em 1em;
-  margin: 0 -0.6em -3.2em;
+  /* The room of the fade above, so that at the end of the scroll it fades nothing of the text (the live box) */
+  margin: 1.6em -0.6em -3.2em;
   padding: 0.9em 0.6em 3.2em;
   background: ${paper};
 
