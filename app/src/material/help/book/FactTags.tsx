@@ -3,7 +3,7 @@ import { FC, ReactNode } from 'react'
 import { paperMuted, tornClip } from '../../../theme/tableTheme'
 
 /** A fact printed on a card: a label, an icon, a value */
-export type FactTag = { label: ReactNode; icon?: ReactNode; value?: ReactNode }
+export type FactTag = { label: ReactNode; icon?: ReactNode; value?: ReactNode; /** How the value is computed, in small italics after it */ note?: ReactNode }
 
 /** The facts printed on a card, each on its own torn tag: an icon and a value */
 export const FactTags: FC<{ tags: FactTag[] }> = ({ tags }) => (
@@ -13,6 +13,7 @@ export const FactTags: FC<{ tags: FactTag[] }> = ({ tags }) => (
         <span css={labelCss}>{tag.label}</span>
         {tag.icon}
         {tag.value !== undefined && <span>{tag.value}</span>}
+        {tag.note && <span css={noteCss}>{tag.note}</span>}
       </span>
     ))}
   </div>
@@ -27,6 +28,14 @@ const rowCss = css`
 
 const labelCss = css`
   font-weight: 600;
+  color: #6b6058;
+`
+
+const noteCss = css`
+  font-family: 'Mulish', sans-serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.85em;
   color: #6b6058;
 `
 
