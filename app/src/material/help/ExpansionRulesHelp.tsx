@@ -178,9 +178,19 @@ const listCss = css`
 
 /** The buildings drawn for this game, on a torn slip */
 const drawnCss = css`
+  position: relative;
+  isolation: isolate;
   margin: 0.8em 0 0;
   padding: 0.5em 1em;
-  background: #e9dccb;
-  clip-path: ${tornClip};
   font-weight: 700;
+
+  /* The torn paper behind the slip only: cut on the slip itself, it would cut the cards that grow on hover */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #e9dccb;
+    clip-path: ${tornClip};
+  }
 `
