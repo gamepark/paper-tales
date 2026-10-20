@@ -6,7 +6,7 @@ import { dialogButtonCss, dialogDangerButtonCss, dialogFieldsCss, dialogMessageC
 import { chatBarCss, historyEntryCss, tabCss, tabSelectedCss } from './journal'
 import { journalPanelCss, mainButtonCss, menuEntryCss, menuPanelCss, popButtonCss } from './menu'
 import { PageCornerNavigation } from './PageCornerNavigation'
-import { resultButtonsCss, resultContentCss, resultHeaderCss, resultTableCss } from './result'
+import { resultButtonsCss, resultContainerCss, resultContentCss, resultHeaderCss, resultTableCss } from './result'
 import { cutLine, paper, tableButtonCss } from './tableTheme'
 
 /**
@@ -46,6 +46,7 @@ export const theme: Partial<GameTheme> = {
   result: {
     border: '#4a454055',
     icon: '#b5481f',
+    container: resultContainerCss,
     content: resultContentCss,
     header: resultHeaderCss,
     buttons: resultButtonsCss,
