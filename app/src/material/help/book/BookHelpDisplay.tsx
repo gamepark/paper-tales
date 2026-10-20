@@ -1,5 +1,9 @@
 import { css } from '@emotion/react'
-import { DefaultHelpDisplay, MaterialHelpDisplayProps, useMaterialDescription, useRules } from '@gamepark/react-game'
+import { DefaultHelpDisplay, MaterialHelpDisplayProps, useMaterialDescription, usePlayerId, useRules } from '@gamepark/react-game'
+import { isArtifact } from '@gamepark/paper-tales/material/Artifact'
+import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { artifactCostLocations, artifactCostPosition, getArtifactCost } from '../../../locators/artifactCost'
+import { CostCoin } from '../../../locators/component/ArtifactCost'
 import { FC } from 'react'
 import ageToken from '../../../images/tokens/Age.jpg'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
@@ -14,15 +18,35 @@ import { paper } from '../../../theme/tableTheme'
 export const BookHelpDisplay: FC<MaterialHelpDisplayProps & { scale?: number; ageTokens?: boolean }> = ({ scale = 0.79, ageTokens = true, ...props }) => {
   const rules = useRules<PaperTalesRules>()
   const tokens = ageTokens && rules && props.itemIndex !== undefined ? new AgeTokens(rules).count(props.itemIndex) : 0
+  const me = usePlayerId()
+  // A Legendary Artifact of my hand shows its cost of the moment, as on the table (see ArtifactCostLocator)
+  const inMyHand = isArtifact(props.item.id) && props.item.location?.player === me && artifactCostLocations.includes(props.item.location?.type as LocationType)
+  const cost = inMyHand && rules && props.itemIndex !== undefined ? getArtifactCost(rules, props.itemIndex) : undefined
   return (
     <div css={pageCss}>
       <div key={props.itemIndex} css={[itemCss, pageTurnCss]} style={{ fontSize: `${scale / 2.13}em` }}>
         <DefaultHelpDisplay {...props} />
         {tokens > 0 && <img css={ageCss} src={ageToken} alt="" />}
+        {cost !== undefined && (
+          <div css={costCss}>
+            <CostCoin cost={cost} />
+          </div>
+        )}
       </div>
     </div>
   )
 }
+
+/** The coin of the cost on the card drawn by the framework, at the place it has on the table (1 cm of the card: 75 / 14 em) */
+const costCss = css`
+  position: absolute;
+  left: ${artifactCostPosition.x}%;
+  top: ${artifactCostPosition.y}%;
+  font-size: ${75 / 14}em;
+  width: ${artifactCostPosition.size}em;
+  height: ${artifactCostPosition.size}em;
+  transform: translate(-50%, -50%) translateZ(1em);
+`
 
 /** The width of a token or a coin on its page, in em of the page */
 const TOKEN_WIDTH = 14

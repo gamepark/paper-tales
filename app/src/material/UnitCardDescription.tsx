@@ -86,15 +86,13 @@ import WarChest from '../images/units/en/WarChest.jpg'
 import BottomlessPurse from '../images/units/en/BottomlessPurse.jpg'
 import MedallionOfLife from '../images/units/en/MedallionOfLife.jpg'
 import { isWarView } from '../locators/TableLayout'
+import { artifactCostLocations } from '../locators/artifactCost'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { UnitActionLabel } from './actions/UnitActionLabel'
 import { getUnitActions, UnitAction, unitActionIcons, unitActionTexts } from './actions/UnitActions'
 import { MenuPosition, PaperMenuButton } from './PaperMenuButton'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
-
-/** Where a Legendary Artifact shows its cost: in my hands, before it is deployed */
-const artifactCostLocations = [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand]
 
 export class UnitCardDescription extends CardDescription {
   height = 14
