@@ -152,6 +152,15 @@ paperTalesAnimation
   .skip()
 
 // The hands are shuffled against cheating only (see GiveDraftToNeighbor and PlaceUnitOnBoard): nothing to see
+// The Age tokens of a unit gone to the discard go with it: they are not seen flying back to the reserve from the discard
+paperTalesAnimation
+  .configure((move, context) => {
+    if (!isDeleteItem(move) || move.itemType !== MaterialType.Age) return false
+    const unit = itemAt(context, MaterialType.Unit, itemAt(context, MaterialType.Age, move.itemIndex)?.location.parent ?? -1)
+    return unit?.location.type === LocationType.Discard
+  })
+  .skip()
+
 const isSecurityShuffle = (move: MaterialMove, context: MaterialContext) =>
   isShuffle(move) && [RuleId.GiveDraftToNeighbor, RuleId.PlaceUnitOnBoard].includes(context.rules.game.rule?.id as RuleId)
 paperTalesAnimation.configure(isSecurityShuffle).skip()
