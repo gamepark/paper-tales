@@ -7,6 +7,7 @@ import { unitDeckLocator } from './DeckLocator'
 import { discardLocator } from './DiscardLocator'
 import { draftTransitLocator } from './DraftPassingLocators'
 import { onCardLocator } from './OnCardLocator'
+import { expansionRulesLocator } from './ExpansionRulesLocator'
 import { goldStockLocator } from './GoldStockLocator'
 import { playerArtifactsLocator } from './PlayerArtifactsLocator'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
@@ -38,5 +39,6 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.ShieldIcon]: shieldLocator,
   [LocationType.DraftTransit]: draftTransitLocator,
   [LocationType.UnitVeil]: unitVeilLocator,
-  [LocationType.BuildingVeil]: buildingVeilLocator
+  [LocationType.BuildingVeil]: buildingVeilLocator,
+  [LocationType.ExpansionRules]: expansionRulesLocator
 }

@@ -138,3 +138,13 @@ export const ReactivateIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
     <path d="M17 40 L10.5 36.5 L15 30.5" fill="none" strokeLinecap="round" />
   </PaperIcon>
 )
+
+/** The rules of the expansions: an open book, its pages of cream paper on a crimson cover */
+export const RulesBookIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <path d="M4 13 L24 17 L44 13 L44 39 L24 43 L4 39 Z" fill="#9b2e4d" />
+    <path d="M7 10 Q16 9 24 14 L24 39 Q16 34 7 35 Z" fill="#f6ece6" />
+    <path d="M41 10 Q32 9 24 14 L24 39 Q32 34 41 35 Z" fill="#d9c8b8" />
+    <path d="M11 17 Q16 16.5 20 19 M11 23 Q16 22.5 20 25 M28 19 Q32 16.5 37 17 M28 25 Q32 22.5 37 23" fill="none" strokeLinecap="round" />
+  </PaperIcon>
+)

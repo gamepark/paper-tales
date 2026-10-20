@@ -25,5 +25,7 @@ export enum LocationType {
   /** A veil over a building card, drawn by the interface only (a building that cannot be built now) */
   BuildingVeil,
   /** The Legendary Artifacts of a Monarch, apart from the units (x: the order they were put into play) */
-  PlayerArtifacts
+  PlayerArtifacts,
+  /** The rules of the expansions played, a help page opened by the interface only */
+  ExpansionRules
 }

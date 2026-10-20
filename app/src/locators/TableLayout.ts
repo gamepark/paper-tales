@@ -89,6 +89,8 @@ export const deckLabelPosition = { x: SIDE_X - 5.5, y: DECK_Y + PILE_HALF_HEIGHT
 export const discardLabelPosition = { x: SIDE_X - 5.5, y: DISCARD_Y + PILE_HALF_HEIGHT + 0.5 }
 const RESERVES_Y = 40.6
 export const goldStockCoordinates = { x: SIDE_X - 2.9, y: RESERVES_Y }
+// The rules of the expansions played, at the foot of the column, under the reserves
+export const expansionRulesPosition = { x: SIDE_X - 5.5, y: 44 }
 export const ageStockCoordinates = { x: SIDE_X + 2.9, y: RESERVES_Y }
 
 // Neighbours view, laid out like the seats around the table: my 2 neighbours at the top (left and right), the central
@@ -339,7 +341,15 @@ export const getBuildingSlotCoordinates = (context: MaterialContext, building: B
 }
 
 /** What forges legends is played: its Legendary Artifacts are in the deck */
-export const hasArtifacts = (context: MaterialContext) => !!(context.rules.game.options as PaperTalesOptions | undefined)?.whatForgesLegends
+export const hasArtifacts = (context: MaterialContext) => !!getOptions(context)?.whatForgesLegends
+
+export const getOptions = (context: MaterialContext) => context.rules.game.options as PaperTalesOptions | undefined
+
+/** An expansion is played: its rules can be read */
+export const hasExpansion = (context: MaterialContext) => {
+  const options = getOptions(context)
+  return !!(options?.beyondTheGatesUnits || options?.beyondTheGatesBuildings || options?.whatForgesLegends)
+}
 
 /**
  * The Legendary Artifacts of a Monarch, apart from the units (rulebook p.11): in the row of the last building of the grid,
