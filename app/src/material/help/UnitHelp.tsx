@@ -1,7 +1,7 @@
 import { isChangeWarPower, isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
-import { Unit } from '@gamepark/paper-tales/material/Unit'
+import { Card, isArtifact } from '@gamepark/paper-tales/material/Artifact'
 import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
@@ -17,6 +17,7 @@ import { getUnitActions, UnitAction, unitActionIcons, unitActions } from '../act
 import { HelpActionButton } from './book/HelpActionButton'
 import { BookPage } from './book/BookPage'
 import { FactTags } from './book/FactTags'
+import { ArtifactHelp } from './ArtifactHelp'
 import { HiddenUnitHelp } from './HiddenUnitHelp'
 import { helpIconComponents } from './book/helpIconComponents'
 import { ResourceIcon, StrengthIcon } from './book/HelpIcons'
@@ -39,8 +40,18 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   // The same actions as the buttons on the card, with their icons and words
   const actions = itemIndex !== undefined ? getUnitActions(legalMoves, itemIndex, isWarView(context)) : {}
   const available = unitActions.filter((action) => actions[action])
-  const unit = item.id as Unit | undefined
-  if (unit === undefined) return <HiddenUnitHelp {...props} />
+  const actionButtons = available.map((action) => {
+    const Icon = unitActionIcons[action]
+    return (
+      <HelpActionButton key={action} move={actions[action]!} icon={<Icon />} onPlay={props.closeDialog}>
+        <UnitActionLabel action={action} />
+      </HelpActionButton>
+    )
+  })
+  const card = item.id as Card | undefined
+  if (card === undefined) return <HiddenUnitHelp {...props} />
+  if (isArtifact(card)) return <ArtifactHelp {...props} actions={actionButtons} />
+  const unit = card
 
   const pattern = unitCardCaracteristics[unit]
   const effects = pattern.effect ?? []
@@ -69,14 +80,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       name={name}
       lede={<PrintedText lines={lines} />}
       facts={<FactTags tags={facts} />}
-      actions={available.map((action) => {
-        const Icon = unitActionIcons[action]
-        return (
-          <HelpActionButton key={action} move={actions[action]!} icon={<Icon />} onPlay={props.closeDialog}>
-            <UnitActionLabel action={action} />
-          </HelpActionButton>
-        )
-      })}
+      actions={actionButtons}
     >
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
       {actions[UnitAction.AddAge] && (

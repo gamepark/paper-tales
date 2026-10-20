@@ -1,6 +1,7 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { PaperTalesOptions } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
@@ -335,6 +336,37 @@ export const getBuildingSlotCoordinates = (context: MaterialContext, building: B
     // Each building at its own height, so that a hovered one is not drawn under its neighbours at the same depth
     z: 0.1 + index * 0.1
   }
+}
+
+/** What forges legends is played: its Legendary Artifacts are in the deck */
+export const hasArtifacts = (context: MaterialContext) => !!(context.rules.game.options as PaperTalesOptions | undefined)?.whatForgesLegends
+
+/**
+ * The Legendary Artifacts of a Monarch, apart from the units (rulebook p.11): in the row of the last building of the grid,
+ * in the 2 cells it leaves empty (What forges legends always gives 7 buildings), as high as a building
+ */
+export const getArtifactsZone = (context: MaterialContext) => {
+  const scale = getBuildingScale(context)
+  const width = buildingCardDescription.width * scale
+  const height = buildingCardDescription.height * scale
+  return {
+    x: BUILDINGS_X + width + BUILDING_COLUMN_GAP,
+    y: AREA_Y + 2 * (height + BUILDING_ROW_GAP),
+    width: 2 * width + BUILDING_COLUMN_GAP,
+    height,
+    /** The scale of an artifact card, as high as the zone */
+    scale: height / unitCardDescription.height
+  }
+}
+
+const ARTIFACTS_GAP = 0.4
+
+/** An artifact in the zone, in the order they were put into play: side by side, overlapping when they are many */
+export const getArtifactCoordinates = (context: MaterialContext, index: number, count: number): Coordinates => {
+  const zone = getArtifactsZone(context)
+  const width = unitCardDescription.width * zone.scale
+  const step = count <= 1 ? 0 : Math.min(width + ARTIFACTS_GAP, (zone.width - width) / (count - 1))
+  return { x: zone.x + width / 2 + index * step, y: zone.y + zone.height / 2, z: 0.1 + index * 0.1 }
 }
 
 /**

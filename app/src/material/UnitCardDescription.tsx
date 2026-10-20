@@ -1,8 +1,10 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { Artifact } from '@gamepark/paper-tales/material/Artifact'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
-import { MaterialItem, MaterialMove } from '@gamepark/rules-api'
+import { isMoveItemType, Location, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -195,6 +197,16 @@ export class UnitCardDescription extends CardDescription {
 
   menuAlwaysVisible = true
 
+  /** An Age token can be moved onto this unit (the Wizard Apprentice): the card is a drop area for it */
+  getLocations(_item: MaterialItem, context: ItemContext): Location[] {
+    if (context.player === undefined || context.rules.game.rule?.id !== RuleId.DeployEffects) return []
+    const destination = context.rules
+      .getLegalMoves(context.player)
+      .filter(isMoveItemType(MaterialType.Age))
+      .find((move) => move.location.parent === context.index)
+    return destination ? [destination.location as Location] : []
+  }
+
   getItemMenu(item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
     const actions = getUnitActions(legalMoves, context.index, isWarView(context))
     const button = (action: UnitAction, position: MenuPosition, labelled: boolean) => {
@@ -232,7 +244,8 @@ export class UnitCardDescription extends CardDescription {
     return [
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
       button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
-      button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true)
+      button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true),
+      button(UnitAction.Reactivate, { radius: 3.7, angle: 260 }, true)
     ]
   }
 }

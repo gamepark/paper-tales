@@ -8,6 +8,7 @@ import { discardLocator } from './DiscardLocator'
 import { draftTransitLocator } from './DraftPassingLocators'
 import { onCardLocator } from './OnCardLocator'
 import { goldStockLocator } from './GoldStockLocator'
+import { playerArtifactsLocator } from './PlayerArtifactsLocator'
 import { playerBuildingBoardLocator } from './PlayerBuildingBoardLocator'
 import { playerBuildingHandLocator } from './PlayerBuildingHandLocator'
 import { playerDraftHandLocator } from './PlayerDraftHandLocator'
@@ -30,6 +31,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.PlayerBuildingBoard]: playerBuildingBoardLocator,
   [LocationType.PlayerBuildingHand]: playerBuildingHandLocator,
   [LocationType.PlayerUnitBoard]: playerUnitBoardLocator,
+  [LocationType.PlayerArtifacts]: playerArtifactsLocator,
   [LocationType.ScoreBoard]: scoreBoardLocator,
   [LocationType.PlayerScore]: scoreTokenLocator,
   [LocationType.OnCard]: onCardLocator,

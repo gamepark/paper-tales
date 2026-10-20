@@ -11,7 +11,7 @@ const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 /**
  * The icons the texts printed on the cards use, as translation components: <food/>, <wood/>, <crystal/>, <gold/>,
  * <age/>, <ageplus/>, <deploy/>, <b1/>, <b2/>, <phase1/>…<phase6/>, <pl/>, <pl2/> (scroll with 2), <plm3/> (scroll with
- * -3), <g1/> (coin with 1), <s2/> (shield with 2), <sp1/> (shield with +1).
+ * -3), <g1/> (coin with 1), <s2/> (shield with 2), <sp1/> (shield with +1), <sm2/> (shield with -2).
  */
 export const helpIconComponents = {
   food: <ResourceIcon resource={Resources.Food} />,
@@ -27,6 +27,7 @@ export const helpIconComponents = {
   ...Object.fromEntries(phaseIcons.map((icon, index) => [`phase${index + 1}`, <PrintedIcon key={index} src={icon} />])),
   ...Object.fromEntries(digits.map((n) => [`s${n}`, <StrengthIcon key={n} value={n} />])),
   ...Object.fromEntries(digits.map((n) => [`sp${n}`, <StrengthIcon key={n} value={`+${n}`} />])),
+  ...Object.fromEntries(digits.map((n) => [`sm${n}`, <StrengthIcon key={n} value={`-${n}`} />])),
   ...Object.fromEntries(digits.map((n) => [`pl${n}`, <LegendValueIcon key={n} value={n} />])),
   ...Object.fromEntries(digits.map((n) => [`plm${n}`, <LegendValueIcon key={n} value={-n} />])),
   ...Object.fromEntries(digits.map((n) => [`g${n}`, <GoldValueIcon key={n} value={n} />]))

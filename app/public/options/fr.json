@@ -6,5 +6,11 @@
   "identities.4": "Jaune",
   "identities.5": "Noir",
   "identities.6": "Violet",
-  "identities.7": "Blanc"
+  "identities.7": "Blanc",
+  "option.beyondTheGatesUnits": "Au-delà des portes : les Unités",
+  "option.beyondTheGatesUnits.help": "Ajoute les 20 Unités de l’extension à la pioche.",
+  "option.beyondTheGatesBuildings": "Au-delà des portes : les Bâtiments",
+  "option.beyondTheGatesBuildings.help": "Chaque Monarque a la Mine, la Taverne, le Temple et la Ville, plus 3 Bâtiments tirés au sort parmi la Caserne et ceux des extensions jouées.",
+  "option.whatForgesLegends": "Ce qui forge les légendes",
+  "option.whatForgesLegends.help": "Ajoute 26 Unités, 18 Artefacts légendaires et 3 Bâtiments. L’extension se joue en entier."
 }

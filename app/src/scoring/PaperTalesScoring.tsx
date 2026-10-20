@@ -6,7 +6,7 @@ import { EndScoreHelper } from '@gamepark/paper-tales/rules/helpers/EndScoreHelp
 import { ScoringDescription } from '@gamepark/react-game'
 import { Trans } from 'react-i18next'
 import gold from '../images/tokens/Gold1.jpg'
-import { AgeIcon, BuildIcon, NeighboursIcon } from '../material/icons/PaperIcons'
+import { AgeIcon, BuildIcon, CrownIcon, NeighboursIcon } from '../material/icons/PaperIcons'
 import { LegendScrollIcon } from './LegendScrollIcon'
 import { ResultPage } from './ResultPage'
 import { ScoringHeader as Header } from './ScoringHeader'
@@ -16,6 +16,8 @@ enum ScoringKey {
   DuringGame = 1,
   Buildings,
   Relics,
+  /** The Legendary Artifacts of What forges legends (rulebook p.11) */
+  Artifacts,
   Total,
   /** The tie breaker (rulebook p.8) */
   Gold
@@ -23,7 +25,7 @@ enum ScoringKey {
 
 /**
  * The end screen (rulebook p.8): the points scored during the game, then those added at the end (built buildings,
- * relics), the total, and the gold left that breaks a tie. Every line is headed by the icon of the game it stands
+ * relics, Legendary Artifacts), the total, and the gold left that breaks a tie. Every line is headed by the icon of the game it stands
  * for, with its name under it. Everything is computed from the table.
  */
 export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperTalesRules, ScoringKey> {
@@ -31,7 +33,15 @@ export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperT
 
   getScoringKeys(rules: PaperTalesRules) {
     const relics = rules.players.some((player) => new EndScoreHelper(rules.game, player).relicsPoints > 0)
-    return [ScoringKey.DuringGame, ScoringKey.Buildings, ...(relics ? [ScoringKey.Relics] : []), ScoringKey.Total, ScoringKey.Gold]
+    const artifacts = rules.players.some((player) => new EndScoreHelper(rules.game, player).artifactsPoints > 0)
+    return [
+      ScoringKey.DuringGame,
+      ScoringKey.Buildings,
+      ...(relics ? [ScoringKey.Relics] : []),
+      ...(artifacts ? [ScoringKey.Artifacts] : []),
+      ScoringKey.Total,
+      ScoringKey.Gold
+    ]
   }
 
   getScoringHeader(key: ScoringKey) {
@@ -52,6 +62,12 @@ export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperT
         return (
           <Header icon={<AgeIcon />}>
             <Trans i18nKey="scoring.relics" defaults="Relics" />
+          </Header>
+        )
+      case ScoringKey.Artifacts:
+        return (
+          <Header icon={<CrownIcon />}>
+            <Trans i18nKey="scoring.artifacts" defaults="Legendary Artifacts" />
           </Header>
         )
       case ScoringKey.Total:
@@ -79,6 +95,8 @@ export class PaperTalesScoring implements ScoringDescription<PlayerColor, PaperT
         return endScore.buildingsPoints
       case ScoringKey.Relics:
         return endScore.relicsPoints
+      case ScoringKey.Artifacts:
+        return endScore.artifactsPoints
       case ScoringKey.Total:
         return <span css={totalCss}>{total}</span>
       case ScoringKey.Gold:

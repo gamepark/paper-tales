@@ -1,11 +1,7 @@
-import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
-import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
+import { DeployCostHelper } from '@gamepark/paper-tales/rules/helpers/DeployCostHelper'
 import { useMaterialContext } from '@gamepark/react-game'
-import { sumBy } from 'es-toolkit/compat'
 import { css } from '@emotion/react'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,9 +20,7 @@ export const DeployGold: FC = () => {
   // A spectator has no gold to spend, and does not know the units placed face down
   if (context.player === undefined) return null
   if (context.rules.game.rule?.id !== RuleId.PlaceUnitOnBoard || !isMyAreaDisplayed(context, me)) return null
-  const placed = context.rules.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, me) ?? []
-  const units = context.rules.material(MaterialType.Unit).index(placed).getItems<Unit>()
-  const cost = sumBy(units, (unit) => unitCardCaracteristics[unit.id]?.cost ?? 0)
+  const cost = new DeployCostHelper(context.rules.game, me).placedCost
   const goldCount = new BuildHelper(context.rules.game, me).gold
   const left = goldCount - cost
   // My gold, minus the cost of the units I placed, gives what will be left: in crimson when it is not enough

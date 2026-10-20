@@ -7,6 +7,7 @@ import { buildingCardDescription } from '../material/BuildingCardDescription'
 import { frenchBuildingCardDescription } from '../material/FrenchBuildingCardDescription'
 import { frenchUnitCardDescription } from '../material/FrenchUnitCardDescription'
 import { unitCardDescription } from '../material/UnitCardDescription'
+import { buildingEffectKey } from '../material/help/book/buildingPrinted'
 import { textIssues } from './catalogueChecks'
 
 /** The card images of each edition, read when asked (the descriptions are not initialised yet when this module loads) */
@@ -37,8 +38,9 @@ export const unitIssues = (i18n: i18n, lng: string, unit: Unit): string[] => {
 export const buildingIssues = (i18n: i18n, lng: string, building: Building): string[] => {
   const pattern = buildingCardCaracteristics[building]
   const issues = i18n.exists(`building.${building}`, { lng }) ? [] : [`clé manquante : building.${building}`]
-  if (pattern.effect1) issues.push(...textIssues(i18n, lng, `building.effect.${building}.1`))
-  if (pattern.effect2) issues.push(...textIssues(i18n, lng, `building.effect.${building}.2`))
+  ;[pattern.effect1 ?? [], pattern.effect2 ?? []].forEach((effects, level) =>
+    effects.forEach((_, index) => issues.push(...textIssues(i18n, lng, buildingEffectKey(building, level, index, effects.length))))
+  )
   buildingFaces(lng)?.forEach((images, level) => {
     if (!images[building]) issues.push(`image ${lng} du niveau ${level + 1} manquante`)
   })

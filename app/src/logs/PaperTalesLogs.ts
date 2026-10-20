@@ -1,12 +1,13 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { Card, isArtifact } from '@gamepark/paper-tales/material/Artifact'
 import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { LogDescription, MoveComponentContext, MovePlayedLogDescription } from '@gamepark/react-game'
-import { isCreateItemType, isCustomMoveType, isMoveItemType, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove } from '@gamepark/rules-api'
+import { isCreateItemType, isCustomMoveType, isMoveItemType, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem } from '@gamepark/rules-api'
 import { DeathLog, SaveLog } from './AgeLog'
 import { BuildLog } from './BuildLog'
-import { DeployLog } from './DeployLog'
+import { DeployLog, ReactivateLog } from './DeployLog'
 import { GoldLog, IncomeLog } from './GoldLog'
 import { phaseLogCss, turnLogCss } from './logs.css'
 import { AgePhaseLog, BuildPhaseLog, DeployPhaseLog, IncomePhaseLog, WarPhaseLog } from './PhaseLog'
@@ -41,10 +42,18 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
       // A reveal only says { rotation: false }: the rule tells what happens
       if (rule === RuleId.RevealBoards && move.location.rotation === false) return { Component: DeployLog }
       if (rule === RuleId.AgeUnitsDie && move.location.type === LocationType.Discard) return { Component: DeathLog }
+      // The Court Jester draws until a Legendary Artifact: only the artifact kept is told
+      if (rule === RuleId.DeployEffects && move.location.type === LocationType.PlayerArtifacts && isArtifact(revealedCard(move))) return { Component: DeployLog }
     }
-    if (isMoveItemType(MaterialType.Building)(move) && rule === RuleId.Build && move.location.type === LocationType.PlayerBuildingBoard) {
+    // The constructions, and the buildings improved or built by a deployment effect (Golem, Djinn, Titan)
+    if (
+      isMoveItemType(MaterialType.Building)(move) &&
+      (rule === RuleId.Build || rule === RuleId.DeployEffects) &&
+      move.location.type === LocationType.PlayerBuildingBoard
+    ) {
       return { Component: BuildLog }
     }
+    if (isCustomMoveType(CustomMoveType.ReactivateUnit)(move)) return { Component: ReactivateLog }
     if (isMoveItemType(MaterialType.ScoreToken)(move)) return { Component: rule === RuleId.War ? WarWonLog : ScoreLog }
     if (isCreateItemType(MaterialType.Gold)(move) && move.item.location.type === LocationType.PlayerGoldStock) {
       if (rule === RuleId.Income) return isFirstGoldOf(move.item.location.player, context) ? { Component: IncomeLog } : undefined
@@ -62,3 +71,6 @@ const isFirstGoldOf = (player: number | undefined, context: MoveComponentContext
     (move) => isCreateItemType(MaterialType.Gold)(move) && move.item.location.type === LocationType.PlayerGoldStock && move.item.location.player === player
   )
 }
+
+/** The card a move takes out of the deck, given by the move itself (the deck is hidden) */
+const revealedCard = (move: MoveItem) => (move as MoveItem & { reveal?: { id?: Card } }).reveal?.id

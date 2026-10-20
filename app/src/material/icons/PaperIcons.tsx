@@ -126,3 +126,15 @@ export const AgeIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
     </g>
   </PaperIcon>
 )
+
+/** Apply again the "when revealed" effects of a unit (the Shadow): a card turned over, and a looping arrow around it */
+export const ReactivateIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <rect x="15" y="12" width="18" height="25" rx="2.5" transform="rotate(-8 24 24)" fill="#f6ece6" />
+    <rect x="17.5" y="15" width="13" height="5" rx="1" transform="rotate(-8 24 24)" fill="#9b2e4d" />
+    <path d="M9 26 A15 15 0 0 1 36 12" fill="none" strokeLinecap="round" />
+    <path d="M31 8 L37.5 11.5 L33 17.5" fill="none" strokeLinecap="round" />
+    <path d="M39 22 A15 15 0 0 1 12 36" fill="none" strokeLinecap="round" />
+    <path d="M17 40 L10.5 36.5 L15 30.5" fill="none" strokeLinecap="round" />
+  </PaperIcon>
+)
