@@ -8,14 +8,15 @@ import { ArtifactCost } from './component/ArtifactCost'
  */
 class ArtifactCostLocator extends Locator {
   parentItemType = MaterialType.Unit
-  positionOnParent = { x: 17, y: 11.5 }
+  // As large as the printed coin of the unit cards (1.9 cm), centred on the seal, a hair larger, that it covers
+  positionOnParent = { x: 15.4, y: 10.1 }
   locationDescription = new ArtifactCostDescription()
 }
 
 class ArtifactCostDescription extends LocationDescription {
-  width = 2.3
-  height = 2.3
-  borderRadius = 1.15
+  width = 1.95
+  height = 1.95
+  borderRadius = 0.975
   content = ArtifactCost
 }
 

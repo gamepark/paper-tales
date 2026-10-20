@@ -35,7 +35,7 @@ const coinCss = css`
 const valueCss = css`
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
-  font-size: 1.5em;
+  font-size: 1.2em;
   line-height: 1;
   color: #3a2a12;
   /* The coin image has a number of its own: a disc of its gold hides it */
