@@ -178,7 +178,17 @@ paperTalesAnimation.configure(and(isRule(RuleId.Income), isCreateItem)).duration
 paperTalesAnimation.configure(and(isRule(RuleId.PayDeployedUnits), (move: MaterialMove) => isCreateItem(move) || isDeleteItem(move), isSeenMove)).duration(700)
 
 // A building built stays on its slot of the grid (from the unbuilt to the built buildings): nothing moves, the band and
-// the veil fade by themselves (see BuildingCardDescription)
+// the veil fade by themselves (see BuildingCardDescription). Built at level 2, it turns over to its level 2 face: an
+// animation, so that the zoom of the hovered card, turned over at once with it, waits for the card to have turned (it
+// would otherwise swing the card aside during the turn).
+paperTalesAnimation
+  .configure(
+    and(
+      (move: MaterialMove) => isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard && move.location.rotation === true,
+      isSeenMove
+    )
+  )
+  .duration(800)
 paperTalesAnimation
   .configure((move) => isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard)
   .skip()
