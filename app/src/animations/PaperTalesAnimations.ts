@@ -14,6 +14,7 @@ import {
   isMoveItemTypeAtOnce,
   isShuffle,
   isStartRule,
+  isStartSimultaneousRule,
   Location,
   MaterialItem,
   MaterialMove
@@ -296,3 +297,31 @@ paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isMoveItem)).durat
 // The Age tokens of the dead go back to the reserve, the new ones land on the units that live on
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsDie), isDeleteItem)).duration(400)
 paperTalesAnimation.configure(and(isRule(RuleId.AgeUnitsAge), isCreateItem)).duration(400)
+
+// ==========================================
+// The pace of the automatic steps
+// ==========================================
+
+/** The move that starts a step of the turn */
+const starts =
+  (...rules: RuleId[]) =>
+  (move: MaterialMove) =>
+    (isStartRule(move) || isStartSimultaneousRule(move)) && rules.includes(move.id as RuleId)
+
+/**
+ * The results of the wars are read before the income: a pause before the income starts, while the header of the wars and
+ * their results are still on the table
+ */
+const WAR_RESULTS_READING = 2500
+paperTalesAnimation.configure(starts(RuleId.Income)).duration(WAR_RESULTS_READING)
+
+/**
+ * Every step that plays by itself is read before it plays: a pause once it has started, on its header (and the icon of its
+ * phase), before its moves are animated. The deaths of the Age keep their own, longer reading when a unit of the kingdom
+ * displayed dies (deathsShown, which comes first).
+ */
+const STEP_READING = 1200
+paperTalesAnimation
+  .configure(starts(RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects, RuleId.War, RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge))
+  .duration(STEP_READING)
+  .postMove()
