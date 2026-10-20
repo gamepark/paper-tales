@@ -70,6 +70,14 @@ export const dialogButtonCss = css`
     content: none;
   }
 
+  /* The icon of a button (play, rematch) before its label, in its paper colour, not where a menu entry puts it */
+  > svg {
+    order: 0;
+    width: 1em;
+    color: currentColor;
+    fill: currentColor;
+  }
+
   /* The menu entry theme underneath turns its text rust on hover: a slip keeps its paper text */
   &:hover,
   &:focus {
