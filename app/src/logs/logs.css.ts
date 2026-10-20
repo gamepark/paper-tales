@@ -1,7 +1,10 @@
 import { css } from '@emotion/react'
 import { rust } from '../theme/tableTheme'
 
-/** The heading of a turn: the open book of the turn counter and its number, in rust (mockup docs/mockups/journal3.html) */
+/**
+ * The heading of a turn: the open book of the turn counter and its number, in rust (mockup docs/mockups/journal3.html),
+ * 1.3 times the size of the lines (1.5em, see historyEntryCss)
+ */
 export const turnLogCss = css`
   padding-top: 0.5em;
   /* A heading, not a line: no slip of paper behind it */
@@ -12,7 +15,7 @@ export const turnLogCss = css`
 
   font-family: 'Baloo 2', sans-serif;
   font-weight: 800;
-  font-size: 1.3em;
+  font-size: 1.95em;
   color: ${rust};
 `
 
