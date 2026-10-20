@@ -1,3 +1,4 @@
+import { css } from '@emotion/react'
 import { Artifact } from '@gamepark/paper-tales/material/Artifact'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
@@ -23,16 +24,37 @@ export const ArtifactHelp: FC<MaterialHelpProps & { actions?: ReactNode[] }> = (
   const artifact = item.id as Artifact
   const { name, lines, facts, steps } = artifactPrintedContent(artifact, i18n)
   const me = usePlayerId()
-  // In my hands, the real cost of the moment instead of the rule, which the live box explains
+  // In my hands, the real cost of the moment instead of the rule, which a note under the facts explains
   const inMyHand = item.location?.player === me && artifactCostLocations.includes(item.location?.type as LocationType)
   const cost = inMyHand && itemIndex !== undefined ? getArtifactCost(rules, itemIndex) : undefined
-  if (cost !== undefined) {
-    const note = t('help.artifact.cost.note', { defaultValue: '(1 + {count} Artifacts already deployed)', count: cost - 1 })
-    facts[0] = { ...facts[0], icon: <CoinIcon />, value: cost, note }
-  }
+  if (cost !== undefined) facts[0] = { ...facts[0], icon: <CoinIcon />, value: cost }
+  const note = cost !== undefined && (
+    <p css={noteCss}>{t('help.artifact.cost.note', { defaultValue: 'Cost = 1 + the Artifacts already deployed, here {count}', count: cost - 1 })}</p>
+  )
   return (
-    <BookPage key={itemIndex} name={name} lede={<PrintedText lines={lines} />} facts={<FactTags tags={facts} />} actions={actions?.length ? actions : undefined}>
+    <BookPage
+      key={itemIndex}
+      name={name}
+      lede={<PrintedText lines={lines} />}
+      facts={
+        <>
+          <FactTags tags={facts} />
+          {note}
+        </>
+      }
+      actions={actions?.length ? actions : undefined}
+    >
       <PhaseTimeline steps={steps} current={currentPhaseIndex(rules)} />
     </BookPage>
   )
 }
+
+/** How the cost is computed, under the facts, in the quiet style of the note under the production */
+const noteCss = css`
+  margin: -0.4em 0 0.8em;
+  font-family: 'Mulish', sans-serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.85em;
+  color: #7a6f67;
+`

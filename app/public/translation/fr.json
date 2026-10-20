@@ -566,5 +566,5 @@
   "expansions.clar.harvest": "Relique des moissons : à l’Avant avec 3 <wood/> et 2 <food/>, elle rapporte <pl5/> ; à l’Arrière, rien.",
   "expansions.clar.jester": "Bouffon de la reine : les cartes révélées qui ne sont pas un Artefact sont défaussées ; l’Artefact ne coûte rien.",
   "expansions.clar.titan": "Titan : on ne paie ni le coût du terrain, ni les ressources du Bâtiment de niveau 2.",
-  "help.artifact.cost.note": "(1 + {count, plural, =0 {aucun Artefact déjà déployé} one {# Artefact déjà déployé} other {# Artefacts déjà déployés}})"
+  "help.artifact.cost.note": "Coût = 1 + les Artefacts déjà déployés, ici {count}"
 }
