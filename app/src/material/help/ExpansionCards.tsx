@@ -5,12 +5,14 @@ import { MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC } from 'react'
 import displayMaterialHelp = MaterialMoveBuilder.displayMaterialHelp
 
-/** The cards of an expansion, small, side by side: a click opens the help of the card */
+/** The cards of an expansion, small, side by side: hovered, a card grows to be read; a click opens its help */
 export const ExpansionCards: FC<{ type: MaterialType; ids: number[] }> = ({ type, ids }) => (
   <div css={galleryCss}>
     {ids.map((id) => (
       <PlayMoveButton key={id} css={cardCss} move={displayMaterialHelp(type, { id })} transient>
-        <MaterialComponent type={type} itemId={id} />
+        <div css={zoomCss}>
+          <MaterialComponent type={type} itemId={id} />
+        </div>
       </PlayMoveButton>
     ))}
   </div>
@@ -31,10 +33,20 @@ const cardCss = css`
   background: none;
   cursor: pointer;
   font-size: 1em;
+  position: relative;
   filter: drop-shadow(0.15em 0.2em 0 #00000040);
-  transition: transform 0.15s;
 
   &:hover {
-    transform: translateY(-0.3em) scale(1.06);
+    z-index: 1;
+  }
+`
+
+/** Hovered, the card grows enough to be read, above its neighbours, without a click; a click opens its help */
+const zoomCss = css`
+  transition: transform 0.2s;
+
+  button:hover > & {
+    transform: scale(2.6);
+    transition-delay: 0.1s;
   }
 `
