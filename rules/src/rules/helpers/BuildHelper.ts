@@ -3,16 +3,24 @@ import { Building } from '../../material/Building'
 import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
 import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from '../../material/effects/3_WarEffects'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
-import { BuildEffect, isBuildEffect, isIgnoreFieldCost, isReplaceResourceByGold, ReplaceResourceByGold } from '../../material/effects/5_Build'
+import { Card } from '../../material/Artifact'
+import { cardEffects } from '../../material/CardCaracteristics'
+import {
+  BuildEffect,
+  isBuildEffect,
+  isIgnoreFieldCost,
+  isIgnoreLevel2Cost,
+  isReplaceResourceByGold,
+  isReplaceResourceByResource,
+  ReplaceResourceByGold
+} from '../../material/effects/5_Build'
 import { Effect } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
-import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
-import { War } from '../3_War/War'
 import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
+import { KingdomHelper } from './KingdomHelper'
 import { ResourcesHelper } from './ResourcesHelper'
 
 /** The construction action of the turn (rulebook p.7) */
@@ -92,7 +100,7 @@ export class BuildHelper extends MaterialRulesPart {
   }
 
   get fieldCost() {
-    return this.hasIgnoreFieldCostEffect(this.player) ? 0 : this.getFieldCost(this.player)
+    return this.ignoresFieldCost ? 0 : this.getFieldCost(this.player)
   }
 
   canBuildLevel1(buildingId: Building, fieldCost: number): boolean {
@@ -115,7 +123,8 @@ export class BuildHelper extends MaterialRulesPart {
   getCostOptions(buildingId: Building, action: BuildAction): Resources[][] {
     const { cost1, cost1Alternate, cost2, cost2Alternate } = buildingCardCaracteristics[buildingId]
     const level1 = cost1Alternate ? [cost1, cost1Alternate] : [cost1]
-    const level2 = cost2Alternate ? [cost2, cost2Alternate] : [cost2]
+    // The Back Room: the level 2 cost is ignored, to build directly at level 2 as to upgrade
+    const level2 = this.ignoresLevel2Cost ? [[]] : cost2Alternate ? [cost2, cost2Alternate] : [cost2]
     switch (action) {
       case BuildAction.BuildLevel1:
         return level1
@@ -132,9 +141,9 @@ export class BuildHelper extends MaterialRulesPart {
    * Legality and payment both use it, so that a construction offered is always paid exactly.
    */
   getGoldToPay(buildingId: Building, action: BuildAction, fieldCost = action === BuildAction.Upgrade ? 0 : this.fieldCost): number | undefined {
-    const replaceable = new Set(this.getReplaceResourceByGoldEffects(this.player).flatMap((effect) => effect.resource))
+    const replaceable = new Set(this.replaceResourceByGoldEffects.flatMap((effect) => effect.resource))
     const totals = this.getCostOptions(buildingId, action).flatMap((cost) => {
-      const missing = this.buildWithSubstitution.getMissingResourcesForBuilding(this.myResources, cost)
+      const missing = this.coverWithOtherResources(cost, this.buildWithSubstitution.getMissingResourcesForBuilding(this.myResources, cost))
       if (missing.some((resource) => !replaceable.has(resource))) return []
       return [fieldCost + this.getGoldInBuildingCost(cost) + missing.length]
     })
@@ -161,6 +170,24 @@ export class BuildHelper extends MaterialRulesPart {
     const playerDiamond = this.myResources.filter((resources) => resources === Resources.Diamond).length
 
     return playerGold >= goldCost + fieldCost && playerWood >= woodCost && playerFood >= FoodCost && playerDiamond >= DiamondCost
+  }
+
+  /**
+   * The missing resources that the resources produced beyond the cost can pay instead (the Dryad: wood instead of food or
+   * crystal, as many times as wished). What remains missing is returned.
+   */
+  private coverWithOtherResources(cost: Resources[], missing: Resources[]): Resources[] {
+    const substitutions = this.buildEffects.filter(isReplaceResourceByResource)
+    let remaining = missing
+    for (const { by, resource } of substitutions) {
+      let spare = this.myResources.filter((r) => r === by).length - cost.filter((r) => r === by).length
+      remaining = remaining.filter((r) => {
+        if (spare <= 0 || !resource.includes(r)) return true
+        spare--
+        return false
+      })
+    }
+    return remaining
   }
 
   getPlayerBuildingsDone(playerId: number) {
@@ -201,39 +228,22 @@ export class BuildHelper extends MaterialRulesPart {
     return this.warBuildingEffects.filter(isScoreAtWar)
   }
 
-  getScoreFromBuilding(playerId: number, buildEffect: ScoreAtWar): number {
-    if (buildEffect.perResource) {
-      return buildEffect.amount * this.myResources.filter((res) => res === buildEffect.perResource).length
-    } else if (buildEffect.perUnitStrongerThan) {
-      const warHelper = new War(this.game)
-      const matchingUnitsQuantity = this.material(MaterialType.Unit)
-        .location(LocationType.PlayerUnitBoard)
-        .player(playerId)
-        .filter((item, index) => warHelper.getUnitPower(item, index) >= buildEffect.perUnitStrongerThan!)
-        .getQuantity()
-      return buildEffect.amount * matchingUnitsQuantity
-    } else {
-      return buildEffect.amount
-    }
+  /** The construction effects of the kingdom: the cards in play and the buildings built */
+  get buildEffects(): BuildEffect[] {
+    const cards = new KingdomHelper(this.game, this.player).cards.getItems<Card>().flatMap((card) => cardEffects(card.id))
+    return [...cards, ...this.buildingEffects].filter(isBuildEffect)
   }
 
-  getPlayerBuildEffect(playerId: number): BuildEffect[] {
-    return this.material(MaterialType.Unit)
-      .location(LocationType.PlayerUnitBoard)
-      .player(playerId)
-      .getItems<Unit>()
-      .flatMap((item) => {
-        const unit = unitCardCaracteristics[item.id]
-        return unit.effect !== undefined ? unit.effect.filter(isBuildEffect) : []
-      })
+  get ignoresLevel2Cost(): boolean {
+    return this.buildEffects.some(isIgnoreLevel2Cost)
   }
 
-  hasIgnoreFieldCostEffect(playerId: number): boolean {
-    return this.getPlayerBuildEffect(playerId).find(isIgnoreFieldCost) !== undefined
+  get ignoresFieldCost(): boolean {
+    return this.buildEffects.some(isIgnoreFieldCost)
   }
 
-  getReplaceResourceByGoldEffects(playerId: number): ReplaceResourceByGold[] {
-    return this.getPlayerBuildEffect(playerId).filter(isReplaceResourceByGold)
+  get replaceResourceByGoldEffects(): ReplaceResourceByGold[] {
+    return this.buildEffects.filter(isReplaceResourceByGold)
   }
 
   getFieldCost(playerId: number) {

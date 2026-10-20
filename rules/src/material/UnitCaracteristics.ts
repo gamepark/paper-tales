@@ -1,4 +1,4 @@
-import { AgeLocation, Effect, EffectType, WhichBuilding, WhichUnit } from './effects/Effect'
+import { AgeLocation, ConditionKind, CountKind, Effect, EffectType, WhichBuilding, WhichUnit } from './effects/Effect'
 import { MaterialType } from './MaterialType'
 import { Resources } from './Resources'
 import { Unit } from './Unit'
@@ -6,12 +6,14 @@ import { Unit } from './Unit'
 export type UnitPattern = {
   cost: number
   power: number
-  // effects?:Effect[]
-  resources?: {
-    type: Resources[]
-    condition?: ResourcesCondition
-  }
+  /** The resources printed in the scroll of the card, each line with its own condition */
+  resources?: ResourceProduction[]
   effect?: Effect[]
+}
+
+export type ResourceProduction = {
+  type: Resources[]
+  condition?: ResourcesCondition
 }
 
 export type ResourcesCondition = {
@@ -62,9 +64,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Peddler]: {
     cost: 1,
     power: 1,
-    resources: {
+    resources: [{
       type: [Resources.Wood]
-    },
+    }],
     effect: [
       {
         type: EffectType.Income,
@@ -98,9 +100,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Treefolk]: {
     cost: 1,
     power: 3,
-    resources: {
+    resources: [{
       type: [Resources.Food]
-    }
+    }]
   }, // OK
   [Unit.Necromancer]: {
     cost: 1,
@@ -129,16 +131,16 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Miner]: {
     cost: 1,
     power: 2,
-    resources: {
+    resources: [{
       type: [Resources.Diamond]
-    }
+    }]
   }, // OK
   [Unit.Woodcutter]: {
     cost: 0,
     power: 2,
-    resources: {
+    resources: [{
       type: [Resources.Wood]
-    }
+    }]
   },
   [Unit.Dragon]: {
     cost: 3,
@@ -158,10 +160,10 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Leviathan]: {
     cost: 3,
     power: 4,
-    resources: {
+    resources: [{
       type: [Resources.Food, Resources.Food],
       condition: { ifAgeToken: true }
-    },
+    }],
     effect: [
       {
         type: EffectType.AddWarPower,
@@ -187,9 +189,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.CaveSpirit]: {
     cost: 1,
     power: 4,
-    resources: {
+    resources: [{
       type: [Resources.Diamond]
-    },
+    }],
     effect: [
       {
         type: EffectType.GainAgeToken,
@@ -236,6 +238,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       },
       {
         type: EffectType.GainAgeTokenOnChosenUnit,
+        onDeployment: false,
         amount: 1,
         perResource: Resources.Food
       }
@@ -244,16 +247,16 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.ForestSpirit]: {
     cost: 3,
     power: 3,
-    resources: {
+    resources: [{
       type: [Resources.Wood, Resources.Wood, Resources.Wood]
-    }
+    }]
   }, // OK
   [Unit.LandLord]: {
     cost: 2,
     power: 1,
-    resources: {
+    resources: [{
       type: [Resources.Wood]
-    },
+    }],
     // Printed on the card: ignore the land cost (construction)
     effect: [{ type: EffectType.IgnoreFieldCost }]
   },
@@ -323,9 +326,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Farmer]: {
     cost: 0,
     power: 1,
-    resources: {
+    resources: [{
       type: [Resources.Food]
-    }
+    }]
   }, // OK
   [Unit.Kraken]: {
     cost: 6,
@@ -349,7 +352,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
         amount: -3,
         onDeployment: true,
         token: MaterialType.ScoreToken,
-        perLevel2Builds: true
+        per: { kind: CountKind.Level2Buildings }
       }
     ]
   },
@@ -375,9 +378,9 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.ForestChild]: {
     cost: 1,
     power: 1,
-    resources: {
+    resources: [{
       type: [Resources.Wood, Resources.Food]
-    }
+    }]
   }, // OK
   [Unit.Ogre]: {
     cost: 2,
@@ -393,12 +396,12 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Hunter]: {
     cost: 0,
     power: 2,
-    resources: {
+    resources: [{
       type: [Resources.Food],
       condition: {
         onLane: LaneType.FrontLane
       }
-    }
+    }]
   }, // OK
   [Unit.Blacksmith]: {
     cost: 0,
@@ -512,11 +515,217 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
   [Unit.Adventurer]: {
     cost: 0,
     power: 2,
-    resources: {
+    resources: [{
       type: [Resources.Diamond],
       condition: {
         perAgeToken: true
       }
-    }
-  } // OK
+    }]
+  }, // OK
+  // Beyond the gates
+  [Unit.WizardApprentice]: {
+    cost: 0,
+    power: 1,
+    effect: [{ type: EffectType.MoveAgeToken, onDeployment: true }]
+  },
+  [Unit.Shadow]: {
+    cost: 1,
+    power: 3,
+    effect: [{ type: EffectType.ReactivateRevealEffects, onDeployment: true }]
+  },
+  [Unit.Imp]: {
+    cost: -2,
+    power: 2,
+    effect: [
+      { type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself },
+      { type: EffectType.GainTokenIfDying, amount: -2, tokenGain: MaterialType.ScoreToken, whoDies: WhichUnit.Myself, ifSingleAgeToken: true }
+    ]
+  },
+  [Unit.Dryad]: {
+    cost: 1,
+    power: 3,
+    resources: [{ type: [Resources.Wood] }],
+    effect: [
+      { type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself },
+      { type: EffectType.ReplaceResourceByResource, by: Resources.Wood, resource: [Resources.Food, Resources.Diamond] }
+    ]
+  },
+  [Unit.Smuggler]: {
+    cost: 0,
+    power: 1,
+    effect: [{ type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.Gold, amount: 1, per: { kind: CountKind.ResourceTypes } }]
+  },
+  [Unit.Djinn]: {
+    cost: 2,
+    power: 1,
+    effect: [
+      { type: EffectType.ImproveBuilding, onDeployment: true, whichBuilding: WhichBuilding.Choice },
+      { type: EffectType.GainAgeTokenOnChosenUnit, onDeployment: true, amount: 1 },
+      { type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.Gold, amount: 1 }
+    ]
+  },
+  [Unit.Princess]: {
+    cost: 5,
+    power: 1,
+    effect: [{ type: EffectType.DoubleBuildingWarScore }]
+  },
+  [Unit.HighSteward]: {
+    cost: 2,
+    power: 3,
+    resources: [{ type: [Resources.Food] }],
+    effect: [
+      { type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.Gold, amount: 1, per: { kind: CountKind.UnitsWithPower, min: 3 } }
+    ]
+  },
+  [Unit.Noble]: {
+    cost: 3,
+    power: 1,
+    resources: [{ type: [Resources.Diamond] }],
+    effect: [
+      { type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.ScoreToken, amount: 2, per: { kind: CountKind.UnitsWithCost, min: 2 } }
+    ]
+  },
+  [Unit.LostSoul]: {
+    cost: 4,
+    power: 0,
+    effect: [{ type: EffectType.GainTokenIfDying, amount: 7, tokenGain: MaterialType.ScoreToken, whoDies: WhichUnit.Myself }]
+  },
+  [Unit.RelicOfWar]: {
+    cost: 2,
+    power: 0,
+    effect: [
+      { type: EffectType.AddWarPower, powerAdded: 1, perAgeToken: AgeLocation.OnUnit },
+      { type: EffectType.SpecialDyingCondition, dyingFromAmount: 0 },
+      { type: EffectType.RelicEffect, amount: 1 }
+    ]
+  },
+  [Unit.RelicOfLight]: {
+    cost: 2,
+    power: 2,
+    effect: [
+      { type: EffectType.SpecialDyingCondition, dyingFromAmount: 0 },
+      { type: EffectType.GainOnAge, token: MaterialType.ScoreToken, amount: 1, per: { kind: CountKind.OtherSurvivingUnits } }
+    ]
+  },
+  [Unit.Jeweler]: {
+    cost: 1,
+    power: 2,
+    resources: [{ type: [Resources.Diamond], condition: { perAgeToken: true } }],
+    effect: [{ type: EffectType.Income, amount: 1, per: { kind: CountKind.AgeTokensOnSelf } }]
+  },
+  // What forges legends
+  [Unit.ServileMinion]: {
+    cost: -1,
+    power: 2,
+    effect: [{ type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself }]
+  },
+  [Unit.CaveLizard]: {
+    cost: 1,
+    power: 2,
+    resources: [{ type: [Resources.Diamond], condition: { perAgeToken: true } }, { type: [Resources.Food] }]
+  },
+  [Unit.Pioneer]: {
+    cost: 1,
+    power: 2,
+    resources: [{ type: [Resources.Wood, Resources.Diamond] }],
+    effect: [{ type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself }]
+  },
+  [Unit.WeaponMaster]: {
+    cost: 0,
+    power: 3,
+    effect: [{ type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.OthersDeployedThisTurn }]
+  },
+  [Unit.GoldDigger]: {
+    cost: 2,
+    power: 1,
+    resources: [{ type: [Resources.Diamond], condition: { onLane: LaneType.FrontLane } }],
+    effect: [{ type: EffectType.Income, amount: 2 }]
+  },
+  [Unit.WolfPack]: {
+    cost: 2,
+    power: 2,
+    resources: [{ type: [Resources.Food] }],
+    effect: [
+      { type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself },
+      { type: EffectType.AddWarPower, powerAdded: 2, perResource: [Resources.Food] }
+    ]
+  },
+  [Unit.Trapper]: {
+    cost: 1,
+    power: 1,
+    resources: [{ type: [Resources.Wood] }],
+    effect: [{ type: EffectType.IncomePerResource, resource: Resources.Food, amount: 1 }]
+  },
+  [Unit.BannerBearer]: {
+    cost: 0,
+    power: 1,
+    effect: [
+      {
+        type: EffectType.GainTokenOnDeploy,
+        onDeployment: true,
+        token: MaterialType.Gold,
+        amount: 2,
+        condition: { kind: ConditionKind.UnitWithCost, min: 2 }
+      },
+      {
+        type: EffectType.GainTokenOnDeploy,
+        onDeployment: true,
+        token: MaterialType.ScoreToken,
+        amount: 2,
+        condition: { kind: ConditionKind.UnitWithCost, min: 3 }
+      }
+    ]
+  },
+  [Unit.RelicOfHarvest]: {
+    cost: 2,
+    power: 1,
+    effect: [
+      {
+        type: EffectType.ScoreAtWar,
+        amount: 1,
+        per: { kind: CountKind.Resources, resources: [Resources.Wood, Resources.Food] },
+        condition: { kind: ConditionKind.OnFrontLane }
+      },
+      { type: EffectType.SpecialDyingCondition, dyingFromAmount: 0 }
+    ]
+  },
+  [Unit.RelicOfFate]: {
+    cost: 2,
+    power: 0,
+    effect: [
+      { type: EffectType.GainTokenIfDying, amount: 1, tokenGain: MaterialType.ScoreToken, whoDies: WhichUnit.All, perAgeToken: true },
+      { type: EffectType.SpecialDyingCondition, dyingFromAmount: 0 },
+      { type: EffectType.RelicEffect, amount: 1 }
+    ]
+  },
+  [Unit.WarMusician]: {
+    cost: 0,
+    power: 1,
+    effect: [
+      { type: EffectType.AddWarPower, powerAdded: 1, per: { kind: CountKind.Artifacts } },
+      { type: EffectType.GainTokenIfDying, amount: 1, tokenGain: MaterialType.ScoreToken, whoDies: WhichUnit.Myself, per: { kind: CountKind.Artifacts } }
+    ]
+  },
+  [Unit.Scribe]: {
+    cost: 0,
+    power: 1,
+    effect: [
+      { type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.Gold, amount: 1, per: { kind: CountKind.Artifacts } },
+      { type: EffectType.GainTokenOnDeploy, onDeployment: true, token: MaterialType.ScoreToken, amount: 1, per: { kind: CountKind.Artifacts } }
+    ]
+  },
+  [Unit.CourtJester]: {
+    cost: 3,
+    power: 1,
+    effect: [
+      { type: EffectType.DrawArtifact, onDeployment: true },
+      { type: EffectType.Income, amount: 1, per: { kind: CountKind.Artifacts } }
+    ]
+  },
+  [Unit.Titan]: {
+    cost: 8,
+    power: 8,
+    resources: [{ type: [Resources.Wood, Resources.Food, Resources.Diamond] }],
+    effect: [{ type: EffectType.BuildRandomLevel2, onDeployment: true }]
+  }
 }

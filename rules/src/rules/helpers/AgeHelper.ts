@@ -1,5 +1,7 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
 import { sum } from 'es-toolkit/compat'
+import { Card } from '../../material/Artifact'
+import { cardEffects } from '../../material/CardCaracteristics'
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from '../../material/effects/6_AgeEffects'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
@@ -7,6 +9,7 @@ import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { Memory } from '../Memory'
 import { AgeTokens } from './AgeTokens'
+import { KingdomHelper } from './KingdomHelper'
 
 export class AgeHelper extends MaterialRulesPart {
   constructor(
@@ -67,34 +70,15 @@ export class AgeHelper extends MaterialRulesPart {
       })
   }
 
+  /** The units that can save one of their kingdom (the Mystical Healer), and the Medallion of Life */
   get mysticalEffectsCount(): number {
-    return this.unitsWithAgeEffects.filter<Unit>((item) => {
-      const id: Unit | undefined = item.id
-      if (!id) return false
-      return (unitCardCaracteristics[id].effect ?? []).some((eff) => isMysticEffect(eff))
-    }).length
+    return new KingdomHelper(this.game, this.player).cards.filter<Card>((item) => cardEffects(item.id).some(isMysticEffect)).length
   }
 
   getUnitAgeEffects(unit: MaterialItem): AgeEffect[] {
     const unitId: Unit | undefined = unit.id
     if (!unitId) return []
     return (unitCardCaracteristics[unitId].effect ?? []).filter(isAgeEffect)
-
-    /**this.material(MaterialType.Unit)
-      .location(LocationType.PlayerUnitBoard)
-      .player(this.player)
-      .getItems()
-      .forEach((item) => {
-        const effect: Effect[] | undefined = unitCardCaracteristics[item.id].effect
-        if (effect !== undefined) {
-          effect.forEach((eff) => {
-            isAgeEffect(eff) && ageEffectToReturn.push(eff)
-          })
-        }
-      })
-
-    return ageEffectToReturn*/
-    // FIXME: why age effects are return from all units ?
   }
 
   get units() {

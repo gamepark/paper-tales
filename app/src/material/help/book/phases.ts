@@ -10,8 +10,6 @@ const ruleSteps: Record<RuleId, number> = {
   [RuleId.RevealBoards]: 1,
   [RuleId.PayDeployedUnits]: 1,
   [RuleId.DeployEffects]: 1,
-  [RuleId.ChooseWherePlacingAgeToken]: 1,
-  [RuleId.ChooseUnpaidUnits]: 1,
   [RuleId.War]: 2,
   [RuleId.Income]: 3,
   [RuleId.Build]: 4,

@@ -11,6 +11,12 @@ type PlayerOptions = { id: PlayerColor }
  */
 export type PaperTalesOptions = {
   players: PlayerOptions[]
+  /** The 20 units of Beyond the gates in the deck (rulebook p.9) */
+  beyondTheGatesUnits?: boolean
+  /** The buildings of Beyond the gates: 3 drawn at random besides the 4 permanent ones (rulebook p.9) */
+  beyondTheGatesBuildings?: boolean
+  /** What forges legends, as a whole: its 26 units, 18 Legendary Artifacts and 3 buildings (rulebook p.10) */
+  whatForgesLegends?: boolean
 }
 
 /**
@@ -21,5 +27,10 @@ export type PaperTalesOptions = {
 export const PaperTalesOptionsSpecV2: OptionsSpecV2 = {
   specVersion: 2,
   players: { min: 2, max: 7 },
-  identities: { values: playerColors }
+  identities: { values: playerColors },
+  options: {
+    beyondTheGatesUnits: { kind: 'boolean' },
+    beyondTheGatesBuildings: { kind: 'boolean' },
+    whatForgesLegends: { kind: 'boolean' }
+  }
 }

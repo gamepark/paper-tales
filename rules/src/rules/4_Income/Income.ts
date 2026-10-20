@@ -1,17 +1,17 @@
-import { MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { sumBy } from 'es-toolkit/compat'
+import { Card } from '../../material/Artifact'
+import { cardEffects } from '../../material/CardCaracteristics'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
 import { EffectType } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
-import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
-import { PlayerColor } from '../../PlayerColor'
+import { AgeTokens } from '../helpers/AgeTokens'
 import { BuildHelper } from '../helpers/BuildHelper'
+import { KingdomHelper } from '../helpers/KingdomHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { RuleId } from '../RuleId'
-import { AgeTokens } from '../helpers/AgeTokens'
 
 /** The gold every Monarch earns at the income phase, before the effects (rulebook p.6) */
 export const BASE_INCOME = 2
@@ -29,57 +29,32 @@ export class Income extends MaterialRulesPart {
     return moves
   }
 
-  getPlayerBoard(playerId: number) {
-    return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
-  }
-
+  /** The gold the effects give at the income phase: the cards in play (units, Legendary Artifacts) and the buildings */
   getPlayerIncome(playerId: number) {
-    return sumBy(this.getIncomeUnits(playerId), (u) => this.getUnitIncome(u)) + this.getIncomeFromBuilding(playerId)
+    return this.getIncomeFromCards(playerId) + this.getIncomeFromBuilding(playerId)
   }
 
-  getUnitIncome(unit: MaterialItem<PlayerColor, LocationType, Unit>) {
-    return sumBy(unitCardCaracteristics[unit.id].effect as IncomeEffect[], (e) =>
-      this.getEffectIncomes(unit.location.player!, e, unit.location.x!, unit.location.y!)
+  getIncomeFromCards(playerId: number): number {
+    return sumBy(new KingdomHelper(this.game, playerId).cards.entries, ([index, card]) =>
+      sumBy(cardEffects(card.id as Card | undefined).filter(isIncomeType), (effect) => this.getEffectIncomes(playerId, effect, index))
     )
-  }
-
-  getIncomeUnits(playerId: number) {
-    return this.getPlayerBoard(playerId).getItems<Unit>((item) => {
-      // Only for debug purposes
-      if (item.location.rotation || (item as MaterialItem).id === undefined) {
-        console.error('The item must not be hidden at that moment', item.id, JSON.stringify(item), JSON.stringify(this.game.rule))
-        return false
-      }
-
-      const effects = unitCardCaracteristics[item.id].effect ?? []
-      return effects.some(isIncomeType)
-    })
   }
 
   getIncomeFromBuilding(playerId: number): number {
     const buildHelper = new BuildHelper(this.game, playerId)
     const effects = buildHelper.incomeBuildingEffects
-    return sumBy(effects, (e) => this.getEffectIncomes(playerId, e, 0, 0))
+    return sumBy(effects, (e) => this.getEffectIncomes(playerId, e))
   }
 
-  getEffectIncomes(playerId: number, effect: IncomeEffect, x: number, y: number) {
+  /** The gold an income effect gives; the source is the card that has it (none for a building) */
+  getEffectIncomes(playerId: number, effect: IncomeEffect, source?: number) {
     switch (effect.type) {
       case EffectType.Income:
-        return effect.amount
+        return effect.per ? effect.amount * new KingdomHelper(this.game, playerId).count(effect.per, source) : effect.amount
       case EffectType.IncomePerResource:
         return new ResourcesHelper(this.game, playerId).getResource(effect.resource) * effect.amount
-      case EffectType.IncomeIfAgeToken: {
-        const index = this.material(MaterialType.Unit)
-          .location((l) => l.type === LocationType.PlayerUnitBoard && l.x === x && l.y === y)
-          .player(playerId)
-          .getIndex()
-
-        const hasAgeToken = new AgeTokens(this).count(index) > 0
-
-        return hasAgeToken ? effect.amount : 0
-      }
-      default:
-        return 0
+      case EffectType.IncomeIfAgeToken:
+        return source !== undefined && new AgeTokens(this).count(source) > 0 ? effect.amount : 0
     }
   }
 }

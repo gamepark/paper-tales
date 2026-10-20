@@ -1,14 +1,22 @@
 import { MaterialType } from '../MaterialType'
 import { Resources } from '../Resources'
-import { Effect, EffectType, WhichBuilding, WhichUnit } from './Effect'
+import { Condition, Count, Effect, EffectType, WhichBuilding, WhichUnit } from './Effect'
 
-export type DeploymentEffect = Shapeshifter | GainTokenOnDeploy | ImproveBuilding | GainAgeToken | GainAgeTokenOnChosenUnit
+export type DeploymentEffect =
+  | Shapeshifter
+  | GainTokenOnDeploy
+  | ImproveBuilding
+  | GainAgeToken
+  | GainAgeTokenOnChosenUnit
+  | MoveAgeToken
+  | ReactivateRevealEffects
+  | DrawArtifact
+  | BuildRandomLevel2
 
-export type Deploymennt = {
-  type: EffectType.Deploymennt
-  firstDeployOnly: boolean
-}
-
+/**
+ * "onDeployment": only when this very card is revealed (the "when revealed" icon of the card). Without it, the effect
+ * applies at every Deployment phase (a building, an artifact).
+ */
 export type Shapeshifter = {
   type: EffectType.Shapeshifter
   onDeployment: boolean
@@ -19,7 +27,8 @@ export type GainTokenOnDeploy = {
   onDeployment: boolean
   token: MaterialType.Gold | MaterialType.ScoreToken
   amount: number
-  perLevel2Builds?: true
+  per?: Count
+  condition?: Condition
 }
 
 export type ImproveBuilding = {
@@ -37,16 +46,51 @@ export type GainAgeToken = {
 
 export type GainAgeTokenOnChosenUnit = {
   type: EffectType.GainAgeTokenOnChosenUnit
-  /** Only when this card is revealed (the "once" icon of the card) */
-  onDeployment?: boolean
+  onDeployment: boolean
   amount: number
   perResource?: Resources
+  /** The units that can be chosen: all the units of the kingdom by default */
+  among?: WhichUnit.DeployedThisTurn
+}
+
+/** Move an Age token from one of your units to another of your units (the Wizard Apprentice) */
+export type MoveAgeToken = {
+  type: EffectType.MoveAgeToken
+  onDeployment: boolean
+}
+
+/** Apply again all the "when revealed" effects of one of your units (the Shadow) */
+export type ReactivateRevealEffects = {
+  type: EffectType.ReactivateRevealEffects
+  onDeployment: boolean
+}
+
+/** Draw and discard until a Legendary Artifact is revealed, put into play for free (the Court Jester) */
+export type DrawArtifact = {
+  type: EffectType.DrawArtifact
+  onDeployment: boolean
+}
+
+/** Build for free at level 2 a building taken at random among the ones not built yet (the Titan) */
+export type BuildRandomLevel2 = {
+  type: EffectType.BuildRandomLevel2
+  onDeployment: boolean
 }
 
 // Typechecks
 
 export function isDeploymentType(effect: Effect): effect is DeploymentEffect {
-  return isShapeshifter(effect) || isGainTokenOnDeploy(effect) || isImproveBuilding(effect) || isGainAgeToken(effect) || isGainAgeTokenOnChosenUnit(effect)
+  return (
+    effect.type === EffectType.Shapeshifter ||
+    effect.type === EffectType.GainTokenOnDeploy ||
+    effect.type === EffectType.ImproveBuilding ||
+    effect.type === EffectType.GainAgeToken ||
+    effect.type === EffectType.GainAgeTokenOnChosenUnit ||
+    effect.type === EffectType.MoveAgeToken ||
+    effect.type === EffectType.ReactivateRevealEffects ||
+    effect.type === EffectType.DrawArtifact ||
+    effect.type === EffectType.BuildRandomLevel2
+  )
 }
 
 export function isShapeshifter(effect: Effect): effect is Shapeshifter {
@@ -69,7 +113,18 @@ export function isGainAgeTokenOnChosenUnit(effect: Effect): effect is GainAgeTok
   return effect.type === EffectType.GainAgeTokenOnChosenUnit
 }
 
-// Same than above, but can be modify to get all manual effects in the future with extends.
-export function isManualDeploymentEffect(effect: Effect): effect is GainAgeTokenOnChosenUnit {
-  return effect.type === EffectType.GainAgeTokenOnChosenUnit
+export function isMoveAgeToken(effect: Effect): effect is MoveAgeToken {
+  return effect.type === EffectType.MoveAgeToken
+}
+
+export function isReactivateRevealEffects(effect: Effect): effect is ReactivateRevealEffects {
+  return effect.type === EffectType.ReactivateRevealEffects
+}
+
+export function isDrawArtifact(effect: Effect): effect is DrawArtifact {
+  return effect.type === EffectType.DrawArtifact
+}
+
+export function isBuildRandomLevel2(effect: Effect): effect is BuildRandomLevel2 {
+  return effect.type === EffectType.BuildRandomLevel2
 }

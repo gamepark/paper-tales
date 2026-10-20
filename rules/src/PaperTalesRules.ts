@@ -9,11 +9,13 @@ import {
   SecretMaterialRules,
   TimeLimit
 } from '@gamepark/rules-api'
-import { CompetitiveScore } from '@gamepark/rules-api'
+import { CompetitiveScore, isCustomMoveType } from '@gamepark/rules-api'
+import { sample } from 'es-toolkit/compat'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PlayerColor } from './PlayerColor'
 import { Draft } from './rules/1_Recruit/Draft'
+import { BuildRandomBuildingData, CustomMoveType } from './rules/CustomMoveType'
 import { RuleId } from './rules/RuleId'
 import { Deal } from './rules/1_Recruit/Deal'
 import { GiveDraftToNeighbor } from './rules/1_Recruit/GiveDraftToNeighbor'
@@ -31,7 +33,6 @@ import { AgeUnitsDie } from './rules/6_Age/AgeUnitsDie'
 import { BuildHelper } from './rules/helpers/BuildHelper'
 import { SaveUnitsWithMysticEffect } from './rules/6_Age/SaveUnitsWithMysticEffect'
 import { DeployEffects } from './rules/2_Deployment/DeployEffects'
-import { ChooseWherePlacingAgeToken } from './rules/2_Deployment/ChooseWherePlacingAgeToken'
 
 export class PaperTalesRules
   extends SecretMaterialRules<PlayerColor, MaterialType, LocationType>
@@ -55,8 +56,7 @@ export class PaperTalesRules
     [RuleId.AgeUnitsAge]: AgeUnitsAge,
     [RuleId.AgeUnitsDie]: AgeUnitsDie,
     [RuleId.NextTurn]: NextTurn,
-    [RuleId.EndGame]: EndGame,
-    [RuleId.ChooseWherePlacingAgeToken]: ChooseWherePlacingAgeToken
+    [RuleId.EndGame]: EndGame
   }
 
   locationsStrategies = {
@@ -64,7 +64,8 @@ export class PaperTalesRules
       [LocationType.Deck]: new PositiveSequenceStrategy(),
       [LocationType.Discard]: new PositiveSequenceStrategy(),
       [LocationType.PlayerDraftHand]: new PositiveSequenceStrategy(),
-      [LocationType.PlayerUnitHand]: new PositiveSequenceStrategy()
+      [LocationType.PlayerUnitHand]: new PositiveSequenceStrategy(),
+      [LocationType.PlayerArtifacts]: new PositiveSequenceStrategy()
     },
     [MaterialType.Building]: {
       [LocationType.PlayerBuildingBoard]: new PositiveSequenceStrategy('y')
@@ -78,7 +79,8 @@ export class PaperTalesRules
       [LocationType.DraftTransit]: hideItemId,
       [LocationType.PlayerUnitHand]: hideItemIdToOthers,
       [LocationType.Discard]: hideItemId,
-      [LocationType.PlayerUnitBoard]: hideRotatedCardToOthers
+      [LocationType.PlayerUnitBoard]: hideRotatedCardToOthers,
+      [LocationType.PlayerArtifacts]: hideRotatedCardToOthers
     }
   }
 
@@ -90,6 +92,16 @@ export class PaperTalesRules
   getTieBreaker(tieBreaker: number, player: PlayerColor) {
     if (tieBreaker === 1) return new BuildHelper(this.game, player).gold
     return
+  }
+
+  /** The Titan builds a building drawn at random among the ones its Monarch has not built (see DeployEffects) */
+  randomize(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player?: PlayerColor) {
+    if (isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move)) {
+      const data = move.data as BuildRandomBuildingData
+      const building = sample(new BuildHelper(this.game, data.player).availableBuildings.getIndexes())
+      return super.randomize({ ...move, data: { ...data, building } }, player)
+    }
+    return super.randomize(move, player)
   }
 
   giveTime(): number {

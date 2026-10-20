@@ -1,9 +1,7 @@
 import { MaterialType } from '../MaterialType'
-import { Effect, EffectType, WhichUnit } from './Effect'
+import { Count, Effect, EffectType, WhichUnit } from './Effect'
 
-export type AgeEffect = GainTokenIfDying | MysticEffect | SpecialDyingCondition
-
-export type EffectWithManualResolve = MysticEffect
+export type AgeEffect = GainTokenIfDying | GainOnAge | MysticEffect | SpecialDyingCondition
 
 export type GainTokenIfDying = {
   type: EffectType.GainTokenIfDying
@@ -14,6 +12,15 @@ export type GainTokenIfDying = {
   /** Only when the unit dies with exactly one Age token (the Demon) */
   ifSingleAgeToken?: true
   perAgeToken?: true
+  per?: Count
+}
+
+/** Gold or Legend points at the Age phase, whether the card dies or not (the Library, the Relic of Light) */
+export type GainOnAge = {
+  type: EffectType.GainOnAge
+  token: MaterialType.ScoreToken | MaterialType.Gold
+  amount: number
+  per: Count
 }
 
 export type MysticEffect = {
@@ -26,11 +33,20 @@ export type SpecialDyingCondition = {
 }
 
 export function isAgeEffect(effect: Effect): effect is AgeEffect {
-  return effect.type === EffectType.GainTokenIfDying || effect.type === EffectType.SpecialDyingCondition || effect.type === EffectType.MysticEffect
+  return (
+    effect.type === EffectType.GainTokenIfDying ||
+    effect.type === EffectType.GainOnAge ||
+    effect.type === EffectType.SpecialDyingCondition ||
+    effect.type === EffectType.MysticEffect
+  )
 }
 
 export function isGainTokenIfDying(effect: Effect): effect is GainTokenIfDying {
   return effect.type === EffectType.GainTokenIfDying
+}
+
+export function isGainOnAge(effect: Effect): effect is GainOnAge {
+  return effect.type === EffectType.GainOnAge
 }
 
 export function isMysticEffect(effect: Effect): effect is MysticEffect {

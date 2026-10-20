@@ -1,15 +1,16 @@
 import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
-import { isEqual, omit, sumBy } from 'es-toolkit/compat'
+import { isEqual, omit } from 'es-toolkit/compat'
+import { Card, isArtifact, isUnit } from '../../material/Artifact'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { PlayerColor } from '../../PlayerColor'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 import { DiscardRemainingUnits } from './DiscardRemainingUnits'
 import { AgeTokens } from '../helpers/AgeTokens'
+import { DeployCostHelper } from '../helpers/DeployCostHelper'
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
   onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove[] {
@@ -34,13 +35,12 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
     const moves = []
 
-    const placedIndexes: number[] = this.getCardJustDeployed(playerId)
     const playerGold = this.material(MaterialType.Gold).location(LocationType.PlayerGoldStock).player(playerId).money(golds).count
-    const placedUnits = this.material(MaterialType.Unit).index(placedIndexes).getItems<Unit>()
-    const goldAlreadySpent = sumBy(placedUnits, (unit) => unitCardCaracteristics[unit.id].cost)
-    const goldToSpend = playerGold - goldAlreadySpent
+    const costs = new DeployCostHelper(this.game, playerId)
+    const goldToSpend = playerGold - costs.placedCost
+    // A card that cannot be paid would be discarded (rulebook p.5): it is not laid
     const playerHand = this.getPlayerHand(playerId)
-    const playerHandPlayable = playerHand.filter((item) => unitCardCaracteristics[item.id as Unit].cost <= goldToSpend)
+    const playerHandPlayable = playerHand.filter<Card>((item) => costs.costOf(item.id) <= goldToSpend)
     const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
     //.index((index) => !placedIndexes.includes(index))
 
@@ -49,7 +49,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     moves.push(
       ...this.getBoardSpaces(playerId).flatMap((space) => {
         return [
-          ...playerHandPlayable.moveItems({
+          ...playerHandPlayable.filter<Card>((item) => isUnit(item.id)).moveItems({
             type: LocationType.PlayerUnitBoard,
             player: playerId,
             x: space.x,
@@ -79,6 +79,12 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
       ...playerUnitsAlreadyPlayed.moveItems({
         type: LocationType.Discard
       })
+    )
+
+    // A Legendary Artifact goes apart from the units, face down, without limit (rulebook p.11). One in play is never
+    // discarded
+    moves.push(
+      ...playerHandPlayable.filter<Card>((item) => isArtifact(item.id)).moveItems({ type: LocationType.PlayerArtifacts, player: playerId, rotation: true })
     )
 
     const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
@@ -140,7 +146,7 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitHand) return this.shuffleHand(move.location.player!)
 
     if (isMoveItemType(MaterialType.Unit)(move)) {
-      if (move.location.type === LocationType.PlayerUnitBoard && move.location.rotation === true) {
+      if ((move.location.type === LocationType.PlayerUnitBoard || move.location.type === LocationType.PlayerArtifacts) && move.location.rotation === true) {
         const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
         cardsPlayedIndexes.push(move.itemIndex)
         this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)

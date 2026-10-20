@@ -1,5 +1,7 @@
 import { MaterialGame, MaterialRulesPart } from '@gamepark/rules-api'
-import { sum } from 'es-toolkit/compat'
+import { sum, sumBy } from 'es-toolkit/compat'
+import { Artifact } from '../../material/Artifact'
+import { artifactCaracteristics } from '../../material/ArtifactCaracteristics'
 import { Building } from '../../material/Building'
 import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
 import { isRelicEffect } from '../../material/effects/7_EndGameEffects'
@@ -8,6 +10,7 @@ import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
 import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { AgeHelper } from './AgeHelper'
+import { KingdomHelper } from './KingdomHelper'
 
 /**
  * The Legend points added at the end of the game (rulebook p.8), computed from the table: the rule that adds them and
@@ -43,7 +46,12 @@ export class EndScoreHelper extends MaterialRulesPart {
     )
   }
 
+  /** The Legendary Artifacts in play: the points printed on each (rulebook p.11) */
+  get artifactsPoints(): number {
+    return sumBy(new KingdomHelper(this.game, this.player).artifacts.getItems<Artifact>(), (artifact) => artifactCaracteristics[artifact.id].points)
+  }
+
   get points(): number {
-    return this.buildingsPoints + this.relicsPoints
+    return this.buildingsPoints + this.relicsPoints + this.artifactsPoints
   }
 }

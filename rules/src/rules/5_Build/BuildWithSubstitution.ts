@@ -1,6 +1,5 @@
 import { MaterialGame, MaterialRulesPart } from '@gamepark/rules-api'
 import { Resources } from '../../material/Resources'
-import { BuildHelper } from '../helpers/BuildHelper'
 
 export class BuildWithSubstitution extends MaterialRulesPart {
   constructor(
@@ -28,38 +27,5 @@ export class BuildWithSubstitution extends MaterialRulesPart {
     const missingDiamond: Resources[] = deltaDiamond > 0 ? [...Array(deltaDiamond).fill(Resources.Diamond)] : []
 
     return [...missingWood, ...missingFood, ...missingDiamond]
-  }
-
-  canBuildWithSubstitution(playerResources: Resources[], cost: Resources[], fieldCost: number): boolean {
-    const buildHelper = new BuildHelper(this.game, this.player)
-    const playerGold = buildHelper.gold
-    let additionalGold = 0
-
-    const missingResources = this.getMissingResourcesForBuilding(playerResources, cost)
-    const canReplaceWoodByGold = buildHelper.getReplaceResourceByGoldEffects(this.player).some((eff) => eff.resource.some((res) => res === Resources.Wood))
-    const canReplaceFoodByGold = buildHelper.getReplaceResourceByGoldEffects(this.player).some((eff) => eff.resource.some((res) => res === Resources.Food))
-    const canReplaceDiamondByGold = buildHelper
-      .getReplaceResourceByGoldEffects(this.player)
-      .some((eff) => eff.resource.some((res) => res === Resources.Diamond))
-
-    if (
-      (missingResources.some((res) => res === Resources.Wood) && !canReplaceWoodByGold) ||
-      (missingResources.some((res) => res === Resources.Food) && !canReplaceFoodByGold) ||
-      (missingResources.some((res) => res === Resources.Diamond) && !canReplaceDiamondByGold)
-    ) {
-      return false
-    } else {
-      if (canReplaceWoodByGold) {
-        additionalGold += missingResources.filter((res) => res === Resources.Wood).length
-      }
-      if (canReplaceFoodByGold) {
-        additionalGold += missingResources.filter((res) => res === Resources.Food).length
-      }
-      if (canReplaceDiamondByGold) {
-        additionalGold += missingResources.filter((res) => res === Resources.Diamond).length
-      }
-
-      return playerGold >= fieldCost + additionalGold
-    }
   }
 }

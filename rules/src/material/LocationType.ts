@@ -23,5 +23,7 @@ export enum LocationType {
   /** A veil over a unit card, drawn by the interface only (in the discard, at the back row of a war) */
   UnitVeil,
   /** A veil over a building card, drawn by the interface only (a building that cannot be built now) */
-  BuildingVeil
+  BuildingVeil,
+  /** The Legendary Artifacts of a Monarch, apart from the units (x: the order they were put into play) */
+  PlayerArtifacts
 }

@@ -8,7 +8,7 @@ import { Gold } from '../material/Gold'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Resources } from '../material/Resources'
-import { theRealDeck, Unit } from '../material/Unit'
+import { baseGameDeck, Unit } from '../material/Unit'
 import { unitCardCaracteristics } from '../material/UnitCaracteristics'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
@@ -110,7 +110,7 @@ const placeAgeTokenOn = (rules: PaperTalesRules, player: PlayerColor, unitIndex:
     .getLegalMoves(player)
     .find((move) => isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move) && (move as CustomMove).data.unitIndex === unitIndex)
 
-const copies = (unit: Unit) => theRealDeck.filter((u) => u === unit).length
+const copies = (unit: Unit) => baseGameDeck.filter((u) => u === unit).length
 
 /** Printed cost, checked by paying the unit when it is revealed */
 const expectCost = (unit: Unit, cost: number) => {
@@ -195,7 +195,7 @@ describe('Time Master', () => {
     const knight = place(rules, Unit.Knight, Blue, 1, 0)
     deployed(rules, { [Blue]: [timeMaster] })
     runDeployEffects(rules)
-    expect(rules.game.rule?.id).toBe(RuleId.ChooseWherePlacingAgeToken)
+    expect(rules.game.rule?.id).toBe(RuleId.DeployEffects)
     const choice = placeAgeTokenOn(rules, Blue, knight)
     expect(choice).toBeDefined()
     expect(placeAgeTokenOn(rules, Blue, timeMaster)).toBeDefined()
@@ -547,7 +547,7 @@ describe('Shapeshifter', () => {
   it('phase 2, empty deck: the discard is shuffled into a new deck (rulebook p.5), and the draw goes on', () => {
     const { rules, shapeshifter } = revealShapeshifter([]) // every other card is in the discard
     // The phase is over; a Time Master drawn at random first places its Age token on a unit of choice
-    expect([RuleId.War, RuleId.ChooseWherePlacingAgeToken]).toContain(rules.game.rule?.id)
+    expect([RuleId.War, RuleId.DeployEffects]).toContain(rules.game.rule?.id)
     expect(location(rules, shapeshifter).type).toBe(LocationType.Discard)
     const kept = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(Blue)
     expect(kept.length).toBe(1)
@@ -777,7 +777,7 @@ describe('Master Alchemist', () => {
     place(rules, Unit.Treefolk, Blue, 0, 1)
     deployed(rules, {})
     runDeployEffects(rules)
-    expect(rules.game.rule?.id).toBe(RuleId.ChooseWherePlacingAgeToken)
+    expect(rules.game.rule?.id).toBe(RuleId.DeployEffects)
     run(rules, placeAgeTokenOn(rules, Blue, knight)!, RuleId.War)
     expect(ageOn(rules, knight)).toBe(1)
   })

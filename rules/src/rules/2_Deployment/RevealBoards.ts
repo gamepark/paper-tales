@@ -7,7 +7,10 @@ export class RevealBoards extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
     this.game.players.forEach((player) => {
-      moves.push(...this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player).rotation(true).moveItems({ rotation: false }))
+      const laid = this.material(MaterialType.Unit)
+        .location((location) => location.type === LocationType.PlayerUnitBoard || location.type === LocationType.PlayerArtifacts)
+        .player(player)
+      moves.push(...laid.rotation(true).moveItems({ rotation: false }))
     })
     moves.push(this.startRule(RuleId.PayDeployedUnits))
 

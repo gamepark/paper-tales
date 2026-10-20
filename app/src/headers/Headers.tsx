@@ -8,7 +8,6 @@ import { RevealBoardsHeader } from './RevealBoardsHeader'
 import { DealHeader } from './DealHeader'
 import { PayDeployedUnitsHeader } from './PayDeployedUnitsHeader'
 import { DeployEffectsHeader } from './DeployEffectsHeader'
-import { ChooseWherePlacingAgeTokenHeader } from './ChooseWherePlacingAgeTokenHeader'
 import { IncomeHeader } from './IncomeHeader'
 import { WarHeader } from './WarHeader'
 import { withPhaseIcon } from './withPhaseIcon'
@@ -22,7 +21,6 @@ const headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.RevealBoards]: RevealBoardsHeader,
   [RuleId.PayDeployedUnits]: PayDeployedUnitsHeader,
   [RuleId.DeployEffects]: DeployEffectsHeader,
-  [RuleId.ChooseWherePlacingAgeToken]: ChooseWherePlacingAgeTokenHeader,
   [RuleId.War]: WarHeader,
   [RuleId.Income]: IncomeHeader,
   [RuleId.Build]: BuildHeader,
@@ -31,8 +29,7 @@ const headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.AgeUnitsAge]: AgeUnitsAgeHeader,
   [RuleId.AgeEffects]: AgeEffectsHeader,
   [RuleId.AgeUnitsDie]: AgeUnitsDieHeader,
-  [RuleId.SaveUnitsWithMysticEffect]: SaveUnitsWithMysticEffectHeader,
-  [RuleId.ChooseUnpaidUnits]: () => <>ChooseUnpaidUnits</>
+  [RuleId.SaveUnitsWithMysticEffect]: SaveUnitsWithMysticEffectHeader
 }
 
 /** Every header begins with the icon of its phase */

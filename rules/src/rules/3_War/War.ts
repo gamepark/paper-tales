@@ -1,6 +1,19 @@
 import { Material, MaterialItem, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { sum, sumBy } from 'es-toolkit/compat'
-import { AddWarPower, isAddWarPower, isCantWar, isChangeWarPower, isGainTokenIfWinWar, isWarFromBacklane } from '../../material/effects/3_WarEffects'
+import { Card } from '../../material/Artifact'
+import { cardEffects } from '../../material/CardCaracteristics'
+import {
+  AddWarPower,
+  isAddWarPower,
+  isCantWar,
+  isChangeWarPower,
+  isDoubleBuildingWarScore,
+  isGainTokenIfWinWar,
+  isScoreAtWar,
+  isWarFromBacklane,
+  GainTokenIfWinWar,
+  ScoreAtWar
+} from '../../material/effects/3_WarEffects'
 import { AgeLocation, Effect } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
@@ -15,6 +28,7 @@ import { ScoreHelper } from '../helpers/ScoreHelper'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 import { AgeTokens } from '../helpers/AgeTokens'
+import { KingdomHelper } from '../helpers/KingdomHelper'
 
 /**
  * The wars won against one neighbour (rulebook p.6): one when the strength is not below the neighbour's, so that both
@@ -49,8 +63,10 @@ export class War extends MaterialRulesPart {
         warScoring += this.getGainScoreIfWinWarAmount(player)
       }
 
-      // Effets scoring peu importe la victoire
-      warScoring += sum(buildHelper.scoreAtWarBuildingEffects.map((effect) => buildHelper.getScoreFromBuilding(player, effect)))
+      // The points of the phase whatever its outcome: the cards in play, and the buildings (doubled by the Princess)
+      warScoring += this.getCardsScoreAtWar(player)
+      const buildingsScore = sum(buildHelper.scoreAtWarBuildingEffects.map((effect) => this.getScoreAtWar(effect, player)))
+      warScoring += this.doublesBuildingsScore(player) ? 2 * buildingsScore : buildingsScore
 
       moves.push(...scoreHelper.gainOrLoseScore(warScoring))
     })
@@ -74,54 +90,56 @@ export class War extends MaterialRulesPart {
     return warsWonAgainst(power, leftPower, false) + warsWonAgainst(power, rightPower, false)
   }
 
-  getGainScoreIfWinWarAmount(player: number): number {
-    let score = 0
-    const units = this.getPlayerBoard(player).getItems<Unit>((item) => unitCardCaracteristics[item.id].effect !== undefined)
-
-    for (const unit of units) {
-      const effects: Effect[] = unitCardCaracteristics[unit.id].effect ?? []
-      effects.forEach((eff) => {
-        if (isGainTokenIfWinWar(eff) && eff.token === MaterialType.ScoreToken) {
-          if (eff.perResource !== undefined) {
-            const resourcesHelper = new ResourcesHelper(this.game, player)
-            const resourceAmount = sumBy(eff.perResource, (r) => resourcesHelper.getResource(r))
-            score += eff.amount * resourceAmount
-          } else {
-            score += eff.amount
-          }
-        }
-      })
+  /** The Legend points a card in play or a building earns at the War phase, won or lost */
+  getScoreAtWar(effect: ScoreAtWar, player: number, source?: number): number {
+    const kingdom = new KingdomHelper(this.game, player)
+    if (!kingdom.meets(effect.condition, source)) return 0
+    if (effect.per) return effect.amount * kingdom.count(effect.per, source)
+    if (effect.perResource) return effect.amount * new ResourcesHelper(this.game, player).getResource(effect.perResource)
+    if (effect.perUnitStrongerThan) {
+      const minimum = effect.perUnitStrongerThan
+      return effect.amount * this.getPlayerBoard(player).filter((item, index) => this.getUnitPower(item, index) >= minimum).length
     }
-    return score
+    return effect.amount
+  }
+
+  getCardsScoreAtWar(player: number): number {
+    return sumBy(new KingdomHelper(this.game, player).cards.entries, ([index, card]) =>
+      sumBy(cardEffects(card.id as Card).filter(isScoreAtWar), (effect) => this.getScoreAtWar(effect, player, index))
+    )
+  }
+
+  doublesBuildingsScore(player: number): boolean {
+    return new KingdomHelper(this.game, player).cards.getItems<Card>().some((card) => cardEffects(card.id).some(isDoubleBuildingWarScore))
+  }
+
+  /** The effects of the cards of a Monarch: the units and the Legendary Artifacts in play */
+  private getCardsEffects(player: number): Effect[] {
+    return new KingdomHelper(this.game, player).cards.getItems<Card>().flatMap((card) => cardEffects(card.id))
+  }
+
+  /** What a "for each war won" effect gives, once */
+  private getWinWarGain(effect: GainTokenIfWinWar, player: number): number {
+    if (effect.perResource === undefined) return effect.amount
+    const resourcesHelper = new ResourcesHelper(this.game, player)
+    return effect.amount * sumBy(effect.perResource, (resource) => resourcesHelper.getResource(resource))
+  }
+
+  getGainScoreIfWinWarAmount(player: number): number {
+    const effects = this.getCardsEffects(player).filter(isGainTokenIfWinWar)
+    return sumBy(
+      effects.filter((effect) => effect.token === MaterialType.ScoreToken),
+      (effect) => this.getWinWarGain(effect, player)
+    )
   }
 
   getGainGoldIfWinWarMoves(player: number): MaterialMove[] {
-    const moves: MaterialMove[] = []
-    const units = this.getPlayerBoard(player).getItems<Unit>((item) => unitCardCaracteristics[item.id].effect !== undefined)
-
-    for (const unit of units) {
-      const effects: Effect[] = unitCardCaracteristics[unit.id].effect ?? []
-      effects.forEach((eff) => {
-        if (isGainTokenIfWinWar(eff) && eff.token === MaterialType.Gold) {
-          let coinToChange = eff.amount
-          if (eff.perResource !== undefined) {
-            const resourcesHelper = new ResourcesHelper(this.game, player)
-            const amount = sumBy(eff.perResource, (r) => resourcesHelper.getResource(r))
-            coinToChange = amount * eff.amount
-          }
-
-          const goldMoney = this.material(MaterialType.Gold).money(golds)
-          moves.push(
-            ...goldMoney.addMoney(coinToChange, {
-              type: LocationType.PlayerGoldStock,
-              player: player
-            })
-          )
-        }
-      })
-    }
-
-    return moves
+    const effects = this.getCardsEffects(player).filter(isGainTokenIfWinWar)
+    const gold = sumBy(
+      effects.filter((effect) => effect.token === MaterialType.Gold),
+      (effect) => this.getWinWarGain(effect, player)
+    )
+    return gold ? this.material(MaterialType.Gold).money(golds).addMoney(gold, { type: LocationType.PlayerGoldStock, player }) : []
   }
 
   getPlayerBoard(player: number) {
@@ -147,7 +165,6 @@ export class War extends MaterialRulesPart {
     if (effects.length) {
       const cantWarEffect = effects.find(isCantWar)
       const changeWarPowerEffect = effects.find(isChangeWarPower)
-      const addWarPowerEffect = effects.find(isAddWarPower)
 
       // On applique la premiere condition exclusive
       if (cantWarEffect !== undefined && (!cantWarEffect.ifAgeToken || this.getAgeOnUnit(unitIndex) > 0)) return 0
@@ -167,7 +184,7 @@ export class War extends MaterialRulesPart {
       }
 
       // Enfin, on calcule le surplus de puissance qu'on peut ajouter. Pas de return ici
-      return characteristics.power + (addWarPowerEffect ? this.getAddedPower(addWarPowerEffect, player, unitIndex) : 0)
+      return characteristics.power + sumBy(effects.filter(isAddWarPower), (effect) => this.getAddedPower(effect, player, unitIndex))
     }
 
     return characteristics.power
@@ -175,6 +192,7 @@ export class War extends MaterialRulesPart {
 
   /** The strength an AddWarPower effect adds, the same for a unit and for a building (no Age token on a building) */
   getAddedPower(effect: AddWarPower, player: number, unitIndex?: number): number {
+    if (effect.per) return new KingdomHelper(this.game, player).count(effect.per, unitIndex) * effect.powerAdded
     if (effect.perAgeToken !== undefined) {
       const ageTokens = effect.perAgeToken === AgeLocation.OnUnit ? (unitIndex !== undefined ? this.getAgeOnUnit(unitIndex) : 0) : this.getAgeInPlayerRealm(player)
       return ageTokens * effect.powerAdded
@@ -206,7 +224,10 @@ export class War extends MaterialRulesPart {
 
     const buildings = buildHelper.addPowerBuildingEffects
     const buildingStrength = sumBy(buildings, (building) => this.getAddedPower(building, player))
-    return strength + buildingStrength
+    // A Legendary Artifact is not a unit: its strength goes to the kingdom (the Shield of Power)
+    const artifacts = new KingdomHelper(this.game, player).artifacts.getItems<Card>()
+    const artifactStrength = sumBy(artifacts, (artifact) => sumBy(cardEffects(artifact.id).filter(isAddWarPower), (effect) => this.getAddedPower(effect, player)))
+    return strength + buildingStrength + artifactStrength
   }
 
   computePower(unit: Material) {

@@ -27,7 +27,6 @@ export const unitPrintedContent = (unit: Unit, i18n: I18n, lng = i18n.language):
   const pattern = unitCardCaracteristics[unit]
   const effects = pattern.effect ?? []
   const acts = new Set(effects.map(effectStep))
-  const resources = pattern.resources?.type ?? []
 
   const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
   const effectKeys: string[][] = [[], [], [], [], [], [], []]
@@ -45,19 +44,21 @@ export const unitPrintedContent = (unit: Unit, i18n: I18n, lng = i18n.language):
   })
   if (exists(`unit.production.${unit}`)) {
     lines.push({ production: true, text: <Trans t={t} i18nKey={`unit.production.${unit}`} components={helpIconComponents} /> })
-  } else if (resources.length) {
-    const condition = resourceConditionText(pattern.resources?.condition, t)
-    lines.push({
-      production: true,
-      text: (
-        <>
-          {resources.map((resource, index) => (
-            <ResourceIcon key={index} resource={resource} />
-          ))}
-          {condition && <> {condition}</>}
-        </>
-      )
-    })
+  } else {
+    for (const production of pattern.resources ?? []) {
+      const condition = resourceConditionText(production.condition, t)
+      lines.push({
+        production: true,
+        text: (
+          <>
+            {production.type.map((resource, index) => (
+              <ResourceIcon key={index} resource={resource} />
+            ))}
+            {condition && <> {condition}</>}
+          </>
+        )
+      })
+    }
   }
   const printed = (step: number) =>
     effectTexts[step].length ? (

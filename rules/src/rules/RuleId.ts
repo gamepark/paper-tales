@@ -6,8 +6,6 @@ export enum RuleId {
   RevealBoards,
   PayDeployedUnits,
   DeployEffects,
-  ChooseWherePlacingAgeToken,
-  ChooseUnpaidUnits,
   War,
   Income,
   Build,

@@ -1,8 +1,8 @@
 import { MaterialType } from '../MaterialType'
 import { Resources } from '../Resources'
-import { AgeLocation, Effect, EffectType } from './Effect'
+import { AgeLocation, Condition, Count, Effect, EffectType } from './Effect'
 
-export type WarEffect = GainTokenIfWinWar | ChangeWarPower | AddWarPower | WarFromBacklane | CantWar | ScoreAtWar
+export type WarEffect = GainTokenIfWinWar | ChangeWarPower | AddWarPower | WarFromBacklane | CantWar | ScoreAtWar | DoubleBuildingWarScore
 export type GainTokenIfWinWar = {
   type: EffectType.GainTokenIfWinWar
   token: MaterialType.Gold | MaterialType.ScoreToken
@@ -20,6 +20,7 @@ export type AddWarPower = {
   perResource?: Resources[] // Tableau injustifié ! A passer en Resources unique
   perAgeToken?: AgeLocation
   perGoldOnIncomePhase?: true
+  per?: Count
   powerAdded: number
 }
 export type WarFromBacklane = {
@@ -30,11 +31,19 @@ export type CantWar = {
   ifAgeToken?: true
 }
 
+/** Legend points at the War phase, whatever its outcome */
 export type ScoreAtWar = {
   type: EffectType.ScoreAtWar
   amount: number
   perResource?: Resources
   perUnitStrongerThan?: number
+  per?: Count
+  condition?: Condition
+}
+
+/** The Legend points the buildings earn at the War phase are doubled (the Princess) */
+export type DoubleBuildingWarScore = {
+  type: EffectType.DoubleBuildingWarScore
 }
 
 export function isWarType(effect: Effect): effect is WarEffect {
@@ -44,7 +53,8 @@ export function isWarType(effect: Effect): effect is WarEffect {
     effect.type === EffectType.CantWar ||
     effect.type === EffectType.ChangeWarPower ||
     effect.type === EffectType.GainTokenIfWinWar ||
-    effect.type === EffectType.ScoreAtWar
+    effect.type === EffectType.ScoreAtWar ||
+    effect.type === EffectType.DoubleBuildingWarScore
   )
 }
 
@@ -70,4 +80,8 @@ export function isChangeWarPower(effect: Effect): effect is ChangeWarPower {
 
 export function isScoreAtWar(effect: Effect): effect is ScoreAtWar {
   return effect.type === EffectType.ScoreAtWar
+}
+
+export function isDoubleBuildingWarScore(effect: Effect): effect is DoubleBuildingWarScore {
+  return effect.type === EffectType.DoubleBuildingWarScore
 }

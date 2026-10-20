@@ -1,311 +1,363 @@
-import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, Material, MaterialItem, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
-import { sumBy } from 'es-toolkit/compat'
-import { AgeTokens } from '../helpers/AgeTokens'
+import { CustomMove, isCustomMoveType, isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { sortBy } from 'es-toolkit/compat'
+import { Card, isArtifact, isUnit } from '../../material/Artifact'
+import { cardEffects } from '../../material/CardCaracteristics'
 import {
+  DeploymentEffect,
   GainAgeToken,
-  ImproveBuilding,
+  GainAgeTokenOnChosenUnit,
+  GainTokenOnDeploy,
   isDeploymentType,
-  isGainAgeToken,
   isGainAgeTokenOnChosenUnit,
-  isGainTokenOnDeploy,
   isImproveBuilding,
-  isShapeshifter
+  isMoveAgeToken,
+  isReactivateRevealEffects
 } from '../../material/effects/2_DeploymentEffects'
-import { Effect, WhichBuilding, WhichUnit } from '../../material/effects/Effect'
+import { EffectType, WhichBuilding, WhichUnit } from '../../material/effects/Effect'
+import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics, UnitPattern } from '../../material/UnitCaracteristics'
+import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
 import { PlayerColor } from '../../PlayerColor'
+import { BuildRandomBuildingData, CustomMoveType, GainAgeTokenOnChosenUnitEffect, ReactivateUnitData } from '../CustomMoveType'
+import { AgeTokens } from '../helpers/AgeTokens'
 import { BuildHelper } from '../helpers/BuildHelper'
+import { KingdomHelper } from '../helpers/KingdomHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
-import { Memory } from '../Memory'
-
+import { Memory, PendingDeployEffect } from '../Memory'
 import { RuleId } from '../RuleId'
 
+/**
+ * The order the effects of a Monarch resolve in. Each effect takes into account as many elements as possible of the end
+ * of the phase (rulebook p.12): the cards that replace others come first (the Shapeshifter), then what changes the
+ * buildings and the artifacts, then the Age tokens, then what counts the kingdom.
+ */
+const priority: Record<DeploymentEffect['type'], number> = {
+  [EffectType.Shapeshifter]: 0,
+  [EffectType.ImproveBuilding]: 1,
+  [EffectType.BuildRandomLevel2]: 1,
+  [EffectType.DrawArtifact]: 2,
+  [EffectType.ReactivateRevealEffects]: 3,
+  [EffectType.GainAgeToken]: 4,
+  [EffectType.GainAgeTokenOnChosenUnit]: 5,
+  [EffectType.MoveAgeToken]: 6,
+  [EffectType.GainTokenOnDeploy]: 7
+}
+
+/** The effects a Monarch chooses how to apply */
+const isChoice = (effect: DeploymentEffect) =>
+  isGainAgeTokenOnChosenUnit(effect) ||
+  isMoveAgeToken(effect) ||
+  isReactivateRevealEffects(effect) ||
+  (isImproveBuilding(effect) && effect.whichBuilding === WhichBuilding.Choice)
+
+/** The effects that draw at random: the next effect waits for the draw to end */
+const isDraw = (effect: DeploymentEffect) =>
+  effect.type === EffectType.Shapeshifter || effect.type === EffectType.DrawArtifact || effect.type === EffectType.BuildRandomLevel2
+
+/** The discard was shuffled into a new deck for a draw of a Monarch: the draw goes on once it is in place, then never again this turn */
+export enum DeckRefill {
+  Refilling = 1,
+  Refilled
+}
+
+/**
+ * The deployment effects (rulebook p.5): the "when revealed" effects of the cards revealed this turn, and the effects of
+ * the cards and buildings that act at every Deployment phase. Every Monarch resolves their effects one after the other,
+ * in the order above, each one on the kingdom left by the previous ones; the turn of a Monarch ends with their last effect.
+ */
 export class DeployEffects extends SimultaneousRule {
   onRuleStart(): MaterialMove[] {
-    const moves: MaterialMove[] = []
-    const players = this.game.players
-
-    for (const player of players) {
-      const deployedUnitsIndexes = this.remind<number[]>(Memory.PlayedCardsDuringDeployment, player)
-      const playerUnitBoard = this.getPlayerUnits(player)
-      const buildHelper = new BuildHelper(this.game, player)
-      const scoreHelper = new ScoreHelper(this.game, player)
-      let scoreToAdd = 0
-
-      // The effects of the phase take into account everything in play at the end of the phase (rulebook p.12): the
-      // level 2 Buildings include the ones a Golem revealed this turn improves
-      const improvesAll = playerUnitBoard.entries.some(
-        ([index, unit]) => deployedUnitsIndexes.includes(index) && (unitCardCaracteristics[unit.id as Unit].effect ?? []).some(isImproveBuilding)
-      )
-      const level2Buildings = buildHelper.buildLevel2Buildings.length + (improvesAll ? buildHelper.builtLevel1Buildings.length : 0)
-
-      for (const [unitIndex, unit] of playerUnitBoard.entries) {
-        const unitId = unit.id as Unit
-        const characteristics: UnitPattern = unitCardCaracteristics[unitId]
-        const effects = characteristics.effect ?? []
-        for (const effect of effects) {
-          if (isGainTokenOnDeploy(effect) && effect.token === MaterialType.ScoreToken) {
-            if (!effect.onDeployment || deployedUnitsIndexes.includes(unitIndex)) {
-              const factor = effect.perLevel2Builds ? level2Buildings : 1
-              scoreToAdd += effect.amount * factor
-            }
-          } else {
-            moves.push(...this.getUnitDeployEffectMoves(unit, unitIndex, player, effect))
-          }
-        }
-      }
-
-      moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
-      // A Shapeshifter draws until it keeps a unit: the turn ends once it is kept, before the wars
-      if (!moves.some((move) => this.isShapeshifterDraw(move, player))) moves.push(this.endPlayerTurn(player))
-    }
-
-    return moves
-  }
-
-  afterItemMove(move: ItemMove): MaterialMove[] {
-    const moves: MaterialMove[] = []
-
-    if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
-      let scoreToAdd = 0
-      const unitCard = this.material(MaterialType.Unit).index(move.itemIndex)
-      const unit = unitCard.getItem()!
-      const player = move.location.player!
-      const unitId = unit.id as Unit
-
-      const shapeShifterCard = this.material(MaterialType.Unit)
-        .location(LocationType.PlayerUnitBoard)
-        .player(player)
-        .filter((item) => item.id === Unit.Shapeshifter)
-      // Draw and discard until a unit of cost 3 or less is revealed (printed on the card)
-      if (unitCardCaracteristics[unitId].cost > 3) {
-        moves.push(unitCard.moveItem({ type: LocationType.Discard }))
-        if (this.deck.length) {
-          moves.push(this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: unit.location.x, y: unit.location.y }))
-        } else {
-          moves.push(...(this.refillDeck(player) ?? [...this.shapeshifterStays(player), this.endPlayerTurn(player)]))
-        }
-      } else {
-        const effects: Effect[] | undefined = unitCardCaracteristics[unitId].effect
-        const buildHelper = new BuildHelper(this.game, player)
-        const scoreHelper = new ScoreHelper(this.game, player)
-
-        // The drawn unit is deployed this turn: its "when revealed" effects apply
-        this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards, move.itemIndex], player)
-        const deployedUnitsIndexes = this.remind<number[]>(Memory.PlayedCardsDuringDeployment, player)
-        this.forget(Memory.ShapeshifterRefill, player)
-
-        if (effects !== undefined) {
-          effects.forEach((eff) => {
-            if (isGainTokenOnDeploy(eff) && eff.token === MaterialType.ScoreToken) {
-              if (!eff.onDeployment || deployedUnitsIndexes.includes(move.itemIndex)) {
-                const coeff = eff.perLevel2Builds ? buildHelper.buildLevel2Buildings.getQuantity() : 1
-                scoreToAdd += eff.amount * coeff
-              }
-            } else {
-              moves.push(...this.getUnitDeployEffectMoves(unit, move.itemIndex, player, eff))
-            }
-          })
-          // Once, after all the effects: the score moves to its new position from the current one
-          moves.push(...scoreHelper.gainOrLoseScore(scoreToAdd))
-        }
-
-        // The Shapeshifter leaves with the Age tokens it may have received (Necromancer, Kraken)
-        for (const index of shapeShifterCard.getIndexes()) moves.push(...new AgeTokens(this).remove(index))
-        moves.push(shapeShifterCard.moveItem({ type: LocationType.Discard }))
-        // Its Age token, plus the ones the other units revealed this turn give to it (Necromancer): it is in play at the end of the phase
-        moves.push(new AgeTokens(this).add(move.itemIndex, player, 1 + this.ageTokensFromOthers(player, move.itemIndex)))
-        moves.push(this.endPlayerTurn(player))
-      }
-    }
-
-    // The discard just became the new deck for a Shapeshifter: it draws from it
-    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) {
-      for (const player of this.game.players) {
-        if (!this.remind(Memory.ShapeshifterRefill, player)) continue
-        const shapeshifter = this.getPlayerUnits(player).id(Unit.Shapeshifter)
-        if (shapeshifter.length) moves.push(...this.onShapeShifter(player, shapeshifter.getItem()!))
-        else moves.push(this.endPlayerTurn(player))
-      }
-    }
-    return moves
-  }
-
-  /** The Shapeshifter is still drawing: either a card comes to the board, or the discard is being shuffled into a new deck */
-  private isShapeshifterDraw(move: MaterialMove, player: PlayerColor) {
-    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) return !!this.remind(Memory.ShapeshifterRefill, player)
-    return isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard && move.location.player === player
-  }
-
-  /**
-   * The deck is empty while a Shapeshifter draws: the discard is shuffled into a new deck, as during the deal (rulebook
-   * p.5), once per Shapeshifter so that a discard without any unit of cost 3 or less does not loop. Undefined when there
-   * is nothing to shuffle.
-   */
-  private refillDeck(player: PlayerColor): MaterialMove[] | undefined {
-    const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
-    if (!discard.length || this.remind(Memory.ShapeshifterRefill, player)) return undefined
-    this.memorize(Memory.ShapeshifterRefill, true, player)
-    return [discard.shuffle(), discard.moveItemsAtOnce({ type: LocationType.Deck })]
-  }
-
-  getActivePlayerLegalMoves(_playerId: number): MaterialMove[] {
-    const moves: MaterialMove[] = []
-    return moves
-  }
-
-  getMovesAfterPlayersDone(): MaterialMove[] {
-    let goToChooseRule = false
-
-    for (const player of this.game.players) {
-      this.forget(Memory.ShapeshifterRefill, player)
-      const unitWithPlaceAgeToken: number[] = this.getUnitsWithPlaceAgeToken(player).getIndexes()
-
-      if (unitWithPlaceAgeToken.length > 0) {
-        this.memorize(Memory.PlacingAgeTokenUnitsIndexes, unitWithPlaceAgeToken, player)
-        goToChooseRule = true
-      }
-    }
-
-    if (goToChooseRule) {
-      return [this.startSimultaneousRule(RuleId.ChooseWherePlacingAgeToken, this.playersPlacingAgeTokenUnits)]
-    }
-
-    return [this.startRule(RuleId.War)]
-  }
-
-  getUnitsWithPlaceAgeToken(player: PlayerColor) {
-    const units = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
-    const deployedUnits: number[] = this.remind(Memory.PlayedCardsDuringDeployment, player)
-    return units.filter((item, index) => {
-      const unitId = item.id as Unit
-      const effects = unitCardCaracteristics[unitId].effect
-      if (!effects?.length) return false
-      const gainAgeTokenOnChosenUnit = effects.find(isGainAgeTokenOnChosenUnit)
-      if (!gainAgeTokenOnChosenUnit) return false
-      // Nothing to place: no choice to make (the Master Alchemist without food)
-      if (gainAgeTokenOnChosenUnit.perResource !== undefined && !new ResourcesHelper(this.game, player).getResource(gainAgeTokenOnChosenUnit.perResource)) {
-        return false
-      }
-      return !gainAgeTokenOnChosenUnit.onDeployment || deployedUnits.includes(index)
+    return this.game.players.flatMap((player) => {
+      this.memorize(Memory.DeployEffects, this.sort(this.getTriggeredEffects(player)), player)
+      return this.resolve(player)
     })
   }
 
-  getPlayerUnits(player: number): Material {
-    return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
+  getTriggeredEffects(player: PlayerColor): PendingDeployEffect[] {
+    const deployed = this.getDeployedIndexes(player)
+    const cards = new KingdomHelper(this.game, player).cards.entries.flatMap(([source, card]) =>
+      cardEffects(card.id as Card)
+        .filter(isDeploymentType)
+        .filter((effect) => !effect.onDeployment || deployed.includes(source))
+        .map((effect) => ({ source, effect }))
+    )
+    const buildings = new BuildHelper(this.game, player).buildingEffects.filter(isDeploymentType).map((effect) => ({ effect }))
+    return [...cards, ...buildings]
   }
 
-  getUnitDeployEffectMoves(unit: MaterialItem, unitIndex: number, player: PlayerColor, eff: Effect): MaterialMove[] {
-    const moves: MaterialMove[] = []
-    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
-
-    if (!isDeploymentType(eff)) return moves
-    // "When revealed" effects: this very card was deployed this turn (an older copy kept in play does not count)
-    if (eff.onDeployment && !deployedUnitsIndexes.includes(unitIndex)) return moves
-
-    if (isImproveBuilding(eff)) {
-      moves.push(...this.onImproveBuilding(player, eff))
-    } else if (isShapeshifter(eff)) {
-      moves.push(...this.onShapeShifter(player, unit))
-    } else if (isGainAgeToken(eff)) {
-      moves.push(...this.onGainAgeToken(player, eff, unitIndex))
-    } else if (isGainTokenOnDeploy(eff)) {
-      if (eff.token === MaterialType.Gold) {
-        // No case in base game
-      }
-    }
-
-    return moves
+  private sort(queue: PendingDeployEffect[]) {
+    return sortBy(queue, (pending) => priority[pending.effect.type])
   }
 
-  get playersPlacingAgeTokenUnits(): PlayerColor[] {
-    return this.game.players.filter((player) => this.remind(Memory.PlacingAgeTokenUnitsIndexes, player) !== undefined)
+  getQueue(player: PlayerColor): PendingDeployEffect[] {
+    return this.remind<PendingDeployEffect[] | undefined>(Memory.DeployEffects, player) ?? []
   }
 
-  private onImproveBuilding(player: PlayerColor, eff: ImproveBuilding) {
-    if (eff.whichBuilding === WhichBuilding.All) {
-      const buildHelper = new BuildHelper(this.game, player)
-      const buildingLevel1 = buildHelper.builtLevel1Buildings
-      return buildingLevel1.moveItems({ rotation: true })
-    } else {
-      return []
-      // TODO: No case in base game, but should consider Djinn for later
-    }
+  /** The effect a Monarch is resolving, or has to choose how to apply */
+  getCurrentEffect(player: PlayerColor): PendingDeployEffect | undefined {
+    return this.getQueue(player)[0]
   }
 
   /**
-   * A Shapeshifter revealed this turn is not in play at the end of the phase (rulebook p.12): the unit it draws takes its
-   * place. The Age tokens the other units give (Necromancer, Kraken) go to that unit once kept, never to the Shapeshifter.
+   * Resolves the effects of a Monarch from the first one: stops at a choice, or after the moves of an effect (the next one
+   * is resolved once they are played, see ResolveNextDeployEffect). The turn of the Monarch ends when none is left.
    */
-  private isLeavingShapeshifter(player: PlayerColor, unitIndex: number) {
-    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
-    return deployedUnitsIndexes.includes(unitIndex) && this.material(MaterialType.Unit).getItem<Unit>(unitIndex).id === Unit.Shapeshifter
+  private resolve(player: PlayerColor): MaterialMove[] {
+    const queue = this.getQueue(player)
+    while (queue.length) {
+      const pending = queue[0]
+      if (isChoice(pending.effect)) {
+        if (this.getChoiceMoves(player, pending).length) {
+          this.memorize(Memory.DeployEffects, queue, player)
+          return []
+        }
+      } else {
+        const moves = this.apply(player, pending)
+        if (moves.length) {
+          this.memorize(Memory.DeployEffects, queue, player)
+          return isDraw(pending.effect) ? moves : [...moves, this.resolveNext(player)]
+        }
+      }
+      queue.shift()
+    }
+    this.forget(Memory.DeployEffects, player)
+    return [this.endPlayerTurn(player)]
   }
 
-  /** The Age tokens the units revealed this turn give to the other units of their Monarch, received by the given unit */
-  private ageTokensFromOthers(player: PlayerColor, unitIndex: number) {
-    const deployedUnitsIndexes = this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
-    return sumBy(
-      this.getPlayerUnits(player).entries.filter(([index]) => index !== unitIndex && deployedUnitsIndexes.includes(index)),
-      ([, unit]) =>
-        sumBy(
-          (unitCardCaracteristics[unit.id as Unit].effect ?? []).filter((effect): effect is GainAgeToken => isGainAgeToken(effect) && effect.whichUnit === WhichUnit.Others),
-          (effect) => effect.amount
+  private resolveNext(player: PlayerColor) {
+    return this.customMove(CustomMoveType.ResolveNextDeployEffect, player)
+  }
+
+  /** The effect being resolved is done, with new effects to resolve (the ones of a unit drawn, or applied again by a Shadow) */
+  private done(player: PlayerColor, added: PendingDeployEffect[] = []): MaterialMove[] {
+    if (added.length) {
+      const [current, ...others] = this.getQueue(player)
+      this.memorize(Memory.DeployEffects, [current, ...this.sort([...others, ...added])], player)
+    }
+    return [this.resolveNext(player)]
+  }
+
+  getActivePlayerLegalMoves(player: PlayerColor): MaterialMove[] {
+    const pending = this.getCurrentEffect(player)
+    return pending && isChoice(pending.effect) ? this.getChoiceMoves(player, pending) : []
+  }
+
+  getChoiceMoves(player: PlayerColor, { source, effect }: PendingDeployEffect): MaterialMove[] {
+    const units = this.getPlayerUnits(player)
+    switch (effect.type) {
+      case EffectType.GainAgeTokenOnChosenUnit: {
+        if (!this.getChosenAgeTokens(player, effect)) return []
+        const deployed = this.getDeployedIndexes(player)
+        const targets = effect.among === WhichUnit.DeployedThisTurn ? units.index((index) => deployed.includes(index)) : units
+        return targets.getIndexes().map((unitIndex) => this.customMove(CustomMoveType.GainAgeTokenOnChosenUnitEffect, { unitIndex, player }))
+      }
+      case EffectType.ImproveBuilding:
+        return new BuildHelper(this.game, player).builtLevel1Buildings.rotateItems(true)
+      case EffectType.MoveAgeToken: {
+        const tokens = new AgeTokens(this)
+        return units.getIndexes().flatMap((from) =>
+          tokens.count(from)
+            ? units
+                .getIndexes()
+                .filter((to) => to !== from)
+                .map((to) => tokens.on(from).moveItem({ type: LocationType.OnCard, parent: to, player }, 1))
+            : []
         )
-    )
+      }
+      case EffectType.ReactivateRevealEffects:
+        return units
+          .filter<Unit>((unit, index) => index !== source && unit.id !== Unit.Shadow && this.getRevealEffects(index).length > 0)
+          .getIndexes()
+          .map((unitIndex) => this.customMove(CustomMoveType.ReactivateUnit, { unitIndex, player }))
+      default:
+        return []
+    }
   }
 
-  /** No unit of cost 3 or less left to draw: the Shapeshifter stays in play, and receives the tokens of the others */
-  private shapeshifterStays(player: PlayerColor): MaterialMove[] {
-    const shapeshifter = this.getPlayerUnits(player).id(Unit.Shapeshifter)
-    const quantity = shapeshifter.length ? this.ageTokensFromOthers(player, shapeshifter.getIndex()) : 0
-    return quantity ? [new AgeTokens(this).add(shapeshifter.getIndex(), player, quantity)] : []
+  /** The Age tokens a Monarch places on the unit of their choice (the Master Alchemist: one for each food) */
+  getChosenAgeTokens(player: PlayerColor, effect: GainAgeTokenOnChosenUnit) {
+    if (effect.perResource === undefined) return effect.amount
+    return effect.amount * new ResourcesHelper(this.game, player).getResource(effect.perResource)
   }
 
-  private onShapeShifter(player: PlayerColor, unit: MaterialItem): MaterialMove[] {
-    const deck = this.deck
-    if (!deck.length) return this.refillDeck(player) ?? this.shapeshifterStays(player)
-    return [
-      deck.dealOne({
-        type: LocationType.PlayerUnitBoard,
-        player,
-        x: unit.location.x,
-        y: unit.location.y
+  /** The "when revealed" effects of a card in play */
+  private getRevealEffects(index: number): PendingDeployEffect[] {
+    const card = this.material(MaterialType.Unit).getItem<Card>(index).id
+    return cardEffects(card)
+      .filter(isDeploymentType)
+      .filter((effect) => effect.onDeployment)
+      .map((effect) => ({ source: index, effect }))
+  }
+
+  onCustomMove(move: CustomMove): MaterialMove[] {
+    if (isCustomMoveType(CustomMoveType.ResolveNextDeployEffect)(move)) {
+      const player = move.data as PlayerColor
+      this.memorize(Memory.DeployEffects, this.getQueue(player).slice(1), player)
+      return this.resolve(player)
+    }
+    if (isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) {
+      const { unitIndex, player } = move.data as GainAgeTokenOnChosenUnitEffect
+      const effect = this.getCurrentEffect(player)!.effect as GainAgeTokenOnChosenUnit
+      return [new AgeTokens(this).add(unitIndex, player, this.getChosenAgeTokens(player, effect)), ...this.done(player)]
+    }
+    if (isCustomMoveType(CustomMoveType.ReactivateUnit)(move)) {
+      const { unitIndex, player } = move.data as ReactivateUnitData
+      return this.done(player, this.getRevealEffects(unitIndex))
+    }
+    if (isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move)) {
+      const { player, building } = move.data as BuildRandomBuildingData
+      if (building === undefined) return this.done(player)
+      return [this.material(MaterialType.Building).index(building).moveItem({ type: LocationType.PlayerBuildingBoard, player, rotation: true }), ...this.done(player)]
+    }
+    return []
+  }
+
+  /** The moves of an effect that resolves on its own; none when it has nothing to do */
+  private apply(player: PlayerColor, { source, effect }: PendingDeployEffect): MaterialMove[] {
+    switch (effect.type) {
+      case EffectType.Shapeshifter:
+      case EffectType.DrawArtifact:
+        return this.draw(player, effect.type, source)
+      case EffectType.ImproveBuilding:
+        return new BuildHelper(this.game, player).builtLevel1Buildings.rotateItems(true)
+      case EffectType.BuildRandomLevel2:
+        return new BuildHelper(this.game, player).availableBuildings.length ? [this.customMove(CustomMoveType.BuildRandomBuilding, { player })] : []
+      case EffectType.GainAgeToken:
+        return this.gainAgeTokens(player, effect, source)
+      case EffectType.GainTokenOnDeploy:
+        return this.gainTokens(player, effect, source)
+      default:
+        return []
+    }
+  }
+
+  private gainAgeTokens(player: PlayerColor, effect: GainAgeToken, source?: number): MaterialMove[] {
+    const tokens = new AgeTokens(this)
+    const deployed = this.getDeployedIndexes(player)
+    const targets = this.getPlayerUnits(player).index((index) => {
+      switch (effect.whichUnit) {
+        case WhichUnit.Myself:
+          return index === source
+        case WhichUnit.Others:
+          return index !== source
+        case WhichUnit.OthersDeployedThisTurn:
+          return index !== source && deployed.includes(index)
+        case WhichUnit.DeployedThisTurn:
+          return deployed.includes(index)
+        case WhichUnit.All:
+          return true
+      }
+    })
+    return targets.getIndexes().map((index) => tokens.add(index, player, effect.amount))
+  }
+
+  private gainTokens(player: PlayerColor, effect: GainTokenOnDeploy, source?: number): MaterialMove[] {
+    const kingdom = new KingdomHelper(this.game, player)
+    if (!kingdom.meets(effect.condition, source)) return []
+    const amount = effect.per ? effect.amount * kingdom.count(effect.per, source) : effect.amount
+    if (!amount) return []
+    if (effect.token === MaterialType.ScoreToken) return new ScoreHelper(this.game, player).gainOrLoseScore(amount)
+    return this.material(MaterialType.Gold).money(golds).addMoney(amount, { type: LocationType.PlayerGoldStock, player })
+  }
+
+  /**
+   * Draws a card for an effect: the Shapeshifter at its place on the board, the Court Jester among the artifacts. An empty
+   * deck is refilled with the discard once per Monarch and per turn (rulebook p.5). No move when there is nothing to draw.
+   */
+  private draw(player: PlayerColor, type: EffectType.Shapeshifter | EffectType.DrawArtifact, source?: number): MaterialMove[] {
+    if (!this.deck.length) return this.refillDeck(player)
+    if (type === EffectType.DrawArtifact) return [this.deck.dealOne({ type: LocationType.PlayerArtifacts, player })]
+    if (source === undefined) return []
+    const shapeshifter = this.material(MaterialType.Unit).getItem(source)
+    if (shapeshifter.location.type !== LocationType.PlayerUnitBoard) return []
+    return [this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: shapeshifter.location.x, y: shapeshifter.location.y })]
+  }
+
+  private refillDeck(player: PlayerColor): MaterialMove[] {
+    const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
+    if (!discard.length || this.remind(Memory.DeckRefilled, player)) return []
+    this.memorize(Memory.DeckRefilled, DeckRefill.Refilling, player)
+    return [discard.shuffle(), discard.moveItemsAtOnce({ type: LocationType.Deck })]
+  }
+
+  /** A card drawn for an effect, or the deck refilled, or a choice made by moving a card or a token */
+  afterItemMove(move: ItemMove): MaterialMove[] {
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) {
+      return this.game.players.flatMap((player) => {
+        if (this.remind(Memory.DeckRefilled, player) !== DeckRefill.Refilling) return []
+        this.memorize(Memory.DeckRefilled, DeckRefill.Refilled, player)
+        return this.drawAgain(player)
       })
+    }
+    if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerUnitBoard) {
+      return this.onShapeshifterDraw(move.location.player!, move.itemIndex)
+    }
+    if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerArtifacts) {
+      const player = move.location.player!
+      const drawn = this.material(MaterialType.Unit).index(move.itemIndex)
+      // Drawn and discarded until an artifact is revealed, put into play for free (the Court Jester)
+      if (isArtifact(this.material(MaterialType.Unit).getItem<Card>(move.itemIndex).id)) return this.done(player)
+      return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player)]
+    }
+    // A choice made by a move: a building improved (the Djinn), an Age token moved (the Wizard Apprentice)
+    const player = isMoveItemType(MaterialType.Building)(move) || isMoveItemType(MaterialType.Age)(move) ? this.getMovedItemPlayer(move) : undefined
+    if (player !== undefined) {
+      const pending = this.getCurrentEffect(player)
+      if (pending && isChoice(pending.effect) && (isImproveBuilding(pending.effect) || isMoveAgeToken(pending.effect))) return this.done(player)
+    }
+    return []
+  }
+
+  private getMovedItemPlayer(move: ItemMove): PlayerColor | undefined {
+    if (!isMoveItemType(MaterialType.Building)(move) && !isMoveItemType(MaterialType.Age)(move)) return undefined
+    return move.location.player ?? this.material(move.itemType).getItem(move.itemIndex).location.player
+  }
+
+  /** The current draw goes on, or ends when there is nothing left to draw */
+  private drawAgain(player: PlayerColor): MaterialMove[] {
+    const pending = this.getCurrentEffect(player)!
+    const type = pending.effect.type as EffectType.Shapeshifter | EffectType.DrawArtifact
+    const moves = this.draw(player, type, pending.source)
+    return moves.length ? moves : this.done(player)
+  }
+
+  /**
+   * The Shapeshifter draws and discards until a unit of cost 3 or less is revealed (printed on the card). The unit takes
+   * its place for free with an Age token, and its own "when revealed" effects apply (rulebook p.12).
+   */
+  private onShapeshifterDraw(player: PlayerColor, drawnIndex: number): MaterialMove[] {
+    const drawn = this.material(MaterialType.Unit).index(drawnIndex)
+    const card = this.material(MaterialType.Unit).getItem<Card>(drawnIndex).id
+    if (!isUnit(card) || unitCardCaracteristics[card].cost > 3) return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player)]
+    const shapeshifter = this.getCurrentEffect(player)!.source!
+    const tokens = new AgeTokens(this)
+    this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards.filter((index) => index !== shapeshifter), drawnIndex], player)
+    return [
+      // The Shapeshifter leaves with the Age tokens it may have received
+      ...tokens.remove(shapeshifter),
+      this.material(MaterialType.Unit).index(shapeshifter).moveItem({ type: LocationType.Discard }),
+      tokens.add(drawnIndex, player),
+      ...this.done(player, this.getRevealEffects(drawnIndex))
     ]
+  }
+
+  getMovesAfterPlayersDone(): MaterialMove[] {
+    for (const player of this.game.players) this.forget(Memory.DeckRefilled, player)
+    return [this.startRule(RuleId.War)]
+  }
+
+  getDeployedIndexes(player: PlayerColor): number[] {
+    return this.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, player) ?? []
+  }
+
+  getPlayerUnits(player: number) {
+    return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
   }
 
   get deck() {
     return this.material(MaterialType.Unit).location(LocationType.Deck).deck()
-  }
-
-  private onGainAgeToken(player: number, eff: GainAgeToken, unitIndex: number) {
-    const playerUnitBoard = this.getPlayerUnits(player)
-    if (eff.whichUnit === WhichUnit.Myself) {
-      return [
-        new AgeTokens(this).add(unitIndex, player, eff.amount)
-      ]
-    } else if (eff.whichUnit === WhichUnit.All) {
-      // No case in whole game
-      //} else if (eff.whichUnit === WhichUnit.Others) {
-    } else {
-      const moves: MaterialMove[] = []
-      for (const entry of playerUnitBoard.entries) {
-        const spaceIndex = entry[0]
-        if (spaceIndex !== unitIndex && !this.isLeavingShapeshifter(player, spaceIndex)) {
-          moves.push(
-            new AgeTokens(this).add(spaceIndex, player, eff.amount)
-          )
-        }
-      }
-
-      return moves
-    }
-
-    return []
   }
 }

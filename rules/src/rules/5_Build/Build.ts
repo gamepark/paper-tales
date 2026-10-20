@@ -1,10 +1,8 @@
 import { isMoveItemType, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
 import { Building } from '../../material/Building'
-import { isMysticEffect } from '../../material/effects/6_AgeEffects'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
-import { Unit } from '../../material/Unit'
 import { PlayerColor } from '../../PlayerColor'
 import { AgeHelper } from '../helpers/AgeHelper'
 import { BuildAction, BuildHelper } from '../helpers/BuildHelper'
@@ -18,7 +16,7 @@ export class Build extends SimultaneousRule {
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
     const moves: MaterialMove[] = []
     const buildHelper = new BuildHelper(this.game, playerId)
-    const fieldCost = buildHelper.hasIgnoreFieldCostEffect(playerId) ? 0 : buildHelper.getFieldCost(playerId)
+    const fieldCost = buildHelper.fieldCost
 
     // Passages aux niveaux 2
     moves.push(...buildHelper.upgradableBuildings.rotateItems(true))
@@ -90,12 +88,6 @@ export class Build extends SimultaneousRule {
   }
 
   get playersWithMysticEffect(): PlayerColor[] {
-    return this.game.players.filter((p) => {
-      const ageHelper = new AgeHelper(this.game, p)
-      return ageHelper.unitsWithAgeEffects
-        .getItems<Unit>()
-        .flatMap((unit) => ageHelper.getUnitAgeEffects(unit))
-        .some((effect) => isMysticEffect(effect))
-    })
+    return this.game.players.filter((player) => new AgeHelper(this.game, player).mysticalEffectsCount > 0)
   }
 }

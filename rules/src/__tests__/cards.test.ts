@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { isGainTokenOnDeploy } from '../material/effects/2_DeploymentEffects'
 import { isGainTokenIfDying } from '../material/effects/6_AgeEffects'
 import { isIgnoreFieldCost } from '../material/effects/5_Build'
-import { EffectType } from '../material/effects/Effect'
-import { theRealDeck, Unit } from '../material/Unit'
+import { CountKind, EffectType } from '../material/effects/Effect'
+import { baseGameDeck, Unit } from '../material/Unit'
 import { unitCardCaracteristics } from '../material/UnitCaracteristics'
 
 /** Values read on the printed cards (docs/cards-audit.md) */
@@ -11,7 +11,7 @@ const effects = (unit: Unit) => unitCardCaracteristics[unit].effect ?? []
 
 describe('Printed cards', () => {
   it('Peddler: 3 copies', () => {
-    expect(theRealDeck.filter((unit) => unit === Unit.Peddler)).toHaveLength(3)
+    expect(baseGameDeck.filter((unit) => unit === Unit.Peddler)).toHaveLength(3)
   })
 
   it('Landlord: ignore the land cost', () => {
@@ -24,7 +24,7 @@ describe('Printed cards', () => {
   })
 
   it('Kraken: loses 3 Legend points for each level 2 building', () => {
-    expect(effects(Unit.Kraken).find(isGainTokenOnDeploy)).toMatchObject({ amount: -3, perLevel2Builds: true })
+    expect(effects(Unit.Kraken).find(isGainTokenOnDeploy)).toMatchObject({ amount: -3, per: { kind: CountKind.Level2Buildings } })
   })
 
   it('Demon: -3 only if it dies with exactly one Age token', () => {

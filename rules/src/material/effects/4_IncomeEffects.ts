@@ -1,10 +1,11 @@
 import { Resources } from '../Resources'
-import { Effect, EffectType } from './Effect'
+import { Count, Effect, EffectType } from './Effect'
 
 export type IncomeEffect = SimpleIncome | IncomeIfAgeToken | IncomePerResource
 export type SimpleIncome = {
   type: EffectType.Income
   amount: number
+  per?: Count
 }
 export type IncomePerResource = {
   type: EffectType.IncomePerResource
@@ -20,16 +21,4 @@ export type IncomeIfAgeToken = {
 
 export function isIncomeType(effect: Effect): effect is IncomeEffect {
   return effect.type === EffectType.Income || effect.type === EffectType.IncomeIfAgeToken || effect.type === EffectType.IncomePerResource
-}
-
-export function isSimpleIncomeType(effect: Effect): effect is SimpleIncome {
-  return effect.type === EffectType.Income
-}
-
-export function isIncomeIfAgeTokenType(effect: Effect): effect is IncomeIfAgeToken {
-  return effect.type === EffectType.IncomeIfAgeToken
-}
-
-export function isIncomePerResourceType(effect: Effect): effect is IncomePerResource {
-  return effect.type === EffectType.IncomePerResource
 }

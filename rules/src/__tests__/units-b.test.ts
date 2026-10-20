@@ -71,7 +71,8 @@ const revealed = (rules: PaperTalesRules, byPlayer: Partial<Record<PlayerColor, 
   for (const player of rules.players) rules.memorize(Memory.PlayedCardsDuringDeployment, byPlayer[player] ?? [], player)
 }
 
-const isItemMove = (move: MaterialMove) => move.kind === MoveKind.ItemMove
+/** The moves of the phase: the item moves, and the custom moves that chain its effects (no rule move) */
+const isItemMove = (move: MaterialMove) => move.kind !== MoveKind.RulesMove
 
 /** Runs the start of one phase and its consequences, without going on to the next phase */
 const runPhase = (rules: PaperTalesRules, start: MaterialMove) => {
