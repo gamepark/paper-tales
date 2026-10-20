@@ -3,6 +3,7 @@ import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import {
+  getBuildingHoverZoom,
   getBuildingScale,
   getBuildingSlotCoordinates,
   getHoverShift,
@@ -41,7 +42,7 @@ export class PlayerBuildingBoardLocator extends Locator {
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
     const { x, y } = this.getItemCoordinates(item, context)
-    const zoom = isWarView(context) ? 2.2 : 1.8
+    const zoom = isWarView(context) ? 2.2 : getBuildingHoverZoom(context)
     const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : getBuildingScale(context)
     const shift = getHoverShift({
       x,

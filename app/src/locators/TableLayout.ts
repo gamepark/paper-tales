@@ -324,6 +324,11 @@ const getBuildingGrid = (context: MaterialContext) => (getGameBuildings(context)
 
 export const getBuildingScale = (context: MaterialContext) => getBuildingGrid(context).scale
 
+/** A hovered building of the grid is drawn at this size, whatever the grid: the zoom makes up for the smaller cards of 7 buildings */
+const HOVERED_BUILDING_SIZE = 0.85 * 1.8
+
+export const getBuildingHoverZoom = (context: MaterialContext) => HOVERED_BUILDING_SIZE / getBuildingScale(context)
+
 /**
  * Every building has a fixed slot in the grid, built or not
  */

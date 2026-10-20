@@ -2,7 +2,15 @@ import { Building } from '@gamepark/paper-tales/material/Building'
 import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
-import { getBuildingScale, getBuildingSlotCoordinates, getHoverShift, getPlayerPositionDependencies, isBuildingsDisplayed, scaleTransform } from './TableLayout'
+import {
+  getBuildingHoverZoom,
+  getBuildingScale,
+  getBuildingSlotCoordinates,
+  getHoverShift,
+  getPlayerPositionDependencies,
+  isBuildingsDisplayed,
+  scaleTransform
+} from './TableLayout'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
@@ -28,8 +36,9 @@ export class PlayerBuildingHandLocator extends Locator {
   getHoverTransform(item: MaterialItem, context: ItemContext) {
     const { x, y } = getBuildingSlotCoordinates(context, item.id as Building)
     const scale = getBuildingScale(context)
-    const shift = getHoverShift({ x, y, width: buildingCardDescription.width * scale, height: buildingCardDescription.height * scale, zoom: 1.8 })
-    return ['translateZ(30em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(1.8)', ...shift]
+    const zoom = getBuildingHoverZoom(context)
+    const shift = getHoverShift({ x, y, width: buildingCardDescription.width * scale, height: buildingCardDescription.height * scale, zoom })
+    return ['translateZ(30em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, `scale(${zoom})`, ...shift]
   }
 }
 
