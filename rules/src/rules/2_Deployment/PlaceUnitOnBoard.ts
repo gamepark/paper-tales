@@ -115,13 +115,15 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
       const movedCard = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)
       if (cardOnPlace.length && movedCard.location.type === LocationType.PlayerUnitHand) {
         // A unit of the hand laid on a space taken: the unit placed there this turn goes back to the hand, an older unit
-        // is discarded with its Age tokens (the card laid stays where it was dropped meanwhile, then takes the space)
+        // is discarded, its Age tokens going back to the reserve first (the card laid stays where it was dropped meanwhile,
+        // then takes the space)
         const player = movedCard.location.player!
         const justPlaced = this.getCardJustDeployed(player).includes(cardOnPlace.getIndex())
         if (justPlaced) {
           this.removeCardFromDeployment(player, cardOnPlace.getIndex())
           moves.push(cardOnPlace.moveItem({ type: LocationType.PlayerUnitHand, player }))
         } else {
+          moves.push(...new AgeTokens(this).remove(cardOnPlace.getIndex()))
           moves.push(cardOnPlace.moveItem({ type: LocationType.Discard }))
         }
       } else if (cardOnPlace.length) {
