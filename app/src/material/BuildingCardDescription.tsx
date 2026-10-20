@@ -2,7 +2,6 @@ import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { CardDescription, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
@@ -55,21 +54,12 @@ export class BuildingCardDescription extends CardDescription {
   helpDisplay = BuildingBookHelpDisplay
 
   getItemExtraCss(item: MaterialItem, context: ItemContext) {
-    // Not built yet: dimmed, unless I can build it right now (I have the resources, the gold and the land, rulebook
-    // p.7). Hovered: above its neighbours in the grid, in colour.
+    // Hovered: above its neighbours in the grid. A building that cannot be built now is darkened by a veil laid on the
+    // card (see VeilLocators). The "Not built" band is drawn on the card itself: it moves and turns with it, and fades out
+    // when it gets built.
     const unbuilt = item.location.type === LocationType.PlayerBuildingHand
-    const dimmed = unbuilt && !this.canBuildNow(context)
-    // The "Not built" band is drawn on the card itself: it moves and turns with it, and fades out when it gets built
     const band = !isWarView(context) && unbuiltBandCss(i18next.t('building.unbuilt', 'Not built'))
-    return [hoverAboveCss, hoveredItemMenuAboveCss, veilCss, dimmed && dimmedCss, band, band && !unbuilt && builtCss]
-  }
-
-  /** During my construction, a legal move builds this building */
-  canBuildNow(context: ItemContext) {
-    if (context.rules.game.rule?.id !== RuleId.Build || context.player === undefined) return false
-    return context.rules
-      .getLegalMoves(context.player)
-      .some((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index)
+    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && !unbuilt && builtCss]
   }
 
   menuAlwaysVisible = true
@@ -103,33 +93,6 @@ export class BuildingCardDescription extends CardDescription {
 const hoverAboveCss = css`
   &:hover {
     z-index: 100;
-  }
-`
-
-// A veil over the front face rather than a filter: a filter opens a stacking context that would flatten the 3D lift
-// of the hovered card under its neighbours
-// The veil is always there and only its opacity changes, so that a building lights up smoothly when it gets built
-const veilCss = css`
-  > * > *:first-of-type::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: rgba(40, 32, 24, 0.62);
-    opacity: 0;
-    transition: opacity 0.6s;
-    pointer-events: none;
-  }
-`
-
-const dimmedCss = css`
-  > * > *:first-of-type::before {
-    opacity: 1;
-  }
-
-  /* The framework turns off the pointer events of the card itself: its hover is read on the item display around it */
-  *:hover > & > * > *:first-of-type::before {
-    opacity: 0;
   }
 `
 

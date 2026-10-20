@@ -17,6 +17,7 @@ import { playerUnitHandLocator } from './PlayerUnitHandLocator'
 import { scoreBoardLocator } from './ScoreBoardLocator'
 import { scoreTokenLocator } from './ScoreTokenLocator'
 import { shieldLocator } from './ShieldLocator'
+import { buildingVeilLocator, unitVeilLocator } from './VeilLocators'
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
   [LocationType.Deck]: unitDeckLocator,
@@ -33,5 +34,7 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.PlayerScore]: scoreTokenLocator,
   [LocationType.OnCard]: onCardLocator,
   [LocationType.ShieldIcon]: shieldLocator,
-  [LocationType.DraftTransit]: draftTransitLocator
+  [LocationType.DraftTransit]: draftTransitLocator,
+  [LocationType.UnitVeil]: unitVeilLocator,
+  [LocationType.BuildingVeil]: buildingVeilLocator
 }

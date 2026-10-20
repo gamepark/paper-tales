@@ -12,11 +12,13 @@ type PaperMenuButtonProps = ItemButtonProps &
 
 /**
  * The menu buttons of the cards, in cut paper: a dark ink disc with a cream ring and an offset shadow, holding a paper
- * icon, and its label on a torn slip of paper.
+ * icon, and its label on a torn slip of paper. The label is drawn here, among the children of the button, rather than
+ * given to the framework, whose label has a look of its own.
  */
-export const PaperMenuButton: FC<PaperMenuButtonProps> = ({ children, level, ...props }) => (
+export const PaperMenuButton: FC<PaperMenuButtonProps> = ({ children, level, label, labelPosition = 'right', ...props }) => (
   <ItemMenuButton css={discCss} {...props}>
     {children}
+    {label && <span css={[labelCss, labelPosition === 'left' ? labelLeftCss : labelRightCss]}>{label}</span>}
     {level !== undefined && <LevelBadge level={level} />}
   </ItemMenuButton>
 )
@@ -63,28 +65,42 @@ const discCss = css`
     margin-top: -0.12em;
     filter: drop-shadow(0.22em 0.3em 0 #00000059);
   }
+`
 
-  /* The label, on a torn slip of paper tucked behind the disc */
-  > span:last-of-type:not([data-level]) {
-    z-index: -2;
-    isolation: isolate;
-    background: none;
-    color: ${cutLine};
-    font-family: ${paperFont};
-    font-weight: 800;
-    font-size: 0.85em;
-    padding: 0.2em 0.6em 0.1em 1em;
-    filter: drop-shadow(0.12em 0.16em 0 #00000059);
+/** The label, on a torn slip of paper tucked behind the disc */
+const labelCss = css`
+  position: absolute;
+  top: 50%;
+  white-space: nowrap;
+  z-index: -2;
+  isolation: isolate;
+  background: none;
+  color: ${cutLine};
+  font-family: ${paperFont};
+  font-weight: 800;
+  font-size: 0.85em;
+  padding: 0.2em 0.6em 0.1em 1em;
+  filter: drop-shadow(0.12em 0.16em 0 #00000059);
 
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background: ${paper};
-      clip-path: ${tornClip};
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: ${paper};
+    clip-path: ${tornClip};
   }
+`
+
+const labelRightCss = css`
+  right: 0.2em;
+  transform: translate(100%, -50%) translateZ(-0.1em);
+`
+
+const labelLeftCss = css`
+  left: 0.2em;
+  padding: 0.2em 1em 0.1em 0.6em;
+  transform: translate(-100%, -50%) translateZ(-0.1em);
 `
 
 const levelCss = css`

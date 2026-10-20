@@ -1,8 +1,5 @@
-import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
@@ -113,13 +110,8 @@ export class UnitCardDescription extends CardDescription {
   help = UnitHelp
   helpDisplay = BookHelpDisplay
 
-  getItemExtraCss(item: MaterialItem, context: ItemContext) {
-    // The discard is face down like the deck (rulebook p.3): darkened to tell them apart.
-    // In the neighbours view, the back row is shaded: only the front row fights (p.6).
-    if (item.location.type === LocationType.Discard) return [discardCss]
-    if (item.location.type === LocationType.PlayerUnitBoard && item.location.y === 1 && isWarView(context) && !fightsFromBackRow(item)) {
-      return [hoveredItemMenuAboveCss, backRowCss]
-    }
+  // The discard and the back row of a war are darkened by a veil laid on the card (see VeilLocators)
+  getItemExtraCss() {
     return [hoveredItemMenuAboveCss]
   }
 
@@ -172,37 +164,5 @@ export class UnitCardDescription extends CardDescription {
   }
 }
 
-/** A unit of the back row that still fights (rulebook p.6, the ranged units): not shaded in the neighbours view */
-const fightsFromBackRow = (item: MaterialItem) => item.id !== undefined && (unitCardCaracteristics[item.id as Unit].effect ?? []).some(isWarFromBacklane)
-
-const backRowCss = css`
-  > * > *:first-of-type::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: rgba(40, 32, 24, 0.45);
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-
-  /* Hovered, the card is read in full colour. The framework turns off the pointer events of the card itself: its hover
-     is read on the item display around it */
-  *:hover > & > * > *:first-of-type::before {
-    opacity: 0;
-  }
-`
-
-// A veil on the faces, not a filter: a filter flattens the 3D of the card, and the back (turned with rotateY) vanished
-const discardCss = css`
-  > * > *::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: rgba(40, 32, 24, 0.4);
-    pointer-events: none;
-  }
-`
 
 export const unitCardDescription = new UnitCardDescription()
