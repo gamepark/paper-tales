@@ -1,4 +1,4 @@
-import { Building, buildings } from '@gamepark/paper-tales/material/Building'
+import { Building } from '@gamepark/paper-tales/material/Building'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
@@ -6,6 +6,7 @@ import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext } from '@gamepark/react-game'
 import { Coordinates, MaterialMoveBuilder, XYCoordinates } from '@gamepark/rules-api'
+import { uniq } from 'es-toolkit/compat'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import { unitCardDescription } from '../material/UnitCardDescription'
 
@@ -19,7 +20,7 @@ import { unitCardDescription } from '../material/UnitCardDescription'
  * - Right: the turn counter, the deck, the discard and the reserves.
  *
  * A player area (rulebook p.4): the kingdom (2 slots at the front, 2 at the back, a 5th at the front once a level 2
- * building is in play), a fixed grid of the 5 buildings at its right (greyed out until built), and, in my area only, my
+ * building is in play), a fixed grid of the buildings at its right (greyed out until built), and, in my area only, my
  * hands and my gold below the kingdom.
  */
 
@@ -43,11 +44,9 @@ const KINGDOM_COLUMN = unitCardDescription.width + 0.5
 const KINGDOM_ROW = unitCardDescription.height + 0.5
 export const KINGDOM_WIDTH = KINGDOM_COLUMN * 3 - 0.5
 export const KINGDOM_HEIGHT = KINGDOM_ROW * 2 - 0.5
-export const BUILDING_SCALE = 0.85
 const BUILDINGS_X = AREA_X + KINGDOM_WIDTH + 2.4
-const BUILDING_COLUMN = buildingCardDescription.width * BUILDING_SCALE + 1
-const BUILDING_ROW = buildingCardDescription.height * BUILDING_SCALE + 0.9
-export const AREA_RIGHT = BUILDINGS_X + BUILDING_COLUMN * 2 - 1
+const BUILDING_COLUMN_GAP = 1
+const BUILDING_ROW_GAP = 0.9
 const HANDS_Y = AREA_Y + KINGDOM_HEIGHT + 2.8 + unitCardDescription.height / 2
 // Hands row under the kingdom: the draft fan at the left, the kept hand at its right (deployment: the whole hand there)
 // The fan of 5 to 9 cards spreads to its left: centred far enough from the panels that its first card stays clear of them
@@ -310,14 +309,29 @@ export const getKingdomSlotCoordinates = (context: MaterialContext, player: numb
   return { x: seat.kingdomX + localX * seat.scale, y: seat.y + localY * seat.scale }
 }
 
+/** The buildings of the game, the same for every Monarch (5, or 7 with the expansions), in the order of the enum */
+const getGameBuildings = (context: MaterialContext): Building[] =>
+  uniq(context.rules.material(MaterialType.Building).getItems<Building>().map((building) => building.id)).sort((a, b) => a - b)
+
 /**
- * Every building has a fixed slot in a grid of 2 columns, built or not
+ * The grid of the buildings at the right of the kingdom: 2 columns for the 5 buildings of the base game, as high as the
+ * kingdom; 3 columns of smaller cards for the 7 of the expansions, so that they stay above the hands
  */
-export const getBuildingSlotCoordinates = (building: Building): Coordinates => {
-  const index = buildings.indexOf(building)
+const getBuildingGrid = (context: MaterialContext) => (getGameBuildings(context).length > 6 ? { scale: 0.68, columns: 3 } : { scale: 0.85, columns: 2 })
+
+export const getBuildingScale = (context: MaterialContext) => getBuildingGrid(context).scale
+
+/**
+ * Every building has a fixed slot in the grid, built or not
+ */
+export const getBuildingSlotCoordinates = (context: MaterialContext, building: Building): Coordinates => {
+  const { scale, columns } = getBuildingGrid(context)
+  const index = getGameBuildings(context).indexOf(building)
+  const width = buildingCardDescription.width * scale
+  const height = buildingCardDescription.height * scale
   return {
-    x: BUILDINGS_X + (buildingCardDescription.width * BUILDING_SCALE) / 2 + (index % 2) * BUILDING_COLUMN,
-    y: AREA_Y + (buildingCardDescription.height * BUILDING_SCALE) / 2 + Math.floor(index / 2) * BUILDING_ROW,
+    x: BUILDINGS_X + width / 2 + (index % columns) * (width + BUILDING_COLUMN_GAP),
+    y: AREA_Y + height / 2 + Math.floor(index / columns) * (height + BUILDING_ROW_GAP),
     // Each building at its own height, so that a hovered one is not drawn under its neighbours at the same depth
     z: 0.1 + index * 0.1
   }

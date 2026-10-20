@@ -113,7 +113,6 @@ const deployed = (rules: PaperTalesRules, revealed: Partial<Record<PlayerColor, 
 
 const runDeployEffects = (rules: PaperTalesRules) => run(rules, rules.startSimultaneousRule(RuleId.DeployEffects), RuleId.War)
 const runWar = (rules: PaperTalesRules) => run(rules, rules.startRule(RuleId.War), RuleId.Income)
-const runIncome = (rules: PaperTalesRules) => run(rules, rules.startRule(RuleId.Income), RuleId.Build)
 const runAge = (rules: PaperTalesRules) => run(rules, rules.startRule(RuleId.AgeEffects), RuleId.NextTurn)
 
 const customMoves = (rules: PaperTalesRules, player: PlayerColor, type: CustomMoveType) =>

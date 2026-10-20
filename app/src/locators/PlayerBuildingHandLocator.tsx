@@ -2,7 +2,7 @@ import { Building } from '@gamepark/paper-tales/material/Building'
 import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
-import { BUILDING_SCALE, getBuildingSlotCoordinates, getHoverShift, getPlayerPositionDependencies, isBuildingsDisplayed, scaleTransform } from './TableLayout'
+import { getBuildingScale, getBuildingSlotCoordinates, getHoverShift, getPlayerPositionDependencies, isBuildingsDisplayed, scaleTransform } from './TableLayout'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 
 /**
@@ -13,8 +13,8 @@ export class PlayerBuildingHandLocator extends Locator {
     return getPlayerPositionDependencies(context)
   }
 
-  getItemCoordinates(item: MaterialItem) {
-    return getBuildingSlotCoordinates(item.id as Building)
+  getItemCoordinates(item: MaterialItem, context: ItemContext) {
+    return getBuildingSlotCoordinates(context, item.id as Building)
   }
 
   hide(item: MaterialItem, context: ItemContext) {
@@ -22,12 +22,13 @@ export class PlayerBuildingHandLocator extends Locator {
   }
 
   placeItem(item: MaterialItem, context: ItemContext) {
-    return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...scaleTransform(BUILDING_SCALE)])
+    return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...scaleTransform(getBuildingScale(context))])
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
-    const { x, y } = getBuildingSlotCoordinates(item.id as Building)
-    const shift = getHoverShift({ x, y, width: buildingCardDescription.width * BUILDING_SCALE, height: buildingCardDescription.height * BUILDING_SCALE, zoom: 1.8 })
+    const { x, y } = getBuildingSlotCoordinates(context, item.id as Building)
+    const scale = getBuildingScale(context)
+    const shift = getHoverShift({ x, y, width: buildingCardDescription.width * scale, height: buildingCardDescription.height * scale, zoom: 1.8 })
     return ['translateZ(30em)', `rotateZ(${-this.getItemRotateZ(item, context)}${this.rotationUnit})`, 'scale(1.8)', ...shift]
   }
 }

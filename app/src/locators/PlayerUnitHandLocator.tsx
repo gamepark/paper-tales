@@ -1,3 +1,4 @@
+import { isUnit } from '@gamepark/paper-tales/material/Artifact'
 import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
 import { DropAreaDescription, HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
@@ -47,7 +48,8 @@ export class PlayerUnitHandLocator extends HandLocator {
       .location(item.location.type)
       .player(item.location.player)
       .sort(
-        (card) => (card.id === undefined ? Infinity : unitCardCaracteristics[card.id].cost),
+        // The Legendary Artifacts after the units: their cost depends on the ones already deployed
+        (card) => (isUnit(card.id) ? unitCardCaracteristics[card.id].cost : Infinity),
         (card) => card.id ?? Infinity
       )
       .getIndexes()

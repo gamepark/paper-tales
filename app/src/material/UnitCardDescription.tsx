@@ -1,4 +1,5 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { Artifact } from '@gamepark/paper-tales/material/Artifact'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { MaterialItem, MaterialMove } from '@gamepark/rules-api'
@@ -46,6 +47,42 @@ import Treefolk from '../images/units/en/Treefolk.jpg'
 import Veteran from '../images/units/en/Veteran.jpg'
 import Woodcutter from '../images/units/en/Woodcutter.jpg'
 import WoodMerchant from '../images/units/en/WoodMerchant.jpg'
+import WizardApprentice from '../images/units/en/WizardApprentice.jpg'
+import Shadow from '../images/units/en/Shadow.jpg'
+import Imp from '../images/units/en/Imp.jpg'
+import Dryad from '../images/units/en/Dryad.jpg'
+import Smuggler from '../images/units/en/Smuggler.jpg'
+import Djinn from '../images/units/en/Djinn.jpg'
+import Princess from '../images/units/en/Princess.jpg'
+import HighSteward from '../images/units/en/HighSteward.jpg'
+import Noble from '../images/units/en/Noble.jpg'
+import LostSoul from '../images/units/en/LostSoul.jpg'
+import RelicOfWar from '../images/units/en/RelicOfWar.jpg'
+import RelicOfLight from '../images/units/en/RelicOfLight.jpg'
+import Jeweler from '../images/units/en/Jeweler.jpg'
+import ServileMinion from '../images/units/en/ServileMinion.jpg'
+import CaveLizard from '../images/units/en/CaveLizard.jpg'
+import Pioneer from '../images/units/en/Pioneer.jpg'
+import WeaponMaster from '../images/units/en/WeaponMaster.jpg'
+import GoldDigger from '../images/units/en/GoldDigger.jpg'
+import WolfPack from '../images/units/en/WolfPack.jpg'
+import Trapper from '../images/units/en/Trapper.jpg'
+import BannerBearer from '../images/units/en/BannerBearer.jpg'
+import RelicOfHarvest from '../images/units/en/RelicOfHarvest.jpg'
+import RelicOfFate from '../images/units/en/RelicOfFate.jpg'
+import WarMusician from '../images/units/en/WarMusician.jpg'
+import Scribe from '../images/units/en/Scribe.jpg'
+import CourtJester from '../images/units/en/CourtJester.jpg'
+import Titan from '../images/units/en/Titan.jpg'
+import LuxuriantGrove from '../images/units/en/LuxuriantGrove.jpg'
+import HornOfPlenty from '../images/units/en/HornOfPlenty.jpg'
+import ElementalScepter from '../images/units/en/ElementalScepter.jpg'
+import CursedCrown from '../images/units/en/CursedCrown.jpg'
+import ShieldOfPower from '../images/units/en/ShieldOfPower.jpg'
+import SwordOfGlory from '../images/units/en/SwordOfGlory.jpg'
+import WarChest from '../images/units/en/WarChest.jpg'
+import BottomlessPurse from '../images/units/en/BottomlessPurse.jpg'
+import MedallionOfLife from '../images/units/en/MedallionOfLife.jpg'
 import { isWarView } from '../locators/TableLayout'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { UnitActionLabel } from './actions/UnitActionLabel'
@@ -104,7 +141,43 @@ export class UnitCardDescription extends CardDescription {
     [Unit.Treefolk]: Treefolk,
     [Unit.Veteran]: Veteran,
     [Unit.Woodcutter]: Woodcutter,
-    [Unit.WoodMerchant]: WoodMerchant
+    [Unit.WoodMerchant]: WoodMerchant,
+    [Unit.WizardApprentice]: WizardApprentice,
+    [Unit.Shadow]: Shadow,
+    [Unit.Imp]: Imp,
+    [Unit.Dryad]: Dryad,
+    [Unit.Smuggler]: Smuggler,
+    [Unit.Djinn]: Djinn,
+    [Unit.Princess]: Princess,
+    [Unit.HighSteward]: HighSteward,
+    [Unit.Noble]: Noble,
+    [Unit.LostSoul]: LostSoul,
+    [Unit.RelicOfWar]: RelicOfWar,
+    [Unit.RelicOfLight]: RelicOfLight,
+    [Unit.Jeweler]: Jeweler,
+    [Unit.ServileMinion]: ServileMinion,
+    [Unit.CaveLizard]: CaveLizard,
+    [Unit.Pioneer]: Pioneer,
+    [Unit.WeaponMaster]: WeaponMaster,
+    [Unit.GoldDigger]: GoldDigger,
+    [Unit.WolfPack]: WolfPack,
+    [Unit.Trapper]: Trapper,
+    [Unit.BannerBearer]: BannerBearer,
+    [Unit.RelicOfHarvest]: RelicOfHarvest,
+    [Unit.RelicOfFate]: RelicOfFate,
+    [Unit.WarMusician]: WarMusician,
+    [Unit.Scribe]: Scribe,
+    [Unit.CourtJester]: CourtJester,
+    [Unit.Titan]: Titan,
+    [Artifact.LuxuriantGrove]: LuxuriantGrove,
+    [Artifact.HornOfPlenty]: HornOfPlenty,
+    [Artifact.ElementalScepter]: ElementalScepter,
+    [Artifact.CursedCrown]: CursedCrown,
+    [Artifact.ShieldOfPower]: ShieldOfPower,
+    [Artifact.SwordOfGlory]: SwordOfGlory,
+    [Artifact.WarChest]: WarChest,
+    [Artifact.BottomlessPurse]: BottomlessPurse,
+    [Artifact.MedallionOfLife]: MedallionOfLife
   }
 
   help = UnitHelp

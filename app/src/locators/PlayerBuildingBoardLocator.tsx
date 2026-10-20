@@ -3,7 +3,7 @@ import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import {
-  BUILDING_SCALE,
+  getBuildingScale,
   getBuildingSlotCoordinates,
   getHoverShift,
   getKingdomScale,
@@ -27,7 +27,7 @@ export class PlayerBuildingBoardLocator extends Locator {
 
   getItemCoordinates(item: MaterialItem, context: ItemContext) {
     if (isWarView(context)) return getWarBuildingCoordinates(context, item.location.player, item.location.y ?? 0)
-    return getBuildingSlotCoordinates(item.id as Building)
+    return getBuildingSlotCoordinates(context, item.id as Building)
   }
 
   hide(item: MaterialItem, context: ItemContext) {
@@ -35,14 +35,14 @@ export class PlayerBuildingBoardLocator extends Locator {
   }
 
   placeItem(item: MaterialItem, context: ItemContext) {
-    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : BUILDING_SCALE
+    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : getBuildingScale(context)
     return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...scaleTransform(scale)])
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
     const { x, y } = this.getItemCoordinates(item, context)
     const zoom = isWarView(context) ? 2.2 : 1.8
-    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : BUILDING_SCALE
+    const scale = isWarView(context) ? getKingdomScale(context, item.location.player) : getBuildingScale(context)
     const shift = getHoverShift({
       x,
       y,
