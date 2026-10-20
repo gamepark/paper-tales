@@ -5,31 +5,42 @@ import { PaperTalesOptions } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { useRules } from '@gamepark/react-game'
 import { uniq } from 'es-toolkit/compat'
+import { artifacts as artifactIds } from '@gamepark/paper-tales/material/Artifact'
+import { beyondTheGatesUnits, whatForgesLegendsUnits } from '@gamepark/paper-tales/material/Unit'
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { rust, tornClip } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
+import { ExpansionCards } from './ExpansionCards'
 import { helpIconComponents } from './book/helpIconComponents'
 
 /**
  * The rules of the expansions played (rulebook of the complete edition, p.9 to 12): what they add to the game, how the
- * buildings of this game were drawn, the Legendary Artifacts, and the clarifications of the new cards.
+ * buildings of this game were drawn, the Legendary Artifacts, and the clarifications of the new cards. The new cards are
+ * shown under their expansion: a click opens their help.
  */
 export const ExpansionRulesHelp: FC = () => {
   const { t } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const options = (rules.game.options ?? {}) as PaperTalesOptions
-  const buildings = uniq(rules.material(MaterialType.Building).getItems<Building>().map((building) => building.id)).sort((a, b) => a - b)
+  const buildings = uniq(
+    rules
+      .material(MaterialType.Building)
+      .getItems<Building>()
+      .map((building) => building.id)
+  ).sort((a, b) => a - b)
   const names = (list: Building[]) => list.map((building) => t(`building.${building}`)).join(', ')
   const drawn = buildings.filter((building) => !(options.beyondTheGatesBuildings ? permanentBuildings : baseGameBuildings).includes(building))
   const artifacts = !!options.whatForgesLegends
-  const lines = (keys: [string, string][]) => keys.map(([key, defaults]) => <Trans key={key} i18nKey={key} defaults={defaults} components={helpIconComponents} />)
+  const lines = (keys: [string, string][]) =>
+    keys.map(([key, defaults]) => <Trans key={key} i18nKey={key} defaults={defaults} components={helpIconComponents} />)
 
   return (
     <BookPage name={t('expansions.name', 'The expansions of this game')}>
       {(options.beyondTheGatesUnits || options.beyondTheGatesBuildings) && (
-        <Section title={t('expansions.btg', 'Beyond the gates')}>
-          {lines([
+        <Section
+          title={t('expansions.btg', 'Beyond the gates')}
+          items={lines([
             ...(options.beyondTheGatesUnits ? [['expansions.btg.units', 'Its 20 new Unit cards are in the deck.'] as [string, string]] : []),
             ...(options.beyondTheGatesBuildings
               ? [
@@ -40,27 +51,46 @@ export const ExpansionRulesHelp: FC = () => {
                 ]
               : [])
           ])}
+        >
+          {options.beyondTheGatesUnits && <ExpansionCards type={MaterialType.Unit} ids={beyondTheGatesUnits} />}
         </Section>
       )}
       {artifacts && (
-        <Section title={t('expansions.wfl', 'What forges legends')}>
-          {lines([
+        <Section
+          title={t('expansions.wfl', 'What forges legends')}
+          items={lines([
             ['expansions.wfl.cards', 'Its 26 new Unit cards and its 18 Legendary Artifacts are shuffled into the deck.'],
             ...(options.beyondTheGatesBuildings
               ? []
-              : [['expansions.wfl.buildings', 'Buildings: 2 drawn at random among the Inn, the Sawmill and the Royal Palace are added to the 5 of the base game.'] as [string, string]])
+              : [
+                  [
+                    'expansions.wfl.buildings',
+                    'Buildings: 2 drawn at random among the Inn, the Sawmill and the Royal Palace are added to the 5 of the base game.'
+                  ] as [string, string]
+                ])
           ])}
+        >
+          <ExpansionCards type={MaterialType.Unit} ids={whatForgesLegendsUnits} />
         </Section>
       )}
       {drawn.length > 0 && (
-        <p css={drawnCss}>
-          {t('expansions.drawn', { defaultValue: 'Drawn for this game: {buildings}. Every Monarch has the same {count} Buildings.', buildings: names(drawn), count: buildings.length })}
-        </p>
+        <div css={drawnCss}>
+          {t('expansions.drawn', {
+            defaultValue: 'Drawn for this game: {buildings}. Every Monarch has the same {count} Buildings.',
+            buildings: names(drawn),
+            count: buildings.length
+          })}
+          <ExpansionCards type={MaterialType.Building} ids={drawn} />
+        </div>
       )}
       {artifacts && (
-        <Section title={t('expansions.artifacts', 'Legendary Artifacts')}>
-          {lines([
-            ['expansions.artifacts.recruit', 'They are recruited exactly as the Units, and the card kept for the next turn can be an Artifact (still a single card).'],
+        <Section
+          title={t('expansions.artifacts', 'Legendary Artifacts')}
+          items={lines([
+            [
+              'expansions.artifacts.recruit',
+              'They are recruited exactly as the Units, and the card kept for the next turn can be an Artifact (still a single card).'
+            ],
             [
               'expansions.artifacts.deploy',
               'They are deployed at the same time as the Units, face down, apart from them (at the right of your Buildings). No limit: they do not count among the 4 (then 5) spots of the Units.'
@@ -73,10 +103,13 @@ export const ExpansionRulesHelp: FC = () => {
             ['expansions.artifacts.age', 'They never age: no <age/> on them, they stay in play until the end of the game.'],
             ['expansions.artifacts.end', 'At the end of the game, add the <pl/> printed on each of your Artifacts.']
           ])}
+        >
+          <ExpansionCards type={MaterialType.Unit} ids={artifactIds} />
         </Section>
       )}
-      <Section title={t('expansions.clarifications', 'Clarifications of the cards')}>
-        {lines([
+      <Section
+        title={t('expansions.clarifications', 'Clarifications of the cards')}
+        items={lines([
           ...((options.beyondTheGatesUnits
             ? [
                 ['expansions.clar.shadow', 'Shadow: it can apply again the effects of a Unit deployed this same turn.'],
@@ -99,20 +132,22 @@ export const ExpansionRulesHelp: FC = () => {
               ]
             : []) as [string, string][])
         ])}
-      </Section>
+      />
     </BookPage>
   )
 }
 
-const Section: FC<{ title: ReactNode; children: ReactNode[] }> = ({ title, children }) =>
-  children.length ? (
+/** A part of the rules: its title, its rules one per line, then the cards it is about */
+const Section: FC<{ title: ReactNode; items: ReactNode[]; children?: ReactNode }> = ({ title, items, children }) =>
+  items.length ? (
     <section css={sectionCss}>
       <h4 css={titleCss}>{title}</h4>
       <ul css={listCss}>
-        {children.map((child, index) => (
-          <li key={index}>{child}</li>
+        {items.map((item, index) => (
+          <li key={index}>{item}</li>
         ))}
       </ul>
+      {children}
     </section>
   ) : null
 
