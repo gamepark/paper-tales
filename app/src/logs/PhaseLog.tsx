@@ -11,7 +11,6 @@ import { phaseIcons } from '../material/help/book/phaseIcons'
 import { teal } from '../theme/journal'
 import { cutLine } from '../theme/tableTheme'
 import { asideCss, phaseBannerCss } from './logs.css'
-import { WarDuels } from './WarLog'
 
 /** The colours of the arrow banners of the rulebook, by phase (p.5 to 8) */
 const bannerColors = ['#5a8a6a', teal, '#b5481f', '#7b4a24', '#7b4a24', '#3f8f99']
@@ -63,6 +62,7 @@ export const RecruitPhaseSetupLog: FC<{ game: MaterialGame }> = ({ game }) => <R
 export const DeployPhaseLog: FC<MaterialLogProps> = () => <PhaseBanner phase={1} />
 export const IncomePhaseLog: FC<MaterialLogProps> = () => <PhaseBanner phase={3} />
 export const BuildPhaseLog: FC<MaterialLogProps> = () => <PhaseBanner phase={4} />
+export const WarPhaseLog: FC<MaterialLogProps> = () => <PhaseBanner phase={2} />
 export const AgePhaseLog: FC<MaterialLogProps> = () => <PhaseBanner phase={5} />
 
 /** The end of the game: the points of the buildings, the relics and the Legendary Artifacts are added (rulebook p.8) */
@@ -70,11 +70,3 @@ export const EndPhaseLog: FC<MaterialLogProps> = () => {
   const { t } = useTranslation()
   return <Banner color={cutLine} icon={legendScroll} label={t('log.end', 'Final scoring')} />
 }
-
-/** The wars begin: the banner, then each war with both strengths and who wins */
-export const WarPhaseLog: FC<MaterialLogProps> = ({ context }) => (
-  <>
-    <PhaseBanner phase={2} />
-    <WarDuels game={context.game} />
-  </>
-)

@@ -19,11 +19,11 @@ import { BuildLog, NoBuildLog } from './BuildLog'
 import { AgeTokenLog, DeckRefillLog, DeployLog, DrawnLog, MovedAgeTokenLog, NothingDeployedLog, ReactivateLog, RemovedUnitLog } from './DeployLog'
 import { GoldLog } from './GoldLog'
 import { cardAt, goldGainTold, isAgeTokenOf, isGoldGain, isRevealOf, LogContext, nothingDeployed, runFrom } from './logHelpers'
-import { phaseLogCss, turnLogCss } from './logs.css'
+import { blockEntryCss, phaseLogCss, turnLogCss } from './logs.css'
 import { AgePhaseLog, BuildPhaseLog, DeployPhaseLog, EndPhaseLog, IncomePhaseLog, RecruitPhaseLog, RecruitPhaseSetupLog, WarPhaseLog } from './PhaseLog'
 import { EndScoreLog, ScoreLog } from './ScoreLog'
 import { FirstTurnLog, TurnLog } from './TurnLog'
-import { WarWonLog } from './WarLog'
+import { WarOutcomeLog } from './WarLog'
 
 /**
  * The journal of the game as a page of the rulebook (validated mockup docs/mockups/journal3.html): the turn with its
@@ -94,8 +94,10 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
     if (isCustomMoveType(CustomMoveType.SaveNobody)(move)) return { Component: SaveNobodyLog }
     // A pass is the action of the Monarch; after a construction, the end of the turn is its consequence
     if (isEndPlayerTurn(move) && rule === RuleId.Build && context.consequenceIndex === undefined) return { Component: NoBuildLog }
+    // The wars of each Monarch, with what they earn there: the points and the gold of the wars are not told apart
+    if (isCustomMoveType(CustomMoveType.WarOutcome)(move)) return { Component: WarOutcomeLog, css: blockEntryCss }
     if (isMoveItemType(MaterialType.ScoreToken)(move)) {
-      if (rule === RuleId.War) return { Component: WarWonLog }
+      if (rule === RuleId.War) return
       return { Component: rule === RuleId.EndGame ? EndScoreLog : ScoreLog }
     }
     if (isGoldGain(move)) {

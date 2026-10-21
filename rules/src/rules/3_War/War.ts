@@ -26,6 +26,7 @@ import { BuildHelper } from '../helpers/BuildHelper'
 import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 import { Memory } from '../Memory'
+import { CustomMoveType } from '../CustomMoveType'
 import { RuleId } from '../RuleId'
 import { AgeTokens } from '../helpers/AgeTokens'
 import { KingdomHelper } from '../helpers/KingdomHelper'
@@ -53,6 +54,8 @@ export class War extends MaterialRulesPart {
       const buildHelper = new BuildHelper(this.game, player)
       const scoreHelper = new ScoreHelper(this.game, player)
       const warsWon = this.getWarsWon(player)
+
+      moves.push(this.customMove(CustomMoveType.WarOutcome, player))
 
       let warScoring = 3 * warsWon
 

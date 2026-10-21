@@ -10,7 +10,12 @@ export enum CustomMoveType {
   /** The unit whose "when revealed" effects the Shadow applies again */
   ReactivateUnit,
   /** The Titan builds a building drawn at random (randomized by the server, see PaperTalesRules.randomize) */
-  BuildRandomBuilding
+  BuildRandomBuilding,
+  /**
+   * The outcome of the wars of a Monarch, before what they earn: changes nothing, it gives every Monarch, even one who
+   * earns nothing, a line of the journal (see War)
+   */
+  WarOutcome
 }
 
 export type GainAgeTokenOnChosenUnitEffect = {

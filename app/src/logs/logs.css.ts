@@ -36,6 +36,11 @@ export const phaseLogCss = css`
 
 `
 
+/** An entry laid out by its line itself, at the width of the slip (the wars of a Monarch) */
+export const blockEntryCss = css`
+  display: block;
+`
+
 export const phaseBannerCss = (color: string) => css`
   display: inline-flex;
   align-items: center;

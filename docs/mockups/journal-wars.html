@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Journal — les guerres</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mulish:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #4a4540; --rust: #b5481f; --rust-deep: #8f3816; --teal: #2a7f86; --paper: #f4efe7; --muted: #6b6058;
+    --slip: #ffffff8c; --win: #2f7a43;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #3b2a1e; font-family: 'Mulish', sans-serif; color: var(--ink); }
+  h1 { margin: 0 0 4px; color: #f6ece6; font: 800 26px 'Baloo 2', sans-serif; }
+  .intro { margin: 0 0 18px; color: #f6ece6b0; font-size: 14px; max-width: 70em; }
+  .board { display: grid; grid-template-columns: repeat(5, 440px); gap: 20px; align-items: start; }
+  .col > h2 { margin: 0 0 2px; color: #f6ece6; font: 800 18px 'Baloo 2', sans-serif; }
+  .col > p { margin: 0 0 8px; color: #f6ece6a0; font-size: 12.5px; line-height: 1.4; min-height: 52px; }
+
+  /* The journal page: the paper of the panel, its diamond pattern, the lines of 1.5em at 10px = 15px */
+  .page {
+    padding: 10px 0 14px; border-radius: 4px; font-size: 10px;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(135deg, #ffffff66 25%, transparent 25%), linear-gradient(225deg, #ffffff66 25%, transparent 25%),
+      linear-gradient(45deg, #e6dfd466 25%, transparent 25%), linear-gradient(315deg, #e6dfd466 25%, transparent 25%);
+    background-size: 3em 3em;
+  }
+  .entry { margin: 0.25em 0.7em 0 0.6em; padding: 0.3em 0.6em 0.3em 0.4em; border-radius: 0.3em; background: var(--slip);
+    box-shadow: 0 0.04em 0.08em #4a454026; font: 500 1.5em/1.35 'Mulish', sans-serif; display: flex; align-items: center; gap: 0.45em; }
+  .heading { margin: 0.5em 0.7em 0 0.6em; font-size: 1.5em; }
+  .banner { display: inline-flex; align-items: center; gap: 0.45em; padding: 0.15em 1em 0.1em 0.4em; background: #b5481f; color: #fff;
+    font: 800 0.95em 'Baloo 2', sans-serif; clip-path: polygon(0 0, calc(100% - 0.7em) 0, 100% 50%, calc(100% - 0.7em) 100%, 0 100%); border-radius: .15em 0 0 .15em; }
+  .banner img { height: 1.5em; }
+  .after { margin-top: 0.5em; }
+  .next .banner { background: #7b4a24; }
+
+  /* Monarch */
+  .av { position: relative; flex: none; width: 2.1em; height: 2.1em; border-radius: 50%; background: var(--c); overflow: hidden; }
+  .av::before { content: ''; position: absolute; left: 50%; top: 22%; width: 38%; height: 38%; translate: -50% 0; border-radius: 50%; background: #e9c39f; }
+  .av::after { content: ''; position: absolute; left: 50%; bottom: -18%; width: 78%; height: 52%; translate: -50% 0; border-radius: 50% 50% 0 0; background: #3c3c46; }
+  .av.sm { width: 1.5em; height: 1.5em; }
+  .name { font: 700 1em 'Baloo 2', sans-serif; color: var(--c); }
+  .nm { font-family: 'Baloo 2', sans-serif; font-weight: 700; color: var(--c); }
+
+  /* Icons with their value, as on the cards */
+  .ic { position: relative; display: inline-grid; place-items: center; flex: none; vertical-align: middle; }
+  .ic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .ic b { position: absolute; inset: 0; display: grid; place-items: center; font: 800 0.72em/1 'Baloo 2', sans-serif; }
+  .str { width: 1.35em; height: 1.5em; } .str b { color: #fff; padding-bottom: .12em; }
+  .pl { width: 1.6em; height: 1.6em; } .pl b { color: #fff; font-size: .85em; padding: 0 0 .1em .12em; text-shadow: -.06em 0 #7a4e0c, .06em 0 #7a4e0c, 0 -.06em #7a4e0c, 0 .09em #7a4e0c; }
+  .gd { width: 1.25em; height: 1.25em; } .gd b { color: #4a4540; font-size: .7em; }
+
+  /* A — current */
+  .a-duel { display: flex; flex-wrap: wrap; align-items: center; gap: .4em; margin: .3em 0 0 .6em; font-size: 1.38em; }
+  .a-duel .side { display: inline-flex; align-items: center; gap: .2em; font-weight: 700; }
+  .a-duel .vs { opacity: .5; } .a-duel .out { margin-left: .3em; color: var(--rust); font-weight: 700; }
+
+  /* B — one slip per Monarch */
+  .b { display: grid; grid-template-columns: auto 1fr auto; column-gap: .5em; row-gap: .1em; align-items: center; }
+  .b .av { grid-row: span 2; }
+  .b .top { display: flex; align-items: center; gap: .35em; }
+  .b .wars { display: flex; flex-wrap: wrap; gap: .25em .8em; font-size: .8em; color: var(--muted); }
+  .b .war { display: inline-flex; align-items: center; gap: .25em; }
+  .b .mark { font: 800 1.05em 'Baloo 2', sans-serif; width: 1em; text-align: center; }
+  .won .mark { color: var(--win); } .lost .mark { color: #a0948a; } .lost { opacity: .75; }
+  .b .gain { grid-row: span 2; display: flex; align-items: center; gap: .15em; font: 800 1.05em 'Baloo 2', sans-serif; color: var(--rust); }
+  .b .none { grid-row: span 2; font-style: italic; color: #a0948a; font-size: .85em; }
+  .b.zero { opacity: .8; }
+
+  /* C — the ring */
+  .ring { position: relative; margin: .4em .7em 0 .6em; }
+  .c-row { display: grid; grid-template-columns: auto 1fr auto auto; gap: .45em; align-items: center; padding: .28em .6em .28em .4em; border-radius: .3em;
+    background: var(--slip); box-shadow: 0 .04em .08em #4a454026; font: 500 1.5em/1.35 'Mulish', sans-serif; margin-left: 2.3em; }
+  .c-row .gain { display: flex; align-items: center; gap: .15em; font: 800 1em 'Baloo 2', sans-serif; color: var(--rust); }
+  .c-row .gain small { font: 500 .62em 'Mulish', sans-serif; color: var(--muted); }
+  .c-row .none { font-style: italic; color: #a0948a; font-size: .8em; }
+  .c-row .tally { font-size: .72em; color: var(--muted); white-space: nowrap; }
+  .link { position: relative; height: 1.9em; margin-left: 2.3em; }
+  .link .sw { position: absolute; left: -2.15em; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 1.9em; height: 1.9em;
+    border-radius: 50%; background: #b5481f; color: #fff; font: 800 1.1em 'Baloo 2', sans-serif; box-shadow: 0 .05em .1em #0003; }
+  .link .sw svg { width: 1.15em; height: 1.15em; }
+  .link .lbl { position: absolute; left: 0.2em; top: 50%; translate: 0 -50%; font: 700 1.2em 'Baloo 2', sans-serif; color: var(--rust); white-space: nowrap; }
+  .link .lbl.tie { color: var(--teal); }
+  .ring::before { content: ''; position: absolute; left: .95em; top: 1em; bottom: 1em; border-left: .14em dashed #b5481f66; }
+  .wrap-note { margin: .1em 0 0 2.5em; font: italic 500 1.2em 'Mulish', sans-serif; color: var(--muted); }
+
+  /* D — versus */
+  .vsx { margin: .3em .7em 0 .6em; display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; font-size: 1.4em; border-radius: .3em; overflow: hidden; box-shadow: 0 .04em .08em #4a454026; }
+  .vsx .h { display: flex; align-items: center; gap: .3em; padding: .25em .5em; background: color-mix(in srgb, var(--c) 14%, #fff8); }
+  .vsx .h.r { justify-content: flex-end; }
+  .vsx .h.lose { filter: grayscale(.7); opacity: .55; }
+  .vsx .h .crown { color: var(--rust); font: 800 .8em 'Baloo 2', sans-serif; }
+  .vsx .mid { display: grid; place-items: center; padding: 0 .35em; background: #b5481f; color: #fff; font: 800 .85em 'Baloo 2', sans-serif; }
+  .vsx .mid.tie { background: var(--teal); }
+  .ledger { margin: .5em .7em 0 .6em; padding: .3em .6em; border-radius: .3em; background: var(--slip); box-shadow: 0 .04em .08em #4a454026; font-size: 1.4em; }
+  .ledger .row { display: grid; grid-template-columns: 1.6em 1fr 5.2em 2.4em 2.2em; align-items: center; gap: .3em; padding: .12em 0; }
+  .ledger .row + .row { border-top: .06em dotted #4a454040; }
+  .ledger .w { font-size: .78em; color: var(--muted); text-align: right; }
+
+  /* E — the rulebook table */
+  .tbl { margin: .4em .7em 0 .6em; border-radius: .3em; background: var(--slip); box-shadow: 0 .04em .08em #4a454026; font-size: 1.35em; overflow: hidden; }
+  .tbl table { width: 100%; border-collapse: collapse; }
+  .tbl th { font: 700 .72em 'Baloo 2', sans-serif; color: var(--muted); padding: .35em .3em .15em; text-align: center; }
+  .tbl th:first-child { text-align: left; padding-left: .5em; }
+  .tbl td { padding: .2em .3em; text-align: center; border-top: .06em solid #4a454018; }
+  .tbl td:first-child { text-align: left; padding-left: .4em; }
+  .tbl .who { display: inline-flex; align-items: center; gap: .3em; }
+  .tbl .ok { color: var(--win); font: 800 1em 'Baloo 2', sans-serif; } .tbl .ko { color: #b8ada3; font: 800 1em 'Baloo 2', sans-serif; }
+  .tbl .vs { font-size: .7em; color: var(--muted); }
+  .tbl .gain { display: inline-flex; align-items: center; gap: .1em; }
+</style>
+</head>
+<body>
+<h1>Le journal : les guerres d'un tour (7 joueurs)</h1>
+<p class="intro">Même tour dans les cinq colonnes, à taille réelle, sur le papier du journal. Forces : Noir 8, Vert −2, Blanc 4, Jaune 1, Anonyme 2, Violet 3, Rouge 4 (voisins dans cet ordre, Rouge touche Noir). Blanc marque 2 points d'effets en plus de ses guerres, Noir gagne 2 or avec ses guerres.</p>
+<div class="board" id="board"></div>
+
+<script>
+const IMG = '../../app/src/images/icons/'
+const players = [
+  { n: 'Noir', c: '#1d1d1d', s: 8 }, { n: 'Vert', c: '#007a46', s: -2 }, { n: 'Blanc', c: '#8d8a86', s: 4 }, { n: 'Jaune', c: '#b88a00', s: 1 },
+  { n: 'Anonyme', c: '#1a5eaa', s: 2 }, { n: 'Violet', c: '#762583', s: 3 }, { n: 'Rouge', c: '#d0021b', s: 4 }
+]
+const gains = { Noir: { pl: 6, g: 2 }, Blanc: { pl: 8, fx: 2 }, Jaune: { pl: 2, fx: 2 }, Anonyme: { pl: 3 }, Violet: { pl: 3 }, Rouge: { pl: 3 } }
+const N = players.length
+const right = (i) => players[(i + 1) % N], left = (i) => players[(i - 1 + N) % N]
+const wins = (a, b) => a.s >= b.s
+const warsOf = (i) => [left(i), right(i)].filter((o) => wins(players[i], o)).length
+
+const str = (v) => `<span class="ic str"><img src="${IMG}strength.webp"><b>${v}</b></span>`
+const pl = (v) => `<span class="ic pl"><img src="${IMG}legend.webp"><b>${v}</b></span>`
+const gd = (v) => `<span class="ic gd"><img src="${IMG}gold-token.webp"><b>${v}</b></span>`
+const av = (p, sm) => `<span class="av${sm ? ' sm' : ''}" style="--c:${p.c}"></span>`
+const nm = (p) => `<span class="nm" style="--c:${p.c}">${p.n}</span>`
+const banner = `<div class="heading"><span class="banner"><img src="${IMG}phase3.webp">Guerres</span></div>`
+const next = `<div class="heading next after"><span class="banner"><img src="${IMG}phase4.webp">Revenus</span></div>`
+const plural = (k) => (k === 0 ? 'aucune guerre' : k === 1 ? '1 guerre' : `${k} guerres`)
+const swords = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M4 4l11 11M20 4L9 15M13 17l4 4M11 17l-4 4M15 13l4 4M9 13l-4 4"/></svg>`
+
+const col = (title, text, body) => `<div class="col"><h2>${title}</h2><p>${text}</p><div class="page">${body}</div></div>`
+
+// A — current
+let a = banner
+players.forEach((p, i) => {
+  const q = right(i), pw = wins(p, q), qw = wins(q, p)
+  const out = pw && qw ? 'Égalité : les deux gagnent' : pw ? `${p.n} gagne` : `${q.n} gagne`
+  a += `<div class="a-duel"><span class="side">${nm(p)}${str(p.s)}</span><span class="vs">–</span><span class="side">${nm(q)}${str(q.s)}</span><span class="out">${out}</span></div>`
+})
+players.forEach((p, i) => {
+  const g = gains[p.n]; if (!g) return
+  a += `<div class="entry">${av(p)}<span><span class="name" style="--c:${p.c}">${p.n}</span> gagne ${plural(warsOf(i))} : +${pl(g.pl)}${g.fx ? ` (dont ${pl(g.fx)} par les effets)` : ''}${g.g ? ` et ${gd(g.g)}` : ''}</span></div>`
+})
+
+// B — one slip per Monarch
+let b = banner
+players.forEach((p, i) => {
+  const g = gains[p.n]
+  const war = (o) => `<span class="war ${wins(p, o) ? 'won' : 'lost'}"><span class="mark">${wins(p, o) ? '✓' : '✗'}</span>${nm(o)} ${str(o.s)}</span>`
+  b += `<div class="entry b${g ? '' : ' zero'}">${av(p)}<span class="top"><span class="name" style="--c:${p.c}">${p.n}</span>${str(p.s)}</span>
+    ${g ? `<span class="gain">+${pl(g.pl)}${g.g ? gd(g.g) : ''}</span>` : `<span class="none">rien</span>`}
+    <span class="wars">${war(left(i))}${war(right(i))}${g?.fx ? `<span class="war">dont ${pl(g.fx)} d’effets</span>` : ''}</span></div>`
+})
+
+// C — the ring
+let c = banner + `<div class="ring">`
+players.forEach((p, i) => {
+  const g = gains[p.n], k = warsOf(i)
+  c += `<div class="c-row">${av(p)}<span><span class="name" style="--c:${p.c}">${p.n}</span></span>${str(p.s)}
+    ${g ? `<span class="gain">+${pl(g.pl)}${g.g ? gd(g.g) : ''}</span>` : `<span class="none">rien</span>`}</div>`
+  const q = right(i)
+  if (i < N - 1) {
+    const pw = wins(p, q), qw = wins(q, p)
+    const lbl = pw && qw ? `<span class="lbl tie">égalité, les deux gagnent</span>` : `<span class="lbl">${pw ? '▲ ' + p.n : '▼ ' + q.n} gagne</span>`
+    c += `<div class="link"><span class="sw">${swords}</span>${lbl}</div>`
+  }
+})
+const last = players[N - 1], first = players[0]
+c += `</div><div class="wrap-note">et ${last.n} contre ${first.n} : ${wins(first, last) ? first.n : last.n} gagne (la ronde se referme)</div>`
+
+// D — versus then ledger
+let d = banner
+players.forEach((p, i) => {
+  const q = right(i), pw = wins(p, q), qw = wins(q, p), tie = pw && qw
+  d += `<div class="vsx"><span class="h ${pw ? '' : 'lose'}" style="--c:${p.c}">${av(p, 1)}${nm(p)}${str(p.s)}</span>
+    <span class="mid ${tie ? 'tie' : ''}">${tie ? '=' : pw ? '◀' : '▶'}</span>
+    <span class="h r ${qw ? '' : 'lose'}" style="--c:${q.c}">${str(q.s)}${nm(q)}${av(q, 1)}</span></div>`
+})
+d += `<div class="ledger">`
+players.forEach((p, i) => {
+  const g = gains[p.n]
+  d += `<div class="row">${av(p, 1)}${nm(p)}<span class="w">${plural(warsOf(i))}</span><span>${g ? pl(g.pl) : ''}</span><span>${g?.g ? gd(g.g) : ''}</span></div>`
+})
+d += `</div>`
+
+// E — table
+let e = banner + `<div class="tbl"><table><tr><th>Monarque</th><th>Force</th><th>contre la gauche</th><th>contre la droite</th><th>Gains</th></tr>`
+players.forEach((p, i) => {
+  const g = gains[p.n]
+  const cell = (o) => `<span class="${wins(p, o) ? 'ok' : 'ko'}">${wins(p, o) ? '✓' : '✗'}</span> <span class="vs">${o.n} ${o.s}</span>`
+  e += `<tr><td><span class="who">${av(p, 1)}${nm(p)}</span></td><td>${str(p.s)}</td><td>${cell(left(i))}</td><td>${cell(right(i))}</td>
+    <td><span class="gain">${g ? pl(g.pl) : '–'}${g?.g ? gd(g.g) : ''}</span></td></tr>`
+})
+e += `</table></div>`
+
+document.getElementById('board').innerHTML =
+  col('A · Actuel', 'Un duel par ligne en petit, puis une ligne de gains par Monarque. Deux listes à recouper.', a + next) +
+  col('B · Fiche par Monarque', 'Chaque Monarque a sa bandelette : sa force, ses deux guerres (✓ gagnée, ✗ perdue, avec la force du voisin), ses gains à droite. Je me trouve et je sais tout.', b + next) +
+  col('C · La ronde', 'Les Monarques dans l’ordre de la table ; entre deux voisins, les épées et le vainqueur. Les gains au bout de chaque ligne. On lit la table comme un cercle.', c + next) +
+  col('D · Versus', 'Chaque guerre en face-à-face aux couleurs des Monarques, le perdant pâli, la flèche vers le vainqueur. Puis un registre des gains.', d + next) +
+  col('E · Tableau du livret', 'Une grille comme le décompte final : force, guerre contre chaque voisin, gains. Le plus compact.', e + next)
+</script>
+</body>
+</html>

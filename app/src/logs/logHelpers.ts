@@ -64,18 +64,17 @@ export const runFrom = <M extends MaterialMove>(context: LogContext, matches: (m
 export const goldGainTold = (move: CreateItem, context: LogContext): number | undefined =>
   runFrom(context, isGoldGainOf(move.item.location.player))?.reduce((gold, coins) => gold + goldValue(coins), 0)
 
-/** The gold a Monarch gains in the same phase as a log entry: the moves of the action between two changes of rule */
-export const goldGainedInPhase = (player: number, context: LogContext): number => {
+/** The next moves of the action after an entry, until one that matches or the next change of rule */
+export const nextMovesUntil = (context: LogContext, stop: (move: MaterialMove) => boolean): MaterialMove[] => {
   const { moves, position } = actionMoves(context)
-  let start = position
-  while (start > 0 && !isRuleChange(moves[start - 1])) start--
-  let gold = 0
-  for (let index = start; index < moves.length && !isRuleChange(moves[index]); index++) {
-    const move = moves[index]
-    if (isGoldGainOf(player)(move)) gold += goldValue(move as CreateItem)
-  }
-  return gold
+  const next: MaterialMove[] = []
+  for (let index = position + 1; index < moves.length && !stop(moves[index]) && !isRuleChange(moves[index]); index++) next.push(moves[index])
+  return next
 }
+
+/** The gold a Monarch gains in some moves */
+export const goldGainedIn = (moves: MaterialMove[], player: number): number =>
+  moves.filter(isGoldGainOf(player)).reduce((gold, coins) => gold + goldValue(coins), 0)
 
 /** A phase starts: a rule, a simultaneous rule or a player turn */
 const isRuleChange = (move: MaterialMove) => isStartRule(move) || isStartSimultaneousRule(move) || isStartPlayerTurn(move)
