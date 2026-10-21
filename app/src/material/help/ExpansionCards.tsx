@@ -1,16 +1,19 @@
 import { css } from '@emotion/react'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { MaterialComponent, PlayMoveButton, useMaterialDescription } from '@gamepark/react-game'
-import { MaterialMoveBuilder } from '@gamepark/rules-api'
+import { HelpDisplayType, HelpHistory, MaterialMoveBuilder } from '@gamepark/rules-api'
 import { FC, MouseEvent, useState } from 'react'
-import displayMaterialHelp = MaterialMoveBuilder.displayMaterialHelp
+import displayHelp = MaterialMoveBuilder.displayHelp
 
 /** How much a hovered card grows */
 const ZOOM = 3
 /** The room left between a grown card and the edge of the page that scrolls, in px */
 const MARGIN = 16
 
-/** The cards of an expansion, small, side by side: hovered, a card grows to be read; a click opens its help */
+/**
+ * The cards of an expansion, small, side by side: hovered, a card grows to be read; a click opens its help, keeping the
+ * rules of the expansions in history so that the bookmark on the left page goes back to them
+ */
 export const ExpansionCards: FC<{ type: MaterialType; ids: number[] }> = ({ type, ids }) => {
   const [hover, setHover] = useState<{ id: number; x: number; y: number }>()
   const description = useMaterialDescription(type)
@@ -41,7 +44,7 @@ export const ExpansionCards: FC<{ type: MaterialType; ids: number[] }> = ({ type
             key={id}
             css={cardCss}
             style={size && { width: `${size.width}em`, height: `${size.height}em` }}
-            move={displayMaterialHelp(type, { id })}
+            move={displayHelp({ type: HelpDisplayType.Material, itemType: type, item: { id } }, HelpHistory.Keep)}
             transient
             onMouseEnter={onEnter(id)}
             onMouseLeave={() => setHover(undefined)}
