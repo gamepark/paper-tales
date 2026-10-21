@@ -6,5 +6,11 @@
   "identities.4": "Amarillo",
   "identities.5": "Negro",
   "identities.6": "Morado",
-  "identities.7": "Blanco"
+  "identities.7": "Blanco",
+  "option.beyondTheGatesUnits": "Más allá de las puertas: las Unidades",
+  "option.beyondTheGatesUnits.help": "Añade al mazo las 20 Unidades de la expansión.",
+  "option.beyondTheGatesBuildings": "Más allá de las puertas: los Edificios",
+  "option.beyondTheGatesBuildings.help": "Cada Monarca tiene la Mina, la Taberna, el Templo y la Ciudad, más 3 Edificios sorteados entre el Cuartel y los de las expansiones en juego.",
+  "option.whatForgesLegends": "Lo que forja leyendas",
+  "option.whatForgesLegends.help": "Añade 26 Unidades, 18 Artefactos legendarios y 3 Edificios. La expansión se juega completa."
 }

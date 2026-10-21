@@ -6,5 +6,11 @@
   "identities.4": "Gelb",
   "identities.5": "Schwarz",
   "identities.6": "Lila",
-  "identities.7": "Weiß"
+  "identities.7": "Weiß",
+  "option.beyondTheGatesUnits": "Die Tore der Unterwelt: die Einheiten",
+  "option.beyondTheGatesUnits.help": "Fügt die 20 Einheiten der Erweiterung dem Nachziehstapel hinzu.",
+  "option.beyondTheGatesBuildings": "Die Tore der Unterwelt: die Gebäude",
+  "option.beyondTheGatesBuildings.help": "Jeder Monarch hat die Mine, die Taverne, den Tempel und die Stadt, plus 3 Gebäude, die zufällig aus der Kaserne und den Gebäuden der gespielten Erweiterungen gezogen werden.",
+  "option.whatForgesLegends": "Was Legenden schmiedet",
+  "option.whatForgesLegends.help": "Fügt 26 Einheiten, 18 Legendäre Artefakte und 3 Gebäude hinzu. Die Erweiterung wird vollständig gespielt."
 }

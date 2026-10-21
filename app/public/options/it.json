@@ -1,0 +1,16 @@
+{
+  "identities": "Colore",
+  "identities.1": "Blu",
+  "identities.2": "Rosso",
+  "identities.3": "Verde",
+  "identities.4": "Giallo",
+  "identities.5": "Nero",
+  "identities.6": "Viola",
+  "identities.7": "Bianco",
+  "option.beyondTheGatesUnits": "Oltre le porte: le Unità",
+  "option.beyondTheGatesUnits.help": "Aggiunge al mazzo le 20 Unità dell’espansione.",
+  "option.beyondTheGatesBuildings": "Oltre le porte: gli Edifici",
+  "option.beyondTheGatesBuildings.help": "Ogni Monarca ha la Miniera, la Taverna, il Tempio e la Città, più 3 Edifici estratti a caso tra la Caserma e quelli delle espansioni in gioco.",
+  "option.whatForgesLegends": "Ciò che forgia le leggende",
+  "option.whatForgesLegends.help": "Aggiunge 26 Unità, 18 Artefatti Leggendari e 3 Edifici. L’espansione si gioca per intero."
+}

@@ -6,5 +6,11 @@
   "identities.4": "Жёлтый",
   "identities.5": "Чёрный",
   "identities.6": "Фиолетовый",
-  "identities.7": "Белый"
+  "identities.7": "Белый",
+  "option.beyondTheGatesUnits": "За вратами: Отряды",
+  "option.beyondTheGatesUnits.help": "Добавляет в колоду 20 Отрядов из дополнения.",
+  "option.beyondTheGatesBuildings": "За вратами: Здания",
+  "option.beyondTheGatesBuildings.help": "У каждого Монарха есть Шахта, Таверна, Храм и Город, плюс 3 Здания, случайно выбранные из Казармы и Зданий используемых дополнений.",
+  "option.whatForgesLegends": "Что куёт легенды",
+  "option.whatForgesLegends.help": "Добавляет 26 Отрядов, 18 Легендарных артефактов и 3 Здания. Дополнение используется целиком."
 }
