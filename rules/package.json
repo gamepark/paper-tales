@@ -1,6 +1,6 @@
 {
   "name": "@gamepark/paper-tales",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The rules of Paper Tales adapted for Game Park",
   "sideEffects": false,
   "type": "module",
