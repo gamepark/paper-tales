@@ -14,6 +14,8 @@ export class DiscardLocator extends DeckLocator {
   limit = 12
   gap = { x: -0.03, y: -0.03 }
   location = { type: LocationType.Discard }
+  // Face-down cards all alike: no page to turn from one to the other in the help
+  navigationSorts = []
   locationDescription = new DiscardPileDescription()
 
   placeItem(item: MaterialItem, context: ItemContext) {

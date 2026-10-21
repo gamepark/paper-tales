@@ -13,6 +13,8 @@ export class UnitDeckLocator extends DeckLocator {
   limit = 12
   gap = { x: -0.03, y: -0.03 }
   location = { type: LocationType.Deck }
+  // Face-down cards all alike: no page to turn from one to the other in the help
+  navigationSorts = []
   locationDescription = new PileOutlineDescription()
 
   placeItem(item: MaterialItem, context: ItemContext) {
