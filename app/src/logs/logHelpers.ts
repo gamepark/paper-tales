@@ -4,8 +4,9 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { DeployEffects } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
+import { DeployCostHelper } from '@gamepark/paper-tales/rules/helpers/DeployCostHelper'
 import { MoveComponentContext } from '@gamepark/react-game'
-import { CreateItem, isCreateItemType, isStartPlayerTurn, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem } from '@gamepark/rules-api'
+import { CreateItem, isCreateItemType, isMoveItemType, isStartPlayerTurn, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem } from '@gamepark/rules-api'
 
 /** What the log entries read on the moves of an action and on the game before them */
 
@@ -21,22 +22,47 @@ const actionMoves = (context: LogContext) => ({
 export const isGoldGain = (move: MaterialMove): move is CreateItem =>
   isCreateItemType(MaterialType.Gold)(move) && move.item.location.type === LocationType.PlayerGoldStock
 
-const isGoldGainOf = (player: number | undefined) => (move: MaterialMove) => isGoldGain(move) && move.item.location.player === player
+const isGoldGainOf =
+  (player: number | undefined) =>
+  (move: MaterialMove): move is CreateItem =>
+    isGoldGain(move) && move.item.location.player === player
+
+/** Age tokens laid on a unit of a Monarch */
+export const isAgeTokenOf =
+  (player: number | undefined) =>
+  (move: MaterialMove): move is CreateItem =>
+    isCreateItemType(MaterialType.Age)(move) && move.item.location.player === player
+
+/** A card turned face up in the kingdom of a Monarch (the reveal only says { rotation: false }), read on the game before */
+export const isRevealOf =
+  (player: number | undefined, game: MaterialGame) =>
+  (move: MaterialMove): move is MoveItem =>
+    isMoveItemType(MaterialType.Unit)(move) && move.location.rotation === false && cardAt(game, move.itemIndex).location.player === player
 
 const goldValue = (move: CreateItem) => (move.item.quantity ?? 1) * (move.item.id as number)
+
+/**
+ * Several moves in a row of an action told as one entry (the coins of a gain, the cards a Monarch reveals, the units
+ * that age): the moves from the entry on that match, told by the first one, or undefined for the next ones.
+ */
+export const runFrom = <M extends MaterialMove>(context: LogContext, matches: (move: MaterialMove) => move is M): M[] | undefined => {
+  const { moves, position } = actionMoves(context)
+  if (position > 0 && matches(moves[position - 1])) return
+  const run: M[] = []
+  for (let index = position; index < moves.length; index++) {
+    const move = moves[index]
+    if (!matches(move)) break
+    run.push(move)
+  }
+  return run
+}
 
 /**
  * A gain of gold comes as one coin of each value (5 gold and 2 gold for 7): the first coin tells the whole gain, the
  * others are not told. The gold of a gain, or undefined for the coins after the first one.
  */
-export const goldGainTold = (move: CreateItem, context: LogContext): number | undefined => {
-  const { moves, position } = actionMoves(context)
-  const sameGain = isGoldGainOf(move.item.location.player)
-  if (position > 0 && sameGain(moves[position - 1])) return
-  let gold = 0
-  for (let index = position; index < moves.length && sameGain(moves[index]); index++) gold += goldValue(moves[index] as CreateItem)
-  return gold
-}
+export const goldGainTold = (move: CreateItem, context: LogContext): number | undefined =>
+  runFrom(context, isGoldGainOf(move.item.location.player))?.reduce((gold, coins) => gold + goldValue(coins), 0)
 
 /** The gold a Monarch gains in the same phase as a log entry: the moves of the action between two changes of rule */
 export const goldGainedInPhase = (player: number, context: LogContext): number => {
@@ -71,3 +97,7 @@ export const scoreChange = (move: MoveItem, game: MaterialGame) => {
   const before = new PaperTalesRules(game).material(MaterialType.ScoreToken).getItem(move.itemIndex)
   return (move.location.x ?? 0) - (before.location.x ?? 0)
 }
+
+/** The Monarchs who laid no card this turn, read on the game before the reveal */
+export const nothingDeployed = (game: MaterialGame): PlayerColor[] =>
+  game.players.filter((player) => !new DeployCostHelper(game, player).placedIndexes.length)

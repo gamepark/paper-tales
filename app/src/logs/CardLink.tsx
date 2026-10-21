@@ -32,6 +32,17 @@ export const CardLink: FC<{ card: Card }> = ({ card }) => {
   )
 }
 
+/** Cards named one after the other as the language joins them ("A, B and C"), each one a link to its help */
+export const CardList: FC<{ cards: Card[] }> = ({ cards }) => {
+  const { i18n } = useTranslation()
+  const parts = new Intl.ListFormat(i18n.language, { type: 'conjunction' }).formatToParts(cards.map((_, index) => String(index)))
+  return (
+    <>
+      {parts.map((part, index) => (part.type === 'element' ? <CardLink key={index} card={cards[Number(part.value)]} /> : part.value))}
+    </>
+  )
+}
+
 /** The card whose "when revealed" effect a Monarch is resolving, read on the game before the move */
 export const EffectSourceLink: FC<{ game: MaterialGame; player: PlayerColor }> = ({ game, player }) => {
   const source = deployEffectSource(game, player)

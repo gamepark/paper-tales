@@ -63,6 +63,15 @@ export const asideCss = css`
   font-size: 0.92em;
 `
 
+/** One line of an entry that tells several Monarchs */
+export const asideLineCss = css`
+  display: block;
+
+  & + & {
+    margin-top: 0.3em;
+  }
+`
+
 /** The Monarch an event concerns: their avatar ringed with their colour, their name in their colour */
 export const whoCss = css`
   display: inline-flex;

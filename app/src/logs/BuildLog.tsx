@@ -6,7 +6,7 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { BuildAction, BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialLogProps } from '@gamepark/react-game'
-import { MoveItem } from '@gamepark/rules-api'
+import { EndPlayerTurn, MoveItem } from '@gamepark/rules-api'
 import { FC } from 'react'
 import { Trans } from 'react-i18next'
 import { GoldValueIcon } from '../material/help/book/HelpIcons'
@@ -42,3 +42,8 @@ const buildKeys: Record<BuildAction, { i18nKey: string; defaults: string }> = {
   [BuildAction.BuildLevel2]: { i18nKey: 'log.build.level2', defaults: '<who/> builds <building/> directly at level 2' },
   [BuildAction.Upgrade]: { i18nKey: 'log.upgrade', defaults: '<who/> upgrades <building/> to level 2' }
 }
+
+/** A Monarch who passes the construction (rulebook p.7) */
+export const NoBuildLog: FC<MaterialLogProps<EndPlayerTurn>> = ({ move }) => (
+  <Trans i18nKey="log.build.none" defaults="<who/> builds nothing" components={{ who: <Who player={move.player as PlayerColor} /> }} />
+)

@@ -1,19 +1,26 @@
-import { Card, isArtifact, isUnit } from '@gamepark/paper-tales/material/Artifact'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
-import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { LogDescription, MovePlayedLogDescription, SetupLogDescription } from '@gamepark/react-game'
-import { isCustomMoveType, isMoveItemType, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem } from '@gamepark/rules-api'
-import { goldGainTold, isGoldGain, LogContext, revealedCard } from './logHelpers'
-import { DeathLog, SaveLog } from './AgeLog'
-import { BuildLog } from './BuildLog'
-import { ChosenAgeTokenLog, DeployLog, DrawnLog, MovedAgeTokenLog, ReactivateLog } from './DeployLog'
+import {
+  isCreateItemType,
+  isCustomMoveType,
+  isEndPlayerTurn,
+  isMoveItemType,
+  isMoveItemTypeAtOnce,
+  isStartRule,
+  isStartSimultaneousRule,
+  MaterialGame,
+  MaterialMove
+} from '@gamepark/rules-api'
+import { AgingLog, DeathLog, SaveLog, SaveNobodyLog } from './AgeLog'
+import { BuildLog, NoBuildLog } from './BuildLog'
+import { AgeTokenLog, DeckRefillLog, DeployLog, DrawnLog, MovedAgeTokenLog, NothingDeployedLog, ReactivateLog, RemovedUnitLog } from './DeployLog'
 import { GoldLog } from './GoldLog'
+import { cardAt, goldGainTold, isAgeTokenOf, isGoldGain, isRevealOf, LogContext, nothingDeployed, runFrom } from './logHelpers'
 import { phaseLogCss, turnLogCss } from './logs.css'
-import { AgePhaseLog, BuildPhaseLog, DeployPhaseLog, EndPhaseLog, IncomePhaseLog, WarPhaseLog } from './PhaseLog'
+import { AgePhaseLog, BuildPhaseLog, DeployPhaseLog, EndPhaseLog, IncomePhaseLog, RecruitPhaseLog, RecruitPhaseSetupLog, WarPhaseLog } from './PhaseLog'
 import { EndScoreLog, ScoreLog } from './ScoreLog'
 import { FirstTurnLog, TurnLog } from './TurnLog'
 import { WarWonLog } from './WarLog'
@@ -21,13 +28,17 @@ import { WarWonLog } from './WarLog'
 /**
  * The journal of the game as a page of the rulebook (validated mockup docs/mockups/journal3.html): the turn with its
  * open book, each phase announced by its arrow banner, then one line per event with the avatar of the Monarch it
- * concerns: the units revealed, the wars won with the Legend points, the gold and the points gained or lost with the
- * card they come from, the constructions, the units saved and the ones that die, the final scoring. The names of the
- * cards open their help. The recruitment, secret, is not told.
+ * concerns: the cards each Monarch reveals with their cost, the effects of the cards with the card they come from, the
+ * wars won, the gold and the points, the constructions, the units saved, the ones that die and the ones that age, the
+ * final scoring. The names of the cards open their help. What is secret is not told: the cards each Monarch keeps at
+ * the recruitment, the cards laid face down until they are revealed, the cards discarded face down.
  */
 export class PaperTalesLogs implements LogDescription<MaterialMove, number, MaterialGame> {
   getSetupLogDescriptions(): SetupLogDescription<MaterialGame>[] {
-    return [{ Component: FirstTurnLog, css: turnLogCss }]
+    return [
+      { Component: FirstTurnLog, css: turnLogCss },
+      { Component: RecruitPhaseSetupLog, css: phaseLogCss }
+    ]
   }
 
   getMovePlayedLogDescription(move: MaterialMove, context: LogContext): MovePlayedLogDescription | undefined {
@@ -36,7 +47,9 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
     // The phases start as a rule or as a simultaneous rule
     if (isStartRule(move) || isStartSimultaneousRule(move)) {
       if (move.id === RuleId.Deal && rule === RuleId.NextTurn) return { Component: TurnLog, css: turnLogCss }
-      if (move.id === RuleId.RevealBoards) return { Component: DeployPhaseLog, css: phaseLogCss }
+      if (move.id === RuleId.Draft && rule === RuleId.Deal) return { Component: RecruitPhaseLog, css: phaseLogCss }
+      if (move.id === RuleId.PlaceUnitOnBoard) return { Component: DeployPhaseLog, css: phaseLogCss }
+      if (move.id === RuleId.RevealBoards) return nothingDeployed(context.game).length ? { Component: NothingDeployedLog } : undefined
       if (move.id === RuleId.War) return { Component: WarPhaseLog, css: phaseLogCss }
       if (move.id === RuleId.Income) return { Component: IncomePhaseLog, css: phaseLogCss }
       if (move.id === RuleId.Build) return { Component: BuildPhaseLog, css: phaseLogCss }
@@ -48,12 +61,21 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
     }
 
     if (isMoveItemType(MaterialType.Unit)(move)) {
-      // A reveal only says { rotation: false }: the rule tells what happens
-      if (rule === RuleId.RevealBoards && move.location.rotation === false) return { Component: DeployLog }
+      // A reveal only says { rotation: false }: the cards of a Monarch are told at once
+      if (rule === RuleId.RevealBoards && move.location.rotation === false) {
+        const player = cardAt(context.game, move.itemIndex).location.player
+        return runFrom(context, isRevealOf(player, context.game)) ? { Component: DeployLog } : undefined
+      }
+      if (rule === RuleId.PlaceUnitOnBoard && move.location.type === LocationType.Discard && isUnitOfPreviousTurn(move.itemIndex, context.game)) {
+        return { Component: RemovedUnitLog }
+      }
+      if (rule === RuleId.DeployEffects && (move.location.type === LocationType.PlayerArtifacts || move.location.type === LocationType.PlayerUnitBoard)) {
+        return { Component: DrawnLog }
+      }
       if (rule === RuleId.AgeUnitsDie && move.location.type === LocationType.Discard) return { Component: DeathLog }
-      if (rule === RuleId.DeployEffects && isKeptDraw(move, context.game)) return { Component: DrawnLog }
       return
     }
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) return { Component: DeckRefillLog }
     // The constructions, and the buildings improved or built by a deployment effect (Golem, Djinn, Titan)
     if (
       isMoveItemType(MaterialType.Building)(move) &&
@@ -64,8 +86,14 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
     }
     if (isMoveItemType(MaterialType.Age)(move) && rule === RuleId.DeployEffects && move.location.type === LocationType.OnCard) return { Component: MovedAgeTokenLog }
     if (isCustomMoveType(CustomMoveType.ReactivateUnit)(move)) return { Component: ReactivateLog }
-    if (isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) return { Component: ChosenAgeTokenLog }
+    if (isCreateItemType(MaterialType.Age)(move) && (rule === RuleId.DeployEffects || rule === RuleId.AgeUnitsAge)) {
+      if (!runFrom(context, isAgeTokenOf(move.item.location.player))) return
+      return { Component: rule === RuleId.DeployEffects ? AgeTokenLog : AgingLog }
+    }
     if (isCustomMoveType(CustomMoveType.MysticEffect)(move)) return { Component: SaveLog }
+    if (isCustomMoveType(CustomMoveType.SaveNobody)(move)) return { Component: SaveNobodyLog }
+    // A pass is the action of the Monarch; after a construction, the end of the turn is its consequence
+    if (isEndPlayerTurn(move) && rule === RuleId.Build && context.consequenceIndex === undefined) return { Component: NoBuildLog }
     if (isMoveItemType(MaterialType.ScoreToken)(move)) {
       if (rule === RuleId.War) return { Component: WarWonLog }
       return { Component: rule === RuleId.EndGame ? EndScoreLog : ScoreLog }
@@ -79,13 +107,8 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
   }
 }
 
-/**
- * A card drawn by a "when revealed" effect that stays: the Legendary Artifact found by the Court Jester, the unit of cost
- * 3 or less that takes the place of the Shapeshifter (rulebook p.12). The deck is hidden: the move reveals the card.
- */
-const isKeptDraw = (move: MoveItem, game: MaterialGame) => {
-  const card = revealedCard(move) ?? new PaperTalesRules(game).material(MaterialType.Unit).getItem<Card>(move.itemIndex).id
-  if (move.location.type === LocationType.PlayerArtifacts) return isArtifact(card)
-  if (move.location.type === LocationType.PlayerUnitBoard) return isUnit(card) && unitCardCaracteristics[card].cost <= 3
-  return false
+/** A face up unit of the kingdom, laid at a previous turn: the cards laid this turn are still face down */
+const isUnitOfPreviousTurn = (index: number, game: MaterialGame) => {
+  const location = cardAt(game, index).location
+  return location.type === LocationType.PlayerUnitBoard && !location.rotation
 }
