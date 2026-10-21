@@ -7,7 +7,7 @@ import { isRelicEffect } from '@gamepark/paper-tales/material/effects/7_EndGameE
 import { Effect } from '@gamepark/paper-tales/material/effects/Effect'
 
 /** The step of the turn (0 to 5, 6 for the end of the game) a printed effect acts at */
-export const effectStep = (effect: Effect) => {
+export const effectStep = (effect: Effect): number | undefined => {
   if (isDeploymentType(effect)) return 1
   if (isWarType(effect)) return 2
   if (isIncomeType(effect)) return 3

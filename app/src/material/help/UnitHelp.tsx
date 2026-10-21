@@ -1,5 +1,6 @@
 import { isChangeWarPower, isWarFromBacklane } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { Card, isArtifact } from '@gamepark/paper-tales/material/Artifact'
 import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
@@ -59,8 +60,10 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const inKingdom = item.location?.type === LocationType.PlayerUnitBoard && owner !== undefined && itemIndex !== undefined
   const tokens = inKingdom ? new AgeTokens(rules).count(itemIndex) : 0
   const front = item.location?.y === 0
-  const strength = inKingdom ? new War(rules.game).getUnitPower(item, itemIndex) : pattern.power
-  const dying = inKingdom && new AgeHelper(rules.game, owner!).isUnitDying(item, itemIndex)
+  // The unit as it lies in the kingdom, with its location
+  const boardItem = inKingdom ? rules.material(MaterialType.Unit).getItem(itemIndex) : undefined
+  const strength = inKingdom && boardItem ? new War(rules.game).getUnitPower(boardItem, itemIndex) : pattern.power
+  const dying = inKingdom && !!boardItem && new AgeHelper(rules.game, owner!).isUnitDying(boardItem, itemIndex)
   const resourceCondition = effects.find(isChangeWarPower)?.ifResource?.[0]
   const produced = resourceCondition !== undefined && owner !== undefined ? new ResourcesHelper(rules.game, owner).getResource(resourceCondition) : 0
 

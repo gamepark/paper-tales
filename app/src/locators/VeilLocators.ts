@@ -25,7 +25,7 @@ const veilCss = (darkness: number, seconds: number) => css`
 /** The veil lies on the face that is seen */
 const seenFace = (context: MaterialContext, type: MaterialType, location: Location) => {
   const item = context.rules.material(type).getItem(location.parent!)
-  return item && context.material[type]?.isFlipped(item, context) ? ParentFace.Back : ParentFace.Front
+  return item && context.material[type]?.isFlippedOnTable(item, context) ? ParentFace.Back : ParentFace.Front
 }
 
 /**

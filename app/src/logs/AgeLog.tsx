@@ -2,7 +2,7 @@ import { Card } from '@gamepark/paper-tales/material/Artifact'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { MysticEffectType } from '@gamepark/paper-tales/rules/CustomMoveType'
+import { CustomMoveType, MysticEffectType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { MaterialLogProps } from '@gamepark/react-game'
 import { CreateItem, CustomMove, MoveItem } from '@gamepark/rules-api'
 import { FC } from 'react'
@@ -38,14 +38,16 @@ export const AgingLog: FC<MaterialLogProps<CreateItem>> = ({ move, context }) =>
 }
 
 /** A Monarch with a Mystic who chooses to save no unit */
-export const SaveNobodyLog: FC<MaterialLogProps<CustomMove<PlayerColor>>> = ({ move }) => (
+export const SaveNobodyLog: FC<MaterialLogProps<CustomMove<CustomMoveType.SaveNobody, PlayerColor>>> = ({ move }) => (
   <Trans i18nKey="log.age.saved.none" defaults="<who/> saves no unit" components={{ who: <Who player={move.data} /> }} />
 )
 
 /** A unit the Mystic keeps from dying */
-export const SaveLog: FC<MaterialLogProps<CustomMove<MysticEffectType>>> = ({ move, context }) => {
-  const item = new PaperTalesRules(context.game).material(MaterialType.Unit).getItem<Card>(move.data.unitIndex)
+export const SaveLog: FC<MaterialLogProps<CustomMove<CustomMoveType.MysticEffect, MysticEffectType>>> = ({ move, context }) => {
+  // The Mystic always says which unit it saves
+  const { unitIndex, player } = move.data!
+  const item = new PaperTalesRules(context.game).material(MaterialType.Unit).getItem<Card>(unitIndex)
   return (
-    <Trans i18nKey="log.age.saved" defaults="<who/> saves <card/>" components={{ who: <Who player={move.data.player} />, card: <CardLink card={item.id} /> }} />
+    <Trans i18nKey="log.age.saved" defaults="<who/> saves <card/>" components={{ who: <Who player={player} />, card: <CardLink card={item.id} /> }} />
   )
 }

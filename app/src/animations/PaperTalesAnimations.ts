@@ -140,7 +140,7 @@ const keptHandLanding = (context: ItemContext, move: MaterialMove): Trajectory =
 const passedTo =
   (...types: LocationType[]) =>
   (move: MaterialMove) =>
-    isMoveItemTypeAtOnce(MaterialType.Unit)(move) && types.includes(move.location.type)
+    isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type !== undefined && types.includes(move.location.type)
 
 // ==========================================
 // The configurations, the first that matches a move applies
@@ -293,7 +293,7 @@ paperTalesAnimation
   .skip()
 
 // The card I keep, or put back into my hand
-paperTalesAnimation.configure((move) => isMoveItem(move) && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(keptHandLanding)
+paperTalesAnimation.configure((move) => isMoveItem(move) && move.location.type !== undefined && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(keptHandLanding)
 
 paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).duration(500).trajectory(fadeAtPanels)
 

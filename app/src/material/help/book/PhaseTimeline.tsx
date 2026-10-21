@@ -33,7 +33,7 @@ export const PhaseTimeline: FC<{ steps: TimelineStep[]; current?: number; onlyAc
   return (
     <div css={timelineCss}>
       {steps.map((step, index) => (onlyActive && !step.on && !step.text && !step.you) ? null : (
-        <div key={index} css={[stepCss, step.text && infoCss, (step.on || step.you) && onCss]}>
+        <div key={index} css={[stepCss, !!step.text && infoCss, !!(step.on || step.you) && onCss]}>
           <span css={[phaseCss, !step.on && !step.text && !step.you && current !== index && offCss]}>{index < 6 ? <img src={phaseIcons[index]} alt="" /> : <LegendIcon />}</span>
           <span css={[nameCss, step.on && nameOnCss]}>
             {names[index]}
