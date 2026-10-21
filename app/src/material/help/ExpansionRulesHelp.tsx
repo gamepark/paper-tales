@@ -117,12 +117,13 @@ export const ExpansionRulesHelp: FC = () => {
                 ['expansions.clar.dryad', 'Dryad: any combination of resources, one for one.']
               ]
             : []) as [string, string][]),
-          ...((options.beyondTheGatesBuildings
-            ? [
-                ['expansions.clar.abbey', 'Abbey: a Kingdom that produces 2 <food/>, 1 <wood/> and 1 <crystal/> earns <pl4/>.'],
-                ['expansions.clar.port', 'Port: <pl2/> for each type of resource produced, whatever the quantity.']
-              ]
-            : []) as [string, string][]),
+          // Only the Buildings drawn for this game
+          ...(buildings.includes(Building.Abbey)
+            ? [['expansions.clar.abbey', 'Abbey: a Kingdom that produces 2 <food/>, 1 <wood/> and 1 <crystal/> earns <pl4/>.'] as [string, string]]
+            : []),
+          ...(buildings.includes(Building.Port)
+            ? [['expansions.clar.port', 'Port: <pl2/> for each type of resource produced, whatever the quantity.'] as [string, string]]
+            : []),
           ...((artifacts
             ? [
                 ['expansions.clar.banner', 'Banner Bearer: each condition is checked on its own; with a Unit of cost 3 or more, it earns <g2/> and <pl2/>.'],
@@ -180,6 +181,8 @@ const listCss = css`
 const drawnCss = css`
   position: relative;
   isolation: isolate;
+  /* Above what follows: the strip keeps its cards inside it, so a grown card would pass under the icons of the next lines */
+  z-index: 1;
   margin: 0.8em 0 0;
   padding: 0.5em 1em;
   font-weight: 700;
