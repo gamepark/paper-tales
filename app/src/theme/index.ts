@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import { GameTheme } from '@gamepark/react-game'
+import tableBackground from '../images/table-background.webp'
 import { bookContainerCss, bookContentCss, bookHelpLayoutCss } from './book'
 import { BookmarkBackButton } from './BookmarkBackButton'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
@@ -18,8 +19,8 @@ import { cutLine, paper, tableButtonCss } from './tableTheme'
 export const theme: Partial<GameTheme> = {
   root: {
     fontFamily: 'Mulish',
-    /* The same photo as the framework default, lighter in webp */
-    background: { image: '/cover-1920.webp', overlay: 'rgba(0, 0, 0, 0.8)' }
+    /* A plain dark brown table with a light grain, so that the cut paper stands out; the image is dark enough to need no overlay */
+    background: { image: tableBackground, overlay: 'rgba(0, 0, 0, 0)' }
   },
   dialog: {
     backgroundColor: paper,
