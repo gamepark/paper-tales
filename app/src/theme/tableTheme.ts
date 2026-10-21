@@ -212,3 +212,45 @@ export const appearCss = css`
 export const roundImageCss = css`
   border-radius: 50%;
 `
+
+/**
+ * The zoom buttons of the table: square slips of pale paper like the buttons of the views, set on the screen and not on
+ * the table, so that they keep their size and place when the table zooms. Laid over the framework's own buttons by the
+ * css of GameTableNavigation (see GameDisplay); their size follows the row.
+ */
+export const zoomButtonCss = css`
+  ${tableButtonCss};
+  display: grid;
+  place-items: center;
+  font-size: 1em;
+  width: 1.7em;
+  height: 1.7em;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: ${cutLine};
+
+  &::before {
+    background: ${paperMuted};
+  }
+
+  &:disabled {
+    color: ${cutLine};
+    border-color: transparent;
+  }
+
+  &:not(:disabled):focus,
+  &:not(:disabled):hover {
+    transform: translate(-0.05em, -0.08em);
+  }
+
+  &:not(:disabled):active {
+    transform: translate(0.08em, 0.1em);
+    background: none;
+  }
+
+  svg {
+    width: 0.8em;
+    height: 0.8em;
+  }
+`

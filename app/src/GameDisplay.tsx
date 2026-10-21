@@ -4,6 +4,7 @@ import { FC } from 'react'
 import { CardsCatalogue } from './dev/CardsCatalogue'
 import { TestStates } from './dev/TestStates'
 import { tableBoundaries } from './locators/TableLayout'
+import { zoomButtonCss } from './theme/tableTheme'
 import { PlayerPanels } from './panels/PlayerPanels'
 import { TurnOrderArrows } from './panels/TurnOrderArrows'
 import { BuildInfo } from './table/BuildInfo'
@@ -43,9 +44,20 @@ const tableBorder = css`
   border: 1px solid white;
 `
 
+/**
+ * The zoom buttons stay on the screen, not on the table: on its right edge, one above the other, at mid-height, where the
+ * right column leaves a free strip beside the deck whatever the shape of the screen
+ */
 const navigationCss = css`
-  top: auto;
-  bottom: 1em;
+  font-size: calc(3.2em * var(--gp-scale));
+  flex-direction: column;
+  gap: 0.25em;
+  top: 50%;
+  margin-top: -1.8em;
   left: auto;
-  right: 1em;
+  right: 0.3em;
+
+  > button {
+    ${zoomButtonCss};
+  }
 `
