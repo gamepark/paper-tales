@@ -3,8 +3,8 @@
 À copier dans l'admin Game Park, onglet **Traductions** de la fiche `paper-tales`, langue par langue. Les deux champs acceptent le Markdown.
 
 Sources officielles :
-- **fr** : la page du jeu chez l'éditeur, <https://catchupgames.com/nos-jeux/paper-tales/>, reprise mot pour mot. Deux coquilles du site sont corrigées entre crochets : « Il [fut] », « [rouvrir] ».
-- **en** : le livret de règles anglais de l'édition intégrale (introduction et « Overview »), mot pour mot. Seule la mention « for 1 to 7 players » est retirée, le jeu numérique se jouant de 2 à 7. Les trois points forts n'existent qu'en français : ils sont traduits.
+- **fr** : le livret de règles français de l'édition intégrale (introduction et « Présentation », page 2), mot pour mot. Seule la mention « pour 1 à 7 joueurs ou joueuses, appelé.e.s Monarques dans ces règles » est retirée, le jeu numérique se jouant de 2 à 7. Les trois points forts viennent de la page du jeu chez l'éditeur, <https://catchupgames.com/nos-jeux/paper-tales/>.
+- **en** : le livret de règles anglais de l'édition intégrale (introduction et « Overview »), mot pour mot, avec la même coupe qu'en français. Les trois points forts n'existent qu'en français : ils sont traduits.
 - **de, es, it, ru** : il n'existe pas de texte officiel. Ce sont des traductions fidèles du texte officiel, avec le vocabulaire des traductions du jeu.
 
 ---
@@ -15,11 +15,11 @@ Sources officielles :
 
 **Synopsis**
 
-Il [fut] un temps animé par des guerres héroïques incessantes et peuplé de créatures fantastiques. Paper Tales est le dernier témoin de ces siècles oubliés. L’heure est venue de [rouvrir] ce livre et de revivre cette époque légendaire !
+Il fut un temps animé par des guerres héroïques incessantes et peuplé de créatures fantastiques. Un livre est le dernier témoin de ces siècles oubliés. L’heure est venue d’ouvrir à nouveau ce livre, pour revivre cette époque légendaire !
 
 **Rules insight**
 
-À chaque tour, sélectionnez la meilleure combinaison d’Unités : elles symbolisent l’essor de votre Royaume, à travers ses guerres et ses réalisations. Mais l’espace viendra vite à manquer sur vos terres, et vos Unités seront inexorablement balayées par le temps qui passe.
+Paper Tales est un jeu de cartes de stratégie. En tant que Monarque d’un Royaume, accumulez le plus de points pour écrire votre légende. À chaque tour, sélectionnez la meilleure combinaison d’Unités : elles symbolisent l’essor de votre Royaume, à travers ses guerres et ses réalisations. Mais l’espace viendra vite à manquer sur vos terres, et vos Unités seront inexorablement balayées par le temps qui passe.
 
 - Un jeu de draft en simultané pour des parties rapides
 - Une mécanique unique de vieillissement des unités
