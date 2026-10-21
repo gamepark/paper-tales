@@ -16,6 +16,11 @@ import { cutLine, paper, tableButtonCss } from './tableTheme'
  * the floating buttons bookmarks. Buttons stay the rust paper slips of the table.
  */
 export const theme: Partial<GameTheme> = {
+  root: {
+    fontFamily: 'Mulish',
+    /* The same photo as the framework default, lighter in webp */
+    background: { image: '/cover-1920.webp', overlay: 'rgba(0, 0, 0, 0.8)' }
+  },
   dialog: {
     backgroundColor: paper,
     color: cutLine,
