@@ -42,12 +42,12 @@ export class AgeHelper extends MaterialRulesPart {
     )
   }
 
-  isUnitDying(unit: MaterialItem, index: number): boolean {
+  /** ageTokensOnUnit: the Age tokens the unit has, or will have (the bot projects the tokens of the deployment) */
+  isUnitDying(unit: MaterialItem, index: number, ageTokensOnUnit = this.howManyAgeTokenOnIndex(index)): boolean {
     const effects = this.getUnitAgeEffects(unit)
     const specialDyingEffect = effects.find(isSpecialDyingCondition)
     const unitsSavedByMysticEffect = this.remind<number[] | undefined>(Memory.UnitSavedWithMystic, this.player) ?? []
 
-    const ageTokensOnUnit = this.howManyAgeTokenOnIndex(index)
     if (unitsSavedByMysticEffect.includes(index)) return false
     if (specialDyingEffect === undefined) return ageTokensOnUnit >= 1
     if (specialDyingEffect.dyingFromAmount === 0) return false

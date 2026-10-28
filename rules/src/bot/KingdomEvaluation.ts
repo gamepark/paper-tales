@@ -2,7 +2,9 @@ import { MaterialGame, MaterialRulesPart } from '@gamepark/rules-api'
 import { sumBy } from 'es-toolkit/compat'
 import { Card } from '../material/Artifact'
 import { cardEffects } from '../material/CardCaracteristics'
-import { isGainTokenOnDeploy } from '../material/effects/2_DeploymentEffects'
+import { isGainAgeToken, isGainTokenOnDeploy } from '../material/effects/2_DeploymentEffects'
+import { isGainTokenIfDying } from '../material/effects/6_AgeEffects'
+import { WhichUnit } from '../material/effects/Effect'
 import { MaterialType } from '../material/MaterialType'
 import { War } from '../rules/3_War/War'
 import { Income } from '../rules/4_Income/Income'
@@ -31,9 +33,20 @@ const BUILDING_INCOME_VALUE = 0.4
 const NEIGHBOUR_HIDDEN_GAIN = 3
 const WAR_SPREAD = 2.5
 
-const rulesBeforeWar = [RuleId.Deal, RuleId.Draft, RuleId.GiveDraftToNeighbor, RuleId.PlaceUnitOnBoard, RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects]
+const rulesBeforeWar = [
+  RuleId.Deal,
+  RuleId.Draft,
+  RuleId.GiveDraftToNeighbor,
+  RuleId.PlaceUnitOnBoard,
+  RuleId.RevealBoards,
+  RuleId.PayDeployedUnits,
+  RuleId.DeployEffects
+]
 const rulesBeforeIncome = [...rulesBeforeWar, RuleId.War, RuleId.Income]
 const rulesBeforeBuild = [...rulesBeforeIncome, RuleId.Build]
+/** The Age tokens of the deployment are not on the units yet */
+const rulesBeforeDeployEffects: RuleId[] = rulesBeforeWar.filter((ruleId) => ruleId !== RuleId.DeployEffects)
+const rulesAfterAgeEffects = [RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge, RuleId.NextTurn, RuleId.EndGame]
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x))
 
@@ -47,6 +60,9 @@ export type Projection = { goldSpent?: number; deployed?: number[] }
 export class KingdomEvaluation extends MaterialRulesPart {
   private readonly war: War
   private neighbourPowers?: number[]
+  private readonly ageHelper: AgeHelper
+  /** The Age tokens each unit will have at the Age phase: the ones it has, and the ones the deployment will add */
+  private ageTokens = new Map<number, number>()
 
   constructor(
     game: MaterialGame,
@@ -54,6 +70,7 @@ export class KingdomEvaluation extends MaterialRulesPart {
   ) {
     super(game)
     this.war = new War(game)
+    this.ageHelper = new AgeHelper(game, player)
   }
 
   get turn(): number {
@@ -78,6 +95,7 @@ export class KingdomEvaluation extends MaterialRulesPart {
     const beforeBuild = ruleId !== undefined && rulesBeforeBuild.includes(ruleId)
     const futureTurns = this.turnsLeftAfterThis
 
+    this.ageTokens = this.projectAgeTokens(deployed)
     let value = new ScoreHelper(this.game, this.player).score + new EndScoreHelper(this.game, this.player).points
 
     let gold = new BuildHelper(this.game, this.player).gold - goldSpent
@@ -86,6 +104,11 @@ export class KingdomEvaluation extends MaterialRulesPart {
       const deployGains = this.deployGains(deployed)
       value += deployGains.score
       gold += deployGains.gold
+    }
+    if (ruleId !== undefined && !rulesAfterAgeEffects.includes(ruleId)) {
+      const dyingGains = this.dyingGains
+      value += dyingGains.score
+      gold += dyingGains.gold
     }
     if (beforeIncome) gold += new Income(this.game).getPlayerIncome(this.player)
     // The gold left at the end only breaks ties
@@ -154,13 +177,66 @@ export class KingdomEvaluation extends MaterialRulesPart {
     return gains
   }
 
+  /** The Age tokens of the units, with the ones the cards laid this turn will put when revealed (not the chosen ones) */
+  private projectAgeTokens(deployed: number[]): Map<number, number> {
+    const board = this.war.getPlayerBoard(this.player).getIndexes()
+    const tokens = new Map(board.map((index) => [index, this.ageHelper.howManyAgeTokenOnIndex(index)]))
+    const ruleId = this.ruleId
+    if (ruleId === undefined || !rulesBeforeDeployEffects.includes(ruleId)) return tokens
+    for (const source of deployed) {
+      for (const effect of cardEffects(this.material(MaterialType.Unit).getItem<Card>(source).id).filter(isGainAgeToken)) {
+        for (const index of board) {
+          const target =
+            effect.whichUnit === WhichUnit.Myself
+              ? index === source
+              : effect.whichUnit === WhichUnit.Others
+                ? index !== source
+                : effect.whichUnit === WhichUnit.OthersDeployedThisTurn
+                  ? index !== source && deployed.includes(index)
+                  : effect.whichUnit === WhichUnit.DeployedThisTurn
+                    ? deployed.includes(index)
+                    : true
+          if (target) tokens.set(index, tokens.get(index)! + effect.amount)
+        }
+      }
+    }
+    return tokens
+  }
+
+  private isDying(index: number): boolean {
+    return this.ageHelper.isUnitDying(this.material(MaterialType.Unit).getItem(index), index, this.ageTokens.get(index) ?? 0)
+  }
+
+  /** What the "when it dies" effects of the units give at the Age phase of this turn (see AgeEffects) */
+  private get dyingGains(): { score: number; gold: number } {
+    const kingdom = new KingdomHelper(this.game, this.player)
+    const gains = { score: 0, gold: 0 }
+    const board = this.war.getPlayerBoard(this.player).getIndexes()
+    const tokensOnDying = sumBy(board, (index) => (this.isDying(index) ? this.ageTokens.get(index)! : 0))
+    for (const index of board) {
+      for (const effect of cardEffects(this.material(MaterialType.Unit).getItem<Card>(index).id).filter(isGainTokenIfDying)) {
+        let amount = 0
+        if (effect.whoDies === WhichUnit.All) {
+          if (effect.perAgeToken) amount = effect.amount * tokensOnDying
+        } else if (effect.whoDies === WhichUnit.Myself && this.isDying(index)) {
+          const tokens = this.ageTokens.get(index)!
+          if (effect.perAgeToken) amount = effect.amount * tokens
+          else if (effect.per) amount = effect.amount * kingdom.count(effect.per, index)
+          else if (!(effect.ifAgeToken && !tokens) && !(effect.ifSingleAgeToken && tokens !== 1)) amount = effect.amount
+        }
+        if (effect.tokenGain === MaterialType.ScoreToken) gains.score += amount
+        else gains.gold += amount
+      }
+    }
+    return gains
+  }
+
   /** What the units that survive the Age phase of this turn will bring next turn */
   private get survivorsValue(): number {
-    const ageHelper = new AgeHelper(this.game, this.player)
     const units = this.war.getPlayerBoard(this.player)
     return sumBy(units.getIndexes(), (index) => {
       const unit = units.index(index)
-      if (ageHelper.isUnitDying(unit.getItem()!, index)) return 0
+      if (this.isDying(index)) return 0
       return SURVIVOR_VALUE + this.war.computePower(unit) * SURVIVOR_POWER_VALUE
     })
   }

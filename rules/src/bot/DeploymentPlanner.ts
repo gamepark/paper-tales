@@ -50,10 +50,7 @@ export class DeploymentPlanner {
     const handArtifacts = cards.filter((card) => isArtifact(ids(card)))
     const unitCards = cards.filter((card) => isUnit(ids(card)))
     // Every deployment of a big hand would take too long: only the units that are the best on their own are combined
-    const handUnits =
-      unitCards.length <= MAX_UNITS_COMBINED
-        ? unitCards
-        : sortBy(unitCards, (card) => -this.plan([card]).value).slice(0, MAX_UNITS_COMBINED)
+    const handUnits = unitCards.length <= MAX_UNITS_COMBINED ? unitCards : sortBy(unitCards, (card) => -this.plan([card]).value).slice(0, MAX_UNITS_COMBINED)
     const budget = new BuildHelper(this.rules.game, this.player).gold - this.costs.placedCost
     // The spaces where a unit can be laid: not on a unit laid this turn
     const spaces = new PlaceUnitOnBoard(this.rules.game)
@@ -83,13 +80,59 @@ export class DeploymentPlanner {
       }
     }
     placeUnits(0, [], 0)
-    return this.best
+    return this.withoutUselessCards(this.best)
+  }
+
+  /**
+   * The tastes choose between the cards that bring something, they never make a card that brings nothing worth laying
+   * (a unit in the back lane that dies at the end of the turn)
+   */
+  private withoutUselessCards(plan: DeploymentPlan): DeploymentPlan {
+    let { placements, artifacts } = plan
+    let value = this.rawValue(placements, artifacts)
+    for (const card of [...placements.map((placement) => placement.card), ...artifacts]) {
+      const otherPlacements = placements.filter((placement) => placement.card !== card)
+      const otherArtifacts = artifacts.filter((artifact) => artifact !== card)
+      const otherValue = this.rawValue(otherPlacements, otherArtifacts)
+      if (otherValue < value) continue
+      placements = otherPlacements
+      artifacts = otherArtifacts
+      value = otherValue
+    }
+    if (placements === plan.placements && artifacts === plan.artifacts) return plan
+    const units = this.rules.material(MaterialType.Unit)
+    const tastes = [...placements.map((placement) => placement.card), ...artifacts].reduce((sum, card) => sum + this.taste.of(units.getItem(card).id), 0)
+    return { placements, artifacts, value: value + tastes }
+  }
+
+  /** The value of the kingdom with these cards laid, without the tastes */
+  private rawValue(placements: Placement[], artifacts: number[]): number {
+    const units = this.rules.material(MaterialType.Unit)
+    const firstArtifactCost = 1 + this.costs.artifactsBefore + this.placed.filter((index) => isArtifact(units.getItem<Card>(index).id)).length
+    let spent = 0
+    const undos: (() => void)[] = []
+    for (const { card, x, y } of placements) {
+      spent += unitCardCaracteristics[units.getItem<Unit>(card).id].cost
+      undos.push(this.lay(card, { type: LocationType.PlayerUnitBoard, player: this.player, x, y, rotation: true }))
+    }
+    artifacts.forEach((artifact, i) => {
+      spent += firstArtifactCost + i
+      undos.push(this.lay(artifact, { type: LocationType.PlayerArtifacts, player: this.player, rotation: true }))
+    })
+    const deployed = [...placements.map((placement) => placement.card), ...artifacts]
+    const value = this.evaluation.value({ goldSpent: this.costs.placedCost + spent, deployed: [...this.placed, ...deployed] })
+    for (const undo of undos.reverse()) undo()
+    return value
   }
 
   /** The Legendary Artifacts cost 1 gold, plus 1 for each artifact deployed before (rulebook p.11) */
   private placeArtifacts(artifacts: number[], from: number, placements: Placement[], laid: number[], spent: number, budget: number) {
     this.evaluate(placements, laid, spent)
-    const nextCost = 1 + this.costs.artifactsBefore + this.placed.filter((index) => isArtifact(this.rules.material(MaterialType.Unit).getItem<Card>(index).id)).length + laid.length
+    const nextCost =
+      1 +
+      this.costs.artifactsBefore +
+      this.placed.filter((index) => isArtifact(this.rules.material(MaterialType.Unit).getItem<Card>(index).id)).length +
+      laid.length
     if (spent + nextCost > budget) return
     for (let i = from; i < artifacts.length; i++) {
       const undo = this.lay(artifacts[i], { type: LocationType.PlayerArtifacts, player: this.player, rotation: true })
