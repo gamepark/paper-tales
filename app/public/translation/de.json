@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Wähle die Einheit, die Schatten erneut auslöst",
   "header.deploy-effects.wait": "Die anderen Monarchen wenden ihre Aufstellungsfähigkeiten an",
   "move.reactivate": "Erneut auslösen",
+  "move.take.back": "Zurück auf die Hand",
   "log.reactivate": "<who/> löst <card/> mit <source/> erneut aus",
   "header.deploy-effects.spectator": "Die Monarchen wenden ihre Aufstellungsfähigkeiten an",
   "scoring.artifacts": "Legendäre Artefakte",

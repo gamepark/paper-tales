@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Choisis l’Unité que l’Ombre réactive",
   "header.deploy-effects.wait": "Les autres Monarques appliquent leurs effets de déploiement",
   "move.reactivate": "Réactiver",
+  "move.take.back": "Reprendre en main",
   "log.reactivate": "<who/> réactive <card/> avec <source/>",
   "header.deploy-effects.spectator": "Les Monarques appliquent leurs effets de déploiement",
   "scoring.artifacts": "Artefacts légendaires",

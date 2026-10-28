@@ -18,11 +18,7 @@ import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
 export class PlayerUnitHandLocator extends HandLocator {
   radius = 125
 
-  locationDescription = new DropAreaDescription({
-    width: unitCardDescription.width * 2,
-    height: unitCardDescription.height + 2,
-    borderRadius: unitCardDescription.borderRadius
-  })
+  locationDescription = new HandDropArea(this)
 
   getPositionDependencies(location: Location, context: MaterialContext) {
     return { ...getPlayerPositionDependencies(context), items: super.getPositionDependencies(location, context) }
@@ -72,6 +68,25 @@ export class PlayerUnitHandLocator extends HandLocator {
 
   placeItem(item: MaterialItem, context: ItemContext): string[] {
     return placeAtPanelWhenHidden(this, item, context, () => super.placeItem(item, context))
+  }
+}
+
+/**
+ * Where a card is dropped to go back to the hand (a card laid in the kingdom this turn): the whole fan, from its first
+ * card to its last, and at least two cards wide when the hand is nearly empty
+ */
+class HandDropArea extends DropAreaDescription {
+  constructor(private readonly locator: PlayerUnitHandLocator) {
+    super({ width: unitCardDescription.width * 2, height: unitCardDescription.height + 2, borderRadius: unitCardDescription.borderRadius })
+  }
+
+  getLocationSize(location: Location, context: MaterialContext) {
+    const count = this.locator.countItems(location, context)
+    const { width, height } = unitCardDescription
+    if (count < 2) return { width: width * 2, height: height + 2 }
+    const first = this.locator.getLocationCoordinates(location, context, 0)
+    const last = this.locator.getLocationCoordinates(location, context, count - 1)
+    return { width: Math.max(width * 2, Math.abs(last.x - first.x) + width + 1), height: height + 2 + Math.abs(last.y - first.y) }
   }
 }
 

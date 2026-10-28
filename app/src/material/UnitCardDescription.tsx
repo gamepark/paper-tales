@@ -216,7 +216,7 @@ export class UnitCardDescription extends CardDescription {
   }
 
   getItemMenu(item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
-    const actions = getUnitActions(legalMoves, context.index, isWarView(context))
+    const actions = getUnitActions(legalMoves, context.index, isWarView(context), item.location.type)
     const button = (action: UnitAction, position: MenuPosition, labelled: boolean) => {
       const move = actions[action]
       if (!move) return undefined
@@ -252,6 +252,7 @@ export class UnitCardDescription extends CardDescription {
     return [
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
       button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
+      button(UnitAction.TakeBack, { radius: 8, angle: -140 }, false),
       button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true),
       button(UnitAction.Reactivate, { radius: 3.7, angle: 260 }, true)
     ]

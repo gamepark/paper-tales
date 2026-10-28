@@ -137,6 +137,8 @@ export class PaperTalesBot extends RandomBot<MaterialGame, MaterialMove, number>
     return legalMoves.filter((move) => {
       if (!isMoveItemType(MaterialType.Unit)(move)) return true
       if (units.getItem(move.itemIndex).location.type === LocationType.PlayerUnitBoard) return false
+      // The bot lays its plan once: it never takes a card back to its hand
+      if (move.location.type === LocationType.PlayerUnitHand) return false
       if (move.location.type !== LocationType.PlayerUnitBoard) return true
       return !units
         .location(LocationType.PlayerUnitBoard)

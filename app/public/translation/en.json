@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Choose the Unit the Shadow triggers again",
   "header.deploy-effects.wait": "The other Monarchs apply their deployment abilities",
   "move.reactivate": "Trigger again",
+  "move.take.back": "Take back",
   "log.reactivate": "<who/> triggers <card/> again with <source/>",
   "header.deploy-effects.spectator": "The Monarchs apply their deployment abilities",
   "scoring.artifacts": "Legendary Artifacts",

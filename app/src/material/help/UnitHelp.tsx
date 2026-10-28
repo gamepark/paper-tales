@@ -39,7 +39,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const context = useMaterialContext()
   const legalMoves = useLegalMoves()
   // The same actions as the buttons on the card, with their icons and words
-  const actions = itemIndex !== undefined ? getUnitActions(legalMoves, itemIndex, isWarView(context)) : {}
+  const actions = itemIndex !== undefined ? getUnitActions(legalMoves, itemIndex, isWarView(context), item.location?.type) : {}
   const available = unitActions.filter((action) => actions[action])
   const actionButtons = available.map((action) => {
     const Icon = unitActionIcons[action]

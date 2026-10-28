@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Выбери Отряд, который Тень активирует снова",
   "header.deploy-effects.wait": "Другие Монархи применяют способности развёртывания",
   "move.reactivate": "Активировать снова",
+  "move.take.back": "Вернуть в руку",
   "log.reactivate": "<who/> снова активирует: <card/> (эффект: <source/>)",
   "header.deploy-effects.spectator": "Монархи применяют способности развёртывания",
   "scoring.artifacts": "Легендарные артефакты",

@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Scegli l’Unità che l’Ombra attiva di nuovo",
   "header.deploy-effects.wait": "Gli altri Monarchi applicano le loro abilità di schieramento",
   "move.reactivate": "Riattiva",
+  "move.take.back": "Riprendi in mano",
   "log.reactivate": "<who/> riattiva <card/> con <source/>",
   "header.deploy-effects.spectator": "I Monarchi applicano le loro abilità di schieramento",
   "scoring.artifacts": "Artefatti Leggendari",

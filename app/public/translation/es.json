@@ -574,6 +574,7 @@
   "header.reactivate.choose": "Elige la Unidad que la Sombra vuelve a activar",
   "header.deploy-effects.wait": "Los demás Monarcas aplican sus efectos de despliegue",
   "move.reactivate": "Reactivar",
+  "move.take.back": "Devolver a la mano",
   "log.reactivate": "<who/> vuelve a activar <card/> con <source/>",
   "header.deploy-effects.spectator": "Los Monarcas aplican sus efectos de despliegue",
   "scoring.artifacts": "Artefactos legendarios",

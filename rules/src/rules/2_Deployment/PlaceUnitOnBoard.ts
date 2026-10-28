@@ -87,6 +87,16 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
       ...playerHandPlayable.filter<Card>((item) => isArtifact(item.id)).moveItems({ type: LocationType.PlayerArtifacts, player: playerId, rotation: true })
     )
 
+    // A card laid this turn, still face down, goes back to the hand: a unit of an earlier turn stays in the kingdom
+    const justDeployed = this.getCardJustDeployed(playerId)
+    moves.push(
+      ...this.material(MaterialType.Unit)
+        .index((index) => justDeployed.includes(index))
+        .location((location) => location.type === LocationType.PlayerUnitBoard || location.type === LocationType.PlayerArtifacts)
+        .player(playerId)
+        .moveItems({ type: LocationType.PlayerUnitHand, player: playerId })
+    )
+
     const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
     moves.push(...discardAndEndMoves)
 
@@ -104,6 +114,11 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
   beforeItemMove(move: ItemMove): MaterialMove[] {
     const moves: MaterialMove[] = []
     if (!isMoveItemType(MaterialType.Unit)(move)) return []
+
+    // Taken back to the hand: it no longer counts among the cards deployed this turn
+    if (move.location.type === LocationType.PlayerUnitHand) {
+      this.removeCardFromDeployment(move.location.player!, move.itemIndex)
+    }
 
     if (move.location.type === LocationType.Discard) {
       const card = this.material(MaterialType.Unit).getItem<Unit>(move.itemIndex)

@@ -171,4 +171,27 @@ describe('Rulebook p.5: deploying on a taken space', () => {
     expect(rules.material(MaterialType.Unit).getItem(first).location).toMatchObject({ type: LocationType.PlayerUnitHand, player: PlayerColor.Blue })
     expect(rules.remind<number[]>(Memory.PlayedCardsDuringDeployment, PlayerColor.Blue)).toEqual([second])
   })
+
+  const takeBack = (rules: PaperTalesRules, card: number) =>
+    rules
+      .getLegalMoves(PlayerColor.Blue)
+      .find((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Move && move.itemIndex === card && move.location.type === LocationType.PlayerUnitHand)
+
+  it('takes a unit laid this turn back to the hand', () => {
+    const { rules, first } = deployment()
+    const move = rules
+      .getLegalMoves(PlayerColor.Blue)
+      .find((move) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Move && move.itemIndex === first && move.location.type === LocationType.PlayerUnitBoard && move.location.x === 1 && move.location.y === 0)
+    playConsequences(rules, move!)
+    const back = takeBack(rules, first)
+    expect(back, 'a unit laid this turn can go back to the hand').toBeDefined()
+    playConsequences(rules, back!)
+    expect(rules.material(MaterialType.Unit).getItem(first).location).toMatchObject({ type: LocationType.PlayerUnitHand, player: PlayerColor.Blue })
+    expect(rules.remind<number[]>(Memory.PlayedCardsDuringDeployment, PlayerColor.Blue)).toEqual([])
+  })
+
+  it('keeps a unit of an earlier turn in the kingdom', () => {
+    const { rules, older } = deployment()
+    expect(takeBack(rules, older), 'a unit of an earlier turn never goes back to the hand').toBeUndefined()
+  })
 })

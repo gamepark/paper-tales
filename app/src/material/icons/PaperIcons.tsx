@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
-import { FC, ReactNode, SVGAttributes } from 'react'
+import { FC, ReactNode, SVGAttributes, useId } from 'react'
+import ageToken from '../../images/tokens/Age.jpg'
 
 /**
  * The icons of the game, drawn as cut paper like its art: flat sheets of colour, a white cut fringe and a dark outline
@@ -47,6 +48,19 @@ export const DiscardIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
       <path d="M27 7 L41 9 L39 44 L28 42 L29 35 L25.5 29 L29 24 L25 19 L28 14 Z" fill="#f6ece6" transform="rotate(10 33 25)" />
       <path d="M28 10 L39 11.5 L38.6 17 L27.6 15.6 Z" fill="#b5481f" transform="rotate(10 33 25)" />
     </g>
+  </PaperIcon>
+)
+
+/** Take a card back to the hand: the hand as a fan of three cards, an arrow coming down into it */
+export const TakeBackIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <rect x="7" y="18" width="18" height="25" rx="2.5" transform="rotate(-18 16 30)" fill="#f6ece6" />
+    <rect x="9.2" y="21" width="13.6" height="5.5" rx="1" transform="rotate(-18 16 30)" fill="#b5481f" />
+    <rect x="15" y="16" width="18" height="25" rx="2.5" transform="rotate(0 24 28)" fill="#f6ece6" />
+    <rect x="17.2" y="19" width="13.6" height="5.5" rx="1" transform="rotate(0 24 28)" fill="#b5481f" />
+    <rect x="23" y="18" width="18" height="25" rx="2.5" transform="rotate(18 32 30)" fill="#f6ece6" />
+    <rect x="25.2" y="21" width="13.6" height="5.5" rx="1" transform="rotate(18 32 30)" fill="#b5481f" />
+    <path d="M24 1 L24 11 M19.5 7 L24 11.5 L28.5 7" fill="none" strokeLinecap="round" />
   </PaperIcon>
 )
 
@@ -116,16 +130,27 @@ export const LegendIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
   </PaperIcon>
 )
 
-/** Place an Age token: the moon token, and an arrow onto it */
-export const AgeIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
-  <PaperIcon {...props}>
-    <g transform="translate(0 1.5)">
-      <circle cx="24" cy="29" r="14" fill="#3e7d8a" />
-      <path d="M28 19.5 A10.5 10.5 0 1 0 33.5 35 A8.6 8.6 0 1 1 28 19.5 Z" fill="#f6ece6" />
-      <path d="M24 2 L24 11 M19 7 L24 12 L29 7" fill="none" strokeLinecap="round" />
-    </g>
-  </PaperIcon>
-)
+/**
+ * Place an Age token: the token of the game itself, cut round with the outline and the white fringe of the other icons,
+ * under an arrow pointing down
+ */
+export const AgeIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => {
+  const clip = useId()
+  return (
+    <svg viewBox="-3 -3 54 54" css={iconCss} aria-hidden {...props}>
+      <g transform="translate(0 1.5)">
+        <circle cx="24" cy="29" r="16" fill="#2e2a26" />
+        <circle cx="24" cy="29" r="14.2" fill="#fffdf8" />
+        <clipPath id={clip}>
+          <circle cx="24" cy="29" r="12.8" />
+        </clipPath>
+        <image href={ageToken} x="11.2" y="16.2" width="25.6" height="25.6" clipPath={`url(#${clip})`} />
+        <path d="M24 2 L24 11 M19 7 L24 12 L29 7" fill="none" strokeLinecap="round" strokeLinejoin="round" stroke="#2e2a26" strokeWidth={6} />
+        <path d="M24 2 L24 11 M19 7 L24 12 L29 7" fill="none" strokeLinecap="round" strokeLinejoin="round" stroke="#fffdf8" strokeWidth={2.6} />
+      </g>
+    </svg>
+  )
+}
 
 /** Apply again the "when revealed" effects of a unit (the Shadow): a card turned over, and a looping arrow around it */
 export const ReactivateIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
