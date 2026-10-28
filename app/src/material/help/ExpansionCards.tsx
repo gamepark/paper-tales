@@ -77,8 +77,9 @@ const cardCss = css`
   font-size: 1em;
   position: relative;
 
+  /* Above the strip of the drawn Buildings too, which lies one level above the lines that follow it */
   &:hover {
-    z-index: 1;
+    z-index: 2;
   }
 `
 
