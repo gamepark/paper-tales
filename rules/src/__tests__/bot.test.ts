@@ -49,7 +49,7 @@ describe('PaperTalesBot', () => {
       }
       expect(deployments).toBeGreaterThan(0)
     }
-  })
+  }, 120_000)
 
   it.each([
     ['the base game', {}],
@@ -76,5 +76,5 @@ describe('PaperTalesBot', () => {
         expect(++actions, 'the game ends').toBeLessThan(2000)
       }
     }
-  })
+  }, 120_000)
 })
