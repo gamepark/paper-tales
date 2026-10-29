@@ -1,12 +1,12 @@
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { DropAreaDescription, ItemContext, MaterialContext, PileLocator } from '@gamepark/react-game'
-import { Location, MaterialItem } from '@gamepark/rules-api'
+import { DropAreaDescription, ItemContext, PileLocator } from '@gamepark/react-game'
+import { MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
-import { getKingdomScale, scaleTransform } from './TableLayout'
 
 /**
- * Age tokens on a unit: same scale as the unit. When a token can be moved from a unit to another one (the Wizard
- * Apprentice), each unit it can go to is a drop area as large as the card (declared by the card, see UnitCardDescription).
+ * Age tokens on a unit: laid on the card, they take its transform and so its scale (the neighbours view draws the units
+ * smaller); nothing is added. When a token can be moved from a unit to another one (the Wizard Apprentice), each unit it
+ * can go to is a drop area as large as the card.
  */
 class OnCardLocator extends PileLocator {
   parentItemType = MaterialType.Unit
@@ -17,11 +17,6 @@ class OnCardLocator extends PileLocator {
   getItemCoordinates(item: MaterialItem, context: ItemContext) {
     const coordinates = super.getItemCoordinates(item, context)
     return { ...coordinates, z: (coordinates.z ?? 0) + 1 }
-  }
-
-  placeItem(item: MaterialItem, context: ItemContext) {
-    const unit = context.rules.material(MaterialType.Unit).getItem(item.location.parent!)
-    return [...super.placeItem(item, context), ...scaleTransform(getKingdomScale(context, unit.location.player))]
   }
 
   locationDescription = new UnitDropArea()
@@ -42,12 +37,6 @@ class UnitDropArea extends DropAreaDescription {
 
   // Centred on the card, whereas the tokens lie a little higher on it (see OnCardLocator.positionOnParent)
   positionOnParent = { x: 50, y: 50 }
-
-  getLocationSize(location: Location, context: MaterialContext) {
-    const unit = context.rules.material(MaterialType.Unit).getItem(location.parent!)
-    const scale = getKingdomScale(context, unit.location.player)
-    return { width: unitCardDescription.width * scale, height: unitCardDescription.height * scale }
-  }
 }
 
 export const onCardLocator = new OnCardLocator()
