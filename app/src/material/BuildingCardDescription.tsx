@@ -103,6 +103,8 @@ export class BuildingCardDescription extends CardDescription {
   menuAlwaysVisible = true
 
   getItemMenu(_item: MaterialItem, context: ItemContext, _legalMoves: MaterialMove[]) {
+    // The neighbours view is for looking at the wars: no construction there
+    if (isWarView(context)) return []
     const flip = _legalMoves.find((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index && move.location.rotation === true)
 
     const buildAsIs = _legalMoves.find((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index && !move.location.rotation)
