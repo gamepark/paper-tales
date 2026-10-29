@@ -43,7 +43,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
   const war = useMemo(() => new War(rules.game), [rules.game])
   const color = getColor(player).substring(0, 7)
   const light = player === PlayerColor.White || player === PlayerColor.Yellow
-  // On the white sheet, the cream paper and the white pawn need an ink outline to stand out
+  // On the white sheet, the cream paper needs an ink outline to stand out
   const pale = player === PlayerColor.White
 
   return (
@@ -59,7 +59,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
         <PlayerTimer playerId={player} css={timerCss} />
       </div>
       <div css={[patchCss, pale && palePatchCss]}>
-        <DeltaCounter image={scoreTokenDescription.images[player]} value={scoreHelper.score} outlined={pale} />
+        <DeltaCounter image={scoreTokenDescription.images[player]} value={scoreHelper.score} outlined />
         <DeltaCounter image={gold} value={buildHelper.gold} round />
         <Counter image={shield} value={war.getPlayerPower(player)} />
         <Counter image={wood} value={resourcesHelper.getResource(Resources.Wood)} />
@@ -72,19 +72,22 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
 
 type CounterProps = { image: string; value: number; round?: boolean; outlined?: boolean }
 
-const Counter: FC<CounterProps & { children?: ReactNode }> = ({ image, value, round, outlined, children }) => (
-  <span css={counterCss}>
+const Counter: FC<CounterProps & { children?: ReactNode; bump?: number }> = ({ image, value, round, outlined, children, bump }) => (
+  <span css={[counterCss, bump !== undefined && bumpCss]} key={bump}>
     <img src={image} alt="" css={[round && roundImageCss, outlined && outlinedImageCss]} />
     {value}
     {children}
   </span>
 )
 
-/** A counter whose gains and losses show in a bubble: the score (wars, effects) and the gold (income, costs) */
+/**
+ * A counter whose gains and losses show in a bubble, the counter itself bouncing at each change: the score (wars,
+ * effects) and the gold (income, costs), read on the panels when the area of a Monarch is not displayed
+ */
 const DeltaCounter: FC<CounterProps> = (props) => {
   const delta = useValueDelta(props.value)
   return (
-    <Counter {...props}>
+    <Counter {...props} bump={delta?.id}>
       <DeltaBubble delta={delta} />
     </Counter>
   )
@@ -242,6 +245,21 @@ const counterCss = css`
   }
 `
 
+const bump = keyframes`
+  0% { transform: scale(1); }
+  30% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+`
+
+const bumpCss = css`
+  animation: ${bump} 0.45s ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`
+
+/** The score pawn, outlined in ink so that every colour reads on the cream paper, the pale ones as well */
 const outlinedImageCss = css`
   filter: drop-shadow(0 0 0.05em ${cutLine}) drop-shadow(0 0 0.05em ${cutLine});
 `
