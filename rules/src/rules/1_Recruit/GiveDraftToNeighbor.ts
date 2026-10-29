@@ -1,4 +1,4 @@
-import { MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
+import { isMoveItemTypeAtOnce, isShuffleItemType, ItemMove, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { MaterialType } from '../../material/MaterialType'
 import { LocationType } from '../../material/LocationType'
 import { Memory } from '../Memory'
@@ -8,19 +8,30 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
   /**
    * Every Monarch has passed their hand face down (see Draft): each one takes the hand passed to them. It is shuffled
    * while it is still face down, so that the Monarch who passed it cannot follow a card to what the neighbour keeps, then
-   * it is taken in hand. The last card of each hand: nothing to choose, the deployment begins and the card lands in the
-   * hand of its receiver (see PlaceUnitOnBoard).
+   * it is taken in hand, once the shuffle is played (see afterItemMove). The last card of each hand: nothing to choose,
+   * the deployment begins and the card lands in the hand of its receiver (see PlaceUnitOnBoard).
    */
   onRuleStart(): MaterialMove[] {
-    const players = this.game.players
-    // The hands are captured before any move: the same cards are then moved step by step
-    const hands = players.map((player) => this.material(MaterialType.Unit).location(LocationType.DraftTransit).player(player))
+    const hands = this.game.players.map((player) => this.getPassedHand(player))
     if (hands.every((hand) => hand.length <= 1)) return [this.startSimultaneousRule(RuleId.PlaceUnitOnBoard)]
-    const moves: MaterialMove[] = []
-    for (const hand of hands) if (hand.length > 1) moves.push(hand.shuffle())
-    hands.forEach((hand, index) => moves.push(hand.moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player: players[index] })))
-    moves.push(this.startSimultaneousRule(RuleId.Draft))
-    return moves
+    return hands.map((hand, index) => (hand.length > 1 ? hand.shuffle() : this.takeHand(this.game.players[index])))
+  }
+
+  /** A hand shuffled is taken; the draft goes on once every hand is taken */
+  afterItemMove(move: ItemMove): MaterialMove[] {
+    if (isShuffleItemType(MaterialType.Unit)(move)) return [this.takeHand(this.material(MaterialType.Unit).getItem(move.indexes[0]).location.player!)]
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerDraftHand) {
+      return this.material(MaterialType.Unit).location(LocationType.DraftTransit).length ? [] : [this.startSimultaneousRule(RuleId.Draft)]
+    }
+    return []
+  }
+
+  private getPassedHand(player: number) {
+    return this.material(MaterialType.Unit).location(LocationType.DraftTransit).player(player)
+  }
+
+  private takeHand(player: number): MaterialMove {
+    return this.getPassedHand(player).moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player })
   }
 
   getNextPlayer(player: number) {

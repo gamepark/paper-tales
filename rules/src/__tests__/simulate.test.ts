@@ -166,26 +166,32 @@ describe('Random games on the rules alone', () => {
 
   /**
    * The deck runs out at 7 players (42 cards, 35 dealt each turn): the discard is shuffled into a new deck, and a game
-   * still ends with every card accounted for. The moves of a rule are played after it returns them all: the deck is
-   * shuffled once the discard is in it, every card of the new deck in the shuffle.
+   * still ends with every card accounted for. The moves of a rule are played after it returns them all: the discard is
+   * shuffled, the rest of the deal is taken from it once the shuffle is played, and what is left becomes the deck.
    */
   it('7 players: the deck runs out and the discard becomes the deck', () => {
     const game = newGame(7)
     const rules = new PaperTalesRules(game)
     let refilled = false
-    let shuffledAfterRefill = 0
+    let shuffled: number[] | undefined
+    const sorted = (indexes: number[]) => [...indexes].sort((a, b) => a - b)
     while (game.rule) {
       play(rules, randomMove(rules), (move) => {
-        if ((isMoveItemType(MaterialType.Unit)(move) || isMoveItemTypeAtOnce(MaterialType.Unit)(move)) && move.location.type === LocationType.Deck) refilled = true
-        if (refilled && isShuffleItemType(MaterialType.Unit)(move) && rules.material(MaterialType.Unit).getItem(move.indexes[0]).location.type === LocationType.Deck) {
-          const deck = rules.material(MaterialType.Unit).location(LocationType.Deck).getIndexes()
-          expect([...move.indexes].sort((a, b) => a - b)).toEqual([...deck].sort((a, b) => a - b))
-          shuffledAfterRefill++
+        if (isShuffleItemType(MaterialType.Unit)(move) && rules.material(MaterialType.Unit).getItem(move.indexes[0]).location.type === LocationType.Discard) {
+          expect(sorted(move.indexes)).toEqual(sorted(rules.material(MaterialType.Unit).location(LocationType.Discard).getIndexes()))
+          shuffled = move.indexes
+        }
+        if ((isMoveItemType(MaterialType.Unit)(move) || isMoveItemTypeAtOnce(MaterialType.Unit)(move)) && move.location.type === LocationType.Deck) {
+          // The refill takes what is left of the discard just shuffled, all at once
+          refilled = true
+          expect(isMoveItemTypeAtOnce(MaterialType.Unit)(move)).toBe(true)
+          for (const index of (move as { indexes: number[] }).indexes) expect(shuffled).toContain(index)
+          expect(rules.material(MaterialType.Unit).location(LocationType.Discard).length).toBe(0)
+          shuffled = undefined
         }
       })
     }
     expect(refilled).toBe(true)
-    expect(shuffledAfterRefill).toBeGreaterThan(0)
   }, 600000)
 
   /**

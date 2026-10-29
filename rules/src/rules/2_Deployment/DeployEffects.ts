@@ -277,19 +277,22 @@ export class DeployEffects extends SimultaneousRule {
     return [this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: shapeshifter.location.x, y: shapeshifter.location.y })]
   }
 
-  /** The discard goes into the deck, where it is shuffled (see afterItemMove): the draw goes on once it is shuffled */
+  /**
+   * The discard is shuffled, then it goes into the deck once the shuffle is played, and the draw goes on once the cards
+   * are in the deck (see afterItemMove)
+   */
   private refillDeck(player: PlayerColor, discarded?: number): MaterialMove[] {
     const discard = this.material(MaterialType.Unit).filter((item, index) => item.location.type === LocationType.Discard || index === discarded)
     if (!discard.length || this.remind(Memory.DeckRefilled, player)) return []
     this.memorize(Memory.DeckRefilled, DeckRefill.Refilling, player)
-    return [discard.moveItemsAtOnce({ type: LocationType.Deck })]
+    return [discard.shuffle()]
   }
 
   /** A card drawn for an effect, or the deck refilled, or a choice made by moving a card or a token */
   afterItemMove(move: ItemMove): MaterialMove[] {
-    // Shuffled once the cards are in the deck: a shuffle returned with their move would be computed on the cards still in the discard
-    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) return [this.deck.shuffle()]
-    if (isShuffleItemType(MaterialType.Unit)(move)) {
+    // The discard taken into the deck once it is shuffled: a move returned with the shuffle would take the cards before it
+    if (isShuffleItemType(MaterialType.Unit)(move)) return [this.material(MaterialType.Unit).location(LocationType.Discard).moveItemsAtOnce({ type: LocationType.Deck })]
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) {
       return this.game.players.flatMap((player) => {
         if (this.remind(Memory.DeckRefilled, player) !== DeckRefill.Refilling) return []
         this.memorize(Memory.DeckRefilled, DeckRefill.Refilled, player)
