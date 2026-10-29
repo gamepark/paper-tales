@@ -40,6 +40,9 @@ class UnitDropArea extends DropAreaDescription {
     return false
   }
 
+  // Centred on the card, whereas the tokens lie a little higher on it (see OnCardLocator.positionOnParent)
+  positionOnParent = { x: 50, y: 50 }
+
   getLocationSize(location: Location, context: MaterialContext) {
     const unit = context.rules.material(MaterialType.Unit).getItem(location.parent!)
     const scale = getKingdomScale(context, unit.location.player)
