@@ -21,17 +21,34 @@ const actionTexts: Record<BuildAction, [string, string]> = {
 }
 
 /**
- * How a construction is paid, shown when its hammer is hovered: the land, the printed cost of each level, what the
- * kingdom produces, what another resource or the gold replaces, and the cards that change the price. It is the payment
- * the rules take (BuildHelper.getPayment), never a second count.
+ * How a construction is paid, shown when its hammer is hovered (on a phone, in the help of the building, see
+ * BuildPaymentDetail): the building and the construction, then the detail of the payment
  */
 export const BuildPaymentBill: FC<{ building: Building; action: BuildAction }> = ({ building, action }) => {
+  const { t } = useTranslation()
+  const me = usePlayerId<PlayerColor>()
+  const rules = useRules<PaperTalesRules>()!
+  if (me === undefined || !new BuildHelper(rules.game, me).getPayment(building, action)) return null
+  const [titleKey, titleDefault] = actionTexts[action]
+  return (
+    <span css={billCss} data-tip>
+      <span css={titleCss}>{t(`building.${building}`)}</span>
+      <span css={subtitleCss}>{t(titleKey, titleDefault)}</span>
+      <BuildPaymentDetail building={building} action={action} player={me} />
+    </span>
+  )
+}
+
+/**
+ * The detail of a payment: the land, the printed cost of each level, what the kingdom produces, what another resource
+ * or the gold replaces, and the cards that change the price, then the total and the gold left. It is the payment the
+ * rules take (BuildHelper.getPayment), never a second count. Nothing when the construction cannot be paid.
+ */
+export const BuildPaymentDetail: FC<{ building: Building; action: BuildAction; player: PlayerColor }> = ({ building, action, player }) => {
   const { t, i18n } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
-  const me = usePlayerId<PlayerColor>()
   const unitName = useUnitName()
-  if (me === undefined) return null
-  const helper = new BuildHelper(rules.game, me)
+  const helper = new BuildHelper(rules.game, player)
   const payment = helper.getPayment(building, action)
   if (!payment) return null
   const sourcesOf = (predicate: (effect: BuildEffect) => boolean) => {
@@ -39,11 +56,8 @@ export const BuildPaymentBill: FC<{ building: Building; action: BuildAction }> =
     const names = [...cards.map(unitName), ...buildings.map((id) => t(`building.${id}`))]
     return new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(names)
   }
-  const [titleKey, titleDefault] = actionTexts[action]
   return (
-    <span css={billCss} data-tip>
-      <span css={titleCss}>{t(`building.${building}`)}</span>
-      <span css={subtitleCss}>{t(titleKey, titleDefault)}</span>
+    <>
       <span css={rowsCss}>
         {action !== BuildAction.Upgrade && <LandRow payment={payment} sources={() => sourcesOf(isIgnoreFieldCost)} />}
         {payment.levels.map((level) => (
@@ -75,7 +89,7 @@ export const BuildPaymentBill: FC<{ building: Building; action: BuildAction }> =
       <span css={leftCss}>
         <Trans i18nKey="build.bill.left" defaults="You will have {gold} <coin/> left" values={{ gold: helper.gold - payment.total }} components={{ coin: <CoinIcon /> }} />
       </span>
-    </span>
+    </>
   )
 }
 

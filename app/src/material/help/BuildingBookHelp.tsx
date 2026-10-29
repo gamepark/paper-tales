@@ -1,3 +1,4 @@
+import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
@@ -9,7 +10,9 @@ import { MaterialHelpProps, useLegalMove, usePlayerId, usePlayerName, useRules }
 import { isMoveItemType, MaterialMove } from '@gamepark/rules-api'
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { BuildPaymentDetail } from '../BuildPaymentBill'
 import { BuildIcon } from '../icons/PaperIcons'
+import { cutLine, paper, receiptTornClip } from '../../theme/tableTheme'
 import { BookPage } from './book/BookPage'
 import { buildingPrintedContent } from './book/buildingPrinted'
 import { Cost } from './book/Cost'
@@ -113,7 +116,15 @@ const BuildLiveBox: FC<{
     const what = t(label)
     const gold = helper.getGoldToPay(building, action)
     if (gold === undefined) return lacks(what, helper.getCostOptions(building, action))
-    return <Trans i18nKey="help.building.price" defaults="{what}: {gold} <coin/> in all." values={{ what, gold }} components={{ coin: <CoinIcon /> }} />
+    // The detail of the payment under the price, as on the hammer hovered: on a phone, nothing is hovered
+    return (
+      <>
+        <Trans i18nKey="help.building.price" defaults="{what}: {gold} <coin/> in all." values={{ what, gold }} components={{ coin: <CoinIcon /> }} />
+        <span css={receiptCss}>
+          <BuildPaymentDetail building={building} action={action} player={player} />
+        </span>
+      </>
+    )
   }
 
 
@@ -131,3 +142,26 @@ const BuildLiveBox: FC<{
   }
   return <LiveBox title={t('help.live.now', 'For you, now')} lines={lines} />
 }
+
+/** The detail of a payment on a small paper receipt, under its price in the dark box */
+const receiptCss = css`
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 18em);
+  margin: 0.4em 0 0.2em;
+  padding: 0.6em 0.9em 0.55em;
+  color: ${cutLine};
+  font-size: 0.85em;
+  line-height: 1.3;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: ${paper};
+    clip-path: ${receiptTornClip};
+  }
+`
