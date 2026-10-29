@@ -100,40 +100,77 @@ const WAR_CENTER_X = AREA_X + (WAR_RIGHT - AREA_X) / 2
 const NEIGHBOUR_SCALE = 0.63
 const CENTER_SCALE = 0.76
 const WAR_TOP_Y = AREA_Y
-// The central kingdom right under the neighbours row: their ribbons (about 2.5 em) plus a clear gap of 1.5 em.
-// Its own ribbon stands at its left, in the room under my left neighbour, so that it takes no height.
-const WAR_BOTTOM_Y = WAR_TOP_Y + KINGDOM_HEIGHT * NEIGHBOUR_SCALE + 1.4 + 2.6 + 1.5
 /**
- * A seat of the neighbours view: the kingdom, and a column of its built buildings at its right, like in a player area.
- * Local coordinates are scaled.
+ * A seat of the neighbours view: the kingdom, a column of its built buildings at its right, like in a player area, and
+ * with What forges legends a column of its war Artifacts at their right. Local coordinates are scaled.
  */
-type WarSeat = { kingdomX: number; buildingsX: number; y: number; scale: number }
+type WarSeat = { kingdomX: number; buildingsX: number; artifactsX: number; y: number; scale: number }
 const WAR_BUILDINGS_GAP = 1
+const WAR_ARTIFACTS_GAP = 0.6
 const WAR_SEAT_WIDTH = KINGDOM_WIDTH + WAR_BUILDINGS_GAP + buildingCardDescription.width
+const WAR_ARTIFACTS_WIDTH = WAR_ARTIFACTS_GAP + unitCardDescription.width
 // With 2 players, the two seats side by side, as large as they can be with a margin at each end and a gap between them:
-// a kingdom with its 5th slot and its buildings never runs into the other one
+// a kingdom with its 5th slot, its buildings and its artifacts never runs into the other one. With 3, my 2 neighbours at
+// the top shrink as much, when their artifacts columns would make them meet.
 const TWO_SEATS_MARGIN = 1
 const TWO_SEATS_GAP = 2.5
-const TWO_SEATS_SCALE = Math.min(CENTER_SCALE, (WAR_RIGHT - AREA_X - 2 * TWO_SEATS_MARGIN - TWO_SEATS_GAP) / (2 * WAR_SEAT_WIDTH))
-const getWarSeat = (index: number, count: number): WarSeat => {
-  const right = (x: number, scale: number) => ({ kingdomX: x, buildingsX: x + (KINGDOM_WIDTH + WAR_BUILDINGS_GAP) * scale, scale })
+const NEIGHBOURS_GAP = 2.5
+
+type WarLayout = { seatWidth: number; neighbourScale: number; twoScale: number; bottomY: number }
+const getWarLayout = (context: MaterialContext): WarLayout => {
+  const seatWidth = WAR_SEAT_WIDTH + (hasArtifacts(context) ? WAR_ARTIFACTS_WIDTH : 0)
+  const neighbourScale = Math.min(NEIGHBOUR_SCALE, (WAR_RIGHT - AREA_X - NEIGHBOURS_GAP) / (2 * seatWidth))
+  const twoScale = Math.min(CENTER_SCALE, (WAR_RIGHT - AREA_X - 2 * TWO_SEATS_MARGIN - TWO_SEATS_GAP) / (2 * seatWidth))
+  // The central kingdom right under the neighbours row: their ribbons and the war results (about 2.5 em) plus a clear gap
+  // of 1.5 em. Its own ribbon stands at its left, in the room under my left neighbour, so that it takes no height.
+  const bottomY = WAR_TOP_Y + KINGDOM_HEIGHT * neighbourScale + 1.4 + 2.6 + 1.5
+  return { seatWidth, neighbourScale, twoScale, bottomY }
+}
+
+const getWarSeat = (context: MaterialContext, index: number, count: number): WarSeat => {
+  const { seatWidth, neighbourScale, twoScale, bottomY } = getWarLayout(context)
+  const right = (x: number, scale: number) => ({
+    kingdomX: x,
+    buildingsX: x + (KINGDOM_WIDTH + WAR_BUILDINGS_GAP) * scale,
+    artifactsX: x + (WAR_SEAT_WIDTH + WAR_ARTIFACTS_GAP) * scale,
+    scale
+  })
   if (count === 2)
     return index === 0
-      ? { ...right(AREA_X + TWO_SEATS_MARGIN, TWO_SEATS_SCALE), y: AREA_Y + 2 }
-      : { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * TWO_SEATS_SCALE - TWO_SEATS_MARGIN, TWO_SEATS_SCALE), y: AREA_Y + 2 }
-  if (index === 0) return { ...right(AREA_X, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
-  if (index === 2) return { ...right(WAR_RIGHT - WAR_SEAT_WIDTH * NEIGHBOUR_SCALE, NEIGHBOUR_SCALE), y: WAR_TOP_Y }
-  return { ...right(WAR_CENTER_X - (WAR_SEAT_WIDTH * CENTER_SCALE) / 2, CENTER_SCALE), y: WAR_BOTTOM_Y }
+      ? { ...right(AREA_X + TWO_SEATS_MARGIN, twoScale), y: AREA_Y + 2 }
+      : { ...right(WAR_RIGHT - seatWidth * twoScale - TWO_SEATS_MARGIN, twoScale), y: AREA_Y + 2 }
+  if (index === 0) return { ...right(AREA_X, neighbourScale), y: WAR_TOP_Y }
+  if (index === 2) return { ...right(WAR_RIGHT - seatWidth * neighbourScale, neighbourScale), y: WAR_TOP_Y }
+  return { ...right(WAR_CENTER_X - (seatWidth * CENTER_SCALE) / 2, CENTER_SCALE), y: bottomY }
+}
+
+/** The war seat of a Monarch of the neighbours view */
+const getPlayerWarSeat = (context: MaterialContext, player: number | undefined) => {
+  const players = getWarPlayers(context)
+  return getWarSeat(context, Math.max(0, players.indexOf(player as PlayerColor)), players.length)
 }
 /**
- * Where the ribbon of a kingdom of the neighbours view stands: centered under the seat (kingdom and buildings column,
- * so that it does not read as the caption of the buildings), or for the central kingdom of 3, at its left against its
- * bottom edge (beside: the anchor is the ribbon's bottom right corner).
+ * Where the ribbon of a kingdom of the neighbours view stands. With 2 kingdoms, centered under the seat (kingdom and
+ * buildings column, so that it does not read as the caption of the buildings). With 3, my 2 neighbours have theirs
+ * towards the middle of the view, leaving the outer ends of the row to the war results; the central kingdom has its own
+ * at its left against its bottom edge (beside: the anchor is the ribbon's bottom right corner).
  */
-export const getWarRibbonPosition = (index: number, count: number) => {
-  const seat = getWarSeat(index, count)
+const RIBBON_INSET = 5
+export const getWarRibbonPosition = (context: MaterialContext, index: number, count: number) => {
+  const seat = getWarSeat(context, index, count)
+  const y = seat.y + KINGDOM_HEIGHT * seat.scale + 1.4
   if (count === 3 && index === 1) return { x: seat.kingdomX - 1, y: seat.y + KINGDOM_HEIGHT * seat.scale, beside: true }
-  return { x: seat.kingdomX + (WAR_SEAT_WIDTH * seat.scale) / 2, y: seat.y + KINGDOM_HEIGHT * seat.scale + 1.4, beside: false }
+  if (count === 3 && index === 0) return { x: seat.kingdomX + WAR_SEAT_WIDTH * seat.scale - RIBBON_INSET, y, beside: false }
+  if (count === 3) return { x: seat.kingdomX + RIBBON_INSET, y, beside: false }
+  return { x: seat.kingdomX + (WAR_SEAT_WIDTH * seat.scale) / 2, y, beside: false }
+}
+
+/** With 3 kingdoms, a cut line between my 2 neighbours, from the top of the view down through the row of their ribbons */
+export const getWarSeparator = (context: MaterialContext) => {
+  const { seatWidth, neighbourScale, bottomY } = getWarLayout(context)
+  const leftEnd = AREA_X + seatWidth * neighbourScale
+  const rightStart = WAR_RIGHT - seatWidth * neighbourScale
+  return { x: (leftEnd + rightStart) / 2, y: WAR_TOP_Y - 0.5, height: bottomY - WAR_TOP_Y }
 }
 
 /**
@@ -141,15 +178,18 @@ export const getWarRibbonPosition = (index: number, count: number) => {
  * central kingdom where the neighbour sits (left or right); with 2, centred under both kingdoms. The anchor is the top
  * centre of the banner.
  */
-export const getWarResultPosition = (neighbourIndex: number, count: number): XYCoordinates => {
+export const getWarResultPosition = (context: MaterialContext, neighbourIndex: number, count: number): XYCoordinates => {
   if (count === 2) {
-    const seat = getWarSeat(0, 2)
+    const seat = getWarSeat(context, 0, 2)
     return { x: WAR_CENTER_X, y: seat.y + KINGDOM_HEIGHT * seat.scale + 4.2 }
   }
-  const center = getWarSeat(1, 3)
-  const centerRight = center.kingdomX + WAR_SEAT_WIDTH * center.scale
+  // In the row between my neighbours and the central kingdom, at its outer ends: the central kingdom keeps the room at its
+  // sides for its buildings and artifacts
+  const { seatWidth, neighbourScale } = getWarLayout(context)
+  const center = getWarSeat(context, 1, 3)
+  const centerRight = center.kingdomX + seatWidth * center.scale
   const x = neighbourIndex === 0 ? (AREA_X + center.kingdomX) / 2 : (centerRight + WAR_RIGHT) / 2
-  return { x, y: center.y + 1.5 }
+  return { x, y: WAR_TOP_Y + KINGDOM_HEIGHT * neighbourScale + 0.6 }
 }
 
 export const getMe = (context: MaterialContext): PlayerColor => (context.player ?? context.rules.players[0]) as PlayerColor
@@ -295,8 +335,7 @@ const isKeptHandAside = (context: MaterialContext) =>
 
 export const getKingdomScale = (context: MaterialContext, player?: number) => {
   if (!isWarView(context)) return 1
-  const players = getWarPlayers(context)
-  return getWarSeat(Math.max(0, players.indexOf(player as PlayerColor)), players.length).scale
+  return getPlayerWarSeat(context, player).scale
 }
 
 /**
@@ -307,8 +346,7 @@ export const getKingdomSlotCoordinates = (context: MaterialContext, player: numb
   const localX = x * KINGDOM_COLUMN + unitCardDescription.width / 2
   const localY = y * KINGDOM_ROW + unitCardDescription.height / 2
   if (!isWarView(context)) return { x: AREA_X + localX, y: AREA_Y + localY }
-  const players = getWarPlayers(context)
-  const seat = getWarSeat(Math.max(0, players.indexOf(player as PlayerColor)), players.length)
+  const seat = getPlayerWarSeat(context, player)
   return { x: seat.kingdomX + localX * seat.scale, y: seat.y + localY * seat.scale }
 }
 
@@ -463,8 +501,7 @@ export const getDraftRecipient = (context: MaterialContext, player = getMe(conte
 const WAR_BUILDING_GAP = 0.4
 const WAR_BUILDING_MIN_STEP = 3.2
 export const getWarBuildingCoordinates = (context: MaterialContext, player: number | undefined, index: number): Coordinates => {
-  const players = getWarPlayers(context)
-  const seat = getWarSeat(Math.max(0, players.indexOf(player as PlayerColor)), players.length)
+  const seat = getPlayerWarSeat(context, player)
   const count = context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(player).length
   const fullStep = buildingCardDescription.height + WAR_BUILDING_GAP
   const available = KINGDOM_HEIGHT - buildingCardDescription.height
@@ -474,6 +511,15 @@ export const getWarBuildingCoordinates = (context: MaterialContext, player: numb
     y: seat.y + (buildingCardDescription.height / 2 + index * step) * seat.scale,
     z: 0.2 + index * 0.1
   }
+}
+
+/** Neighbours view: the war Artifacts of a kingdom, in a column at the right of its buildings, cascaded the same way */
+export const getWarArtifactCoordinates = (context: MaterialContext, player: number | undefined, index: number, count: number): Coordinates => {
+  const seat = getPlayerWarSeat(context, player)
+  const { width, height } = unitCardDescription
+  const fullStep = height + WAR_BUILDING_GAP
+  const step = count <= 1 ? fullStep : Math.max(WAR_BUILDING_MIN_STEP, Math.min(fullStep, (KINGDOM_HEIGHT - height) / (count - 1)))
+  return { x: seat.artifactsX + (width / 2) * seat.scale, y: seat.y + (height / 2 + index * step) * seat.scale, z: 0.2 + index * 0.1 }
 }
 
 /**

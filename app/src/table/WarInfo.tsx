@@ -7,7 +7,7 @@ import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/rea
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
-import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView, viewMove } from '../locators/TableLayout'
+import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView, viewMove, getWarSeparator } from '../locators/TableLayout'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { fightsFromBackRow } from '../material/fightsFromBackRow'
 import { colorStripCss, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
@@ -35,6 +35,7 @@ export const WarInfo: FC = () => {
       {players.map((player) => (
         <BackRowStamp key={player} player={player} />
       ))}
+      {players.length === 3 && <NeighboursSeparator />}
     </>
   )
 }
@@ -59,6 +60,17 @@ const BackRowStamp: FC<{ player: PlayerColor }> = ({ player }) => {
   return <Sash rect={rect} label={t('war.back-row', 'Not fighting')} scale={scale * 1.15} angle={-6} />
 }
 
+/** A cut line between my 2 neighbours at the top: each half of the view holds one of them, its ribbon and its war */
+const NeighboursSeparator: FC = () => {
+  const context = useMaterialContext()
+  const { x, y, height } = getWarSeparator(context)
+  return <TableAnchor position={{ x, y }} css={separatorCss} style={{ height: `${height}em` }} />
+}
+
+const separatorCss = css`
+  border-left: 0.15em dashed ${paper}66;
+`
+
 type WarKingdomInfoProps = {
   player: PlayerColor
   index: number
@@ -72,7 +84,7 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, 
   const { t } = useTranslation()
   const context = useMaterialContext()
   const name = usePlayerName(player)
-  const position = getWarRibbonPosition(index, count)
+  const position = getWarRibbonPosition(context, index, count)
   return (
     <TableAnchor position={position}>
       <PlayMoveButton

@@ -30,7 +30,7 @@ export const WarResults: FC = () => {
       {neighbours.map((index) => (
         <WarResult
           key={index}
-          position={getWarResultPosition(index, players.length)}
+          position={getWarResultPosition(context, index, players.length)}
           neighbour={players[index]}
           center={center}
           neighbourStrength={strengths[players[index]] ?? 0}
