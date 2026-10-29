@@ -41,6 +41,7 @@ const areaLocations = [
   LocationType.PlayerUnitBoard,
   LocationType.PlayerBuildingBoard,
   LocationType.PlayerBuildingHand,
+  LocationType.PlayerArtifacts,
   LocationType.PlayerGoldStock
 ]
 
