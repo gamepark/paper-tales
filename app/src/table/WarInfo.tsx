@@ -3,14 +3,14 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
-import { useMaterialContext, usePlayerName } from '@gamepark/react-game'
+import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
-import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView } from '../locators/TableLayout'
+import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView, viewMove } from '../locators/TableLayout'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { fightsFromBackRow } from '../material/fightsFromBackRow'
-import { colorStripCss, paper, paperBackgroundCss, rust, tagPaperCss } from '../theme/tableTheme'
+import { colorStripCss, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { Sash } from './Sash'
 import { TableAnchor } from './TableAnchor'
@@ -18,7 +18,8 @@ import { TableAnchor } from './TableAnchor'
 /**
  * In the neighbours view, under each kingdom: the Monarch's name in their colour and the strength of their front row
  * (plus ranged units, rulebook p.6). The central kingdom is the one displayed, in a larger ribbon. Once the wars are
- * fought, their outcome is told in banners beside (see WarResults).
+ * fought, their outcome is told in banners beside (see WarResults). A click on a ribbon opens the kingdom of that Monarch,
+ * as the eye of their panel does.
  */
 export const WarInfo: FC = () => {
   const context = useMaterialContext()
@@ -69,21 +70,36 @@ type WarKingdomInfoProps = {
 
 const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, central, me }) => {
   const { t } = useTranslation()
+  const context = useMaterialContext()
   const name = usePlayerName(player)
   const position = getWarRibbonPosition(index, count)
   return (
-    <TableAnchor
-      position={position}
-      css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss]}
-    >
-      <span>{me ? t('war.you', 'You') : name}</span>
-      <span css={powerCss}>
-        <img src={shield} alt="" />
-        {power}
-      </span>
+    <TableAnchor position={position}>
+      <PlayMoveButton
+        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss, ribbonButtonCss]}
+        move={viewMove(context, player)}
+        transient
+        title={t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })}
+      >
+        <span>{me ? t('war.you', 'You') : name}</span>
+        <span css={powerCss}>
+          <img src={shield} alt="" />
+          {power}
+        </span>
+      </PlayMoveButton>
     </TableAnchor>
   )
 }
+
+/** The ribbon is a button: it lifts a little under the pointer */
+const ribbonButtonCss = css`
+  ${paperButtonResetCss};
+  transition: translate 0.15s;
+
+  &:hover {
+    translate: -0.05em -0.08em;
+  }
+`
 
 const infoCss = css`
   transform: translateX(-50%);
