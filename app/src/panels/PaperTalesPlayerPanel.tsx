@@ -59,16 +59,12 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
         <PlayerTimer playerId={player} css={timerCss} />
       </div>
       <div css={[patchCss, pale && palePatchCss]}>
-        <div css={countersCss}>
-          <DeltaCounter image={scoreTokenDescription.images[player]} value={scoreHelper.score} outlined={pale} />
-          <DeltaCounter image={gold} value={buildHelper.gold} round />
-          <Counter image={shield} value={war.getPlayerPower(player)} />
-        </div>
-        <div css={countersCss}>
-          <Counter image={wood} value={resourcesHelper.getResource(Resources.Wood)} />
-          <Counter image={food} value={resourcesHelper.getResource(Resources.Food)} />
-          <Counter image={diamond} value={resourcesHelper.getResource(Resources.Diamond)} />
-        </div>
+        <DeltaCounter image={scoreTokenDescription.images[player]} value={scoreHelper.score} outlined={pale} />
+        <DeltaCounter image={gold} value={buildHelper.gold} round />
+        <Counter image={shield} value={war.getPlayerPower(player)} />
+        <Counter image={wood} value={resourcesHelper.getResource(Resources.Wood)} />
+        <Counter image={food} value={resourcesHelper.getResource(Resources.Food)} />
+        <Counter image={diamond} value={resourcesHelper.getResource(Resources.Diamond)} />
       </div>
     </div>
   )
@@ -198,13 +194,18 @@ const timerCss = css`
   font-weight: 700;
 `
 
-/** The counters, on a piece of cream paper cut to their size and laid a little askew */
+/**
+ * The counters, on a piece of cream paper laid a little askew across the panel, up to the hourglass: a grid of 3 equal
+ * columns, the score, the gold and the strength above the resources
+ */
 const patchCss = css`
   position: relative;
   isolation: isolate;
-  justify-self: start;
+  justify-self: stretch;
+  margin-right: 2.4em;
   display: grid;
-  gap: 0.12em;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.12em 0.45em;
   padding: 0.24em 0.8em;
   color: ${cutLine};
   transform: rotate(-1.2deg);
@@ -222,11 +223,6 @@ const patchCss = css`
 
 const palePatchCss = css`
   filter: drop-shadow(0 0 0.04em ${cutLine}) drop-shadow(0 0 0.04em ${cutLine}) drop-shadow(0.08em 0.1em 0 #00000059);
-`
-
-const countersCss = css`
-  display: flex;
-  gap: 0.45em;
 `
 
 const counterCss = css`
