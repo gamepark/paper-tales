@@ -1,8 +1,6 @@
 import { css, keyframes } from '@emotion/react'
 import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons/faHourglassHalf'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
-import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
@@ -20,7 +18,6 @@ import shield from '../images/tokens/bouclier_rouge.png'
 import gold from '../images/tokens/Gold1.jpg'
 import { PANEL_HEIGHT } from '../locators/TableLayout'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
-import { unitCardDescription } from '../material/UnitCardDescription'
 import { cutLine, paper, paperFont, patchTornClip, roundImageCss, rust, sheetTornClip, tornDiscClip } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { DeltaBubble } from './DeltaBubble'
@@ -33,7 +30,7 @@ type PaperTalesPlayerPanelProps = {
 /**
  * A compact panel, so that 7 of them fit in the column at the left of the table. It carries what a player may need to
  * read of another one without opening their area: the score, the gold (never hidden, rulebook p.3), the strength of the
- * front row and the cards in hand, then the resources the kingdom produces (p.4).
+ * front row, then the resources the kingdom produces (p.4).
  * Cut paper: a torn sheet of the player's colour, the counters on a piece of cream paper cut to their size.
  */
 export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, ...props }) => {
@@ -44,10 +41,6 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
   const resourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player), [rules.game, player])
   const buildHelper = useMemo(() => new BuildHelper(rules.game, player), [rules.game, player])
   const war = useMemo(() => new War(rules.game), [rules.game])
-  const cardsInHand = rules
-    .material(MaterialType.Unit)
-    .location((location) => location.type === LocationType.PlayerUnitHand || location.type === LocationType.PlayerDraftHand)
-    .player(player).length
   const color = getColor(player).substring(0, 7)
   const light = player === PlayerColor.White || player === PlayerColor.Yellow
   // On the white sheet, the cream paper and the white pawn need an ink outline to stand out
@@ -70,7 +63,6 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
           <DeltaCounter image={scoreTokenDescription.images[player]} value={scoreHelper.score} outlined={pale} />
           <DeltaCounter image={gold} value={buildHelper.gold} round />
           <Counter image={shield} value={war.getPlayerPower(player)} />
-          <Counter image={unitCardDescription.backImage} value={cardsInHand} />
         </div>
         <div css={countersCss}>
           <Counter image={wood} value={resourcesHelper.getResource(Resources.Wood)} />
