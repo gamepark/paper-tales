@@ -611,5 +611,18 @@
   "header.improve.source": "<0/>: улучши Здание уровня 1 до уровня 2",
   "header.move-age.source": "<0/>: перемести жетон Возраста с одного своего Отряда на другой",
   "header.reactivate.source": "<0/>: снова активируй Отряд",
-  "header.age.save.source": "<0/>: спаси отряд от гибели или <1>никого не спасай</1>"
+  "header.age.save.source": "<0/>: спаси отряд от гибели или <1>никого не спасай</1>",
+  "build.bill.level1": "Построить на уровне 1",
+  "build.bill.level2": "Построить сразу на уровне 2",
+  "build.bill.upgrade": "Улучшить до уровня 2",
+  "build.bill.land": "Земля",
+  "build.bill.land.built": "{count, plural, one {# здание уже построено} few {# здания уже построены} other {# зданий уже построено}}",
+  "build.bill.free": "бесплатно",
+  "build.bill.level": "Уровень {level}",
+  "build.bill.instead": "вместо <cost/>",
+  "build.bill.ignored": "не нужно",
+  "build.bill.substituted": "<res/> заменено на <by/>",
+  "build.bill.gold": "Не хватает <res/>, оплачено золотом",
+  "build.bill.total": "К оплате",
+  "build.bill.left": "У тебя останется {gold} <coin/>"
 }

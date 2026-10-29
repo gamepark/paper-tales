@@ -61,6 +61,11 @@ const discCss = css`
     height: 2.05em;
   }
 
+  /* A button that shows a tip when hovered (the payment of a construction) rises above the buttons of the next cards */
+  &:hover:has(> [data-tip]) {
+    translate: 0 0 5em;
+  }
+
   &:hover:not(:disabled) {
     margin-top: -0.12em;
     filter: drop-shadow(0.22em 0.3em 0 #00000059);

@@ -5,7 +5,9 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { CardDescription, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
+import { BuildAction } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { isWarView } from '../locators/TableLayout'
+import { BuildPaymentBill } from './BuildPaymentBill'
 import { cutLine, paper, paperFont, tornClip } from '../theme/tableTheme'
 import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
 import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
@@ -109,19 +111,24 @@ export class BuildingCardDescription extends CardDescription {
 
     const buildAsIs = _legalMoves.find((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === context.index && !move.location.rotation)
 
+    // A hammer hovered tells how the construction is paid
+    const upgrade = _item.location.type === LocationType.PlayerBuildingBoard
     const items = []
     if (buildAsIs) {
       items.push(
         <PaperMenuButton key="build-as-is" move={buildAsIs} x={-BUILD_BUTTON_X} y={BUILD_BUTTON_Y} level={1}>
           <BuildIcon />
+          <BuildPaymentBill building={_item.id as Building} action={BuildAction.BuildLevel1} />
         </PaperMenuButton>
       )
     }
 
     if (flip) {
+      const action = upgrade ? BuildAction.Upgrade : BuildAction.BuildLevel2
       items.push(
         <PaperMenuButton key="flip" move={flip} x={BUILD_BUTTON_X} y={BUILD_BUTTON_Y} level={2}>
           <BuildIcon />
+          <BuildPaymentBill building={_item.id as Building} action={action} />
         </PaperMenuButton>
       )
     }

@@ -2,6 +2,7 @@ import { MaterialGame, MaterialMove } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
 import { Gold } from '../material/Gold'
+import { Resources } from '../material/Resources'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Unit } from '../material/Unit'
@@ -49,6 +50,32 @@ describe('Rulebook p.7: paying a construction', () => {
     const town = rules.material(MaterialType.Building).player(PlayerColor.Blue).id(Building.Town).getIndex()
     playAll(rules, rules.material(MaterialType.Building).index(town).moveItem({ type: LocationType.PlayerBuildingBoard, player: PlayerColor.Blue, rotation: true }))
     expect(new BuildHelper(rules.game, PlayerColor.Blue).gold).toBe(7 - toPay)
+  })
+
+  it('tells how it is paid: the land, the cost of each level, what is produced and what gold replaces', () => {
+    const { rules } = setup([Unit.Peddler, Unit.WoodMerchant], 7)
+    const helper = new BuildHelper(rules.game, PlayerColor.Blue)
+    const woods = helper.resources.filter((r) => r === Resources.Wood).length
+    const payment = helper.getPayment(Building.Town, BuildAction.BuildLevel2)!
+    expect(payment.field).toBe(2)
+    expect(payment.levels.map((level) => [level.level, level.cost])).toEqual([[1, [Resources.Wood]], [2, [Resources.Wood, Resources.Wood]]])
+    expect(payment.produced).toEqual(Array(woods).fill(Resources.Wood))
+    expect(payment.replacedByGold).toEqual(Array(3 - woods).fill(Resources.Wood))
+    expect(payment.total).toBe(helper.getGoldToPay(Building.Town, BuildAction.BuildLevel2))
+  })
+
+  it('a cost the kingdom does not produce is paid with the gold printed beside it', () => {
+    // Temple directly at level 2: level 1 a crystal (or 2 gold), level 2 two crystals (or 3 gold). The Mine produces one
+    // crystal: it pays level 1, the 3 gold pay level 2, plus the land
+    const { rules } = setup([], 5)
+    const payment = new BuildHelper(rules.game, PlayerColor.Blue).getPayment(Building.Temple, BuildAction.BuildLevel2)!
+    expect(payment.levels).toEqual([
+      { level: 1, cost: [Resources.Diamond] },
+      { level: 2, cost: [Resources.Gold, Resources.Gold, Resources.Gold], alternate: true }
+    ])
+    expect(payment.produced).toEqual([Resources.Diamond])
+    expect(payment.printedGold).toBe(3)
+    expect(payment.total).toBe(5)
   })
 
   it('cannot build what the kingdom cannot pay', () => {

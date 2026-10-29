@@ -611,5 +611,18 @@
   "header.improve.source": "<0/>: upgrade a level 1 Building to level 2",
   "header.move-age.source": "<0/>: move an Age token from one of your Units to another",
   "header.reactivate.source": "<0/>: trigger a Unit again",
-  "header.age.save.source": "<0/>: save a unit from dying, or <1>save nobody</1>"
+  "header.age.save.source": "<0/>: save a unit from dying, or <1>save nobody</1>",
+  "build.bill.level1": "Build at level 1",
+  "build.bill.level2": "Build directly at level 2",
+  "build.bill.upgrade": "Upgrade to level 2",
+  "build.bill.land": "Land",
+  "build.bill.land.built": "{count, plural, one {# building already built} other {# buildings already built}}",
+  "build.bill.free": "free",
+  "build.bill.level": "Level {level}",
+  "build.bill.instead": "instead of <cost/>",
+  "build.bill.ignored": "ignored",
+  "build.bill.substituted": "<res/> replaced by <by/>",
+  "build.bill.gold": "Missing <res/>, paid in gold",
+  "build.bill.total": "To pay",
+  "build.bill.left": "You will have {gold} <coin/> left"
 }

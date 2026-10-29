@@ -611,5 +611,18 @@
   "header.improve.source": "<0/>: Baue ein Gebäude der Stufe 1 auf Stufe 2 aus",
   "header.move-age.source": "<0/>: Verschiebe einen Altersmarker von einer deiner Einheiten auf eine andere",
   "header.reactivate.source": "<0/>: Löse eine Einheit erneut aus",
-  "header.age.save.source": "<0/>: Rette eine Einheit vor dem Tod, oder <1>rette niemanden</1>"
+  "header.age.save.source": "<0/>: Rette eine Einheit vor dem Tod, oder <1>rette niemanden</1>",
+  "build.bill.level1": "Auf Stufe 1 bauen",
+  "build.bill.level2": "Direkt auf Stufe 2 bauen",
+  "build.bill.upgrade": "Auf Stufe 2 ausbauen",
+  "build.bill.land": "Bauland",
+  "build.bill.land.built": "{count, plural, one {# Gebäude bereits gebaut} other {# Gebäude bereits gebaut}}",
+  "build.bill.free": "kostenlos",
+  "build.bill.level": "Stufe {level}",
+  "build.bill.instead": "statt <cost/>",
+  "build.bill.ignored": "entfällt",
+  "build.bill.substituted": "<res/> ersetzt durch <by/>",
+  "build.bill.gold": "Es fehlt <res/>, mit Gold bezahlt",
+  "build.bill.total": "Zu zahlen",
+  "build.bill.left": "Dir bleiben {gold} <coin/>"
 }

@@ -611,5 +611,18 @@
   "header.improve.source": "<0/> : améliorez un Bâtiment de niveau 1 au niveau 2",
   "header.move-age.source": "<0/> : déplacez un jeton Âge d’une de vos Unités vers une autre",
   "header.reactivate.source": "<0/> : réactivez une Unité",
-  "header.age.save.source": "<0/> : sauvez une unité de la mort, ou <1>ne sauvez personne</1>"
+  "header.age.save.source": "<0/> : sauvez une unité de la mort, ou <1>ne sauvez personne</1>",
+  "build.bill.level1": "Construire au niveau 1",
+  "build.bill.level2": "Construire directement au niveau 2",
+  "build.bill.upgrade": "Améliorer au niveau 2",
+  "build.bill.land": "Terrain",
+  "build.bill.land.built": "{count, plural, one {# bâtiment déjà construit} other {# bâtiments déjà construits}}",
+  "build.bill.free": "offert",
+  "build.bill.level": "Niveau {level}",
+  "build.bill.instead": "au lieu de <cost/>",
+  "build.bill.ignored": "ignoré",
+  "build.bill.substituted": "<res/> remplacé par <by/>",
+  "build.bill.gold": "Il manque <res/>, payé en or",
+  "build.bill.total": "À payer",
+  "build.bill.left": "Il vous restera {gold} <coin/>"
 }

@@ -48,6 +48,8 @@ export const panelTornClip = tornPolygon(7, 1.3, 1.4, 24, 40)
 /** A light sheet glued in the story book (the rows of the help) */
 export const bookSheetClip = tornPolygon(7, 2.2, 0.8)
 export const patchTornClip = tornPolygon(31, 4, 1.5)
+/** A receipt of paper (the payment of a construction): a few shallow tears on every side, as on the mockups */
+export const receiptTornClip = tornPolygon(7, 1.4, 1.2, 10, 8)
 
 /** A disc of paper torn by hand: a circle with an irregular rim */
 export const tornDiscClip = (() => {
