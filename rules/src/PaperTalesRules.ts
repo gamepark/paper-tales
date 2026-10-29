@@ -94,6 +94,14 @@ export class PaperTalesRules
     return
   }
 
+  /**
+   * The building of the Titan is drawn at random by the server (see randomize): a client cannot predict it, it must wait
+   * for the server instead of building nothing
+   */
+  isUnpredictableMove(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player: PlayerColor) {
+    return isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move) || super.isUnpredictableMove(move, player)
+  }
+
   /** The Titan builds a building drawn at random among the ones its Monarch has not built (see DeployEffects) */
   randomize(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player?: PlayerColor) {
     if (isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move)) {

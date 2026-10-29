@@ -1,4 +1,4 @@
-import { getEnumValues, ItemMoveType, MaterialGame, MaterialMove, MoveKind } from '@gamepark/rules-api'
+import { getEnumValues, ItemMoveType, MaterialGame, MaterialMove, MaterialMoveBuilder, MoveKind } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
 import { buildingCardCaracteristics } from '../material/BuildingCaracteristics'
@@ -13,6 +13,7 @@ import { Unit } from '../material/Unit'
 import { unitCardCaracteristics } from '../material/UnitCaracteristics'
 import { War } from '../rules/3_War/War'
 import { RuleId } from '../rules/RuleId'
+import { CustomMoveType } from '../rules/CustomMoveType'
 
 const newGame = (players: PlayerColor[]) => new PaperTalesSetup().setup({ players: players.map((id) => ({ id })) }) as MaterialGame
 
@@ -193,5 +194,13 @@ describe('Rulebook p.5: deploying on a taken space', () => {
   it('keeps a unit of an earlier turn in the kingdom', () => {
     const { rules, older } = deployment()
     expect(takeBack(rules, older), 'a unit of an earlier turn never goes back to the hand').toBeUndefined()
+  })
+})
+
+describe('The Titan builds a building drawn at random', () => {
+  it('is unpredictable: a client waits for the server to draw it', () => {
+    const rules = new PaperTalesRules(newGame([PlayerColor.Blue, PlayerColor.Red]))
+    const move = MaterialMoveBuilder.customMove(CustomMoveType.BuildRandomBuilding, { player: PlayerColor.Blue })
+    expect(rules.isUnpredictableMove(move, PlayerColor.Blue)).toBe(true)
   })
 })
