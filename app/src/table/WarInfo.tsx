@@ -7,7 +7,7 @@ import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/rea
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
-import { getKingdomScale, getKingdomSlotCoordinates, getMe, getWarPlayers, getWarRibbonPosition, isWarView, viewMove, getWarSeparator } from '../locators/TableLayout'
+import { getKingdomScale, getKingdomSlotCoordinates, getMe, getNeighboursView, getWarPlayers, getWarRibbonPosition, isWarView, viewMove, getWarSeparator } from '../locators/TableLayout'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { fightsFromBackRow } from '../material/fightsFromBackRow'
 import { colorStripCss, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
@@ -85,13 +85,18 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, 
   const context = useMaterialContext()
   const name = usePlayerName(player)
   const position = getWarRibbonPosition(context, index, count)
+  // A neighbour's ribbon centres the war view on them, with their own neighbours; the central one opens their kingdom
+  const move = central ? viewMove(context, player) : viewMove(context, getNeighboursView(context, player))
+  const title = central
+    ? t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })
+    : t('view.player.neighbours', { defaultValue: 'Neighbours of {player}', player: name })
   return (
     <TableAnchor position={position}>
       <PlayMoveButton
         css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss, ribbonButtonCss]}
-        move={viewMove(context, player)}
+        move={move}
         transient
-        title={t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })}
+        title={title}
       >
         <span>{me ? t('war.you', 'You') : name}</span>
         <span css={powerCss}>
