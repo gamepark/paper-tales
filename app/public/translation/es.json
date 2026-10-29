@@ -154,7 +154,6 @@
   "header.age.effects": "Edad: efectos de las unidades que mueren",
   "header.age.die": "Edad: las unidades con una ficha de Edad mueren",
   "header.age.age": "Edad: las demás unidades reciben una ficha de Edad",
-  "header.age.save": "Elige la unidad que tu Sanadora Mística salva de la muerte, o <0>no salves a nadie</0>",
   "header.age.save.wait": "Un Monarca elige una unidad que salvar de la muerte",
   "header.next-turn": "Empieza un nuevo turno",
   "header.end": "Fin de la partida",
@@ -174,6 +173,10 @@
   "header.pay": "Los Monarcas pagan sus nuevas unidades",
   "header.deploy-effects": "Efectos de despliegue",
   "header.age-token.choose": "Elige la unidad que recibe las fichas de Edad",
+  "header.age-token.source.one": "<0/>: pon una ficha de Edad en una unidad",
+  "header.age-token.source.many": "<0/>: pon {count} fichas de Edad en una unidad",
+  "header.age-token.source.deployed.one": "<0/>: pon una ficha de Edad en una unidad desplegada este turno",
+  "header.age-token.source.deployed.many": "<0/>: pon {count} fichas de Edad en una unidad desplegada este turno",
   "header.age-token.wait": "Un Monarca elige dónde poner fichas de Edad",
   "war.you": "Tú",
   "war.back-row": "No combate",
@@ -604,5 +607,9 @@
   "expansions.clar.harvest": "Reliquia de la Cosecha: en la Vanguardia con 3 <wood/> y 2 <food/>, te otorga <pl5/>; en la Retaguardia, nada.",
   "expansions.clar.jester": "Bufón de la Corte: descarta todas las cartas reveladas que no sean un Artefacto; el Artefacto que pone en juego no cuesta nada.",
   "expansions.clar.titan": "Titán: no pagas ni el coste del terreno ni los recursos del Edificio de nivel 2.",
-  "help.artifact.cost.note": "Coste = 1 + los Artefactos ya desplegados, aquí {count}"
+  "help.artifact.cost.note": "Coste = 1 + los Artefactos ya desplegados, aquí {count}",
+  "header.improve.source": "<0/>: mejora un Edificio de nivel 1 al nivel 2",
+  "header.move-age.source": "<0/>: mueve una ficha de Edad de una de tus Unidades a otra",
+  "header.reactivate.source": "<0/>: vuelve a activar una Unidad",
+  "header.age.save.source": "<0/>: salva una unidad de la muerte, o <1>no salves a nadie</1>"
 }

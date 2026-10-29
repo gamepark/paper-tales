@@ -47,7 +47,7 @@ const priority: Record<DeploymentEffect['type'], number> = {
 }
 
 /** The effects a Monarch chooses how to apply */
-const isChoice = (effect: DeploymentEffect) =>
+export const isChoice = (effect: DeploymentEffect) =>
   isGainAgeTokenOnChosenUnit(effect) ||
   isMoveAgeToken(effect) ||
   isReactivateRevealEffects(effect) ||

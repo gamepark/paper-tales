@@ -154,7 +154,6 @@
   "header.age.effects": "Invecchiamento: gli effetti delle unità che muoiono",
   "header.age.die": "Invecchiamento: le unità con un segnalino Età muoiono",
   "header.age.age": "Invecchiamento: le altre unità ricevono un segnalino Età",
-  "header.age.save": "Scegli l’unità che il tuo Guaritore Mistico salva dalla morte, oppure <0>non salvare nessuno</0>",
   "header.age.save.wait": "Un Monarca sceglie un’unità da salvare dalla morte",
   "header.next-turn": "Inizia un nuovo turno",
   "header.end": "Fine della partita",
@@ -174,6 +173,10 @@
   "header.pay": "I Monarchi pagano le loro nuove unità",
   "header.deploy-effects": "Effetti di schieramento",
   "header.age-token.choose": "Scegli l’unità che riceve i segnalini Età",
+  "header.age-token.source.one": "<0/>: metti un segnalino Età su un’unità",
+  "header.age-token.source.many": "<0/>: metti {count} segnalini Età su un’unità",
+  "header.age-token.source.deployed.one": "<0/>: metti un segnalino Età su un’unità schierata in questo turno",
+  "header.age-token.source.deployed.many": "<0/>: metti {count} segnalini Età su un’unità schierata in questo turno",
   "header.age-token.wait": "Un Monarca sceglie dove piazzare i segnalini Età",
   "war.you": "Tu",
   "war.back-row": "Non combatte",
@@ -604,5 +607,9 @@
   "expansions.clar.harvest": "Reliquia del Raccolto: in Prima linea con 3 <wood/> e 2 <food/>, ti fa guadagnare <pl5/>; nelle Retrovie, niente.",
   "expansions.clar.jester": "Giullare di Corte: scarta tutte le carte rivelate che non sono un Artefatto; l’Artefatto che mette in gioco non costa nulla.",
   "expansions.clar.titan": "Titano: non paghi né il costo del terreno né le risorse dell’Edificio di livello 2.",
-  "help.artifact.cost.note": "Costo = 1 + gli Artefatti già schierati, qui {count}"
+  "help.artifact.cost.note": "Costo = 1 + gli Artefatti già schierati, qui {count}",
+  "header.improve.source": "<0/>: migliora un Edificio di livello 1 al livello 2",
+  "header.move-age.source": "<0/>: sposta un segnalino Età da una delle tue Unità a un’altra",
+  "header.reactivate.source": "<0/>: attiva di nuovo un’Unità",
+  "header.age.save.source": "<0/>: salva un’unità dalla morte, oppure <1>non salvare nessuno</1>"
 }

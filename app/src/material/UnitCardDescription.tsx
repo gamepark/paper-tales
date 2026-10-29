@@ -85,7 +85,10 @@ import SwordOfGlory from '../images/units/en/SwordOfGlory.jpg'
 import WarChest from '../images/units/en/WarChest.jpg'
 import BottomlessPurse from '../images/units/en/BottomlessPurse.jpg'
 import MedallionOfLife from '../images/units/en/MedallionOfLife.jpg'
+import { css } from '@emotion/react'
 import { isWarView } from '../locators/TableLayout'
+import { getChoiceSources } from '../table/choiceSources'
+import { ochre } from '../theme/tableTheme'
 import { artifactCostLocations } from '../locators/artifactCost'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { UnitActionLabel } from './actions/UnitActionLabel'
@@ -186,9 +189,10 @@ export class UnitCardDescription extends CardDescription {
   help = UnitHelp
   helpDisplay = BookHelpDisplay
 
-  // The discard and the back row of a war are darkened by a veil laid on the card (see VeilLocators)
-  getItemExtraCss() {
-    return [hoveredItemMenuAboveCss]
+  // The discard and the back row of a war are darkened by a veil laid on the card (see VeilLocators). The card whose
+  // effect I am choosing how to apply is outlined: the header names it, the eye finds it on the table
+  getItemExtraCss(_item: MaterialItem, context: ItemContext) {
+    return [hoveredItemMenuAboveCss, getChoiceSources(context.rules, context.player).includes(context.index) && choiceSourceCss]
   }
 
   // The neighbours view is for looking at the war, not for arranging my kingdom: no drag there (discard nor slot change)
@@ -259,5 +263,12 @@ export class UnitCardDescription extends CardDescription {
   }
 }
 
+
+/** A gold outline, still: the shine of the framework is for the cards that can be played, this one is only pointed at */
+const choiceSourceCss = css`
+  outline: 0.3em solid ${ochre};
+  outline-offset: 0.15em;
+  border-radius: 0.6em;
+`
 
 export const unitCardDescription = new UnitCardDescription()

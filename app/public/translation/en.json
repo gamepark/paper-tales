@@ -154,7 +154,6 @@
   "header.age.effects": "Age: the effects of the dying units",
   "header.age.die": "Age: the units with an Age token die",
   "header.age.age": "Age: the other units receive an Age token",
-  "header.age.save": "Choose the unit your Mystical Healer saves from dying, or <0>save nobody</0>",
   "header.age.save.wait": "A Monarch chooses a unit to save from dying",
   "header.next-turn": "A new turn begins",
   "header.end": "End of the game",
@@ -174,6 +173,10 @@
   "header.pay": "The Monarchs pay their new units",
   "header.deploy-effects": "Deployment effects",
   "header.age-token.choose": "Choose the unit that receives the Age tokens",
+  "header.age-token.source.one": "<0/>: place an Age token on a unit",
+  "header.age-token.source.many": "<0/>: place {count} Age tokens on a unit",
+  "header.age-token.source.deployed.one": "<0/>: place an Age token on a unit deployed this turn",
+  "header.age-token.source.deployed.many": "<0/>: place {count} Age tokens on a unit deployed this turn",
   "header.age-token.wait": "A Monarch chooses where to place Age tokens",
   "war.you": "You",
   "war.back-row": "Not fighting",
@@ -604,5 +607,9 @@
   "expansions.clar.harvest": "Relic of Harvest: in the Front with 3 <wood/> and 2 <food/>, it earns you <pl5/>; in the Back, nothing.",
   "expansions.clar.jester": "Court Jester: discard all revealed cards that are not an Artifact; the Artifact it puts into play costs nothing.",
   "expansions.clar.titan": "Titan: you neither pay the land cost, nor the resources of the level 2 Building.",
-  "help.artifact.cost.note": "Cost = 1 + the Artifacts already deployed, here {count}"
+  "help.artifact.cost.note": "Cost = 1 + the Artifacts already deployed, here {count}",
+  "header.improve.source": "<0/>: upgrade a level 1 Building to level 2",
+  "header.move-age.source": "<0/>: move an Age token from one of your Units to another",
+  "header.reactivate.source": "<0/>: trigger a Unit again",
+  "header.age.save.source": "<0/>: save a unit from dying, or <1>save nobody</1>"
 }

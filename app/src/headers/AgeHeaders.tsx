@@ -1,8 +1,11 @@
+import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { PlayMoveButton, useLegalMove, usePlayerId, useRules } from '@gamepark/react-game'
-import { isCustomMoveType, MaterialMove, MaterialRules } from '@gamepark/rules-api'
+import { isCustomMoveType, MaterialMove } from '@gamepark/rules-api'
 import { Trans, useTranslation } from 'react-i18next'
+import { CardList } from '../logs/CardLink'
+import { getChoiceSourceCards } from '../table/choiceSources'
 
 /**
  * Age (rulebook p.8), resolved at once: the effects that apply to the dying units, then the units that already had an
@@ -23,17 +26,20 @@ export const AgeUnitsAgeHeader = () => {
   return <>{t('header.age.age', 'Age: the other units receive an Age token')}</>
 }
 
-/** Before the Age, a mystic effect lets a Monarch save units from dying */
+/** Before the Age, a mystic effect lets a Monarch save units from dying: the header names the card that saves now, one after the other */
 export const SaveUnitsWithMysticEffectHeader = () => {
   const { t } = useTranslation()
-  const rules = useRules<MaterialRules>()!
+  const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId<PlayerColor>()
   const saveNobody = useLegalMove<MaterialMove>(isCustomMoveType(CustomMoveType.SaveNobody))
   if (me === undefined || !rules.isTurnToPlay(me)) return <>{t('header.age.save.wait', 'A Monarch chooses a unit to save from dying')}</>
+  const sources = getChoiceSourceCards(rules, me)
   return (
-    <Trans i18nKey="header.age.save" defaults="Choose the unit your mystic saves from dying, or <0>save nobody</0>">
-      <PlayMoveButton move={saveNobody} />
-    </Trans>
+    <Trans
+      i18nKey="header.age.save.source"
+      defaults="<0/>: save a unit from dying, or <1>save nobody</1>"
+      components={[<CardList key="cards" cards={sources} inHeader />, <PlayMoveButton key="nobody" move={saveNobody} />]}
+    />
   )
 }
 

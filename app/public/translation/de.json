@@ -154,7 +154,6 @@
   "header.age.effects": "Alterung: die Effekte der sterbenden Einheiten",
   "header.age.die": "Alterung: die Einheiten mit Altersmarker sterben",
   "header.age.age": "Alterung: die anderen Einheiten erhalten einen Altersmarker",
-  "header.age.save": "Wähle die Einheit, die deine Mystische Heilerin vor dem Tod rettet, oder <0>rette niemanden</0>",
   "header.age.save.wait": "Ein Monarch wählt eine Einheit, die vor dem Tod gerettet wird",
   "header.next-turn": "Eine neue Runde beginnt",
   "header.end": "Spielende",
@@ -174,6 +173,10 @@
   "header.pay": "Die Monarchen bezahlen ihre neuen Einheiten",
   "header.deploy-effects": "Aufstellungseffekte",
   "header.age-token.choose": "Wähle die Einheit, die die Altersmarker erhält",
+  "header.age-token.source.one": "<0/>: Lege einen Altersmarker auf eine Einheit",
+  "header.age-token.source.many": "<0/>: Lege {count} Altersmarker auf eine Einheit",
+  "header.age-token.source.deployed.one": "<0/>: Lege einen Altersmarker auf eine in dieser Runde aufgestellte Einheit",
+  "header.age-token.source.deployed.many": "<0/>: Lege {count} Altersmarker auf eine in dieser Runde aufgestellte Einheit",
   "header.age-token.wait": "Ein Monarch wählt, wohin die Altersmarker kommen",
   "war.you": "Du",
   "war.back-row": "Kämpft nicht",
@@ -604,5 +607,9 @@
   "expansions.clar.harvest": "Reliquie der Ernte: In der vorderen Reihe mit 3 <wood/> und 2 <food/> bringt sie dir <pl5/>; in der hinteren Reihe nichts.",
   "expansions.clar.jester": "Hofnarr: Wirf alle aufgedeckten Karten ab, die kein Artefakt sind; das Artefakt, das er ins Spiel bringt, kostet nichts.",
   "expansions.clar.titan": "Titan: Du bezahlst weder die Grundstückskosten noch die Ressourcen des Gebäudes der Stufe 2.",
-  "help.artifact.cost.note": "Kosten = 1 + die bereits aufgestellten Artefakte, hier {count}"
+  "help.artifact.cost.note": "Kosten = 1 + die bereits aufgestellten Artefakte, hier {count}",
+  "header.improve.source": "<0/>: Baue ein Gebäude der Stufe 1 auf Stufe 2 aus",
+  "header.move-age.source": "<0/>: Verschiebe einen Altersmarker von einer deiner Einheiten auf eine andere",
+  "header.reactivate.source": "<0/>: Löse eine Einheit erneut aus",
+  "header.age.save.source": "<0/>: Rette eine Einheit vor dem Tod, oder <1>rette niemanden</1>"
 }
