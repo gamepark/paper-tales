@@ -360,6 +360,40 @@ describe('Beyond the gates: units', () => {
   })
 })
 
+describe('Imp: the gold of a negative cost pays for the other cards laid', () => {
+  it('the Imp that pays for other cards cannot leave them unpaid: not taken back, not discarded, not replaced', () => {
+    const rules = newRules()
+    const cards = [Unit.Imp, Unit.Knight, Unit.ForestChild, Unit.Farmer]
+    for (const unit of cards) {
+      const index = rules.material(MaterialType.Unit).location(LocationType.Deck).id(unit).getIndexes()[0]
+      rules.game.items[MaterialType.Unit]![index].location = { type: LocationType.PlayerUnitHand, player: Blue }
+    }
+    setGold(rules, Blue, 0)
+    run(rules, rules.startSimultaneousRule(RuleId.PlaceUnitOnBoard))
+    // Read after the hand is shuffled: the shuffle exchanges the cards between their indexes
+    const [imp, knight, forestChild, farmer] = cards.map((unit) => rules.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).id(unit).getIndex())
+    const lay = (index: number, x: number, y: number) => {
+      const move = rules
+        .getLegalMoves(Blue)
+        .filter(isMoveItemType(MaterialType.Unit))
+        .find((move) => move.itemIndex === index && move.location.type === LocationType.PlayerUnitBoard && move.location.x === x && move.location.y === y)
+      return move
+    }
+    run(rules, lay(imp, 0, 0)!)
+    run(rules, lay(knight, 1, 0)!)
+    run(rules, lay(forestChild, 0, 1)!)
+    // 0 gold, the Imp (-2) pays for the Knight and the Forest Child
+    const moves = rules.getLegalMoves(Blue).filter(isMoveItemType(MaterialType.Unit))
+    expect(moves.some((move) => move.itemIndex === imp && move.location.type === LocationType.PlayerUnitHand)).toBe(false)
+    expect(moves.some((move) => move.itemIndex === imp && move.location.type === LocationType.Discard)).toBe(false)
+    expect(lay(farmer, 0, 0)).toBeUndefined()
+    expect(lay(farmer, 1, 1)).toBeDefined()
+    // A card it paid for can still be taken back, and the deployment can end
+    expect(moves.some((move) => move.itemIndex === knight && move.location.type === LocationType.PlayerUnitHand)).toBe(true)
+    expect(rules.getLegalMoves(Blue).some(isEndPlayerTurn)).toBe(true)
+  })
+})
+
 describe('Beyond the gates: buildings', () => {
   it('Abbey: costs food and 3 gold, produces 2 food; level 2: 1 Legend point for each resource at the War phase', () => {
     const rules = newRules()

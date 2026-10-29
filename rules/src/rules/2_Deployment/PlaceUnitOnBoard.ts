@@ -1,4 +1,4 @@
-import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
+import { isEndPlayerTurn, isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
 import { isEqual, omit } from 'es-toolkit/compat'
 import { Card, isArtifact, isUnit } from '../../material/Artifact'
 import { golds } from '../../material/Gold'
@@ -98,9 +98,34 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     )
 
     const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
-    moves.push(...discardAndEndMoves)
+    // The deployment ends only when the cards laid can be paid (none is laid that cannot be, see keepsPaid)
+    moves.push(...discardAndEndMoves.filter((move) => !isEndPlayerTurn(move) || costs.placedCost <= playerGold))
 
-    return moves
+    return moves.filter((move) => this.keepsPaid(playerId, move, playerGold))
+  }
+
+  /**
+   * The cards laid this turn must stay payable (rulebook p.5: a card that cannot be paid is discarded, so it is not laid).
+   * A card of negative cost pays for others: taking it back to the hand, discarding it or laying a unit on its space
+   * (it goes back to the hand) would leave them unpaid, so it is not offered.
+   */
+  private keepsPaid(player: number, move: MaterialMove, gold: number): boolean {
+    if (!isMoveItemType(MaterialType.Unit)(move)) return true
+    const costs = new DeployCostHelper(this.game, player)
+    const item = this.material(MaterialType.Unit).getItem(move.itemIndex)
+    let placed = costs.placedIndexes.filter((index) => index !== move.itemIndex)
+    if (item.location.type === LocationType.PlayerUnitHand) {
+      if (move.location.type !== LocationType.PlayerUnitBoard && move.location.type !== LocationType.PlayerArtifacts) return true
+      placed = [...placed, move.itemIndex]
+      // The unit laid this turn on the space goes back to the hand
+      if (move.location.type === LocationType.PlayerUnitBoard) {
+        const onSpace = this.getPlayerBoard(player).filter((unit) => unit.location.x === move.location.x && unit.location.y === move.location.y).getIndexes()
+        placed = placed.filter((index) => !onSpace.includes(index))
+      }
+    } else if (move.location.type !== LocationType.PlayerUnitHand && move.location.type !== LocationType.Discard) {
+      return true
+    }
+    return costs.costOfIndexes(placed) <= gold
   }
 
   getCardJustDeployed(playerId: number): number[] {

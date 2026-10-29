@@ -38,7 +38,12 @@ export class DeployCostHelper extends MaterialRulesPart {
 
   /** What the cards laid this turn cost all together */
   get placedCost(): number {
-    const cards = this.placedCards
+    return this.costOfIndexes(this.placedIndexes)
+  }
+
+  /** What the given cards would cost all together if they were the ones laid this turn */
+  costOfIndexes(indexes: number[]): number {
+    const cards = this.material(MaterialType.Unit).index(indexes).getItems<Card>().map((card) => card.id)
     const artifacts = cards.filter(isArtifact).length
     // The artifacts laid this turn cost before + 1, before + 2...
     return sumBy(cards.filter(isUnit), (unit) => unitCardCaracteristics[unit].cost) + artifacts * this.artifactsBefore + (artifacts * (artifacts + 1)) / 2
