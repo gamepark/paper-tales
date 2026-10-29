@@ -149,10 +149,6 @@ export class War extends MaterialRulesPart {
     return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(player)
   }
 
-  getPlayerFrontLane(player: number) {
-    return this.getPlayerBoard(player).filter((item) => this.isAtFrontLane(item))
-  }
-
   isAtFrontLane(unit: MaterialItem) {
     return unit.location.y === 0
   }

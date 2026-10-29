@@ -80,11 +80,6 @@ export class BuildHelper extends MaterialRulesPart {
     return cost.filter((res) => res === Resources.Gold).length
   }
 
-  hasAlternateCost(buildingId: Building, level: number): boolean {
-    const characteristics = buildingCardCaracteristics[buildingId]
-    return level === 1 ? characteristics.cost1Alternate !== undefined : characteristics.cost2Alternate !== undefined
-  }
-
   get buildableLevel1Buildings() {
     const fieldCost = this.fieldCost
     return this.availableBuildings.filter((item: MaterialItem) => this.canBuildLevel1(item.id as Building, fieldCost))
@@ -149,27 +144,6 @@ export class BuildHelper extends MaterialRulesPart {
     })
     const total = totals.length ? Math.min(...totals) : undefined
     return total !== undefined && total <= this.gold ? total : undefined
-  }
-
-  /**
-   * Retourne un booléen indiquant si le bâtiment peut être construit ou non.
-   * @param playerId - L'Id du joueur
-   * @param cost - le coût du bâtiment
-   * @param fieldCost - Le coût du terrain
-   * @returns Un booléen indiquand si le bâtiment peut être construit
-   */
-  canBuildCost(cost: Resources[], fieldCost: number): boolean {
-    const goldCost = cost.filter((resource) => resource === Resources.Gold).length
-    const woodCost = cost.filter((resource) => resource === Resources.Wood).length
-    const FoodCost = cost.filter((resource) => resource === Resources.Food).length
-    const DiamondCost = cost.filter((resource) => resource === Resources.Diamond).length
-
-    const playerGold = this.gold
-    const playerWood = this.myResources.filter((resources) => resources === Resources.Wood).length
-    const playerFood = this.myResources.filter((resources) => resources === Resources.Food).length
-    const playerDiamond = this.myResources.filter((resources) => resources === Resources.Diamond).length
-
-    return playerGold >= goldCost + fieldCost && playerWood >= woodCost && playerFood >= FoodCost && playerDiamond >= DiamondCost
   }
 
   /**

@@ -27,10 +27,6 @@ export class AgeHelper extends MaterialRulesPart {
     return new AgeTokens(this).on(targetIndex)
   }
 
-  get agingUnits() {
-    return this.units.filter((item) => !this.dyingUnits.getItems().includes(item))
-  }
-
   get ageTokensOnDyingUnits(): number {
     return sum(
       this.material(MaterialType.Unit)

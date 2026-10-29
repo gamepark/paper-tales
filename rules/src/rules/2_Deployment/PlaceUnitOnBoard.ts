@@ -198,13 +198,4 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
   hasLevel2Building(playerId: number): boolean {
     return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).rotation(true).length > 0
   }
-
-  getRemainingSpaces(playerId: number) {
-    return this.getBoardSpaces(playerId).filter(
-      (space) =>
-        this.getPlayerBoard(playerId)
-          .getItems()
-          .find((item) => item.location.x === space.x && item.location.y === space.y) === undefined
-    )
-  }
 }
