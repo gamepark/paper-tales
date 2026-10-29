@@ -39,6 +39,7 @@ import { BuildingBookHelp } from './help/BuildingBookHelp'
 import { BuildingBookHelpDisplay } from './help/book/BuildingBookHelpDisplay'
 import { BuildIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
+import { canBuildNow } from '../locators/VeilLocators'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 
 export class BuildingCardDescription extends CardDescription {
@@ -92,10 +93,11 @@ export class BuildingCardDescription extends CardDescription {
   getItemExtraCss(item: MaterialItem, context: ItemContext) {
     // Hovered: above its neighbours in the grid. A building that cannot be built now is darkened by a veil laid on the
     // card (see VeilLocators). The "Not built" band is drawn on the card itself: it moves and turns with it, and fades out
-    // when it gets built.
+    // when it gets built. During my construction it fades out too on a building I can build: its build buttons tell it
+    // is not built, and its effect and costs are read to choose
     const unbuilt = item.location.type === LocationType.PlayerBuildingHand
     const band = !isWarView(context) && unbuiltBandCss(i18next.t('building.unbuilt', 'Not built'))
-    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && !unbuilt && builtCss]
+    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && (!unbuilt || canBuildNow(context, context.index)) && builtCss]
   }
 
   menuAlwaysVisible = true

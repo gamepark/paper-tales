@@ -101,7 +101,7 @@ class BuildingVeilDescription extends LocationDescription {
 }
 
 /** During my construction, a legal move builds this building */
-const canBuildNow = (context: MaterialContext, index: number) => {
+export const canBuildNow = (context: MaterialContext, index: number) => {
   if (context.rules.game.rule?.id !== RuleId.Build || context.player === undefined) return false
   return context.rules.getLegalMoves(context.player).some((move) => isMoveItemType(MaterialType.Building)(move) && move.itemIndex === index)
 }
