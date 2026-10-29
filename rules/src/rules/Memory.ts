@@ -11,7 +11,9 @@ export enum Memory {
   /** The strength of each Monarch when the wars of this turn were fought: the outcome is read from it afterwards */
   WarStrengths,
   /** Per player: the deployment effects still to resolve this turn, the first one being resolved (see DeployEffects) */
-  DeployEffects
+  DeployEffects,
+  /** Per player: the card drawn by the Shapeshifter or the Court Jester on its way to the discard: the draw goes on once it is there */
+  DrawnCardDiscarded
 }
 
 export type UnitSavedWithMysticType = number[]
