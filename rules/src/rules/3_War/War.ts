@@ -60,11 +60,10 @@ export class War extends MaterialRulesPart {
       let warScoring = 3 * warsWon
 
       // At 2 players, a double strength wins 2 wars (rulebook p.8): the effects "for each war won" apply twice
-      const effectsApplied = warsWon
-      for (let i = 0; i < effectsApplied; i++) {
-        moves.push(...this.getGainGoldIfWinWarMoves(player))
-        warScoring += this.getGainScoreIfWinWarAmount(player)
-      }
+      // All the gold in one gain: two gains computed on the same purse would be counted on the coins before the first one
+      const warGold = warsWon * this.getGainGoldIfWinWarAmount(player)
+      if (warGold) moves.push(...this.material(MaterialType.Gold).money(golds).addMoney(warGold, { type: LocationType.PlayerGoldStock, player }))
+      warScoring += warsWon * this.getGainScoreIfWinWarAmount(player)
 
       // The points of the phase whatever its outcome: the cards in play, and the buildings (doubled by the Princess)
       warScoring += this.getCardsScoreAtWar(player)
@@ -136,13 +135,12 @@ export class War extends MaterialRulesPart {
     )
   }
 
-  getGainGoldIfWinWarMoves(player: number): MaterialMove[] {
+  getGainGoldIfWinWarAmount(player: number): number {
     const effects = this.getCardsEffects(player).filter(isGainTokenIfWinWar)
-    const gold = sumBy(
+    return sumBy(
       effects.filter((effect) => effect.token === MaterialType.Gold),
       (effect) => this.getWinWarGain(effect, player)
     )
-    return gold ? this.material(MaterialType.Gold).money(golds).addMoney(gold, { type: LocationType.PlayerGoldStock, player }) : []
   }
 
   getPlayerBoard(player: number) {

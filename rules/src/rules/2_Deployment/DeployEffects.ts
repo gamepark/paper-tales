@@ -1,4 +1,4 @@
-import { CustomMove, isCustomMoveType, isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
+import { CustomMove, isCustomMoveType, isMoveItemType, isMoveItemTypeAtOnce, isShuffleItemType, ItemMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
 import { sortBy } from 'es-toolkit/compat'
 import { Card, isArtifact, isUnit } from '../../material/Artifact'
 import { cardEffects } from '../../material/CardCaracteristics'
@@ -265,10 +265,11 @@ export class DeployEffects extends SimultaneousRule {
 
   /**
    * Draws a card for an effect: the Shapeshifter at its place on the board, the Court Jester among the artifacts. An empty
-   * deck is refilled with the discard once per Monarch and per turn (rulebook p.5). No move when there is nothing to draw.
+   * deck is refilled with the discard once per Monarch and per turn (rulebook p.5), the card just discarded with it: its
+   * move to the discard is not played yet. No move when there is nothing to draw.
    */
-  private draw(player: PlayerColor, type: EffectType.Shapeshifter | EffectType.DrawArtifact, source?: number): MaterialMove[] {
-    if (!this.deck.length) return this.refillDeck(player)
+  private draw(player: PlayerColor, type: EffectType.Shapeshifter | EffectType.DrawArtifact, source?: number, discarded?: number): MaterialMove[] {
+    if (!this.deck.length) return this.refillDeck(player, discarded)
     if (type === EffectType.DrawArtifact) return [this.deck.dealOne({ type: LocationType.PlayerArtifacts, player })]
     if (source === undefined) return []
     const shapeshifter = this.material(MaterialType.Unit).getItem(source)
@@ -276,16 +277,19 @@ export class DeployEffects extends SimultaneousRule {
     return [this.deck.dealOne({ type: LocationType.PlayerUnitBoard, player, x: shapeshifter.location.x, y: shapeshifter.location.y })]
   }
 
-  private refillDeck(player: PlayerColor): MaterialMove[] {
-    const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
+  /** The discard goes into the deck, where it is shuffled (see afterItemMove): the draw goes on once it is shuffled */
+  private refillDeck(player: PlayerColor, discarded?: number): MaterialMove[] {
+    const discard = this.material(MaterialType.Unit).filter((item, index) => item.location.type === LocationType.Discard || index === discarded)
     if (!discard.length || this.remind(Memory.DeckRefilled, player)) return []
     this.memorize(Memory.DeckRefilled, DeckRefill.Refilling, player)
-    return [discard.shuffle(), discard.moveItemsAtOnce({ type: LocationType.Deck })]
+    return [discard.moveItemsAtOnce({ type: LocationType.Deck })]
   }
 
   /** A card drawn for an effect, or the deck refilled, or a choice made by moving a card or a token */
   afterItemMove(move: ItemMove): MaterialMove[] {
-    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) {
+    // Shuffled once the cards are in the deck: a shuffle returned with their move would be computed on the cards still in the discard
+    if (isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.type === LocationType.Deck) return [this.deck.shuffle()]
+    if (isShuffleItemType(MaterialType.Unit)(move)) {
       return this.game.players.flatMap((player) => {
         if (this.remind(Memory.DeckRefilled, player) !== DeckRefill.Refilling) return []
         this.memorize(Memory.DeckRefilled, DeckRefill.Refilled, player)
@@ -300,7 +304,7 @@ export class DeployEffects extends SimultaneousRule {
       const drawn = this.material(MaterialType.Unit).index(move.itemIndex)
       // Drawn and discarded until an artifact is revealed, put into play for free (the Court Jester)
       if (isArtifact(this.material(MaterialType.Unit).getItem<Card>(move.itemIndex).id)) return this.done(player)
-      return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player)]
+      return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player, move.itemIndex)]
     }
     // A choice made by a move: a building improved (the Djinn), an Age token moved (the Wizard Apprentice)
     const player = isMoveItemType(MaterialType.Building)(move) || isMoveItemType(MaterialType.Age)(move) ? this.getMovedItemPlayer(move) : undefined
@@ -316,11 +320,11 @@ export class DeployEffects extends SimultaneousRule {
     return move.location.player ?? this.material(move.itemType).getItem(move.itemIndex).location.player
   }
 
-  /** The current draw goes on, or ends when there is nothing left to draw */
-  private drawAgain(player: PlayerColor): MaterialMove[] {
+  /** The current draw goes on, or ends when there is nothing left to draw. The card just drawn may be on its way to the discard. */
+  private drawAgain(player: PlayerColor, discarded?: number): MaterialMove[] {
     const pending = this.getCurrentEffect(player)!
     const type = pending.effect.type as EffectType.Shapeshifter | EffectType.DrawArtifact
-    const moves = this.draw(player, type, pending.source)
+    const moves = this.draw(player, type, pending.source, discarded)
     return moves.length ? moves : this.done(player)
   }
 
@@ -331,7 +335,7 @@ export class DeployEffects extends SimultaneousRule {
   private onShapeshifterDraw(player: PlayerColor, drawnIndex: number): MaterialMove[] {
     const drawn = this.material(MaterialType.Unit).index(drawnIndex)
     const card = this.material(MaterialType.Unit).getItem<Card>(drawnIndex).id
-    if (!isUnit(card) || unitCardCaracteristics[card].cost > 3) return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player)]
+    if (!isUnit(card) || unitCardCaracteristics[card].cost > 3) return [drawn.moveItem({ type: LocationType.Discard }), ...this.drawAgain(player, drawnIndex)]
     const shapeshifter = this.getCurrentEffect(player)!.source!
     const tokens = new AgeTokens(this)
     this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards.filter((index) => index !== shapeshifter), drawnIndex], player)

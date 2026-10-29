@@ -1,4 +1,4 @@
-import { isMoveItemType, isMoveItemTypeAtOnce, ItemMoveType, MaterialGame, MaterialMove, MaterialMoveRandomized, MoveKind } from '@gamepark/rules-api'
+import { isMoveItemType, isMoveItemTypeAtOnce, isShuffleItemType, ItemMoveType, MaterialGame, MaterialMove, MaterialMoveRandomized, MoveKind } from '@gamepark/rules-api'
 import { omit } from 'es-toolkit/compat'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
@@ -166,18 +166,26 @@ describe('Random games on the rules alone', () => {
 
   /**
    * The deck runs out at 7 players (42 cards, 35 dealt each turn): the discard is shuffled into a new deck, and a game
-   * still ends with every card accounted for.
+   * still ends with every card accounted for. The moves of a rule are played after it returns them all: the deck is
+   * shuffled once the discard is in it, every card of the new deck in the shuffle.
    */
   it('7 players: the deck runs out and the discard becomes the deck', () => {
     const game = newGame(7)
     const rules = new PaperTalesRules(game)
     let refilled = false
+    let shuffledAfterRefill = 0
     while (game.rule) {
       play(rules, randomMove(rules), (move) => {
         if ((isMoveItemType(MaterialType.Unit)(move) || isMoveItemTypeAtOnce(MaterialType.Unit)(move)) && move.location.type === LocationType.Deck) refilled = true
+        if (refilled && isShuffleItemType(MaterialType.Unit)(move) && rules.material(MaterialType.Unit).getItem(move.indexes[0]).location.type === LocationType.Deck) {
+          const deck = rules.material(MaterialType.Unit).location(LocationType.Deck).getIndexes()
+          expect([...move.indexes].sort((a, b) => a - b)).toEqual([...deck].sort((a, b) => a - b))
+          shuffledAfterRefill++
+        }
       })
     }
     expect(refilled).toBe(true)
+    expect(shuffledAfterRefill).toBeGreaterThan(0)
   }, 600000)
 
   /**
