@@ -27,10 +27,17 @@ class OnCardLocator extends PileLocator {
   locationDescription = new UnitDropArea()
 }
 
-/** The whole card receives the token: the area is centred on the card, not on the pile of tokens */
+/**
+ * The whole card receives the token: the area is centred on the card, not on the pile of tokens. The token of the Wizard
+ * Apprentice is dragged only: no click on a unit to move it there, and so no shine on the units while nothing is dragged.
+ */
 class UnitDropArea extends DropAreaDescription {
   constructor() {
     super(unitCardDescription)
+  }
+
+  canLongClick() {
+    return false
   }
 
   getLocationSize(location: Location, context: MaterialContext) {
