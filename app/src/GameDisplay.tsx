@@ -15,6 +15,10 @@ import { SideColumn } from './table/SideColumn'
 import { ViewButtons } from './table/ViewButtons'
 import { WarInfo } from './table/WarInfo'
 import { WarResults } from './table/WarResults'
+import { FrontRows } from './table/FrontRows'
+import { IncomeGains } from './table/IncomeGains'
+import { NewUnits } from './table/NewUnits'
+import { WarGains } from './table/WarGains'
 import { AgeFates } from './table/AgeFates'
 
 export const GameDisplay: FC = () => (
@@ -27,7 +31,11 @@ export const GameDisplay: FC = () => (
     <DeployGold />
     <BuildInfo />
     <WarInfo />
+    <NewUnits />
+    <FrontRows />
     <WarResults />
+    <WarGains />
+    <IncomeGains />
     <AgeFates />
     <ViewButtons />
     <ExpansionRulesButton />

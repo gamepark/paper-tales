@@ -3,6 +3,7 @@ import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons/faHourglassHa
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
+import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { War } from '@gamepark/paper-tales/rules/3_War/War'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
@@ -21,6 +22,7 @@ import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { cutLine, paper, paperFont, patchTornClip, roundImageCss, rust, sheetTornClip, tornDiscClip } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { DeltaBubble } from './DeltaBubble'
+import { PanelWarGains } from './PanelWarGains'
 import { useValueDelta } from './useValueDelta'
 
 type PaperTalesPlayerPanelProps = {
@@ -48,7 +50,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
 
   return (
     <div css={panelCss(color, light)} {...props}>
-      {rules.isTurnToPlay(player) && (
+      {rules.isTurnToPlay(player) && rules.game.rule?.id !== RuleId.WarSummary && (
         <span css={activeTabCss} title={t('panel.active', 'Has to play')}>
           <FontAwesomeIcon icon={faHourglassHalf} css={hourglassCss} />
         </span>
@@ -66,6 +68,7 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
         <Counter image={food} value={resourcesHelper.getResource(Resources.Food)} />
         <Counter image={diamond} value={resourcesHelper.getResource(Resources.Diamond)} />
       </div>
+      <PanelWarGains player={player} />
     </div>
   )
 }

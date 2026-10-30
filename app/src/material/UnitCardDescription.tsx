@@ -6,6 +6,8 @@ import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { isMoveItemType, Location, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
+import { ReactNode } from 'react'
+import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
 import Blacksmith from '../images/units/en/Blacksmith.jpg'
@@ -221,7 +223,8 @@ export class UnitCardDescription extends CardDescription {
 
   getItemMenu(item: MaterialItem, context: ItemContext, legalMoves: MaterialMove[]) {
     const actions = getUnitActions(legalMoves, context.index, isWarView(context), item.location.type)
-    const button = (action: UnitAction, position: MenuPosition, labelled: boolean) => {
+    // A label: the words of the action, or a shorter word of its own (the whole words are then on the title)
+    const button = (action: UnitAction, position: MenuPosition, labelled: boolean, shortLabel?: ReactNode) => {
       const move = actions[action]
       if (!move) return undefined
       const Icon = unitActionIcons[action]
@@ -230,9 +233,9 @@ export class UnitCardDescription extends CardDescription {
         <PaperMenuButton
           key={action}
           move={move}
-          label={labelled ? <UnitActionLabel action={action} /> : undefined}
+          label={shortLabel ?? (labelled ? <UnitActionLabel action={action} /> : undefined)}
           labelPosition="right"
-          title={labelled ? undefined : i18next.t(key, defaults)}
+          title={labelled && !shortLabel ? undefined : i18next.t(key, defaults)}
           {...position}
         >
           <Icon />
@@ -257,7 +260,8 @@ export class UnitCardDescription extends CardDescription {
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
       button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
       button(UnitAction.TakeBack, { radius: 8, angle: -140 }, false),
-      button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true),
+      // One short word by the Age token: the header says what to do, and the whole words would hide the picture
+      button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true, <Trans i18nKey="move.add.age.short" defaults="Place" />),
       button(UnitAction.Reactivate, { radius: 3.7, angle: 260 }, true)
     ]
   }

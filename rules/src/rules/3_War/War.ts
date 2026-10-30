@@ -42,6 +42,15 @@ export const warsWonAgainst = (power: number, otherPower: number, twoPlayers: bo
 
 export type WarStrengths = Partial<Record<number, number>>
 
+/** What a card in play gains at the War phase: its Legend points and its gold */
+export type CardWarGains = { index: number; score: number; gold: number }
+
+/**
+ * What a Monarch gains at the War phase: the wars won and their 3 Legend points each, what each card in play gains, and
+ * the Legend points of the buildings; then the totals
+ */
+export type WarGains = { warsWon: number; wars: number; cards: CardWarGains[]; buildings: number; score: number; gold: number }
+
 export class War extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const moves: MaterialMove[] = []
@@ -51,30 +60,58 @@ export class War extends MaterialRulesPart {
 
     players.forEach((player) => {
       this.forget(Memory.PlayedCardsDuringDeployment, player)
-      const buildHelper = new BuildHelper(this.game, player)
-      const scoreHelper = new ScoreHelper(this.game, player)
-      const warsWon = this.getWarsWon(player)
+      const gains = this.getWarGains(player)
 
       moves.push(this.customMove(CustomMoveType.WarOutcome, player))
 
-      let warScoring = 3 * warsWon
-
-      // At 2 players, a double strength wins 2 wars (rulebook p.8): the effects "for each war won" apply twice
       // All the gold in one gain: two gains computed on the same purse would be counted on the coins before the first one
-      const warGold = warsWon * this.getGainGoldIfWinWarAmount(player)
-      if (warGold) moves.push(...this.material(MaterialType.Gold).money(golds).addMoney(warGold, { type: LocationType.PlayerGoldStock, player }))
-      warScoring += warsWon * this.getGainScoreIfWinWarAmount(player)
+      if (gains.gold) moves.push(...this.material(MaterialType.Gold).money(golds).addMoney(gains.gold, { type: LocationType.PlayerGoldStock, player }))
 
-      // The points of the phase whatever its outcome: the cards in play, and the buildings (doubled by the Princess)
-      warScoring += this.getCardsScoreAtWar(player)
-      const buildingsScore = sum(buildHelper.scoreAtWarBuildingEffects.map((effect) => this.getScoreAtWar(effect, player)))
-      warScoring += this.doublesBuildingsScore(player) ? 2 * buildingsScore : buildingsScore
-
-      moves.push(...scoreHelper.gainOrLoseScore(warScoring))
+      moves.push(...new ScoreHelper(this.game, player).gainOrLoseScore(gains.score))
     })
 
-    moves.push(this.startRule(RuleId.Income))
+    // Every Monarch reads the outcome of the wars before the income (see WarSummary)
+    moves.push(this.startSimultaneousRule(RuleId.WarSummary))
     return moves
+  }
+
+  /**
+   * What a Monarch gains at the War phase (rulebook p.6): 3 Legend points per war won; what each card in play gains, its
+   * points whatever the outcome and its effects "for each war won" (applied twice for a double win at 2 players, p.8);
+   * and the points of the buildings (doubled by the Princess). The strengths are the ones the wars were fought with once
+   * they are (see Memory.WarStrengths), else the strengths of the kingdoms now.
+   */
+  getWarGains(player: number, strengths?: WarStrengths): WarGains {
+    const warsWon = this.getWarsWon(player, strengths)
+    const cards = new KingdomHelper(this.game, player).cards.entries.map(([index, card]) => this.getCardWarGains(player, index, card.id as Card, warsWon))
+    const buildingsScore = sum(new BuildHelper(this.game, player).scoreAtWarBuildingEffects.map((effect) => this.getScoreAtWar(effect, player)))
+    const buildings = this.doublesBuildingsScore(player) ? 2 * buildingsScore : buildingsScore
+    const wars = 3 * warsWon
+    return {
+      warsWon,
+      wars,
+      cards,
+      buildings,
+      score: wars + sumBy(cards, (gains) => gains.score) + buildings,
+      gold: sumBy(cards, (gains) => gains.gold)
+    }
+  }
+
+  /** What a card in play gains at the War phase: its points whatever the outcome, and its gains "for each war won" */
+  private getCardWarGains(player: number, index: number, card: Card, warsWon: number): CardWarGains {
+    const effects = cardEffects(card)
+    const winWar = effects.filter(isGainTokenIfWinWar)
+    const perWarWon = (token: MaterialType) =>
+      warsWon *
+      sumBy(
+        winWar.filter((effect) => effect.token === token),
+        (effect) => this.getWinWarGain(effect, player)
+      )
+    return {
+      index,
+      score: sumBy(effects.filter(isScoreAtWar), (effect) => this.getScoreAtWar(effect, player, index)) + perWarWon(MaterialType.ScoreToken),
+      gold: perWarWon(MaterialType.Gold)
+    }
   }
 
   /**
@@ -82,13 +119,14 @@ export class War extends MaterialRulesPart {
    * (p.8), a strength not below the other's wins one war, at least double wins two. As written: no minimum strength,
    * so two kingdoms of strength 0 both win.
    */
-  getWarsWon(player: number): number {
+  getWarsWon(player: number, strengths?: WarStrengths): number {
     const players = this.game.players
     const index = players.indexOf(player)
-    const power = this.getPlayerPower(player)
-    const leftPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'left')])
+    const strength = (of: number) => strengths?.[of] ?? this.getPlayerPower(of)
+    const power = strength(player)
+    const leftPower = strength(players[this.getNeighbor(players, index, 'left')])
     if (players.length === 2) return warsWonAgainst(power, leftPower, true)
-    const rightPower = this.getPlayerPower(players[this.getNeighbor(players, index, 'right')])
+    const rightPower = strength(players[this.getNeighbor(players, index, 'right')])
     return warsWonAgainst(power, leftPower, false) + warsWonAgainst(power, rightPower, false)
   }
 

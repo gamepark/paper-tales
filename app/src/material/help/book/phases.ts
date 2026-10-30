@@ -11,6 +11,7 @@ const ruleSteps: Record<RuleId, number> = {
   [RuleId.PayDeployedUnits]: 1,
   [RuleId.DeployEffects]: 1,
   [RuleId.War]: 2,
+  [RuleId.WarSummary]: 2,
   [RuleId.Income]: 3,
   [RuleId.Build]: 4,
   [RuleId.SaveUnitsWithMysticEffect]: 5,

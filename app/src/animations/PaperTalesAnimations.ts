@@ -21,6 +21,7 @@ import {
 } from '@gamepark/rules-api'
 import { fanCardFrame, fanCardLocator, FrameLocator, panelCardLocator } from '../locators/DraftPassAnimationLocators'
 import { playerUnitHandLocator } from '../locators/PlayerUnitHandLocator'
+import { WARS_READING_MS } from '../table/warPace'
 import { getDraftGiver, getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
@@ -331,11 +332,18 @@ const starts =
     (isStartRule(move) || isStartSimultaneousRule(move)) && rules.includes(move.id as RuleId)
 
 /**
- * The results of the wars are read before the income: a pause before the income starts, while the header of the wars and
- * their results are still on the table
+ * The wars are told beat by beat once they start, before their points are scored: the strengths, each war, then the
+ * gains (see warPace). Their summary then waits for every Monarch.
  */
-const WAR_RESULTS_READING = 2500
-paperTalesAnimation.configure(starts(RuleId.Income)).duration(WAR_RESULTS_READING)
+paperTalesAnimation.configure(starts(RuleId.War)).duration(WARS_READING_MS).postMove()
+
+/** The income is read before the construction: the coins land on my gold, the receipt tells where they come from */
+const INCOME_READING = 2600
+paperTalesAnimation.configure(and(isRule(RuleId.Income), starts(RuleId.Build))).duration(INCOME_READING)
+
+/** The payment is read on the panels, away from the kingdoms: a longer pause than the other steps */
+const PAYMENT_READING = 2200
+paperTalesAnimation.configure(starts(RuleId.PayDeployedUnits)).duration(PAYMENT_READING).postMove()
 
 /**
  * Every step that plays by itself is read before it plays: a pause once it has started, on its header (and the icon of its
@@ -344,6 +352,6 @@ paperTalesAnimation.configure(starts(RuleId.Income)).duration(WAR_RESULTS_READIN
  */
 const STEP_READING = 1200
 paperTalesAnimation
-  .configure(starts(RuleId.RevealBoards, RuleId.DeployEffects, RuleId.War, RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge))
+  .configure(starts(RuleId.RevealBoards, RuleId.DeployEffects, RuleId.AgeEffects, RuleId.AgeUnitsDie, RuleId.AgeUnitsAge))
   .duration(STEP_READING)
   .postMove()

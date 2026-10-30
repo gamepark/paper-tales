@@ -10,14 +10,17 @@ import { areWarsFought, getMe, getWarPlayers, getWarResultPosition, isSpectator,
 import { labelCss, rust } from '../theme/tableTheme'
 import { inkOf } from '../utils/color'
 import { TableAnchor } from './TableAnchor'
+import { beatCss, useWarReplays, useWarsTold, WAR_RESULTS_AT } from './warPace'
 
 /**
  * Once the wars are fought, in the neighbours view: one banner per war of the central kingdom, against each of its
  * neighbours, with both strengths when the wars were fought and who won (rulebook p.6: both win on a tie; at 2 players,
- * a double strength wins two wars, p.8)
+ * a double strength wins two wars, p.8). While the wars are told, one after the other (see warPace).
  */
 export const WarResults: FC = () => {
   const context = useMaterialContext()
+  const told = useWarsTold(context)
+  const replays = useWarReplays()
   if (!isWarView(context) || !areWarsFought(context)) return null
   const strengths = context.rules.remind<WarStrengths | undefined>(Memory.WarStrengths)
   if (!strengths) return null
@@ -27,15 +30,16 @@ export const WarResults: FC = () => {
   const neighbours = players.length === 3 ? [0, 2] : [1]
   return (
     <>
-      {neighbours.map((index) => (
+      {neighbours.map((index, order) => (
         <WarResult
-          key={index}
+          key={told ? `${index}-${replays}` : index}
           position={getWarResultPosition(context, index, players.length)}
           neighbour={players[index]}
           center={center}
           neighbourStrength={strengths[players[index]] ?? 0}
           centerStrength={strengths[center] ?? 0}
           twoPlayers={twoPlayers}
+          delay={told ? WAR_RESULTS_AT[order] : undefined}
         />
       ))}
     </>
@@ -49,9 +53,11 @@ type WarResultProps = {
   neighbourStrength: number
   centerStrength: number
   twoPlayers: boolean
+  /** While the wars are told: when the banner comes in, in seconds from their start */
+  delay?: number
 }
 
-const WarResult: FC<WarResultProps> = ({ position, neighbour, center, neighbourStrength, centerStrength, twoPlayers }) => {
+const WarResult: FC<WarResultProps> = ({ position, neighbour, center, neighbourStrength, centerStrength, twoPlayers, delay }) => {
   const { t } = useTranslation()
   const context = useMaterialContext()
   const me = isSpectator(context) ? undefined : getMe(context)
@@ -73,7 +79,7 @@ const WarResult: FC<WarResultProps> = ({ position, neighbour, center, neighbourS
         : winText(neighbour, neighbourName, neighbourWins)
 
   return (
-    <TableAnchor position={position} css={[labelCss, bannerCss]}>
+    <TableAnchor position={position} css={[labelCss, bannerCss, delay !== undefined && beatCss(delay)]}>
       <span css={duelCss}>
         <Side player={neighbour} name={nameOf(neighbour, neighbourName)} strength={neighbourStrength} />
         <span css={versusCss}>–</span>

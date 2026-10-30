@@ -64,8 +64,9 @@ export const theme: Partial<GameTheme> = {
     buttons: css`
       ${tableButtonCss};
       font-size: 0.9em;
+      line-height: 1;
       margin: 0 0.2em;
-      padding: 0.25em 0.9em 0.1em;
+      padding: 0.2em 0.9em 0.06em;
       text-decoration: none;
     `
   }

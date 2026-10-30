@@ -1,3 +1,4 @@
+import { usePlayerId } from '@gamepark/react-game'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -5,5 +6,7 @@ import { useTranslation } from 'react-i18next'
  */
 export const IncomeHeader = () => {
   const { t } = useTranslation()
-  return <>{t('header.income', 'Income: 2 gold each, plus the income of the kingdoms')}</>
+  const me = usePlayerId()
+  if (me === undefined) return <>{t('header.income', 'Income: 2 gold each, plus the income of the kingdoms')}</>
+  return <>{t('header.income.you', 'Income: 2 gold, plus the income of your kingdom')}</>
 }

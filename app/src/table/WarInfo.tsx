@@ -1,19 +1,33 @@
-import { css } from '@emotion/react'
+import { css, keyframes } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { War } from '@gamepark/paper-tales/rules/3_War/War'
-import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
+import { War, WarStrengths } from '@gamepark/paper-tales/rules/3_War/War'
+import { Memory } from '@gamepark/paper-tales/rules/Memory'
+import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
+import { MaterialContext, PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
-import { getKingdomScale, getKingdomSlotCoordinates, getMe, getNeighboursView, getWarPlayers, getWarRibbonPosition, isWarView, viewMove, getWarSeparator } from '../locators/TableLayout'
+import {
+  areWarsFought,
+  getKingdomScale,
+  getKingdomSlotCoordinates,
+  getMe,
+  getNeighboursView,
+  getWarPlayers,
+  getWarRibbonPosition,
+  isWarView,
+  viewMove,
+  getWarSeparator
+} from '../locators/TableLayout'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { fightsFromBackRow } from '../material/fightsFromBackRow'
-import { colorStripCss, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
+import { colorStripCss, ochre, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
 import { getColor } from '../utils/color'
 import { Sash } from './Sash'
 import { TableAnchor } from './TableAnchor'
+import { beatCss, STRENGTHS_AT, useWarReplays, useWarsTold } from './warPace'
 
 /**
  * In the neighbours view, under each kingdom: the Monarch's name in their colour and the strength of their front row
@@ -25,12 +39,14 @@ export const WarInfo: FC = () => {
   const context = useMaterialContext()
   if (!isWarView(context)) return null
   const war = new War(context.rules.game)
+  // Once the wars are fought, the strengths they were fought with: a building built since changes the kingdom, not the wars
+  const fought = areWarsFought(context) ? context.rules.remind<WarStrengths | undefined>(Memory.WarStrengths) : undefined
   const players = getWarPlayers(context)
   const center = players.length === 3 ? players[1] : players[0]
   return (
     <>
       {players.map((player, index) => (
-        <WarKingdomInfo key={player} player={player} index={index} count={players.length} power={war.getPlayerPower(player)} central={player === center} me={player === getMe(context)} />
+        <WarKingdomInfo key={player} player={player} index={index} count={players.length} power={fought?.[player] ?? war.getPlayerPower(player)} central={player === center} me={player === getMe(context)} />
       ))}
       {players.map((player) => (
         <BackRowStamp key={player} player={player} />
@@ -84,6 +100,8 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, 
   const { t } = useTranslation()
   const context = useMaterialContext()
   const name = usePlayerName(player)
+  const told = useWarsTold(context)
+  const replays = useWarReplays()
   const position = getWarRibbonPosition(context, index, count)
   // A neighbour's ribbon centres the war view on them, with their own neighbours; the central one opens their kingdom
   const move = central ? viewMove(context, player) : viewMove(context, getNeighboursView(context, player))
@@ -93,20 +111,48 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, 
   return (
     <TableAnchor position={position}>
       <PlayMoveButton
-        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss, ribbonButtonCss]}
+        key={told ? replays : -1}
+        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss, ribbonButtonCss, told && strengthsBeatCss]}
         move={move}
         transient
         title={title}
       >
         <span>{me ? t('war.you', 'You') : name}</span>
-        <span css={powerCss}>
-          <img src={shield} alt="" />
-          {power}
-        </span>
+        {!isRevealing(context) && (
+          <span css={[powerCss, told && beatCss(STRENGTHS_AT)]}>
+            <img src={shield} alt="" />
+            {power}
+          </span>
+        )}
       </PlayMoveButton>
     </TableAnchor>
   )
 }
+
+/**
+ * From the reveal to the wars, the kingdoms change (the new units, their deployment effects): their strengths are told
+ * once the wars start, as their first beat
+ */
+const isRevealing = (context: MaterialContext) =>
+  [RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects].includes(context.rules.game.rule?.id as RuleId)
+
+/** The first beat of the wars: the ribbons light up while their strengths come in, before the first war is told */
+const glow = `0 0 0 0.2em ${ochre}, 0 0 1em 0.3em ${ochre}aa`
+const strengthsGlow = keyframes`
+  0% { box-shadow: none; scale: 1; }
+  20% { box-shadow: ${glow}; scale: 1.08; }
+  40% { scale: 1; }
+  60% { scale: 1.08; }
+  80% { box-shadow: ${glow}; scale: 1; }
+  100% { box-shadow: none; scale: 1; }
+`
+const strengthsBeatCss = css`
+  animation: ${strengthsGlow} 1.4s ease-in-out ${STRENGTHS_AT}s both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`
 
 /** The ribbon is a button: it lifts a little under the pointer */
 const ribbonButtonCss = css`

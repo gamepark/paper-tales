@@ -3,6 +3,7 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesOptions } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
+import { DeployEffects, isChoice } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext } from '@gamepark/react-game'
@@ -192,6 +193,17 @@ export const getWarResultPosition = (context: MaterialContext, neighbourIndex: n
   return { x, y: WAR_TOP_Y + KINGDOM_HEIGHT * neighbourScale + 0.6 }
 }
 
+/**
+ * Where the gains of the wars of the central kingdom are told (see WarGains): under the war against the left neighbour,
+ * in the room at the left of the central kingdom; with 2 kingdoms, under the result of their war. The anchor is the top
+ * centre of the receipt.
+ */
+export const getWarGainsPosition = (context: MaterialContext): XYCoordinates => {
+  const count = getWarPlayers(context).length
+  const result = getWarResultPosition(context, 0, count)
+  return { x: result.x, y: result.y + 6.6 }
+}
+
 export const getMe = (context: MaterialContext): PlayerColor => (context.player ?? context.rules.players[0]) as PlayerColor
 
 /** A spectator plays no seat: "me" is then only the first player, and nothing should be told as if they were them */
@@ -215,16 +227,16 @@ export const isNeighbour = (context: MaterialContext, player: number) =>
 
 /**
  * The view chosen by a Monarch (a transient changeView) holds for the part of the turn it was chosen in: the turn, and
- * whether its wars were fought yet. A new turn starts in my area, and the wars, once fought, are shown to everyone
- * until they move on (see isWarResultsPending), whatever was looked at during the deployment. The part of the turn is
- * stamped on the view number.
+ * whether the kingdoms were revealed yet. A new turn starts in my area, and the reveal and the wars are shown to everyone
+ * on the neighbours view (see warRules), whatever was looked at during the deployment. The part of the turn is stamped
+ * on the view number.
  */
 const VIEW_STAMP = 1000
-const isAfterWars = (context: MaterialContext) => {
+const isAfterReveal = (context: MaterialContext) => {
   const rule = context.rules.game.rule?.id as RuleId | undefined
-  return rule !== undefined && rule >= RuleId.War && rule !== RuleId.EndGame
+  return rule !== undefined && rule >= RuleId.RevealBoards && rule !== RuleId.EndGame
 }
-const getViewStamp = (context: MaterialContext) => getRound(context) * 2 + (isAfterWars(context) ? 1 : 0)
+const getViewStamp = (context: MaterialContext) => getRound(context) * 2 + (isAfterReveal(context) ? 1 : 0)
 
 /** The move that displays a view: a player's area, or the neighbours of a player (see getNeighboursView) */
 export const viewMove = (context: MaterialContext, view: number) => MaterialMoveBuilder.changeView(getViewStamp(context) * VIEW_STAMP + view)
@@ -245,14 +257,27 @@ export const getViewedPlayer = (context: MaterialContext): PlayerColor => {
 }
 
 /**
- * View flag that lays the displayed player's 2 neighbours on each side of them. War resolves at once (War.onRuleStart),
- * so the view is also displayed automatically from the reveal to the war, long enough to see the new units.
+ * View flag that lays the displayed player's 2 neighbours on each side of them. The kingdoms are revealed, then fight,
+ * on that view: the units of the neighbours are seen before the wars they decide.
  */
 export const NEIGHBOURS_VIEW = 100
-// The reveal, the payment and the deployment effects stay in my kingdom: they happen there (a Golem upgrading my
-// buildings, Age tokens on my units). The wars and the income are shown on the neighbours view, so that the outcome of
-// the wars can be read (then the construction opens on it, see isWarResultsPending).
-const warRules = [RuleId.War, RuleId.Income]
+// From the reveal to the summary of the wars, the turn resolves on the neighbours view: the new units, what they cost and
+// do (a Golem upgrades a building of the column, Age tokens land on the units), the wars, then their summary until I move
+// on. A deployment effect I choose how to apply opens my kingdom; the income is earned in my kingdom, where my gold is.
+const warRules = [RuleId.RevealBoards, RuleId.PayDeployedUnits, RuleId.DeployEffects, RuleId.War]
+
+/** A deployment effect of mine waits for my choice: it is made on my kingdom */
+const isChoosingDeployEffect = (context: MaterialContext) => {
+  if (context.rules.game.rule?.id !== RuleId.DeployEffects || isSpectator(context)) return false
+  const me = getMe(context)
+  if (!context.rules.isTurnToPlay(me)) return false
+  const pending = new DeployEffects(context.rules.game).getCurrentEffect(me)
+  return !!pending && isChoice(pending.effect)
+}
+
+/** The summary of the wars, until I move on (a spectator reads it until every Monarch has) */
+export const isReadingWarSummary = (context: MaterialContext) =>
+  context.rules.game.rule?.id === RuleId.WarSummary && (isSpectator(context) || context.rules.isTurnToPlay(getMe(context)))
 
 /**
  * The view of the neighbours of a player: NEIGHBOURS_VIEW for mine, NEIGHBOURS_VIEW + the player for anybody's (a
@@ -263,17 +288,15 @@ export const getNeighboursView = (context: MaterialContext, player: PlayerColor)
 
 const isNeighboursView = (context: MaterialContext) => (getChosenView(context) ?? 0) >= NEIGHBOURS_VIEW
 
-/**
- * Once the wars are fought, the construction begins on the neighbours view and its war results, until the Monarch
- * moves on (Continue, or any other view): the wars resolve at once, and would otherwise be gone before they are read
- */
-export const isWarResultsPending = (context: MaterialContext) => context.rules.game.rule?.id === RuleId.Build && getChosenView(context) === undefined
-
 /** The wars of this turn are fought and their results can be shown */
-export const areWarsFought = (context: MaterialContext) => [RuleId.War, RuleId.Income, RuleId.Build].includes(context.rules.game.rule?.id as RuleId)
+export const areWarsFought = (context: MaterialContext) =>
+  [RuleId.War, RuleId.WarSummary, RuleId.Income, RuleId.Build].includes(context.rules.game.rule?.id as RuleId)
 
-export const isWarView = (context: MaterialContext) =>
-  isNeighboursView(context) || warRules.includes(context.rules.game.rule?.id as RuleId) || isWarResultsPending(context)
+export const isWarView = (context: MaterialContext) => {
+  if (isNeighboursView(context)) return true
+  if (getChosenView(context) !== undefined) return false
+  return (warRules.includes(context.rules.game.rule?.id as RuleId) && !isChoosingDeployEffect(context)) || isReadingWarSummary(context)
+}
 
 /**
  * The player in the middle of the neighbours view: the one whose neighbours were asked for, else the displayed player
@@ -361,6 +384,18 @@ const getGameBuildings = (context: MaterialContext): Building[] =>
 const getBuildingGrid = (context: MaterialContext) => (getGameBuildings(context).length > 6 ? { scale: 0.68, columns: 3 } : { scale: 0.85, columns: 2 })
 
 export const getBuildingScale = (context: MaterialContext) => getBuildingGrid(context).scale
+
+/** Under the grid of the buildings, centred on it, where the table is free: the receipt of my income (see IncomeGains) */
+export const getIncomeGainsPosition = (context: MaterialContext): XYCoordinates => {
+  const { scale, columns } = getBuildingGrid(context)
+  const width = buildingCardDescription.width * scale
+  const height = buildingCardDescription.height * scale
+  const rows = Math.ceil(getGameBuildings(context).length / columns)
+  return {
+    x: BUILDINGS_X + (columns * width + (columns - 1) * BUILDING_COLUMN_GAP) / 2,
+    y: AREA_Y + rows * height + (rows - 1) * BUILDING_ROW_GAP + 1.5
+  }
+}
 
 /** A hovered building of the grid is drawn at this size, whatever the grid: the zoom makes up for the smaller cards of 7 buildings */
 const HOVERED_BUILDING_SIZE = 0.85 * 1.8

@@ -273,7 +273,7 @@ app/src/                        → Frontend (React + Emotion CSS)
 ```
 Deal → Draft → GiveDraftToNeighbor → (repeat Draft) →
 PlaceUnitOnBoard → RevealBoards → PayDeployedUnits → DeployEffects →
-  [ChooseWherePlacingAgeToken →] War → Income → Build →
+  [ChooseWherePlacingAgeToken →] War → WarSummary (every Monarch moves on) → Income → Build →
   [SaveUnitsWithMysticEffect →] AgeEffects → AgeUnitsDie → AgeUnitsAge →
   (round 1-3: NextTurn) | (round 4: EndGame)
 ```
@@ -318,7 +318,7 @@ Panels are React components laid in the game table, in a column on the left, in 
 
 ## Table layout
 
-The table shows one player area at a time (`locators/TableLayout.ts`), the same on a phone in landscape and on a desktop: mine by default, another player through the eye of their panel, or my 2 neighbours on each side of me (neighbours view: `changeView(NEIGHBOURS_VIEW)`, and automatic from RevealBoards to War, since War resolves at once). The right column holds the turn counter, the deck, the discard and the reserves. Use only React and the framework: no direct DOM access.
+The table shows one player area at a time (`locators/TableLayout.ts`), the same on a phone in landscape and on a desktop: mine by default, another player through the eye of their panel, or my 2 neighbours on each side of me (neighbours view: `changeView(NEIGHBOURS_VIEW)`, and automatic from RevealBoards to the summary of the wars: the reveal, then the wars beat by beat, then their summary until the player moves on; the income is then earned in my area). The right column holds the turn counter, the deck, the discard and the reserves. Use only React and the framework: no direct DOM access.
 
 ## Framework
 

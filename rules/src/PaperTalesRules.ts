@@ -23,6 +23,7 @@ import { PlaceUnitOnBoard } from './rules/2_Deployment/PlaceUnitOnBoard'
 import { RevealBoards } from './rules/2_Deployment/RevealBoards'
 import { PayDeployedUnits } from './rules/2_Deployment/PayDeployedUnits'
 import { War } from './rules/3_War/War'
+import { WarSummary } from './rules/3_War/WarSummary'
 import { Income } from './rules/4_Income/Income'
 import { Build } from './rules/5_Build/Build'
 import { NextTurn } from './rules/6_Age/NextTurn'
@@ -49,6 +50,7 @@ export class PaperTalesRules
     [RuleId.PayDeployedUnits]: PayDeployedUnits,
     [RuleId.DeployEffects]: DeployEffects,
     [RuleId.War]: War,
+    [RuleId.WarSummary]: WarSummary,
     [RuleId.Income]: Income,
     [RuleId.Build]: Build,
     [RuleId.SaveUnitsWithMysticEffect]: SaveUnitsWithMysticEffect,

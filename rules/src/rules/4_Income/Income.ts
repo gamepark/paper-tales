@@ -35,9 +35,17 @@ export class Income extends MaterialRulesPart {
   }
 
   getIncomeFromCards(playerId: number): number {
-    return sumBy(new KingdomHelper(this.game, playerId).cards.entries, ([index, card]) =>
-      sumBy(cardEffects(card.id as Card | undefined).filter(isIncomeType), (effect) => this.getEffectIncomes(playerId, effect, index))
-    )
+    return sumBy(this.getCardsIncome(playerId), (income) => income.amount)
+  }
+
+  /** The gold each card in play brings at the income phase, for the ones that bring some */
+  getCardsIncome(playerId: number): { index: number; amount: number }[] {
+    return new KingdomHelper(this.game, playerId).cards.entries
+      .map(([index, card]) => ({
+        index,
+        amount: sumBy(cardEffects(card.id as Card | undefined).filter(isIncomeType), (effect) => this.getEffectIncomes(playerId, effect, index))
+      }))
+      .filter((income) => income.amount > 0)
   }
 
   getIncomeFromBuilding(playerId: number): number {

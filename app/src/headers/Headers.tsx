@@ -10,6 +10,7 @@ import { PayDeployedUnitsHeader } from './PayDeployedUnitsHeader'
 import { DeployEffectsHeader } from './DeployEffectsHeader'
 import { IncomeHeader } from './IncomeHeader'
 import { WarHeader } from './WarHeader'
+import { WarSummaryHeader } from './WarSummaryHeader'
 import { withPhaseIcon } from './withPhaseIcon'
 import { AgeEffectsHeader, AgeUnitsAgeHeader, AgeUnitsDieHeader, EndGameHeader, NextTurnHeader, SaveUnitsWithMysticEffectHeader } from './AgeHeaders'
 
@@ -22,6 +23,7 @@ const headers: Partial<Record<RuleId, ComponentType>> = {
   [RuleId.PayDeployedUnits]: PayDeployedUnitsHeader,
   [RuleId.DeployEffects]: DeployEffectsHeader,
   [RuleId.War]: WarHeader,
+  [RuleId.WarSummary]: WarSummaryHeader,
   [RuleId.Income]: IncomeHeader,
   [RuleId.Build]: BuildHeader,
   [RuleId.NextTurn]: NextTurnHeader,
