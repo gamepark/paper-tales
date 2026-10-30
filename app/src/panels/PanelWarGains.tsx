@@ -28,8 +28,9 @@ export const PanelWarGains: FC<{ player: PlayerColor }> = ({ player }) => {
 const gainsCss = css`
   position: absolute;
   right: 0.6em;
-  top: -1.2em;
+  top: -1.5em;
   gap: 0.5em;
-  padding: 0.15em 0.8em 0.05em;
+  /* Room above and under the icons: the torn edges of the paper would bite into them */
+  padding: 0.35em 0.9em 0.3em;
   font-size: 0.7em;
 `

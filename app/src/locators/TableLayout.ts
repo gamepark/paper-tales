@@ -175,9 +175,9 @@ export const getWarSeparator = (context: MaterialContext) => {
 }
 
 /**
- * Where the result of a war of the neighbours view is told: with 3 kingdoms, in the empty room at the side of the
- * central kingdom where the neighbour sits (left or right); with 2, centred under both kingdoms. The anchor is the top
- * centre of the banner.
+ * With 3 kingdoms, where the ribbon of a neighbour stands, then the duel of their war (see WarDuel): at the outer end of
+ * the view on their side, in the empty room beside the central kingdom; with 2, centred under both kingdoms. The anchor
+ * is the top centre of the slip.
  */
 export const getWarResultPosition = (context: MaterialContext, neighbourIndex: number, count: number): XYCoordinates => {
   if (count === 2) {
@@ -191,6 +191,18 @@ export const getWarResultPosition = (context: MaterialContext, neighbourIndex: n
   const centerRight = center.kingdomX + seatWidth * center.scale
   const x = neighbourIndex === 0 ? (AREA_X + center.kingdomX) / 2 : (centerRight + WAR_RIGHT) / 2
   return { x, y: WAR_TOP_Y + KINGDOM_HEIGHT * neighbourScale + 0.6 }
+}
+
+/**
+ * With 3 kingdoms, where the ribbon of a neighbour meets the duel of their war (see WarInfo): at the inner end of the room
+ * beside the central kingdom on their side. The ribbon stands towards the middle of the view, the duel towards its outer
+ * end. Vertically, the middle of the ribbon is the middle of the duel.
+ */
+export const getNeighbourJunction = (context: MaterialContext, neighbourIndex: number): XYCoordinates => {
+  const { seatWidth } = getWarLayout(context)
+  const center = getWarSeat(context, 1, 3)
+  const x = neighbourIndex === 0 ? center.kingdomX : center.kingdomX + seatWidth * center.scale
+  return { x, y: getWarResultPosition(context, neighbourIndex, 3).y + 0.85 }
 }
 
 /**

@@ -294,7 +294,15 @@ paperTalesAnimation
 // The card I keep, or put back into my hand
 paperTalesAnimation.configure((move) => isMoveItem(move) && move.location.type !== undefined && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(keptHandLanding)
 
-paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItem)).duration(500).trajectory(fadeAtPanels)
+/**
+ * The reveal, kingdom after kingdom: the cards of a Monarch turn over together, and the next kingdom waits a beat. Mine
+ * were face up to me all along: nothing to see, no time taken.
+ */
+const KINGDOM_REVEAL = 800
+paperTalesAnimation
+  .configure((move, context) => isRule(RuleId.RevealBoards)(move, context) && isMoveItemsAtOnce(move) && context.player !== undefined && itemAt(context, move.itemType, move.indexes[0])?.location.player === context.player)
+  .skip()
+paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItemsAtOnce)).duration(KINGDOM_REVEAL).trajectory(fadeAtPanels)
 
 // The score markers are not on the table (the score is in the panels): their moves still take a while, so that the
 // neighbours view stays long enough to read the outcome of the wars, and the panels show each gain one after the other

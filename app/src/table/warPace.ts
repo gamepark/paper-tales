@@ -6,15 +6,15 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 /**
  * The wars are told beat by beat once they start, while the animations pause on them (see PaperTalesAnimations): the
  * front rows and the strengths of the kingdoms (see FrontRows, WarInfo), the war against the left neighbour, the one
- * against the right neighbour (see WarResults), then the points (see WarGains). Delays in seconds from the start.
+ * against the right neighbour (see WarDuel), then the points (see WarGains). Delays in seconds from the start.
  */
 export const STRENGTHS_AT = 0.4
-export const WAR_RESULTS_AT = [2.9, 5.9]
-export const GAINS_AT = 8.9
+export const WAR_RESULTS_AT = [2.4, 4.4]
+export const GAINS_AT = 6.4
 /** The lines of the gains, one after the other */
 export const GAIN_LINE_PACE = 0.5
 /** How long the animations pause on the wars before the points are scored: every beat, and time to read the last one */
-export const WARS_READING_MS = 11000
+export const WARS_READING_MS = 8500
 
 /** The beats of the wars, in their order */
 export enum WarBeat {

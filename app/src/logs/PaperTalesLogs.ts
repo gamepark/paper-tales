@@ -18,7 +18,7 @@ import { AgingLog, DeathLog, SaveLog, SaveNobodyLog } from './AgeLog'
 import { BuildLog, NoBuildLog } from './BuildLog'
 import { AgeTokenLog, DeckRefillLog, DeployLog, DrawnLog, MovedAgeTokenLog, NothingDeployedLog, ReactivateLog, RemovedUnitLog } from './DeployLog'
 import { GoldLog } from './GoldLog'
-import { cardAt, goldGainTold, isAgeTokenOf, isGoldGain, isRevealOf, LogContext, nothingDeployed, runFrom } from './logHelpers'
+import { cardAt, goldGainTold, isAgeTokenOf, isGoldGain, isReveal, LogContext, nothingDeployed, runFrom } from './logHelpers'
 import { blockEntryCss, phaseLogCss, turnLogCss } from './logs.css'
 import { AgePhaseLog, BuildPhaseLog, DeployPhaseLog, EndPhaseLog, IncomePhaseLog, RecruitPhaseLog, RecruitPhaseSetupLog, WarPhaseLog } from './PhaseLog'
 import { EndScoreLog, ScoreLog } from './ScoreLog'
@@ -60,12 +60,10 @@ export class PaperTalesLogs implements LogDescription<MaterialMove, number, Mate
       return
     }
 
+    // The cards a Monarch reveals, at once
+    if (rule === RuleId.RevealBoards && isReveal(move)) return { Component: DeployLog }
+
     if (isMoveItemType(MaterialType.Unit)(move)) {
-      // A reveal only says { rotation: false }: the cards of a Monarch are told at once
-      if (rule === RuleId.RevealBoards && move.location.rotation === false) {
-        const player = cardAt(context.game, move.itemIndex).location.player
-        return runFrom(context, isRevealOf(player, context.game)) ? { Component: DeployLog } : undefined
-      }
       if (rule === RuleId.PlaceUnitOnBoard && move.location.type === LocationType.Discard && isUnitOfPreviousTurn(move.itemIndex, context.game)) {
         return { Component: RemovedUnitLog }
       }

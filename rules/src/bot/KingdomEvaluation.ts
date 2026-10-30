@@ -42,7 +42,7 @@ const rulesBeforeWar = [
   RuleId.PayDeployedUnits,
   RuleId.DeployEffects
 ]
-const rulesBeforeIncome = [...rulesBeforeWar, RuleId.War, RuleId.Income]
+const rulesBeforeIncome = [...rulesBeforeWar, RuleId.War, RuleId.WarSummary, RuleId.Income]
 const rulesBeforeBuild = [...rulesBeforeIncome, RuleId.Build]
 /** The Age tokens of the deployment are not on the units yet */
 const rulesBeforeDeployEffects: RuleId[] = rulesBeforeWar.filter((ruleId) => ruleId !== RuleId.DeployEffects)

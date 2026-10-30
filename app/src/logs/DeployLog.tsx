@@ -7,13 +7,13 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { ReactivateUnitData } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { DeployCostHelper } from '@gamepark/paper-tales/rules/helpers/DeployCostHelper'
 import { MaterialLogProps } from '@gamepark/react-game'
-import { CreateItem, CustomMove, MaterialGame, MoveItem } from '@gamepark/rules-api'
+import { CreateItem, CustomMove, MaterialGame, MoveItem, MoveItemsAtOnce } from '@gamepark/rules-api'
 import { FC } from 'react'
 import { Trans } from 'react-i18next'
 import { GoldValueIcon } from '../material/help/book/HelpIcons'
 import { CardLink, CardList, EffectSourceLink } from './CardLink'
 import { asideLineCss } from './logs.css'
-import { cardAt, isAgeTokenOf, isRevealOf, nothingDeployed, revealedCard, runFrom } from './logHelpers'
+import { cardAt, isAgeTokenOf, nothingDeployed, revealedCard, runFrom } from './logHelpers'
 import { Who } from './Who'
 
 /** The cards a Monarch keeps in hand for the next turn: the others were discarded face down (rulebook p.5) */
@@ -21,16 +21,15 @@ const keptCards = (game: MaterialGame, player: PlayerColor) =>
   new PaperTalesRules(game).material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(player).length
 
 /**
- * The cards a Monarch reveals, told as one line at the first one: their faces were hidden to the others until now, the
- * moves reveal them. With the gold they cost, paid right after (read on the game once they are revealed), and the card
- * kept in hand for the next turn.
+ * The cards a Monarch reveals, all at once: their faces were hidden to the others until now, the move reveals them. With
+ * the gold they cost, paid right after (read on the game once they are revealed), and the card kept in hand for the
+ * next turn.
  */
-export const DeployLog: FC<MaterialLogProps<MoveItem>> = ({ move, context }) => {
-  const player = cardAt(context.game, move.itemIndex).location.player as PlayerColor
-  const reveals = runFrom(context, isRevealOf(player, context.game)) ?? [move]
+export const DeployLog: FC<MaterialLogProps<MoveItemsAtOnce>> = ({ move, context }) => {
+  const player = cardAt(context.game, move.indexes[0]).location.player as PlayerColor
   const revealed = new PaperTalesRules(structuredClone(context.game))
-  for (const reveal of reveals) revealed.play(reveal)
-  const cards = reveals.map((reveal) => revealedCard(reveal) ?? cardAt(revealed.game, reveal.itemIndex).id)
+  revealed.play(move)
+  const cards = move.indexes.map((index) => cardAt(revealed.game, index).id)
   const cost = new DeployCostHelper(revealed.game, player).placedCost
   const kept = keptCards(context.game, player)
   const components = { who: <Who player={player} />, cards: <CardList cards={cards} />, g: <GoldValueIcon value={cost} /> }

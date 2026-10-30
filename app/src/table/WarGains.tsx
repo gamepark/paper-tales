@@ -34,8 +34,7 @@ export const WarGains: FC = () => {
   const lines: ReceiptLine[] = [
     ...neighbours.map((neighbour) => {
       const wins = warsWonAgainst(strengths[center] ?? 0, strengths[neighbour] ?? 0, twoPlayers)
-      const losses = warsWonAgainst(strengths[neighbour] ?? 0, strengths[center] ?? 0, twoPlayers)
-      return { label: <WarLabel neighbour={neighbour} wins={wins} tie={wins > 0 && losses > 0} />, score: 3 * wins }
+      return { label: <WarLabel neighbour={neighbour} />, score: 3 * wins }
     }),
     ...gains.cards
       .filter((card) => card.score || card.gold)
@@ -55,14 +54,11 @@ export const WarGains: FC = () => {
   )
 }
 
-/** A war of the central kingdom against one neighbour, and its outcome */
-const WarLabel: FC<{ neighbour: PlayerColor; wins: number; tie: boolean }> = ({ neighbour, wins, tie }) => {
+/** A war of the central kingdom against one neighbour: its outcome is on the duel, under that neighbour (see WarDuel) */
+const WarLabel: FC<{ neighbour: PlayerColor }> = ({ neighbour }) => {
   const { t } = useTranslation()
   const player = usePlayerName(neighbour)
-  if (tie) return <>{t('gains.war.tie', { defaultValue: 'Against {player}: tie', player })}</>
-  if (wins > 1) return <>{t('gains.war.won.2', { defaultValue: 'Against {player}: 2 wars won', player })}</>
-  if (wins) return <>{t('gains.war.won', { defaultValue: 'Against {player}: won', player })}</>
-  return <>{t('gains.war.lost', { defaultValue: 'Against {player}: lost', player })}</>
+  return <>{t('gains.war.against', { defaultValue: 'Against {player}', player })}</>
 }
 
 const anchorCss = css`

@@ -6,7 +6,7 @@ import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { DeployEffects } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
 import { DeployCostHelper } from '@gamepark/paper-tales/rules/helpers/DeployCostHelper'
 import { MoveComponentContext } from '@gamepark/react-game'
-import { CreateItem, isCreateItemType, isMoveItemType, isStartPlayerTurn, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem } from '@gamepark/rules-api'
+import { CreateItem, isCreateItemType, isMoveItemTypeAtOnce, isStartPlayerTurn, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem, MoveItemsAtOnce } from '@gamepark/rules-api'
 
 /** What the log entries read on the moves of an action and on the game before them */
 
@@ -33,11 +33,8 @@ export const isAgeTokenOf =
   (move: MaterialMove): move is CreateItem =>
     isCreateItemType(MaterialType.Age)(move) && move.item.location.player === player
 
-/** A card turned face up in the kingdom of a Monarch (the reveal only says { rotation: false }), read on the game before */
-export const isRevealOf =
-  (player: number | undefined, game: MaterialGame) =>
-  (move: MaterialMove): move is MoveItem =>
-    isMoveItemType(MaterialType.Unit)(move) && move.location.rotation === false && cardAt(game, move.itemIndex).location.player === player
+/** The cards a Monarch reveals, all at once (the reveal only says { rotation: false }) */
+export const isReveal = (move: MaterialMove): move is MoveItemsAtOnce => isMoveItemTypeAtOnce(MaterialType.Unit)(move) && move.location.rotation === false
 
 const goldValue = (move: CreateItem) => (move.item.quantity ?? 1) * (move.item.id as number)
 

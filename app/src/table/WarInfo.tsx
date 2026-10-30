@@ -6,6 +6,7 @@ import { War, WarStrengths } from '@gamepark/paper-tales/rules/3_War/War'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext, PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
+import { XYCoordinates } from '@gamepark/rules-api'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import shield from '../images/tokens/bouclier_rouge.png'
@@ -16,6 +17,7 @@ import {
   getMe,
   getNeighboursView,
   getWarPlayers,
+  getNeighbourJunction,
   getWarRibbonPosition,
   isWarView,
   viewMove,
@@ -27,13 +29,14 @@ import { colorStripCss, ochre, paper, paperBackgroundCss, paperButtonResetCss, r
 import { getColor } from '../utils/color'
 import { Sash } from './Sash'
 import { TableAnchor } from './TableAnchor'
-import { beatCss, STRENGTHS_AT, useWarReplays, useWarsTold } from './warPace'
+import { WarDuel } from './WarDuel'
+import { beatCss, STRENGTHS_AT, useWarBeat, useWarReplays, useWarsTold, WarBeat } from './warPace'
 
 /**
  * In the neighbours view, under each kingdom: the Monarch's name in their colour and the strength of their front row
- * (plus ranged units, rulebook p.6). The central kingdom is the one displayed, in a larger ribbon. Once the wars are
- * fought, their outcome is told in banners beside (see WarResults). A click on a ribbon opens the kingdom of that Monarch,
- * as the eye of their panel does.
+ * (plus ranged units, rulebook p.6). The central kingdom is the one displayed, in a larger ribbon; my neighbours have
+ * theirs at the outer ends of the view, and each one becomes the duel once their war is fought (see WarDuel). A click on
+ * a ribbon opens the kingdom of that Monarch, as the eye of their panel does.
  */
 export const WarInfo: FC = () => {
   const context = useMaterialContext()
@@ -43,10 +46,29 @@ export const WarInfo: FC = () => {
   const fought = areWarsFought(context) ? context.rules.remind<WarStrengths | undefined>(Memory.WarStrengths) : undefined
   const players = getWarPlayers(context)
   const center = players.length === 3 ? players[1] : players[0]
+  const powerOf = (player: PlayerColor) => fought?.[player] ?? war.getPlayerPower(player)
+  const neighbours = players.filter((player) => player !== center)
   return (
     <>
-      {players.map((player, index) => (
-        <WarKingdomInfo key={player} player={player} index={index} count={players.length} power={fought?.[player] ?? war.getPlayerPower(player)} central={player === center} me={player === getMe(context)} />
+      <WarKingdomInfo
+        player={center}
+        position={getWarRibbonPosition(context, players.indexOf(center), players.length)}
+        power={powerOf(center)}
+        central
+        me={center === getMe(context)}
+      />
+      {neighbours.map((player, order) => (
+        <NeighbourSeat
+          key={player}
+          player={player}
+          order={order}
+          center={center}
+          index={players.indexOf(player)}
+          count={players.length}
+          power={powerOf(player)}
+          centerPower={powerOf(center)}
+          fought={!!fought}
+        />
       ))}
       {players.map((player) => (
         <BackRowStamp key={player} player={player} />
@@ -87,32 +109,107 @@ const separatorCss = css`
   border-left: 0.15em dashed ${paper}66;
 `
 
-type WarKingdomInfoProps = {
+type NeighbourSeatProps = {
   player: PlayerColor
+  /** The first neighbour, whose war is told first, or the second one */
+  order: number
+  center: PlayerColor
+  /** The place of the neighbour in the view, and the number of kingdoms in it */
   index: number
   count: number
   power: number
-  central: boolean
-  me: boolean
+  centerPower: number
+  fought: boolean
 }
 
-const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, central, me }) => {
+/**
+ * A neighbour of the central kingdom: their ribbon, and the duel of their war once it is fought. While the wars are told,
+ * the duel comes in at the beat of that war (see warPace): the seat starts again with the wars.
+ */
+const NeighbourSeat: FC<NeighbourSeatProps> = (props) => {
+  const context = useMaterialContext()
+  const told = useWarsTold(context)
+  const replays = useWarReplays()
+  return <NeighbourSeatBeats key={told ? replays : -1} told={told} {...props} />
+}
+
+const NeighbourSeatBeats: FC<NeighbourSeatProps & { told: boolean }> = ({ player, order, center, index, count, power, centerPower, fought, told }) => {
+  const context = useMaterialContext()
+  const beat = useWarBeat()
+  const shown = fought && (!told || beat >= (order === 0 ? WarBeat.FirstWar : WarBeat.SecondWar))
+  const position = getWarRibbonPosition(context, index, count)
+  // With 2 kingdoms, under the neighbour's kingdom, the duel takes the place of the ribbon
+  if (count === 2) {
+    return shown ? (
+      <WarDuel position={position} neighbour={player} center={center} neighbourStrength={power} centerStrength={centerPower} arriving={told} />
+    ) : (
+      <WarKingdomInfo player={player} position={position} power={power} central={false} me={false} />
+    )
+  }
+  // With 3, the ribbon stays towards the middle of the view, the duel comes beside it, towards the outer end
+  const left = index === 0
+  return (
+    <TableAnchor position={getNeighbourJunction(context, index)} css={[seatCss, !left && rightSeatCss]}>
+      <WarKingdomInfo player={player} position={position} power={power} central={false} me={false} inline />
+      {shown && (
+        <span css={[duelPlaceCss, left ? duelLeftCss : duelRightCss]}>
+          <WarDuel position={position} neighbour={player} center={center} neighbourStrength={power} centerStrength={centerPower} arriving={told} inline />
+        </span>
+      )}
+    </TableAnchor>
+  )
+}
+
+/** The ribbon, from the junction towards the middle of the view: the left neighbour's starts there, the right one's ends there */
+const seatCss = css`
+  position: relative;
+`
+
+const rightSeatCss = css`
+  transform: translateX(-100%);
+`
+
+/** The duel beside the ribbon, towards the outer end, their middles on one line */
+const duelPlaceCss = css`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+`
+
+const duelLeftCss = css`
+  right: calc(100% + 0.5em);
+`
+
+const duelRightCss = css`
+  left: calc(100% + 0.5em);
+`
+
+type WarKingdomInfoProps = {
+  player: PlayerColor
+  position: XYCoordinates & { beside?: boolean }
+  power: number
+  central: boolean
+  me: boolean
+  /** Laid by its container (beside the duel), not anchored on the table by itself */
+  inline?: boolean
+}
+
+const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, position, power, central, me, inline }) => {
   const { t } = useTranslation()
   const context = useMaterialContext()
   const name = usePlayerName(player)
   const told = useWarsTold(context)
   const replays = useWarReplays()
-  const position = getWarRibbonPosition(context, index, count)
   // A neighbour's ribbon centres the war view on them, with their own neighbours; the central one opens their kingdom
   const move = central ? viewMove(context, player) : viewMove(context, getNeighboursView(context, player))
   const title = central
     ? t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })
     : t('view.player.neighbours', { defaultValue: 'Neighbours of {player}', player: name })
-  return (
-    <TableAnchor position={position}>
+  const ribbon = (
       <PlayMoveButton
         key={told ? replays : -1}
-        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, position.beside && besideCss, central && centralCss, ribbonButtonCss, told && strengthsBeatCss]}
+        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, !inline && centredCss, position.beside && besideCss, central && centralCss, ribbonButtonCss, told && strengthsBeatCss]}
         move={move}
         transient
         title={title}
@@ -125,8 +222,8 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, index, count, power, 
           </span>
         )}
       </PlayMoveButton>
-    </TableAnchor>
   )
+  return inline ? ribbon : <TableAnchor position={position}>{ribbon}</TableAnchor>
 }
 
 /**
@@ -165,9 +262,12 @@ const ribbonButtonCss = css`
 `
 
 const infoCss = css`
-  transform: translateX(-50%);
   gap: 0.8em;
   font-size: 1.1em;
+`
+
+const centredCss = css`
+  transform: translateX(-50%);
 `
 
 // Beside the kingdom: anchored by its bottom right corner

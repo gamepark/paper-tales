@@ -14,7 +14,6 @@ import { ExpansionRulesButton } from './table/ExpansionRulesButton'
 import { SideColumn } from './table/SideColumn'
 import { ViewButtons } from './table/ViewButtons'
 import { WarInfo } from './table/WarInfo'
-import { WarResults } from './table/WarResults'
 import { FrontRows } from './table/FrontRows'
 import { IncomeGains } from './table/IncomeGains'
 import { NewUnits } from './table/NewUnits'
@@ -33,7 +32,6 @@ export const GameDisplay: FC = () => (
     <WarInfo />
     <NewUnits />
     <FrontRows />
-    <WarResults />
     <WarGains />
     <IncomeGains />
     <AgeFates />
