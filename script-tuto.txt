@@ -1,0 +1,118 @@
+Code le tutoriel de Paper Tales.
+Fais une distribution aléatoire, sauf pour les cartes nécessaires au scénario du tour 1.
+Améliore les textes ci-dessous à partir des règles, et ajoute du gras et des icones.
+Au draft du tour 1, les adversaires choisissent la meilleure carte pour eux (bot) à l'exclusion des cartes réservées pour le joueur.
+
+Bienvenue sur le tutoriel de Paper Tales
+
+Dans Paper Tales, vous êtes un monarque et développez votre royaume, tout en combattant vos voisins.
+
+La partie dure 4 tours, et chaque tour se compose de 6 phases.
+(liste des 6 phases avec icones comme dans la règle)
+
+C'est parti pour la phase Recrutement du tour 1 !
+Lors du Recrutement, tous les joueurs vont sélectionner 5 cartes Unité.
+
+C'est un draft : vous sélectionnez une carte qui vous intéresse, et passez les autres à votre voisin (à gauche aux tours 1 et 3, à droite aux tours 2 et 4).
+
+Sélectionnez cette carte.
+(Esprit des forêts)
+
+Tous les joueurs ont sélectionné une carte en même temps. Vous avez reçu ces 4 cartes de votre voisin de droite.
+
+Sélectionnez cette carte.
+(Fermier)
+
+Le draft se poursuit jusqu'à ce que tous les joueurs aient sélectionné 5 cartes.
+Sélectionnez cette carte.
+(Chasseur)
+
+Sélectionnez la carte de votre choix.
+(carte qui sera conservée pour le tour d'après)
+(le joueur reçoit en dernier une Forgeronne)
+
+Vous avez sélectionné vos 5 cartes : place au **Déploiement** !
+(phase 2)
+
+Pendant le Déploiement, tous les joueurs placent en même temps leurs Unités, **face cachée**, dans leur Royaume.
+Votre Royaume a **2 lignes** :
+- l'**Avant** : ses Unités combattent pendant la Guerre ;
+- l'**Arrière** : ses Unités ne combattent pas, mais produisent leurs ressources et appliquent leurs effets comme les autres.
+
+Chaque Unité a un **coût de recrutement**, en haut à gauche de la carte : vous devez payer ces pièces <gold/> pour la déployer.
+Vous commencez la partie avec <g3/>.
+
+Placez l'**Esprit des forêts** à l'Avant.
+(Esprit des forêts, Avant)
+
+L'Esprit des forêts coûte <g3/> : c'est tout votre or. Heureusement, les autres cartes que vous allez déployer sont gratuites !
+Placez le **Chasseur** à l'Avant : il ne produit <food/> que s'il est à l'Avant.
+(Chasseur, Avant)
+
+Placez le **Fermier** à l'Arrière : avec une Force de 1, il serait faible au combat, mais il vous produit <food/> où qu'il soit.
+(Fermier, Arrière)
+
+Placez la **Forgeronne** à l'Arrière : elle vous rapporte <g1/> à chaque phase des Revenus.
+(Forgeronne, Arrière)
+
+Vous pouvez garder **une seule carte** en main pour le tour suivant : les autres sont défaussées.
+Validez votre Déploiement.
+(la carte choisie au 4e pick reste en main)
+
+Tous les Royaumes sont révélés en même temps. Chaque joueur paye le coût des Unités qu'il vient de déployer.
+(révélation, paiement)
+
+Place à la **Guerre** !
+(phase 3)
+
+Vous faites la guerre à **chacun de vos 2 voisins**, celui de gauche et celui de droite.
+Votre **Force** est la somme des Forces des Unités de votre **Avant** : 3 pour l'Esprit des forêts, et 2 pour le Chasseur, soit **5**.
+Les Unités de l'Arrière ne combattent pas (sauf exception, comme l'Archère).
+
+Pour chaque voisin dont la Force est **inférieure ou égale** à la vôtre, vous remportez la guerre et gagnez **3 points de Légende** <pl3/>.
+(résultat de la guerre contre chaque voisin)
+
+C'est l'heure des **Revenus** <phase4/> !
+(phase 4)
+
+Chaque joueur gagne <g2/>, plus l'or rapporté par ses cartes et bâtiments.
+Avec votre Forgeronne, vous gagnez donc <g3/> en tout.
+(revenu)
+
+Passons à la **Construction**.
+(phase 5)
+
+Pour construire, il vous faut des **ressources** : <wood/> Bois, <food/> Nourriture et <crystal/> Cristal.
+Elles sont produites par vos Unités et vos Bâtiments, et ne se dépensent pas : un bâtiment exige seulement que votre Royaume produise les ressources indiquées sur son coût.
+Votre Royaume produit <wood/> <wood/> <wood/> avec l'Esprit des forêts, <food/> avec le Fermier et <food/> avec le Chasseur.
+(mettre en avant la production du Royaume)
+
+Chaque Bâtiment a 2 niveaux, et un coût pour chaque niveau. Un Bâtiment <b1/> rapporte 1 point de Légende en fin de partie, un Bâtiment <b2/> en rapporte **3**, et procure un effet plus puissant.
+Un Bâtiment de niveau 2 vous ouvre aussi un **5e emplacement** à l'Avant de votre Royaume.
+
+Il y a 2 façons d'obtenir un Bâtiment <b2/> :
+- le construire en <b1/>, puis l'**améliorer** plus tard : il suffit alors de réunir le coût du niveau 2 ;
+- le construire **directement au niveau 2** : il faut alors réunir la **somme des coûts du niveau 1 et du niveau 2**.
+
+Construisez directement le Bâtiment de niveau 2 de votre choix : avec <wood/> <wood/> <wood/> <food/> <food/>, vous pouvez construire la Taverne, la Caserne ou la Ville.
+*Cliquez sur les bâtiments pour connaître leurs effets.*
+(le joueur construit un bâtiment niveau 2 ; la Mine et le Temple ne sont pas constructibles : pas de <crystal/>, et <g3/> ne suffisent pas pour remplacer les cristaux du Temple)
+
+Votre premier Bâtiment est gratuit, mais chaque nouveau Bâtiment coûte en plus le **coût du terrain** : <g2/> par Bâtiment déjà construit.
+L'amélioration d'un Bâtiment déjà construit ne coûte pas de terrain.
+
+Le tour se termine par la phase **Âge**.
+(phase 6)
+
+Les Unités vieillissent :
+- d'abord, chaque Unité qui porte déjà un jeton Âge <age/> **meurt** et est défaussée ;
+- ensuite, chaque Unité survivante reçoit un jeton Âge <ageplus/>.
+Vos Unités ont été déployées ce tour-ci : elles reçoivent toutes un jeton <age/>, et mourront à la fin du prochain tour.
+Certaines Unités font exception, ou profitent de leurs jetons Âge : lisez bien leurs effets !
+(jetons Âge posés sur les 4 Unités)
+
+Le saviez-vous ? Vous pouvez **cliquer sur une carte**, un Bâtiment ou n'importe quel élément du jeu pour afficher son aide et les règles qui s'y rapportent.
+
+Le tour 1 est terminé ! Vous connaissez maintenant les 6 phases d'un tour.
+À vous de jouer : les choix vous appartiennent pour le reste de la partie. Bonne chance, Monarque !
+(fin du tutoriel scénarisé : le joueur joue librement à partir du tour 2)
