@@ -1,5 +1,5 @@
 import { isUnit } from '@gamepark/paper-tales/material/Artifact'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { unitCardCharacteristics } from '@gamepark/paper-tales/material/UnitCharacteristics'
 import { DropAreaDescription, HandLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { unitCardDescription } from '../material/UnitCardDescription'
@@ -45,7 +45,7 @@ export class PlayerUnitHandLocator extends HandLocator {
       .player(item.location.player)
       .sort(
         // The Legendary Artifacts after the units: their cost depends on the ones already deployed
-        (card) => (isUnit(card.id) ? unitCardCaracteristics[card.id].cost : Infinity),
+        (card) => (isUnit(card.id) ? unitCardCharacteristics[card.id].cost : Infinity),
         (card) => card.id ?? Infinity
       )
       .getIndexes()
@@ -67,7 +67,9 @@ export class PlayerUnitHandLocator extends HandLocator {
   }
 
   placeItem(item: MaterialItem, context: ItemContext): string[] {
-    return placeAtPanelWhenHidden(this, item, context, () => super.placeItem(item, context))
+    // The card chosen to be placed comes out of the fan, in front of the next cards. Not too far: the pointer that has just
+    // chosen it stays on its button, not on the card, which would zoom and hide the kingdom
+    return placeAtPanelWhenHidden(this, item, context, () => [...super.placeItem(item, context), ...(item.selected ? ['translate3d(0, -1em, 2em)'] : [])])
   }
 }
 

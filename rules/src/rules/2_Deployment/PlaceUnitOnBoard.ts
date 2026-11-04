@@ -1,4 +1,4 @@
-import { isEndPlayerTurn, isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
+import { isMoveItemType, isMoveItemTypeAtOnce, ItemMove, MaterialMove, PlayMoveContext, RuleMove, RuleStep, SimultaneousRule } from '@gamepark/rules-api'
 import { isEqual, omit } from 'es-toolkit/compat'
 import { Card, isArtifact, isUnit } from '../../material/Artifact'
 import { golds } from '../../material/Gold'
@@ -8,9 +8,9 @@ import { Unit } from '../../material/Unit'
 import { PlayerColor } from '../../PlayerColor'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
-import { DiscardRemainingUnits } from './DiscardRemainingUnits'
 import { AgeTokens } from '../helpers/AgeTokens'
 import { DeployCostHelper } from '../helpers/DeployCostHelper'
+import { KingdomHelper } from '../helpers/KingdomHelper'
 
 export class PlaceUnitOnBoard extends SimultaneousRule {
   onRuleStart(_move: RuleMove<number, RuleId>, _previousRule?: RuleStep, _context?: PlayMoveContext): MaterialMove[] {
@@ -40,14 +40,15 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     const goldToSpend = playerGold - costs.placedCost
     // A card that cannot be paid would be discarded (rulebook p.5): it is not laid
     const playerHand = this.getPlayerHand(playerId)
-    const playerHandPlayable = playerHand.filter<Card>((item) => costs.costOf(item.id) <= goldToSpend)
+    // The hand of another Monarch is hidden: its cards are not known, nothing is offered
+    const playerHandPlayable = playerHand.filter<Card>((item) => item.id !== undefined && costs.costOf(item.id) <= goldToSpend)
     const playerUnitsAlreadyPlayed = this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
-    //.index((index) => !placedIndexes.includes(index))
 
+    const boardSpaces = new KingdomHelper(this.game, playerId).boardSpaces
     // A unit of the hand goes on any space of the kingdom: on an empty one, or on a unit, which then leaves (see
     // beforeItemMove)
     moves.push(
-      ...this.getBoardSpaces(playerId).flatMap((space) => {
+      ...boardSpaces.flatMap((space) => {
         return [
           ...playerHandPlayable.filter<Card>((item) => isUnit(item.id)).moveItems({
             type: LocationType.PlayerUnitBoard,
@@ -60,11 +61,11 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
       })
     )
 
-    const boardSpaces = this.getBoardSpaces(playerId)
+    // A unit in play goes on any other space of the kingdom
     moves.push(
       ...boardSpaces.flatMap((space) => {
         return [
-          ...playerUnitsAlreadyPlayed.moveItems((item) => ({
+          ...playerUnitsAlreadyPlayed.filter((item) => item.location.x !== space.x || item.location.y !== space.y).moveItems((item) => ({
             type: LocationType.PlayerUnitBoard,
             player: playerId,
             x: space.x,
@@ -97,9 +98,9 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
         .moveItems({ type: LocationType.PlayerUnitHand, player: playerId })
     )
 
-    const discardAndEndMoves = new DiscardRemainingUnits(this.game).getActivePlayerLegalMoves(playerId)
+    moves.push(...playerHand.moveItems({ type: LocationType.Discard }))
     // The deployment ends only when the cards laid can be paid (none is laid that cannot be, see keepsPaid)
-    moves.push(...discardAndEndMoves.filter((move) => !isEndPlayerTurn(move) || costs.placedCost <= playerGold))
+    if (playerHand.length <= 1 && costs.placedCost <= playerGold) moves.push(this.endPlayerTurn(playerId))
 
     return moves.filter((move) => this.keepsPaid(playerId, move, playerGold))
   }
@@ -139,6 +140,9 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
   beforeItemMove(move: ItemMove): MaterialMove[] {
     const moves: MaterialMove[] = []
     if (!isMoveItemType(MaterialType.Unit)(move)) return []
+
+    // The card a Monarch chose with its button (a selection of their screen only, nothing the framework clears) has moved
+    delete this.material(MaterialType.Unit).getItem(move.itemIndex).selected
 
     // Taken back to the hand: it no longer counts among the cards deployed this turn
     if (move.location.type === LocationType.PlayerUnitHand) {
@@ -187,9 +191,8 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
 
     if (isMoveItemType(MaterialType.Unit)(move)) {
       if ((move.location.type === LocationType.PlayerUnitBoard || move.location.type === LocationType.PlayerArtifacts) && move.location.rotation === true) {
-        const cardsPlayedIndexes: number[] = this.remind(Memory.PlayedCardsDuringDeployment, move.location.player)
-        cardsPlayedIndexes.push(move.itemIndex)
-        this.memorize(Memory.PlayedCardsDuringDeployment, cardsPlayedIndexes, move.location.player)
+        // A card laid this turn may move again, still face down: it counts once
+        this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => (cards.includes(move.itemIndex) ? cards : [...cards, move.itemIndex]), move.location.player)
       }
     }
 
@@ -200,27 +203,12 @@ export class PlaceUnitOnBoard extends SimultaneousRule {
     return [this.startRule(RuleId.RevealBoards)]
   }
 
-  getPlayerHand(playerId: PlayerColor) {
+  private getPlayerHand(playerId: PlayerColor) {
     return this.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(playerId)
   }
 
-  getPlayerBoard(playerId: PlayerColor) {
+  private getPlayerBoard(playerId: PlayerColor) {
     return this.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(playerId)
   }
 
-  getBoardSpaces(playerId: PlayerColor) {
-    const hasLevel2Building = this.hasLevel2Building(playerId)
-    const board = [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 }
-    ]
-    if (hasLevel2Building) board.push({ x: 2, y: 0 })
-    return board
-  }
-
-  hasLevel2Building(playerId: number): boolean {
-    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).rotation(true).length > 0
-  }
 }

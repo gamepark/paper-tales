@@ -1,12 +1,16 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { EffectType } from '@gamepark/paper-tales/material/effects/Effect'
+import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
+import { DeployEffectsHelper } from '@gamepark/paper-tales/rules/helpers/DeployEffectsHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { and, Fade, isRule, ItemContext, MaterialContext, MaterialGameAnimations, Trajectory } from '@gamepark/react-game'
 import {
   isCreateItem,
+  isCustomMoveType,
   isDeleteItem,
   isMoveItem,
   isMoveItemsAtOnce,
@@ -22,7 +26,7 @@ import {
 import { fanCardFrame, fanCardLocator, FrameLocator, panelCardLocator } from '../locators/DraftPassAnimationLocators'
 import { playerUnitHandLocator } from '../locators/PlayerUnitHandLocator'
 import { WARS_READING_MS } from '../table/warPace'
-import { getDraftGiver, getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, PANEL_X } from '../locators/TableLayout'
+import { getDraftGiver, getPanelCenter, getPanelsOrder, getViewedPlayer, isAreaDisplayed, isKingdomDisplayed, PANEL_X } from '../locators/TableLayout'
 
 export const paperTalesAnimation = new MaterialGameAnimations()
 
@@ -53,6 +57,8 @@ const isSeen = (context: MaterialContext, type: number, index: number, item: Mat
     const unit = itemAt(context, MaterialType.Unit, item.location.parent!)
     return !!unit && isSeen(context, MaterialType.Unit, item.location.parent!, unit)
   }
+  // The score is told on the panels: only the gains of the kingdoms displayed are given time, like their gold
+  if (item.location.type === LocationType.PlayerScore) return isKingdomDisplayed(context, item.location.player)
   if (!areaLocations.includes(item.location.type)) return true
   const locator = context.locators[item.location.type]
   return !!locator && !locator.hide(item, { ...context, type, index, displayIndex: 0 })
@@ -172,7 +178,7 @@ paperTalesAnimation.configure(and(isRule(RuleId.PlaceUnitOnBoard), passedTo(Loca
 // The others' are not seen (see isUnseen): their panel tells what they earn (see DeltaCounter).
 paperTalesAnimation.configure(and(isRule(RuleId.Income), isCreateItem, isSeenMove)).duration(700)
 
-// The payment of the new units: the coins of the Monarch looked at leave their stock, at the pace of the income. What the
+// The payment of the new units: the coins of the kingdoms displayed leave their stock, at the pace of the income. What the
 // others pay is not seen (see isUnseen).
 paperTalesAnimation.configure(and(isRule(RuleId.PayDeployedUnits), (move: MaterialMove) => isCreateItem(move) || isDeleteItem(move), isSeenMove)).duration(700)
 
@@ -291,6 +297,12 @@ paperTalesAnimation
   })
   .skip()
 
+// A card a Monarch discards by their own choice, at the recruitment or the deployment: done at once, it holds nothing up
+const DISCARD = 400
+paperTalesAnimation
+  .configure((move, context) => isMoveItem(move) && move.location.type === LocationType.Discard && [RuleId.Draft, RuleId.PlaceUnitOnBoard].includes(context.rules.game.rule?.id as RuleId))
+  .duration(DISCARD)
+
 // The card I keep, or put back into my hand
 paperTalesAnimation.configure((move) => isMoveItem(move) && move.location.type !== undefined && [LocationType.PlayerDraftHand, LocationType.PlayerUnitHand].includes(move.location.type)).duration(500).trajectory(keptHandLanding)
 
@@ -304,8 +316,19 @@ paperTalesAnimation
   .skip()
 paperTalesAnimation.configure(and(isRule(RuleId.RevealBoards), isMoveItemsAtOnce)).duration(KINGDOM_REVEAL).trajectory(fadeAtPanels)
 
-// The score markers are not on the table (the score is in the panels): their moves still take a while, so that the
-// neighbours view stays long enough to read the outcome of the wars, and the panels show each gain one after the other
+// The Artifact a Monarch displayed has just drawn with the Court Jester (see isShownArtifact): it is read before the wars,
+// which only keep the ones that matter to them
+const ARTIFACT_READING = 1500
+paperTalesAnimation
+  .configure((move, context) => {
+    if (!isCustomMoveType(CustomMoveType.ResolveNextDeployEffect)(move)) return false
+    const player = move.data as PlayerColor
+    return isKingdomDisplayed(context, player) && new DeployEffectsHelper(context.rules.game).getCurrentEffect(player)?.effect.type === EffectType.DrawArtifact
+  })
+  .duration(ARTIFACT_READING)
+
+// The score markers are not on the table (the score is in the panels): the moves of the kingdoms displayed still take a
+// while, so that the panels show their gains one after the other. The others' are not seen (see isUnseen).
 paperTalesAnimation.configure(and(isRule(RuleId.War), isMoveItemType(MaterialType.ScoreToken))).duration(700)
 
 /**
@@ -349,7 +372,7 @@ paperTalesAnimation.configure(starts(RuleId.War)).duration(WARS_READING_MS).post
 const INCOME_READING = 2600
 paperTalesAnimation.configure(and(isRule(RuleId.Income), starts(RuleId.Build))).duration(INCOME_READING)
 
-/** The payment is read on the panels, away from the kingdoms: a longer pause than the other steps */
+/** The payment is read on the panels and the piles of gold of the kingdoms: a longer pause than the other steps */
 const PAYMENT_READING = 2200
 paperTalesAnimation.configure(starts(RuleId.PayDeployedUnits)).duration(PAYMENT_READING).postMove()
 

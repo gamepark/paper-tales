@@ -237,24 +237,24 @@ rules/src/                      → Backend (pure logic, no React)
   PaperTalesOptions.ts          → Game options
   PlayerColor.ts                → Player enum (Blue=1, Red, Green, Yellow, Black, Purple, White)
   material/
-    MaterialType.ts             → Unit, Building, Age, Gold, Time, ScoreBoard, ScoreToken
+    MaterialType.ts             → Unit, Building, Age, Gold, Time, ScoreToken
     LocationType.ts             → All locations (board, hand, stock, deck, etc.)
     Unit.ts                     → 42 unit card enum
-    UnitCaracteristics.ts       → Record<Unit, UnitPattern> — stats, effects, costs
+    UnitCharacteristics.ts      → Record<Unit, UnitPattern> — stats, effects, costs
     Building.ts                 → 5 buildings enum (Mine, Temple, Tavern, Barracks, Town)
-    BuildingCaracteristics.ts   → Record<Building, BuildingPattern>
+    BuildingCharacteristics.ts  → Record<Building, BuildingPattern>
     effects/                    → Effect types by phase
   rules/
     RuleId.ts                   → All rule phases
     Memory.ts                   → Memory keys
     CustomMoveType.ts           → Custom move types
     1_Recruit/                  → Deal, Draft, GiveDraftToNeighbor
-    2_Deployment/               → PlaceUnitOnBoard, RevealBoards, PayDeployedUnits, DeployEffects, ChooseWherePlacingAgeToken
-    3_War/                      → War
+    2_Deployment/               → PlaceUnitOnBoard, RevealBoards, PayDeployedUnits, DeployEffects
+    3_War/                      → War, WarSummary
     4_Income/                   → Income
-    5_Build/                    → Build, BuildWithSubstitution
+    5_Build/                    → Build
     6_Age/                      → AgeEffects, AgeUnitsDie, AgeUnitsAge, SaveUnitsWithMysticEffect, NextTurn, EndGame
-    helpers/                    → AgeHelper, BuildHelper, ResourcesHelper, ScoreHelper
+    helpers/                    → What the rules, the interface and the bot compute (AgeHelper, BuildHelper, DeployEffectsHelper, IncomeHelper, KingdomHelper, ResourcesHelper, ScoreHelper, WarHelper…): a rule only moves material
 
 app/src/                        → Frontend (React + Emotion CSS)
   main.tsx                      → Entry point (GameProvider)
@@ -273,7 +273,7 @@ app/src/                        → Frontend (React + Emotion CSS)
 ```
 Deal → Draft → GiveDraftToNeighbor → (repeat Draft) →
 PlaceUnitOnBoard → RevealBoards → PayDeployedUnits → DeployEffects →
-  [ChooseWherePlacingAgeToken →] War → WarSummary (every Monarch moves on) → Income → Build →
+  War → WarSummary (every Monarch moves on) → Income → Build →
   [SaveUnitsWithMysticEffect →] AgeEffects → AgeUnitsDie → AgeUnitsAge →
   (round 1-3: NextTurn) | (round 4: EndGame)
 ```
@@ -288,7 +288,7 @@ PlaceUnitOnBoard → RevealBoards → PayDeployedUnits → DeployEffects →
 ## Key Conventions
 
 - **Hiding**: `hideRotatedCardToOthers` — face-down board cards hidden to non-owners
-- **Score**: Tracked via `ScoreToken.location.x` (0-60 on score board)
+- **Score**: Tracked via `ScoreToken.location.x` in `LocationType.PlayerScore`
 - **Gold**: Uses `MoneyDescription` with Gold1 (1g) and Gold5 (5g) coins
 - **Age tokens**: Accumulate on units each round; unit dies when ≥1 token (unless special condition)
 - **Draft direction**: Alternates each round (odd=clockwise, even=counter-clockwise)
@@ -299,7 +299,7 @@ PlaceUnitOnBoard → RevealBoards → PayDeployedUnits → DeployEffects →
 - `PlayedCardsDuringDeployment`: Per-player array of newly deployed unit indexes
 - `UnitSavedWithMystic`: Per-player array of saved unit indexes
 - `TwoPlayersDraftMoves`: 2p draft tracking
-- `PlacingAgeTokenUnitsIndexes`: Queue for age token placement choices
+- `DeployEffects`: Per-player queue of the deployment effects still to resolve
 - `Time`: Current round (1-4)
 
 ## Effects System
@@ -324,5 +324,5 @@ The table shows one player area at a time (`locators/TableLayout.ts`), the same 
 
 - **Build**: Vite
 - **React**: 19
-- **@gamepark/rules-api**: ~7.8
-- **@gamepark/react-game**: ~7.8
+- **@gamepark/rules-api**: ~7.10
+- **@gamepark/react-game**: ~7.9.5

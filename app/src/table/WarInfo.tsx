@@ -2,7 +2,7 @@ import { css, keyframes } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { War, WarStrengths } from '@gamepark/paper-tales/rules/3_War/War'
+import { WarHelper, WarStrengths } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext, PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
@@ -26,7 +26,7 @@ import {
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { fightsFromBackRow } from '../material/fightsFromBackRow'
 import { colorStripCss, ochre, paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
-import { getColor } from '../utils/color'
+import { solidColor } from '../utils/color'
 import { Sash } from './Sash'
 import { TableAnchor } from './TableAnchor'
 import { WarDuel } from './WarDuel'
@@ -41,7 +41,7 @@ import { beatCss, STRENGTHS_AT, useWarBeat, useWarReplays, useWarsTold, WarBeat 
 export const WarInfo: FC = () => {
   const context = useMaterialContext()
   if (!isWarView(context)) return null
-  const war = new War(context.rules.game)
+  const war = new WarHelper(context.rules.game)
   // Once the wars are fought, the strengths they were fought with: a building built since changes the kingdom, not the wars
   const fought = areWarsFought(context) ? context.rules.remind<WarStrengths | undefined>(Memory.WarStrengths) : undefined
   const players = getWarPlayers(context)
@@ -209,12 +209,12 @@ const WarKingdomInfo: FC<WarKingdomInfoProps> = ({ player, position, power, cent
   const ribbon = (
       <PlayMoveButton
         key={told ? replays : -1}
-        css={[tagPaperCss, colorStripCss(getColor(player).substring(0, 7)), infoCss, !inline && centredCss, position.beside && besideCss, central && centralCss, ribbonButtonCss, told && strengthsBeatCss]}
+        css={[tagPaperCss, colorStripCss(solidColor(player)), infoCss, !inline && centredCss, position.beside && besideCss, central && centralCss, ribbonButtonCss, told && strengthsBeatCss]}
         move={move}
         transient
         title={title}
       >
-        <span>{me ? t('war.you', 'You') : name}</span>
+        <span css={ribbonNameCss}>{me ? t('war.you', 'You') : name}</span>
         {!isRevealing(context) && (
           <span css={[powerCss, told && beatCss(STRENGTHS_AT)]}>
             <img src={shield} alt="" />
@@ -264,6 +264,14 @@ const ribbonButtonCss = css`
 const infoCss = css`
   gap: 0.8em;
   font-size: 1.1em;
+`
+
+/** A long name is cut: the title of the button still gives it whole */
+const ribbonNameCss = css`
+  max-width: 6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const centredCss = css`

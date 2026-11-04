@@ -6,8 +6,6 @@ import { css, keyframes } from '@emotion/react'
  * cream for what is read, rust for what is done, dark ink for who (tags, war). Font: Baloo 2 (the rounded heavy
  * capitals of the rulebook titles).
  */
-export const parchment = '#f1e6cc'
-export const parchmentDark = '#e2d2ac'
 export const brown = '#5a3414'
 export const wood = '#7b4a24'
 export const ochre = '#e9b534'

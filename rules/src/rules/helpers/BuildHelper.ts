@@ -1,11 +1,11 @@
-import { MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
+import { Location, MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
 import { minBy } from 'es-toolkit/compat'
 import { Building } from '../../material/Building'
-import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '../../material/BuildingCharacteristics'
 import { AddWarPower, isAddWarPower, isScoreAtWar, isWarType, ScoreAtWar, WarEffect } from '../../material/effects/3_WarEffects'
 import { IncomeEffect, isIncomeType } from '../../material/effects/4_IncomeEffects'
 import { Card } from '../../material/Artifact'
-import { cardEffects } from '../../material/CardCaracteristics'
+import { cardEffects } from '../../material/CardCharacteristics'
 import {
   BuildEffect,
   isBuildEffect,
@@ -20,7 +20,6 @@ import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
-import { BuildWithSubstitution } from '../5_Build/BuildWithSubstitution'
 import { KingdomHelper } from './KingdomHelper'
 import { ResourcesHelper } from './ResourcesHelper'
 
@@ -29,6 +28,12 @@ export enum BuildAction {
   BuildLevel1 = 1,
   BuildLevel2,
   Upgrade
+}
+
+/** The construction a building item moved to the given location is: from the hand at level 1 or 2, else an upgrade */
+export const getBuildAction = (building: MaterialItem, location: Partial<Location>): BuildAction => {
+  if (building.location.type !== LocationType.PlayerBuildingHand) return BuildAction.Upgrade
+  return location.rotation ? BuildAction.BuildLevel2 : BuildAction.BuildLevel1
 }
 
 /** The printed cost retained to pay one level of a construction: its gold alternative, or ignored (the Back Room) */
@@ -65,14 +70,12 @@ const without = <T>(items: T[], removed: T[]): T[] => {
 }
 
 export class BuildHelper extends MaterialRulesPart {
-  private buildWithSubstitution: BuildWithSubstitution
   private _myResources: Resources[] | undefined = undefined
   constructor(
     game: MaterialGame,
     readonly player: number
   ) {
     super(game)
-    this.buildWithSubstitution = new BuildWithSubstitution(this.game, this.player)
   }
 
   get myResources() {
@@ -102,7 +105,7 @@ export class BuildHelper extends MaterialRulesPart {
     return this.builtBuildings.rotation((r) => !r)
   }
 
-  get buildLevel2Buildings() {
+  get builtLevel2Buildings() {
     return this.builtBuildings.rotation(true)
   }
 
@@ -110,26 +113,22 @@ export class BuildHelper extends MaterialRulesPart {
     return this.material(MaterialType.Building).location(LocationType.PlayerBuildingHand).player(this.player)
   }
 
-  getGoldInBuildingCost(cost: Resources[]): number {
-    return cost.filter((res) => res === Resources.Gold).length
-  }
-
   get buildableLevel1Buildings() {
     const fieldCost = this.fieldCost
-    return this.availableBuildings.filter((item: MaterialItem) => this.canBuildLevel1(item.id as Building, fieldCost))
+    return this.availableBuildings.filter<Building>((item) => this.canBuildLevel1(item.id, fieldCost))
   }
 
   get buildableLevel2Buildings() {
     const fieldCost = this.fieldCost
-    return this.availableBuildings.filter((item: MaterialItem) => this.canBuildLevel2(item.id as Building, fieldCost))
+    return this.availableBuildings.filter<Building>((item) => this.canBuildLevel2(item.id, fieldCost))
   }
 
   get upgradableBuildings() {
-    return this.builtLevel1Buildings.filter((item: MaterialItem) => this.canUpgrade(item.id as Building))
+    return this.builtLevel1Buildings.filter<Building>((item) => this.canUpgrade(item.id))
   }
 
   get fieldCost() {
-    return this.ignoresFieldCost ? 0 : this.getFieldCost(this.player)
+    return this.ignoresFieldCost ? 0 : this.builtBuildings.getQuantity() * 2
   }
 
   canBuildLevel1(buildingId: Building, fieldCost: number): boolean {
@@ -155,7 +154,7 @@ export class BuildHelper extends MaterialRulesPart {
 
   /** The same ways, level by level: which printed cost pays each level */
   private getLevelOptions(buildingId: Building, action: BuildAction): LevelCost[][] {
-    const { cost1, cost1Alternate, cost2, cost2Alternate } = buildingCardCaracteristics[buildingId]
+    const { cost1, cost1Alternate, cost2, cost2Alternate } = buildingCardCharacteristics[buildingId]
     const level1: LevelCost[] = [{ level: 1, cost: cost1 }, ...(cost1Alternate ? [{ level: 1 as const, cost: cost1Alternate, alternate: true }] : [])]
     // The Back Room: the level 2 cost is ignored, to build directly at level 2 as to upgrade
     const level2: LevelCost[] = this.ignoresLevel2Cost
@@ -191,11 +190,12 @@ export class BuildHelper extends MaterialRulesPart {
     const fieldIgnored = action !== BuildAction.Upgrade && this.ignoresFieldCost
     const payments = this.getLevelOptions(buildingId, action).flatMap((levels): ConstructionPayment[] => {
       const cost = levels.flatMap((level) => level.cost)
-      const missing = this.buildWithSubstitution.getMissingResourcesForBuilding(this.myResources, cost)
+      const resources = cost.filter((resource) => resource !== Resources.Gold)
+      const missing = without(resources, this.myResources)
       const { remaining, substituted } = this.coverWithOtherResources(cost, missing)
       if (remaining.some((resource) => !replaceable.has(resource))) return []
-      const printedGold = this.getGoldInBuildingCost(cost)
-      return [{ field, fieldIgnored, levels, produced: without(cost.filter((r) => r !== Resources.Gold), missing), substituted, replacedByGold: remaining, printedGold, total: field + printedGold + remaining.length }]
+      const printedGold = cost.length - resources.length
+      return [{ field, fieldIgnored, levels, produced: without(resources, missing), substituted, replacedByGold: remaining, printedGold, total: field + printedGold + remaining.length }]
     })
     const payment = minBy(payments, (payment) => payment.total)
     return payment && payment.total <= this.gold ? payment : undefined
@@ -221,17 +221,13 @@ export class BuildHelper extends MaterialRulesPart {
     return { remaining, substituted }
   }
 
-  getPlayerBuildingsDone(playerId: number) {
-    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId)
-  }
-
   get buildingEffects(): Effect[] {
     const effectsToReturn: Effect[] = []
-    this.getPlayerBuildingsDone(this.player)
-      .getItems()
+    this.builtBuildings
+      .getItems<Building>()
       .forEach((item) => {
-        const id = item.id as Building
-        const building = buildingCardCaracteristics[id]
+        const id: Building = item.id
+        const building = buildingCardCharacteristics[id]
         const effect1 = building.effect1
         const effect2 = building.effect2
         if (item.location.rotation) {
@@ -269,10 +265,10 @@ export class BuildHelper extends MaterialRulesPart {
   getBuildEffectSources(predicate: (effect: BuildEffect) => boolean): { cards: Card[]; buildings: Building[] } {
     const has = (effects: Effect[] = []) => effects.filter(isBuildEffect).some(predicate)
     const cards = new KingdomHelper(this.game, this.player).cards.getItems<Card>().filter((card) => has(cardEffects(card.id))).map((card) => card.id)
-    const buildings = this.getPlayerBuildingsDone(this.player)
+    const buildings = this.builtBuildings
       .getItems<Building>()
       .filter((item) => {
-        const { effect1, effect2 } = buildingCardCaracteristics[item.id]
+        const { effect1, effect2 } = buildingCardCharacteristics[item.id]
         return has(effect1) || (item.location.rotation === true && has(effect2))
       })
       .map((item) => item.id)
@@ -289,13 +285,5 @@ export class BuildHelper extends MaterialRulesPart {
 
   get replaceResourceByGoldEffects(): ReplaceResourceByGold[] {
     return this.buildEffects.filter(isReplaceResourceByGold)
-  }
-
-  getFieldCost(playerId: number) {
-    return this.getPlayerBuildingQuantity(playerId) * 2
-  }
-
-  getPlayerBuildingQuantity(playerId: number) {
-    return this.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(playerId).getQuantity()
   }
 }

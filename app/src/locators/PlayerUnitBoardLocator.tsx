@@ -2,7 +2,9 @@ import { css } from '@emotion/react'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { DropAreaDescription, FlexLocator, ItemContext, MaterialContext } from '@gamepark/react-game'
-import { Location, MaterialItem } from '@gamepark/rules-api'
+import { isMoveItemType, Location, MaterialItem, MaterialMove } from '@gamepark/rules-api'
+import { getPlaceMoveTo, getSelectedUnit } from '../material/actions/PlaceActions'
+import { placeTargetCss } from '../material/placeTargetCss'
 import { unitCardDescription } from '../material/UnitCardDescription'
 import { getHoverShift, getKingdomScale, getKingdomSlotCoordinates, getPlayerPositionDependencies, isKingdomDisplayed, scaleTransform } from './TableLayout'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
@@ -73,13 +75,29 @@ export class PlayerUnitBoardDescription extends DropAreaDescription {
     return { width: width * scale, height: height * scale }
   }
 
+  // A card chosen with its button is laid by a click on a place, whatever button the place has
+  canShortClick(move: MaterialMove, location: Location, context: ItemContext) {
+    const selected = getSelectedUnit(context)
+    return (
+      selected !== undefined &&
+      isMoveItemType(MaterialType.Unit)(move) &&
+      move.itemIndex === selected &&
+      move.location.type === location.type &&
+      move.location.player === location.player &&
+      move.location.x === location.x &&
+      move.location.y === location.y
+    )
+  }
+
   getExtraCss(location: Location, context: ItemContext) {
     const hasLevel2Building =
       context.rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(location.player).rotation(true).length > 0
 
     // Neutral slots: the player's colour is on their panel. The 5th slot is hatched until a level 2 building is in play (rulebook p.8)
     if (!hasLevel2Building && location.y === 0 && location.x === 2) return lockedSlotCss
-    return slotCss
+    const selected = getSelectedUnit(context)
+    const target = selected !== undefined && !!getPlaceMoveTo(context.rules.getLegalMoves(context.player!), selected, location.x, location.y)
+    return [slotCss, target && placeTargetCss]
   }
 }
 

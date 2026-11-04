@@ -1,5 +1,5 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '@gamepark/paper-tales/material/BuildingCharacteristics'
 import { i18n } from 'i18next'
 import { FC } from 'react'
 import { buildingPrintedContent } from '../material/help/book/buildingPrinted'
@@ -12,7 +12,7 @@ import { buildingFaces, buildingIssues } from './cardIssues'
 
 /** One building of the catalogue: both faces in the language, and its help page as the player reads it, without the game state */
 export const BuildingCatalogueEntry: FC<{ building: Building; lng: string; i18n: i18n }> = ({ building, lng, i18n }) => {
-  const pattern = buildingCardCaracteristics[building]
+  const pattern = buildingCardCharacteristics[building]
   const issues = buildingIssues(i18n, lng, building)
   const { name, lines, facts, steps } = buildingPrintedContent(building, i18n, lng)
   return (

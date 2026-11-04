@@ -1,7 +1,7 @@
 import { Card, isArtifact, isUnit } from '@gamepark/paper-tales/material/Artifact'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { unitCardCharacteristics } from '@gamepark/paper-tales/material/UnitCharacteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { ReactivateUnitData } from '@gamepark/paper-tales/rules/CustomMoveType'
@@ -97,7 +97,7 @@ const drawnCard = (move: MoveItem, game: MaterialGame): Card => revealedCard(mov
 
 /** The Court Jester keeps a Legendary Artifact, the Shapeshifter a unit of cost 3 or less; the other cards are discarded */
 const isKeptDraw = (move: MoveItem, card: Card) =>
-  move.location.type === LocationType.PlayerArtifacts ? isArtifact(card) : isUnit(card) && unitCardCaracteristics[card].cost <= 3
+  move.location.type === LocationType.PlayerArtifacts ? isArtifact(card) : isUnit(card) && unitCardCharacteristics[card].cost <= 3
 
 /** The discard shuffled into a new deck, when the deck runs out (rulebook p.5) */
 export const DeckRefillLog: FC<MaterialLogProps> = () => <Trans i18nKey="log.deck.refill" defaults="The discard is shuffled into a new deck" />

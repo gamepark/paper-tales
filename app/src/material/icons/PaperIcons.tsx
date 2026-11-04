@@ -164,7 +164,49 @@ export const ReactivateIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
   </PaperIcon>
 )
 
-/** The rules of the expansions: an open book, its pages of cream paper on a crimson cover */
+/** Place a card in the kingdom: a card under an arrow going up, from the hand to the kingdom above it */
+export const PlaceIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <rect x="12" y="20" width="24" height="26" rx="3" fill="#f6ece6" />
+    <rect x="15" y="23.5" width="18" height="6" rx="1" fill="#b5481f" />
+    <path d="M24 15 L24 1 M17 8 L24 1 L31 8" fill="none" strokeLinecap="round" />
+  </PaperIcon>
+)
+
+/** The actions of a unit of the kingdom: three dots, so that it reads as a button to press and not as a hint to drag */
+export const ActionsIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <circle cx="9" cy="24" r="5" fill="#f6ece6" />
+    <circle cx="24" cy="24" r="5" fill="#f6ece6" />
+    <circle cx="39" cy="24" r="5" fill="#f6ece6" />
+  </PaperIcon>
+)
+
+/** A card laid in the place of another one: the old one behind, the new one in front */
+export const ReplaceIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <rect x="6" y="6" width="21" height="29" rx="3" fill="#d9c8b8" />
+    <rect x="21" y="13" width="21" height="29" rx="3" fill="#f6ece6" />
+    <rect x="24" y="16.5" width="15" height="5.5" rx="1" fill="#b5481f" />
+  </PaperIcon>
+)
+
+/** Change one's mind: a cross */
+export const CancelIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <PaperIcon {...props}>
+    <path d="M11 11 L37 37 M37 11 L11 37" fill="none" strokeLinecap="round" />
+  </PaperIcon>
+)
+
+/** Look at a kingdom: an eye of cream paper, small enough to stand on an avatar, so without the outline of the other icons */
+export const EyeIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
+  <svg viewBox="0 0 24 24" css={iconCss} aria-hidden {...props}>
+    <path d="M2 12 C6 5 18 5 22 12 C18 19 6 19 2 12 Z" fill="#f6ece6" />
+    <circle cx="12" cy="12" r="4" fill="#2e2a26" />
+  </svg>
+)
+
+/** The rules of the game: an open book, its pages of cream paper on a crimson cover */
 export const RulesBookIcon: FC<SVGAttributes<SVGSVGElement>> = (props) => (
   <PaperIcon {...props}>
     <path d="M4 13 L24 17 L44 13 L44 39 L24 43 L4 39 Z" fill="#9b2e4d" />

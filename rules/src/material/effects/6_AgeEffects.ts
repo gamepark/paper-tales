@@ -5,15 +5,20 @@ export type AgeEffect = GainTokenIfDying | GainOnAge | MysticEffect | SpecialDyi
 
 export type GainTokenIfDying = {
   type: EffectType.GainTokenIfDying
-  whoDies: WhichUnit
   tokenGain: MaterialType.ScoreToken | MaterialType.Gold
   amount: number
-  ifAgeToken?: true
-  /** Only when the unit dies with exactly one Age token (the Demon) */
-  ifSingleAgeToken?: true
-  perAgeToken?: true
-  per?: Count
-}
+} & (
+  | {
+      whoDies: WhichUnit.Myself
+      ifAgeToken?: true
+      /** Only when the unit dies with exactly one Age token (the Demon) */
+      ifSingleAgeToken?: true
+      perAgeToken?: true
+      per?: Count
+    }
+  /** For each Age token on the units that die (the Palm Reader, the Kraken, the Relic of Fate) */
+  | { whoDies: WhichUnit.All; perAgeToken: true }
+)
 
 /** Gold or Legend points at the Age phase, whether the card dies or not (the Library, the Relic of Light) */
 export type GainOnAge = {

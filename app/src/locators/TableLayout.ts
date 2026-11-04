@@ -3,7 +3,7 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesOptions } from '@gamepark/paper-tales/PaperTalesOptions'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { DeployEffects, isChoice } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
+import { DeployEffectsHelper, isChoice } from '@gamepark/paper-tales/rules/helpers/DeployEffectsHelper'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialContext } from '@gamepark/react-game'
@@ -59,10 +59,8 @@ export const twoPlayersDraftHandCoordinates = { x: AREA_X + 17.7, y: HANDS_Y }
 const KEPT_HAND_X = AREA_X + 59
 // The gold of the displayed kingdom: in the empty corner of the kingdom, under its 5th slot (there is no 5th slot at the
 // back), between the units and the buildings
-export const playerGoldCoordinates = {
-  x: AREA_X + KINGDOM_COLUMN * 2 + unitCardDescription.width / 2,
-  y: AREA_Y + KINGDOM_ROW + 4
-}
+const GOLD_IN_KINGDOM = { x: KINGDOM_COLUMN * 2 + unitCardDescription.width / 2, y: KINGDOM_ROW + 4 }
+export const playerGoldCoordinates = { x: AREA_X + GOLD_IN_KINGDOM.x, y: AREA_Y + GOLD_IN_KINGDOM.y }
 // The spectator's ribbon about the cards to draft: centred above the fan they are about (the ribbon is translated by
 // half its width). A spectator has no buttons above the cards.
 export const handsLabelPosition = { x: draftHandCoordinates.x, y: AREA_Y + KINGDOM_HEIGHT + 0.5 }
@@ -90,8 +88,8 @@ export const deckLabelPosition = { x: SIDE_X - 5.5, y: DECK_Y + PILE_HALF_HEIGHT
 export const discardLabelPosition = { x: SIDE_X - 5.5, y: DISCARD_Y + PILE_HALF_HEIGHT + 0.5 }
 const RESERVES_Y = 40.6
 export const goldStockCoordinates = { x: SIDE_X - 2.9, y: RESERVES_Y }
-// The rules of the expansions played, at the foot of the column, under the reserves
-export const expansionRulesPosition = { x: SIDE_X - 5.5, y: 44 }
+// The rules proper to this game, at the foot of the column, under the reserves
+export const gameRulesPosition = { x: SIDE_X - 5.5, y: 44 }
 export const ageStockCoordinates = { x: SIDE_X + 2.9, y: RESERVES_Y }
 
 // Neighbours view, laid out like the seats around the table: my 2 neighbours at the top (left and right), the central
@@ -142,7 +140,8 @@ const getWarSeat = (context: MaterialContext, index: number, count: number): War
       : { ...right(WAR_RIGHT - seatWidth * twoScale - TWO_SEATS_MARGIN, twoScale), y: AREA_Y + 2 }
   if (index === 0) return { ...right(AREA_X, neighbourScale), y: WAR_TOP_Y }
   if (index === 2) return { ...right(WAR_RIGHT - seatWidth * neighbourScale, neighbourScale), y: WAR_TOP_Y }
-  return { ...right(WAR_CENTER_X - (seatWidth * CENTER_SCALE) / 2, CENTER_SCALE), y: bottomY }
+  // The kingdom itself is centred under the cut line: its buildings and artifacts, often none, stand in the room at its right
+  return { ...right(WAR_CENTER_X - (KINGDOM_WIDTH * CENTER_SCALE) / 2, CENTER_SCALE), y: bottomY }
 }
 
 /** The war seat of a Monarch of the neighbours view */
@@ -194,16 +193,15 @@ export const getWarResultPosition = (context: MaterialContext, neighbourIndex: n
 }
 
 /**
- * With 3 kingdoms, where the ribbon of a neighbour meets the duel of their war (see WarInfo): at the inner end of the room
- * beside the central kingdom on their side. The ribbon stands towards the middle of the view, the duel towards its outer
- * end. Vertically, the middle of the ribbon is the middle of the duel.
+ * With 3 kingdoms, where the ribbon of a neighbour meets the duel of their war (see WarInfo): far enough from the outer end
+ * of the view for the duel to stay clear of the panels and of the deck. The ribbon stands towards the middle of the view,
+ * the duel towards its outer end. Vertically, the middle of the ribbon is the middle of the duel.
  */
-export const getNeighbourJunction = (context: MaterialContext, neighbourIndex: number): XYCoordinates => {
-  const { seatWidth } = getWarLayout(context)
-  const center = getWarSeat(context, 1, 3)
-  const x = neighbourIndex === 0 ? center.kingdomX : center.kingdomX + seatWidth * center.scale
-  return { x, y: getWarResultPosition(context, neighbourIndex, 3).y + 0.85 }
-}
+const WAR_DUEL_ROOM = 19
+export const getNeighbourJunction = (context: MaterialContext, neighbourIndex: number): XYCoordinates => ({
+  x: neighbourIndex === 0 ? AREA_X + WAR_DUEL_ROOM : WAR_RIGHT - WAR_DUEL_ROOM,
+  y: getWarResultPosition(context, neighbourIndex, 3).y + 0.85
+})
 
 /**
  * Where the gains of the wars of the central kingdom are told (see WarGains): under the war against the left neighbour,
@@ -233,9 +231,6 @@ const getPlayerAt = (context: MaterialContext, from: PlayerColor, offset: number
 export const getLeftNeighbour = (context: MaterialContext, player = getMe(context)) => getPlayerAt(context, player, 1)
 
 export const getRightNeighbour = (context: MaterialContext, player = getMe(context)) => getPlayerAt(context, player, -1)
-
-export const isNeighbour = (context: MaterialContext, player: number) =>
-  player !== getMe(context) && (player === getLeftNeighbour(context) || player === getRightNeighbour(context))
 
 /**
  * The view chosen by a Monarch (a transient changeView) holds for the part of the turn it was chosen in: the turn, and
@@ -283,7 +278,7 @@ const isChoosingDeployEffect = (context: MaterialContext) => {
   if (context.rules.game.rule?.id !== RuleId.DeployEffects || isSpectator(context)) return false
   const me = getMe(context)
   if (!context.rules.isTurnToPlay(me)) return false
-  const pending = new DeployEffects(context.rules.game).getCurrentEffect(me)
+  const pending = new DeployEffectsHelper(context.rules.game).getCurrentEffect(me)
   return !!pending && isChoice(pending.effect)
 }
 
@@ -348,14 +343,14 @@ export const isAreaDisplayed = (context: MaterialContext, player?: number) => !i
 export const isMyAreaDisplayed = (context: MaterialContext, player?: number) =>
   player === getMe(context) && !isWarView(context) && getViewedPlayer(context) === player
 
-export const isBuildRule = (context: MaterialContext) => context.rules.game.rule?.id === RuleId.Build
-
 export const isDraftRule = (context: MaterialContext) => [RuleId.GiveDraftToNeighbor, RuleId.Draft, RuleId.Deal].includes(context.rules.game.rule?.id as RuleId)
 
 export const getPlayerPositionDependencies = (context: MaterialContext) => ({
   view: getViewedPlayer(context),
   war: isWarView(context),
-  draft: isKeptHandAside(context)
+  draft: isKeptHandAside(context),
+  // A card chosen to be placed changes the buttons of the other ones
+  selected: context.rules.material(MaterialType.Unit).selected().getIndexes()
 })
 
 /**
@@ -383,6 +378,13 @@ export const getKingdomSlotCoordinates = (context: MaterialContext, player: numb
   if (!isWarView(context)) return { x: AREA_X + localX, y: AREA_Y + localY }
   const seat = getPlayerWarSeat(context, player)
   return { x: seat.kingdomX + localX * seat.scale, y: seat.y + localY * seat.scale }
+}
+
+/** The gold of a Monarch, in the same corner of their kingdom in every view */
+export const getGoldCoordinates = (context: MaterialContext, player: number | undefined): XYCoordinates => {
+  if (!isWarView(context)) return playerGoldCoordinates
+  const seat = getPlayerWarSeat(context, player)
+  return { x: seat.kingdomX + GOLD_IN_KINGDOM.x * seat.scale, y: seat.y + GOLD_IN_KINGDOM.y * seat.scale }
 }
 
 /** The buildings of the game, the same for every Monarch (5, or 7 with the expansions), in the order of the enum */
@@ -435,10 +437,10 @@ export const hasArtifacts = (context: MaterialContext) => !!getOptions(context)?
 
 export const getOptions = (context: MaterialContext) => context.rules.game.options as PaperTalesOptions | undefined
 
-/** An expansion is played: its rules can be read */
-export const hasExpansion = (context: MaterialContext) => {
+/** The game has rules of its own to read: those for 2 players, or an expansion played */
+export const hasGameRules = (context: MaterialContext) => {
   const options = getOptions(context)
-  return !!(options?.beyondTheGatesUnits || options?.beyondTheGatesBuildings || options?.whatForgesLegends)
+  return context.rules.players.length === 2 || !!(options?.beyondTheGatesUnits || options?.beyondTheGatesBuildings || options?.whatForgesLegends)
 }
 
 /**

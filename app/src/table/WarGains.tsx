@@ -1,7 +1,7 @@
 import { Card } from '@gamepark/paper-tales/material/Artifact'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { warsWonAgainst, WarStrengths } from '@gamepark/paper-tales/rules/3_War/War'
+import { warsWonAgainst, WarStrengths } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { css } from '@emotion/react'

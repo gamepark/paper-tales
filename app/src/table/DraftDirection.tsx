@@ -3,7 +3,7 @@ import { useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getDraftRecipient, getPanelsOrder, getViewedPlayer, handsLabelPosition, isDraftRule, isSpectator, isWarView } from '../locators/TableLayout'
-import { getColor } from '../utils/color'
+import { solidColor } from '../utils/color'
 import { colorStripCss, labelCss } from '../theme/tableTheme'
 import { TableAnchor } from './TableAnchor'
 
@@ -28,7 +28,7 @@ const DraftRecipient: FC<{ player: number }> = ({ player }) => {
   const order = getPanelsOrder(context)
   const arrow = order.indexOf(recipient) < order.indexOf(player) ? '↑' : '↓'
   return (
-    <TableAnchor position={handsLabelPosition} css={[labelCss, colorStripCss(getColor(recipient).substring(0, 7)), centeredCss]}>
+    <TableAnchor position={handsLabelPosition} css={[labelCss, colorStripCss(solidColor(recipient)), centeredCss]}>
       {t('draft.recipient.spectator', { defaultValue: 'The other cards of {giver} go to {player}', giver, player: name })} {arrow}
     </TableAnchor>
   )

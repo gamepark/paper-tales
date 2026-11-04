@@ -9,8 +9,8 @@ import { Unit } from '../material/Unit'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
-import { War } from '../rules/3_War/War'
-import { Income } from '../rules/4_Income/Income'
+import { WarHelper } from '../rules/helpers/WarHelper'
+import { IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { BuildAction, BuildHelper } from '../rules/helpers/BuildHelper'
 import { EndScoreHelper } from '../rules/helpers/EndScoreHelper'
 import { ResourcesHelper } from '../rules/helpers/ResourcesHelper'
@@ -68,7 +68,7 @@ describe('Mine', () => {
 describe('Tavern', () => {
   it('level 1: income 1 gold for each food', () => {
     const { game } = newGame([Unit.Farmer], [[Building.Tavern, 1]])
-    expect(new Income(game).getPlayerIncome(Blue)).toBe(1)
+    expect(new IncomeHelper(game).getPlayerIncome(Blue)).toBe(1)
   })
 
   it('level 2: also 1 Legend point for each food at the wars', () => {
@@ -80,7 +80,7 @@ describe('Barracks', () => {
   it('level 1: +1 strength for each wood', () => {
     const { game } = newGame([Unit.Woodcutter], [[Building.Barracks, 1]])
     // Woodcutter: strength 2 and 1 wood → +1
-    expect(new War(game).getPlayerPower(Blue)).toBe(3)
+    expect(new WarHelper(game).getPlayerPower(Blue)).toBe(3)
   })
 
   it('level 2: 1 Legend point for each unit of strength 3 or more', () => {
@@ -106,7 +106,7 @@ describe('Town', () => {
 describe('Temple', () => {
   it('level 1: income 2 gold', () => {
     const { game } = newGame([], [[Building.Temple, 1]])
-    expect(new Income(game).getPlayerIncome(Blue)).toBe(2)
+    expect(new IncomeHelper(game).getPlayerIncome(Blue)).toBe(2)
   })
 
   it('level 2: also 2 Legend points at the wars', () => {
@@ -133,12 +133,12 @@ describe('End of the game', () => {
 describe('Strength effects, one calculation for units and buildings', () => {
   it('a fixed bonus adds its strength', () => {
     const { game } = newGame([], [])
-    expect(new War(game).getAddedPower({ type: EffectType.AddWarPower, powerAdded: 2 }, Blue)).toBe(2)
+    expect(new WarHelper(game).getAddedPower({ type: EffectType.AddWarPower, powerAdded: 2 }, Blue)).toBe(2)
   })
 
   it('a bonus per gold of the income phase counts the base gold too', () => {
     const { game } = newGame([], [[Building.Temple, 1]])
     // 2 base gold + 2 of the Temple
-    expect(new War(game).getAddedPower({ type: EffectType.AddWarPower, perGoldOnIncomePhase: true, powerAdded: 1 }, Blue)).toBe(4)
+    expect(new WarHelper(game).getAddedPower({ type: EffectType.AddWarPower, perGoldOnIncomePhase: true, powerAdded: 1 }, Blue)).toBe(4)
   })
 })

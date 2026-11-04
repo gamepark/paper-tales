@@ -2,7 +2,7 @@ import { css } from '@emotion/react'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { War, warsWonAgainst, WarStrengths } from '@gamepark/paper-tales/rules/3_War/War'
+import { WarHelper, warsWonAgainst, WarStrengths } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { CustomMoveType } from '@gamepark/paper-tales/rules/CustomMoveType'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { Avatar, MaterialLogProps, usePlayerName } from '@gamepark/react-game'
@@ -33,7 +33,7 @@ export const WarOutcomeLog: FC<MaterialLogProps<CustomMove<PlayerColor>>> = ({ m
   const strengthOf = (monarch: PlayerColor) => strengths[monarch] ?? 0
   const players = rules.players
   const index = players.indexOf(player)
-  const war = new War(context.game)
+  const war = new WarHelper(context.game)
   const twoPlayers = players.length === 2
   const neighbours = twoPlayers ? [players[1 - index]] : [players[war.getNeighbor(players, index, 'left')], players[war.getNeighbor(players, index, 'right')]]
   const wars = war.getWarsWon(player)

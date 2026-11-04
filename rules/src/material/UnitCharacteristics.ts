@@ -27,7 +27,7 @@ export enum LaneType {
   BackLane
 }
 
-export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
+export const unitCardCharacteristics: Record<Unit, UnitPattern> = {
   [Unit.Commander]: {
     cost: 2,
     power: 4,
@@ -168,7 +168,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       {
         type: EffectType.AddWarPower,
         powerAdded: 2,
-        perResource: [Resources.Food]
+        perResource: Resources.Food
       },
       {
         type: EffectType.CantWar,
@@ -233,7 +233,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       {
         type: EffectType.GainTokenIfWinWar,
         token: MaterialType.ScoreToken,
-        perResource: [Resources.Diamond],
+        perResource: Resources.Diamond,
         amount: 1
       },
       {
@@ -251,7 +251,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       type: [Resources.Wood, Resources.Wood, Resources.Wood]
     }]
   }, // OK
-  [Unit.LandLord]: {
+  [Unit.Landlord]: {
     cost: 2,
     power: 1,
     resources: [{
@@ -267,7 +267,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
       {
         type: EffectType.AddWarPower,
         powerAdded: 2,
-        perResource: [Resources.Food]
+        perResource: Resources.Food
       }
     ]
   },
@@ -647,7 +647,7 @@ export const unitCardCaracteristics: Record<Unit, UnitPattern> = {
     resources: [{ type: [Resources.Food] }],
     effect: [
       { type: EffectType.GainAgeToken, amount: 1, onDeployment: true, whichUnit: WhichUnit.Myself },
-      { type: EffectType.AddWarPower, powerAdded: 2, perResource: [Resources.Food] }
+      { type: EffectType.AddWarPower, powerAdded: 2, perResource: Resources.Food }
     ]
   },
   [Unit.Trapper]: {

@@ -10,7 +10,9 @@ import { TurnOrderArrows } from './panels/TurnOrderArrows'
 import { BuildInfo } from './table/BuildInfo'
 import { DeployGold } from './table/DeployGold'
 import { DraftDirection } from './table/DraftDirection'
-import { ExpansionRulesButton } from './table/ExpansionRulesButton'
+import { GameRulesButton } from './table/GameRulesButton'
+import { GameRulesIntro } from './table/GameRulesIntro'
+import { PlaceHereButtons } from './table/PlaceHereButtons'
 import { SideColumn } from './table/SideColumn'
 import { ViewButtons } from './table/ViewButtons'
 import { WarInfo } from './table/WarInfo'
@@ -36,7 +38,9 @@ export const GameDisplay: FC = () => (
     <IncomeGains />
     <AgeFates />
     <ViewButtons />
-    <ExpansionRulesButton />
+    <PlaceHereButtons />
+    <GameRulesButton />
+    <GameRulesIntro />
     {process.env.NODE_ENV === 'development' && (
       <DevToolsHub fabBottom="calc(5em)">
         <TestStates />

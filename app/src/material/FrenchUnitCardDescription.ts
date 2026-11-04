@@ -103,7 +103,7 @@ class FrenchUnitCardDescription extends UnitCardDescription {
     [Unit.MysticalHealer]: MysticalHealer,
     [Unit.MasterAlchemist]: MasterAlchemist,
     [Unit.ForestSpirit]: ForestSpirit,
-    [Unit.LandLord]: LandLord,
+    [Unit.Landlord]: LandLord,
     [Unit.Manticore]: Manticore,
     [Unit.GiantSnake]: GiantSnake,
     [Unit.GrandArchitect]: GrandArchitect,

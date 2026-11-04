@@ -5,10 +5,10 @@ import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { CardDescription, ItemContext, MaterialContext } from '@gamepark/react-game'
 import { isMoveItemType, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
-import { BuildAction } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
+import { BuildAction, BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { isWarView } from '../locators/TableLayout'
 import { BuildPaymentBill } from './BuildPaymentBill'
-import { cutLine, paper, paperFont, tornClip } from '../theme/tableTheme'
+import { cutLine, ochre, paper, paperFont, tornClip } from '../theme/tableTheme'
 import Barracks1 from '../images/buildings/en/level1/BarracksL1.jpg'
 import Mine1 from '../images/buildings/en/level1/MineL1.jpg'
 import Tavern1 from '../images/buildings/en/level1/TavernL1.jpg'
@@ -99,10 +99,16 @@ export class BuildingCardDescription extends CardDescription {
     // is not built, and its effect and costs are read to choose
     const unbuilt = item.location.type === LocationType.PlayerBuildingHand
     const band = !isWarView(context) && unbuiltBandCss(i18next.t('building.unbuilt', 'Not built'))
-    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && (!unbuilt || canBuildNow(context, context.index)) && builtCss]
+    const buildable = unbuilt && canBuildNow(context, context.index)
+    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && (!unbuilt || buildable) && builtCss, band && buildable && landTag(context)]
   }
 
   menuAlwaysVisible = true
+
+  // A building is built by the buttons of its menu only: never dragged, so it does not shine either
+  canDrag() {
+    return false
+  }
 
   getItemMenu(_item: MaterialItem, context: ItemContext, _legalMoves: MaterialMove[]) {
     // The neighbours view is for looking at the wars: no construction there
@@ -118,7 +124,7 @@ export class BuildingCardDescription extends CardDescription {
       items.push(
         <PaperMenuButton key="build-as-is" move={buildAsIs} x={-BUILD_BUTTON_X} y={BUILD_BUTTON_Y} level={1}>
           <BuildIcon />
-          <BuildPaymentBill building={_item.id as Building} action={BuildAction.BuildLevel1} />
+          <BuildPaymentBill building={_item.id} action={BuildAction.BuildLevel1} />
         </PaperMenuButton>
       )
     }
@@ -128,7 +134,7 @@ export class BuildingCardDescription extends CardDescription {
       items.push(
         <PaperMenuButton key="flip" move={flip} x={BUILD_BUTTON_X} y={BUILD_BUTTON_Y} level={2}>
           <BuildIcon />
-          <BuildPaymentBill building={_item.id as Building} action={action} />
+          <BuildPaymentBill building={_item.id} action={action} />
         </PaperMenuButton>
       )
     }
@@ -177,6 +183,33 @@ const unbuiltBandCss = (label: string) => css`
     pointer-events: none;
   }
 `
+
+/** The coin of the land tag, drawn: the images of the coins are square, and a tag has only its background to draw on */
+const landTagCoin = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#fbe48a" stroke="#6b4e0e" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="none" stroke="#a9841c" stroke-width="1.6"/></svg>'
+)}")`
+
+/**
+ * On a building that can be built now, the band gives way to what its land costs, where the eye chooses: a small slip on
+ * the picture, right under the construction buttons. Nothing when the land is free: the first building, or a card that
+ * ignores it. An upgrade pays no land: it is not on a building to build.
+ */
+const landTag = (context: ItemContext) => {
+  const cost = new BuildHelper(context.rules.game, context.player!).fieldCost
+  if (!cost) return undefined
+  return css`
+    &::after {
+      content: ${JSON.stringify(i18next.t('build.land-tag', { defaultValue: 'Land +{cost}', cost }))};
+      top: 42%;
+      padding: 0.25em 1.9em 0.1em 0.8em;
+      background: ${landTagCoin} right 0.7em center / 1em no-repeat, ${ochre};
+      color: #3a2c10;
+      font-size: 1em;
+      opacity: 1;
+      transform: translate(-50%, -50%) translateZ(0.4em) rotate(-4deg);
+    }
+  `
+}
 
 /** Built: the band lifts off and fades, while the veil goes and the card lights up */
 const builtCss = css`

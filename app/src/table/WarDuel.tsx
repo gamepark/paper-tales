@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { warsWonAgainst } from '@gamepark/paper-tales/rules/3_War/War'
+import { warsWonAgainst } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { PlayMoveButton, useMaterialContext, usePlayerName } from '@gamepark/react-game'
 import { XYCoordinates } from '@gamepark/rules-api'
 import { FC } from 'react'
@@ -11,6 +11,8 @@ import { labelCss, paperButtonResetCss, rust } from '../theme/tableTheme'
 import { inkOf } from '../utils/color'
 import { TableAnchor } from './TableAnchor'
 import { beatCss } from './warPace'
+
+const OUTCOME_NAME_LENGTH = 14
 
 type WarDuelProps = {
   position: XYCoordinates
@@ -41,7 +43,9 @@ export const WarDuel: FC<WarDuelProps> = ({ position, neighbour, center, neighbo
   const centerWins = warsWonAgainst(centerStrength, neighbourStrength, twoPlayers)
   const neighbourWins = warsWonAgainst(neighbourStrength, centerStrength, twoPlayers)
 
-  const winText = (player: PlayerColor, name: string, wins: number) => {
+  const winText = (player: PlayerColor, fullName: string, wins: number) => {
+    // A long name is shortened here too: the outcome is read whole, with its verb
+    const name = fullName.length > OUTCOME_NAME_LENGTH ? `${fullName.slice(0, OUTCOME_NAME_LENGTH - 1)}…` : fullName
     if (player === me) return wins > 1 ? t('war.result.you.2', 'You win 2 wars') : t('war.result.you', 'You win')
     return wins > 1 ? t('war.result.2', { defaultValue: '{player} wins 2 wars', player: name }) : t('war.result', { defaultValue: '{player} wins', player: name })
   }
@@ -126,8 +130,13 @@ const strengthCss = css`
   gap: 0.15em;
 `
 
+/** A long name is cut: the title of the button still gives it whole */
 const nameCss = (player: PlayerColor) => css`
   color: ${inkOf(player)};
+  max-width: 5.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const versusCss = css`

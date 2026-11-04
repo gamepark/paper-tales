@@ -4,7 +4,7 @@ import { Avatar, useRankedPlayers, useResultText } from '@gamepark/react-game'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import { tornDiscClip, paper, rust } from '../theme/tableTheme'
-import { getColor } from '../utils/color'
+import { solidColor } from '../utils/color'
 
 /**
  * The left page of the last page of the story book (validated mockup docs/mockups/theme.html, direction B): « Fin », the
@@ -19,7 +19,7 @@ export const ResultPage: FC = () => {
     <span css={pageCss}>
       <span css={endCss}>{t('result.end', 'The End')}</span>
       {winner !== undefined && (
-        <span css={discCss} style={{ '--pc': getColor(winner).substring(0, 7) } as Record<string, string>}>
+        <span css={discCss} style={{ '--pc': solidColor(winner) } as Record<string, string>}>
           <Avatar playerId={winner} css={avatarCss} />
         </span>
       )}

@@ -53,10 +53,7 @@ export class AgeEffects extends MaterialRulesPart {
         return effect.amount
       }
       case WhichUnit.All:
-        // For each Age token on the units that die (the Palm Reader, the Kraken, the Relic of Fate)
-        return effect.perAgeToken ? effect.amount * ageHelper.ageTokensOnDyingUnits : 0
-      default:
-        return 0
+        return effect.amount * ageHelper.ageTokensOnDyingUnits
     }
   }
 

@@ -7,7 +7,7 @@ import { Building } from './material/Building'
 import { LocationType } from './material/LocationType'
 import { MaterialType } from './material/MaterialType'
 import { PaperTalesRules } from './PaperTalesRules'
-import { BuildAction, BuildHelper } from './rules/helpers/BuildHelper'
+import { BuildHelper, getBuildAction } from './rules/helpers/BuildHelper'
 import { Memory } from './rules/Memory'
 import { RuleId } from './rules/RuleId'
 
@@ -100,9 +100,7 @@ export class PaperTalesBot extends RandomBot<MaterialGame, MaterialMove, number>
       if (!isMoveItemType(MaterialType.Building)(move)) return evaluation.value()
       const rules = new PaperTalesRules(game)
       const building = rules.material(MaterialType.Building).getItem<Building>(move.itemIndex)
-      const fromHand = building.location.type === LocationType.PlayerBuildingHand
-      const action = !fromHand ? BuildAction.Upgrade : move.location.rotation ? BuildAction.BuildLevel2 : BuildAction.BuildLevel1
-      const goldSpent = new BuildHelper(game, this.player).getGoldToPay(building.id, action) ?? 0
+      const goldSpent = new BuildHelper(game, this.player).getGoldToPay(building.id, getBuildAction(building, move.location)) ?? 0
       rules.play(move, { transient: true })
       return evaluation.value({ goldSpent }) + taste.of(100 + building.id)
     })

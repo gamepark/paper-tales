@@ -1,13 +1,13 @@
 import { MaterialGame, MaterialRulesPart } from '@gamepark/rules-api'
 import { sumBy } from 'es-toolkit/compat'
 import { Card } from '../material/Artifact'
-import { cardEffects } from '../material/CardCaracteristics'
+import { cardEffects } from '../material/CardCharacteristics'
 import { isGainAgeToken, isGainTokenOnDeploy } from '../material/effects/2_DeploymentEffects'
 import { isGainTokenIfDying } from '../material/effects/6_AgeEffects'
 import { WhichUnit } from '../material/effects/Effect'
 import { MaterialType } from '../material/MaterialType'
-import { War } from '../rules/3_War/War'
-import { Income } from '../rules/4_Income/Income'
+import { WarHelper } from '../rules/helpers/WarHelper'
+import { IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { AgeHelper } from '../rules/helpers/AgeHelper'
 import { BuildHelper } from '../rules/helpers/BuildHelper'
 import { EndScoreHelper } from '../rules/helpers/EndScoreHelper'
@@ -58,7 +58,7 @@ export type Projection = { goldSpent?: number; deployed?: number[] }
  * earn until the end of the game. It reads only what the Monarch sees: the bot evaluates its own view of the game.
  */
 export class KingdomEvaluation extends MaterialRulesPart {
-  private readonly war: War
+  private readonly war: WarHelper
   private neighbourPowers?: number[]
   private readonly ageHelper: AgeHelper
   /** The Age tokens each unit will have at the Age phase: the ones it has, and the ones the deployment will add */
@@ -69,7 +69,7 @@ export class KingdomEvaluation extends MaterialRulesPart {
     readonly player: number
   ) {
     super(game)
-    this.war = new War(game)
+    this.war = new WarHelper(game)
     this.ageHelper = new AgeHelper(game, player)
   }
 
@@ -110,7 +110,7 @@ export class KingdomEvaluation extends MaterialRulesPart {
       value += dyingGains.score
       gold += dyingGains.gold
     }
-    if (beforeIncome) gold += new Income(this.game).getPlayerIncome(this.player)
+    if (beforeIncome) gold += new IncomeHelper(this.game).getPlayerIncome(this.player)
     // The gold left at the end only breaks ties
     value += gold * (futureTurns > 0 || beforeBuild ? GOLD_VALUE : 0.01)
 
@@ -244,7 +244,7 @@ export class KingdomEvaluation extends MaterialRulesPart {
   /** What the buildings bring each turn: their Legend points at the War, their income */
   private get buildingsValue(): number {
     const buildHelper = new BuildHelper(this.game, this.player)
-    const income = new Income(this.game)
+    const income = new IncomeHelper(this.game)
     return (
       sumBy(buildHelper.scoreAtWarBuildingEffects, (effect) => this.war.getScoreAtWar(effect, this.player)) * BUILDING_WAR_SCORE_VALUE +
       sumBy(buildHelper.incomeBuildingEffects, (effect) => income.getEffectIncomes(this.player, effect)) * BUILDING_INCOME_VALUE

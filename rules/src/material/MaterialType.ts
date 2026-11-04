@@ -3,8 +3,6 @@ export enum MaterialType {
   Building,
   Age,
   Gold,
-  PlayerAidCards,
   Time,
-  ScoreBoard,
   ScoreToken
 }

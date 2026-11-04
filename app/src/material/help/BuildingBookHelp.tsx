@@ -34,7 +34,7 @@ export const BuildingBookHelp: FC<MaterialHelpProps> = ({ item, itemIndex, close
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId()
   const ownerName = usePlayerName(item.location?.player)
-  const building = item.id as Building
+  const building: Building = item.id
   const owner = item.location?.player
   const mine = owner !== undefined && owner === me
   const built = item.location?.type === LocationType.PlayerBuildingBoard

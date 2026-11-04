@@ -35,7 +35,6 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     const moves: MaterialMove[] = []
     const unitsToSave = this.getUnitToSave(playerId)
 
-
     unitsToSave.getIndexes().forEach((unitIndex) => {
       moves.push(
         this.customMove(CustomMoveType.MysticEffect, {
@@ -58,14 +57,7 @@ export class SaveUnitsWithMysticEffect extends SimultaneousRule {
     const data = move.data as MysticEffectType
     const player: PlayerColor = data.player
     const ageHelper = new AgeHelper(this.game, player)
-    this.memorize(
-      Memory.UnitSavedWithMystic,
-      (indexes: number[] = []) => {
-        indexes.push(data.unitIndex)
-        return indexes
-      },
-      player
-    )
+    this.memorize(Memory.UnitSavedWithMystic, (indexes: number[] = []) => [...indexes, data.unitIndex], player)
 
     const unitsAlreadySaved = this.remind<UnitSavedWithMysticType>(Memory.UnitSavedWithMystic, player)
 

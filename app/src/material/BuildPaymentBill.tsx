@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '@gamepark/paper-tales/material/BuildingCharacteristics'
 import { BuildEffect, isIgnoreFieldCost, isIgnoreLevel2Cost, isReplaceResourceByGold, isReplaceResourceByResource } from '@gamepark/paper-tales/material/effects/5_Build'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
@@ -111,7 +111,7 @@ const LevelRow: FC<{ building: Building; level: LevelCost; sources: () => string
   const { t } = useTranslation()
   const name = t('build.bill.level', { level: level.level, defaultValue: 'Level {level}' })
   if (level.ignored) return <Row label={name} note={sources()} value={t('build.bill.ignored', 'ignored')} />
-  const { cost1, cost2 } = buildingCardCaracteristics[building]
+  const { cost1, cost2 } = buildingCardCharacteristics[building]
   const note = level.alternate ? (
     <Trans i18nKey="build.bill.instead" defaults="instead of <cost/>" components={{ cost: <Cost cost={level.level === 1 ? cost1 : cost2} /> }} />
   ) : undefined

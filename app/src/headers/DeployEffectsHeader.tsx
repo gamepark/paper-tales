@@ -1,7 +1,7 @@
 import { EffectType, WhichUnit } from '@gamepark/paper-tales/material/effects/Effect'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { DeployEffects } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
+import { DeployEffectsHelper } from '@gamepark/paper-tales/rules/helpers/DeployEffectsHelper'
 import { usePlayerId, useRules } from '@gamepark/react-game'
 import { Trans, useTranslation } from 'react-i18next'
 import { CardLink } from '../logs/CardLink'
@@ -16,13 +16,13 @@ export const DeployEffectsHeader = () => {
   const { t } = useTranslation()
   const rules = useRules<PaperTalesRules>()!
   const me = usePlayerId<PlayerColor>()
-  const effect = me !== undefined && rules.isTurnToPlay(me) ? new DeployEffects(rules.game).getCurrentEffect(me)?.effect : undefined
+  const effect = me !== undefined && rules.isTurnToPlay(me) ? new DeployEffectsHelper(rules.game).getCurrentEffect(me)?.effect : undefined
   const [source] = getChoiceSourceCards(rules, me)
   const card = source !== undefined ? [<CardLink key="card" card={source} inHeader />] : undefined
   switch (effect?.type) {
     case EffectType.GainAgeTokenOnChosenUnit: {
       if (!card) return <>{t('header.age-token.choose', 'Choose the unit that receives the Age tokens')}</>
-      const count = new DeployEffects(rules.game).getChosenAgeTokens(me!, effect)
+      const count = new DeployEffectsHelper(rules.game).getChosenAgeTokens(me!, effect)
       const deployed = effect.among === WhichUnit.DeployedThisTurn
       if (count === 1) {
         return deployed ? (

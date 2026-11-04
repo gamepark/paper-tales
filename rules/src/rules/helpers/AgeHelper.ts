@@ -1,12 +1,12 @@
 import { Material, MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
 import { sum } from 'es-toolkit/compat'
 import { Card } from '../../material/Artifact'
-import { cardEffects } from '../../material/CardCaracteristics'
+import { cardEffects } from '../../material/CardCharacteristics'
 import { AgeEffect, isAgeEffect, isMysticEffect, isSpecialDyingCondition } from '../../material/effects/6_AgeEffects'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../../material/UnitCharacteristics'
 import { Memory } from '../Memory'
 import { AgeTokens } from './AgeTokens'
 import { KingdomHelper } from './KingdomHelper'
@@ -60,8 +60,8 @@ export class AgeHelper extends MaterialRulesPart {
     return this.material(MaterialType.Unit)
       .location(LocationType.PlayerUnitBoard)
       .player(this.player)
-      .filter((unit) => {
-        const effects = unitCardCaracteristics[unit.id as Unit].effect ?? []
+      .filter<Unit>((unit) => {
+        const effects = unitCardCharacteristics[unit.id].effect ?? []
         return effects.some((eff) => isAgeEffect(eff))
       })
   }
@@ -74,7 +74,7 @@ export class AgeHelper extends MaterialRulesPart {
   getUnitAgeEffects(unit: MaterialItem): AgeEffect[] {
     const unitId: Unit | undefined = unit.id
     if (!unitId) return []
-    return (unitCardCaracteristics[unitId].effect ?? []).filter(isAgeEffect)
+    return (unitCardCharacteristics[unitId].effect ?? []).filter(isAgeEffect)
   }
 
   get units() {

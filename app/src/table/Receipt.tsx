@@ -34,7 +34,7 @@ export const Receipt: FC<ReceiptProps> = ({ title, lines, total, lineDelays, ...
 
 const Line: FC<{ line: ReceiptLine; css?: Interpolation<Theme> }> = ({ line, ...props }) => (
   <span css={lineCss} {...props}>
-    <span>{line.label}</span>
+    <span css={labelCss}>{line.label}</span>
     <span css={amountsCss}>
       {line.score !== undefined && <Amount value={line.score} icon={legend} />}
       {!!line.gold && <Amount value={line.gold} icon={gold} />}
@@ -82,6 +82,7 @@ const titleCss = css`
   font-size: 1.25em;
   line-height: 1.1;
   color: ${rustDeep};
+  overflow-wrap: anywhere;
 `
 
 const lineCss = css`
@@ -91,6 +92,12 @@ const lineCss = css`
   gap: 0.6em;
 `
 
+/** A long word (the name of a player) breaks inside the slip: the amounts stay in it */
+const labelCss = css`
+  min-width: 0;
+  overflow-wrap: anywhere;
+`
+
 const totalCss = css`
   margin-top: 0.15em;
   padding-top: 0.35em;
@@ -98,6 +105,7 @@ const totalCss = css`
 `
 
 const amountsCss = css`
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.5em;

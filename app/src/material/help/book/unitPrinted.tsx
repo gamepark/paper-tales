@@ -1,6 +1,6 @@
 import { isChangeWarPower } from '@gamepark/paper-tales/material/effects/3_WarEffects'
 import { howManyCardCopies, Unit } from '@gamepark/paper-tales/material/Unit'
-import { LaneType, ResourcesCondition, unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { LaneType, ResourcesCondition, unitCardCharacteristics } from '@gamepark/paper-tales/material/UnitCharacteristics'
 import { i18n as I18n, TFunction } from 'i18next'
 import { ReactNode } from 'react'
 import { Trans } from 'react-i18next'
@@ -24,7 +24,7 @@ export type PrintedContent = { name: string; lines: PrintedLine[]; facts: FactTa
 export const unitPrintedContent = (unit: Unit, i18n: I18n, lng = i18n.language): PrintedContent => {
   const t = i18n.getFixedT(lng)
   const exists = (key: string) => i18n.exists(key, { lng })
-  const pattern = unitCardCaracteristics[unit]
+  const pattern = unitCardCharacteristics[unit]
   const effects = pattern.effect ?? []
   const acts = new Set(effects.map(effectStep))
 

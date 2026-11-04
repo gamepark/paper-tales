@@ -4,10 +4,10 @@ import { isGainTokenIfDying } from '../material/effects/6_AgeEffects'
 import { isIgnoreFieldCost } from '../material/effects/5_Build'
 import { CountKind, EffectType } from '../material/effects/Effect'
 import { baseGameDeck, Unit } from '../material/Unit'
-import { unitCardCaracteristics } from '../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../material/UnitCharacteristics'
 
 /** Values read on the printed cards (docs/cards-audit.md) */
-const effects = (unit: Unit) => unitCardCaracteristics[unit].effect ?? []
+const effects = (unit: Unit) => unitCardCharacteristics[unit].effect ?? []
 
 describe('Printed cards', () => {
   it('Peddler: 3 copies', () => {
@@ -15,7 +15,7 @@ describe('Printed cards', () => {
   })
 
   it('Landlord: ignore the land cost', () => {
-    expect(effects(Unit.LandLord).some(isIgnoreFieldCost)).toBe(true)
+    expect(effects(Unit.Landlord).some(isIgnoreFieldCost)).toBe(true)
   })
 
   it('Master Alchemist: 1 Age token for each food', () => {

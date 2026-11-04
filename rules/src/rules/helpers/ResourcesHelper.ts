@@ -1,12 +1,11 @@
 import { MaterialGame, MaterialItem, MaterialRulesPart } from '@gamepark/rules-api'
-import { Card } from '../../material/Artifact'
 import { Building } from '../../material/Building'
-import { buildingCardCaracteristics } from '../../material/BuildingCaracteristics'
-import { cardResources } from '../../material/CardCaracteristics'
+import { buildingCardCharacteristics } from '../../material/BuildingCharacteristics'
+import { cardResources } from '../../material/CardCharacteristics'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
-import { ResourceProduction } from '../../material/UnitCaracteristics'
+import { ResourceProduction } from '../../material/UnitCharacteristics'
 import { AgeTokens } from './AgeTokens'
 import { BuildHelper } from './BuildHelper'
 
@@ -37,7 +36,7 @@ export class ResourcesHelper extends MaterialRulesPart {
     const buildings = buildHelper.builtBuildings.getItems<Building>()
     for (const building of buildings) {
       const level = buildHelper.getLevel(building)
-      const characteristics = buildingCardCaracteristics[building.id]
+      const characteristics = buildingCardCharacteristics[building.id]
       if (characteristics.resources1 !== undefined) resources.push(...characteristics.resources1)
       if (level === 2 && characteristics.resources2 !== undefined) resources.push(...characteristics.resources2)
     }
@@ -51,7 +50,7 @@ export class ResourcesHelper extends MaterialRulesPart {
 
   /** What a card produces, line by line (a hidden card produces nothing) */
   getCardResources(card: MaterialItem, index: number): Resources[] {
-    return cardResources(card.id as Card | undefined).flatMap((production) => this.getProduction(production, card, index))
+    return cardResources(card.id).flatMap((production) => this.getProduction(production, card, index))
   }
 
   private getProduction({ type, condition }: ResourceProduction, card: MaterialItem, index: number): Resources[] {

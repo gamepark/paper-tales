@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import { ItemButtonProps, ItemMenuButton } from '@gamepark/react-game'
 import { FC, HTMLAttributes, ReactNode } from 'react'
-import { cutLine, paper, paperFont, tornClip, tornDiscClip } from '../theme/tableTheme'
+import { cutLine, paper, paperFont, rust, rustDeep, tornClip, tornDiscClip } from '../theme/tableTheme'
 
 type PaperMenuButtonProps = ItemButtonProps &
   HTMLAttributes<HTMLButtonElement> & {
@@ -11,9 +11,9 @@ type PaperMenuButtonProps = ItemButtonProps &
   }
 
 /**
- * The menu buttons of the cards, in cut paper: a dark ink disc with a cream ring and an offset shadow, holding a paper
- * icon, and its label on a torn slip of paper. The label is drawn here, among the children of the button, rather than
- * given to the framework, whose label has a look of its own.
+ * The menu buttons of the cards, in cut paper: a disc of rust paper, the colour of all that is done, with an offset
+ * shadow, holding a paper icon, and its label on a torn slip of paper. The label is drawn here, among the children of the
+ * button, rather than given to the framework, whose label has a look of its own.
  */
 export const PaperMenuButton: FC<PaperMenuButtonProps> = ({ children, level, label, labelPosition = 'right', ...props }) => (
   <ItemMenuButton css={discCss} {...props}>
@@ -24,7 +24,7 @@ export const PaperMenuButton: FC<PaperMenuButtonProps> = ({ children, level, lab
 )
 
 /** Where a menu button stands, from the centre of its card */
-export type MenuPosition = { radius: number; angle: number }
+export type MenuPosition = Pick<ItemButtonProps, 'radius' | 'angle' | 'x' | 'y'>
 
 /** The level of a building, in a corner badge like on the building cards */
 export const LevelBadge: FC<{ level: number }> = ({ level }) => (
@@ -51,14 +51,28 @@ const discCss = css`
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: ${paper};
+    background: ${rust};
     clip-path: ${tornDiscClip};
+    transition:
+      transform 0.15s,
+      background 0.15s;
   }
 
   /* The icon fills the disc */
   > svg {
     width: 2.05em;
     height: 2.05em;
+    transition: transform 0.15s;
+  }
+
+  /* Darker and larger under the pointer. The disc and its icon only: the tip of the button keeps its size */
+  &:hover:not(:disabled)::before {
+    background: ${rustDeep};
+    transform: scale(1.14);
+  }
+
+  &:hover:not(:disabled) > svg {
+    transform: scale(1.14);
   }
 
   /* A button that shows a tip when hovered (the payment of a construction) rises above the buttons of the next cards */

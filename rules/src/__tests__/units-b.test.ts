@@ -13,8 +13,8 @@ import { Unit } from '../material/Unit'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
-import { War } from '../rules/3_War/War'
-import { Income } from '../rules/4_Income/Income'
+import { WarHelper } from '../rules/helpers/WarHelper'
+import { IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { BuildAction, BuildHelper } from '../rules/helpers/BuildHelper'
 import { EndScoreHelper } from '../rules/helpers/EndScoreHelper'
 import { ResourcesHelper } from '../rules/helpers/ResourcesHelper'
@@ -83,8 +83,8 @@ const runPhase = (rules: PaperTalesRules, start: MaterialMove) => {
 const runRule = (rules: PaperTalesRules, ruleId: RuleId) => runPhase(rules, rules.startRule(ruleId))
 const runSimultaneous = (rules: PaperTalesRules, ruleId: RuleId) => runPhase(rules, rules.startSimultaneousRule(ruleId, [...rules.players]))
 
-const power = (rules: PaperTalesRules, player: PlayerColor) => new War(rules.game).getPlayerPower(player)
-const unitPower = (rules: PaperTalesRules, index: number) => new War(rules.game).getUnitPower(rules.game.items[MaterialType.Unit]![index], index)
+const power = (rules: PaperTalesRules, player: PlayerColor) => new WarHelper(rules.game).getPlayerPower(player)
+const unitPower = (rules: PaperTalesRules, index: number) => new WarHelper(rules.game).getUnitPower(rules.game.items[MaterialType.Unit]![index], index)
 const resource = (rules: PaperTalesRules, player: PlayerColor, r: Resources) => new ResourcesHelper(rules.game, player).getResource(r)
 const goldToPay = (rules: PaperTalesRules, player: PlayerColor, building: Building, action: BuildAction) =>
   new BuildHelper(rules.game, player).getGoldToPay(building, action)
@@ -141,7 +141,7 @@ describe('Giant Snake: strength 0 instead of 4, and 3 gold at income, if there i
     const snake = place(rules, Unit.GiantSnake, Blue, 0, 0)
     addAge(rules, snake, 2)
     expect(power(rules, Blue)).toBe(0)
-    expect(new Income(rules.game).getPlayerIncome(Blue)).toBe(3)
+    expect(new IncomeHelper(rules.game).getPlayerIncome(Blue)).toBe(3)
   })
 })
 

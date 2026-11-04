@@ -1,4 +1,4 @@
-import { isShuffleItemType, ItemMove, MaterialDeck, MaterialMove, PlayerTurnRule } from '@gamepark/rules-api'
+import { isShuffleItemType, ItemMove, MaterialDeck, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { sumBy } from 'es-toolkit/compat'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
@@ -8,7 +8,7 @@ import { RuleId } from '../RuleId'
  * Every Monarch receives 5 Unit cards, 9 at 2 players (rulebook p.5 and p.8). Only when the deck runs out during the
  * deal is the discard shuffled, then the deal goes on with it and what is left of it becomes the new deck.
  */
-export class Deal extends PlayerTurnRule {
+export class Deal extends MaterialRulesPart {
   onRuleStart(): MaterialMove[] {
     const deck = this.material(MaterialType.Unit).location(LocationType.Deck).deck()
     const discard = this.material(MaterialType.Unit).location(LocationType.Discard)
@@ -48,9 +48,5 @@ export class Deal extends PlayerTurnRule {
   private getMissingCards(player: number): number {
     const cardsPerPlayer = this.game.players.length === 2 ? 9 : 5
     return cardsPerPlayer - this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand).player(player).length
-  }
-
-  getPlayerMoves() {
-    return []
   }
 }

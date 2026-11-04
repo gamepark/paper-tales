@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import { Card } from '@gamepark/paper-tales/material/Artifact'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
-import { BASE_INCOME, Income } from '@gamepark/paper-tales/rules/4_Income/Income'
+import { BASE_INCOME, IncomeHelper } from '@gamepark/paper-tales/rules/helpers/IncomeHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { useMaterialContext } from '@gamepark/react-game'
 import { FC } from 'react'
@@ -21,7 +21,7 @@ export const IncomeGains: FC = () => {
   const unitName = useUnitName()
   const me = getMe(context)
   if (context.rules.game.rule?.id !== RuleId.Income || !isMyAreaDisplayed(context, me)) return null
-  const income = new Income(context.rules.game)
+  const income = new IncomeHelper(context.rules.game)
   const buildings = income.getIncomeFromBuilding(me)
   const lines: ReceiptLine[] = [
     { label: t('gains.income.base', 'Base income'), gold: BASE_INCOME },

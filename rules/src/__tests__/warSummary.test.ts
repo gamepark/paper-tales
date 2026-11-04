@@ -5,7 +5,7 @@ import { MaterialType } from '../material/MaterialType'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
-import { BASE_INCOME, Income } from '../rules/4_Income/Income'
+import { BASE_INCOME, IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { BuildHelper } from '../rules/helpers/BuildHelper'
 import { RuleId } from '../rules/RuleId'
 
@@ -38,7 +38,7 @@ describe('The summary of the wars', () => {
     const rules = newRules([Blue, Red])
     run(rules, rules.startRule(RuleId.War))
     const gold = new BuildHelper(rules.game, Blue).gold
-    const income = BASE_INCOME + new Income(rules.game).getPlayerIncome(Blue)
+    const income = BASE_INCOME + new IncomeHelper(rules.game).getPlayerIncome(Blue)
     run(rules, rules.getLegalMoves(Blue)[0])
     expect(rules.game.rule?.id).toBe(RuleId.WarSummary)
     expect(new BuildHelper(rules.game, Blue).gold).toBe(gold)

@@ -18,7 +18,7 @@ export type BuildingPattern = {
   effect2?: Effect[]
 }
 
-export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
+export const buildingCardCharacteristics: Record<Building, BuildingPattern> = {
   [Building.Mine]: {
     points1: 1,
     points2: 3,
@@ -62,7 +62,7 @@ export const buildingCardCaracteristics: Record<Building, BuildingPattern> = {
       {
         type: EffectType.AddWarPower,
         powerAdded: 1,
-        perResource: [Resources.Wood]
+        perResource: Resources.Wood
       }
     ],
     effect2: [

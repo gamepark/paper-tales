@@ -13,6 +13,7 @@ const states = [
   { file: 'st7-build-r2', label: '7 joueurs · Construction T2' },
   { file: 'st7-mystic-r2', label: '7 joueurs · Effet mystique T2' },
   { file: 'st7-draft-r3', label: '7 joueurs · Recrutement T3 (jetons Âge)' },
+  { file: 'st7-age-tokens', label: '7 joueurs · Construction T3 (9, 6 et 3 jetons Âge)' },
   { file: 'st7-deploy-choice-r3', label: '7 joueurs · Effet de déploiement à choisir T3' },
   { file: 'st7-build-r3', label: '7 joueurs · Construction T3' },
   { file: 'st7-mystic-r3', label: '7 joueurs · Effet mystique T3' },

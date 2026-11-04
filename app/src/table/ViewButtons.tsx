@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { getMe, getNeighboursView, getViewedPlayer, getWarCenter, isSpectator, isWarView, SIDE_COLUMN_WIDTH, viewMove, viewsPosition } from '../locators/TableLayout'
 import { CrownIcon, NeighboursIcon } from '../material/icons/PaperIcons'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
-import { cutLine, paper, paperCss, paperMuted, rust, tableButtonCss } from '../theme/tableTheme'
+import { cutLine, paper, paperCss, tableButtonCss } from '../theme/tableTheme'
 import { TableAnchor } from './TableAnchor'
 
 /**
@@ -14,7 +14,8 @@ import { TableAnchor } from './TableAnchor'
  * when they look at another kingdom (by clicking its panel), that kingdom and its neighbours are added, with the pawn
  * of its Monarch, on one row (the neighbours as a square button) so that the views never run into the deck. A spectator
  * has no kingdom of their own: they get the kingdom and the neighbours of the Monarch they look at, on two full lines.
- * The displayed view is on rust paper; the others are paler slips that play a transient changeView.
+ * The views to go to are on rust paper, like all that is done, and play a transient changeView. The displayed view is
+ * read: cream paper, flat on the table and pulled out of the column, like the panel of the displayed kingdom.
  */
 export const ViewButtons: FC = () => {
   const { t } = useTranslation()
@@ -180,18 +181,14 @@ const pawnCss = css`
   flex-shrink: 0;
   height: 1.45em;
   object-fit: contain;
-  /* a cream outline: the pawn stands on rust paper, whatever its colour */
-  filter: drop-shadow(0 0 0.06em ${paper}) drop-shadow(0 0 0.06em ${paper});
+  /* an ink outline: the pawn stands on paper of any shade, whatever its colour */
+  filter: drop-shadow(0 0 0.05em ${cutLine}) drop-shadow(0 0 0.05em ${cutLine});
 `
 
-const currentCss = paperCss(rust, paper)
-
-const otherCss = css`
-  ${tableButtonCss};
-
-  &::before {
-    background: ${paperMuted};
-  }
-
-  color: ${cutLine};
+const currentCss = css`
+  ${paperCss(paper, cutLine)};
+  filter: none;
+  transform: translateX(-0.7em);
 `
+
+const otherCss = tableButtonCss

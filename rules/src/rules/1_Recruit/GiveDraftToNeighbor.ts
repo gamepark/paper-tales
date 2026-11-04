@@ -1,7 +1,6 @@
 import { isMoveItemTypeAtOnce, isShuffleItemType, ItemMove, MaterialMove, MaterialRulesPart } from '@gamepark/rules-api'
 import { MaterialType } from '../../material/MaterialType'
 import { LocationType } from '../../material/LocationType'
-import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
 
 export class GiveDraftToNeighbor extends MaterialRulesPart {
@@ -32,16 +31,5 @@ export class GiveDraftToNeighbor extends MaterialRulesPart {
 
   private takeHand(player: number): MaterialMove {
     return this.getPassedHand(player).moveItemsAtOnce({ type: LocationType.PlayerDraftHand, player })
-  }
-
-  getNextPlayer(player: number) {
-    const players = this.game.players
-    const playerIndex = players.findIndex((item) => item === player)
-    const round = this.remind(Memory.Time)
-    if (round % 2 === 1) {
-      return playerIndex + 1 === players.length ? players[0] : players[playerIndex + 1]
-    } else {
-      return playerIndex - 1 === -1 ? players[players.length - 1] : players[playerIndex - 1]
-    }
   }
 }

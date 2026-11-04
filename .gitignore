@@ -40,5 +40,13 @@ tmpclaude-*
 
 # Visual Studio Code
 .vscode
+# TypeScript incremental builds
+tsconfig.tsbuildinfo
+
+# Local only: tunnel config, launch config, heavy documents
+app/vite.tunnel.config.ts
+.claude/launch.json
+docs/aides-unites.zip
+
 # Dev only: saved game states for the DevToolsHub
 /app/public/test-states/

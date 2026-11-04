@@ -5,6 +5,8 @@ export enum CustomMoveType {
   GainAgeTokenOnChosenUnitEffect,
   /** The mystic effect is optional ("you may save"): save nobody */
   SaveNobody,
+  /** Internal: a Monarch starts resolving their deployment effects, on the kingdoms and the deck left by the previous Monarch */
+  ResolveDeployEffects,
   /** Internal: the deployment effect just played is done, the next one of this Monarch is resolved (see DeployEffects) */
   ResolveNextDeployEffect,
   /** The unit whose "when revealed" effects the Shadow applies again */

@@ -1,12 +1,13 @@
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { Artifact, isArtifact } from '@gamepark/paper-tales/material/Artifact'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { CardDescription, ItemContext } from '@gamepark/react-game'
 import { isMoveItemType, Location, MaterialItem, MaterialMove } from '@gamepark/rules-api'
 import i18next from 'i18next'
-import { ReactNode } from 'react'
+import { FC, ReactNode } from 'react'
 import { Trans } from 'react-i18next'
 import Adventurer from '../images/units/en/Adventurer.jpg'
 import Archer from '../images/units/en/Archer.jpg'
@@ -94,8 +95,11 @@ import { ochre } from '../theme/tableTheme'
 import { artifactCostLocations } from '../locators/artifactCost'
 import { hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { UnitActionLabel } from './actions/UnitActionLabel'
+import { getPlaceMoves, getPlaceMoveTo, getSelectedUnit, selectToPlace, unselectToPlace } from './actions/PlaceActions'
 import { getUnitActions, UnitAction, unitActionIcons, unitActionTexts } from './actions/UnitActions'
+import { ActionsIcon, CancelIcon, PlaceIcon, ReplaceIcon } from './icons/PaperIcons'
 import { MenuPosition, PaperMenuButton } from './PaperMenuButton'
+import { placeTargetCss } from './placeTargetCss'
 import { UnitHelp } from './help/UnitHelp'
 import { BookHelpDisplay } from './help/book/BookHelpDisplay'
 
@@ -127,7 +131,7 @@ export class UnitCardDescription extends CardDescription {
     [Unit.Hunter]: Hunter,
     [Unit.Knight]: Knight,
     [Unit.Kraken]: kraken,
-    [Unit.LandLord]: Landlord,
+    [Unit.Landlord]: Landlord,
     [Unit.Leviathan]: Leviathan,
     [Unit.Manticore]: Manticore,
     [Unit.MasterAlchemist]: MasterAlchemist,
@@ -193,8 +197,18 @@ export class UnitCardDescription extends CardDescription {
 
   // The discard and the back row of a war are darkened by a veil laid on the card (see VeilLocators). The card whose
   // effect I am choosing how to apply is outlined: the header names it, the eye finds it on the table
-  getItemExtraCss(_item: MaterialItem, context: ItemContext) {
-    return [hoveredItemMenuAboveCss, getChoiceSources(context.rules, context.player).includes(context.index) && choiceSourceCss]
+  getItemExtraCss(item: MaterialItem, context: ItemContext) {
+    const selected = getSelectedUnit(context)
+    return [
+      hoveredItemMenuAboveCss,
+      getChoiceSources(context.rules, context.player).includes(context.index) && choiceSourceCss,
+      selected !== undefined &&
+        selected !== context.index &&
+        item.location.type === LocationType.PlayerUnitBoard &&
+        item.location.player === context.player &&
+        !!getPlaceMoveTo(context.rules.getLegalMoves(context.player!), selected, item.location.x, item.location.y) &&
+        placeTargetCss
+    ]
   }
 
   // The neighbours view is for looking at the war, not for arranging my kingdom: no drag there (discard nor slot change)
@@ -248,18 +262,77 @@ export class UnitCardDescription extends CardDescription {
     // The framework places the menu without the rotation of the card: the angles turn with the card in a fan, so that the
     // buttons stand at the same place on every card
     const tilt = context.locators[item.location.type]?.getItemRotateZ(item, context) ?? 0
+    const war = isWarView(context)
+    const selected = getSelectedUnit(context)
+    // A card is chosen to be placed, then laid by the buttons of the places. The chosen one can be put back. A Legendary
+    // Artifact has a single place: its button lays it at once
+    const placeButton = (position: MenuPosition, Icon: FC, key: string, defaults: string) => {
+      if (war || context.rules.game.rule?.id !== RuleId.PlaceUnitOnBoard) return undefined
+      const options = { transient: true }
+      if (selected === context.index) {
+        return (
+          <PaperMenuButton key="cancel" moves={unselectToPlace(context)} options={options} title={i18next.t('move.place.cancel', 'Cancel')} {...position}>
+            <CancelIcon />
+          </PaperMenuButton>
+        )
+      }
+      if (!getPlaceMoves(legalMoves, context.index, item).length) return undefined
+      return (
+        <PaperMenuButton key="place" move={selectToPlace(context, context.index)} options={options} title={i18next.t(key, defaults)} {...position}>
+          <Icon />
+        </PaperMenuButton>
+      )
+    }
+    const placeArtifact = (position: MenuPosition) => {
+      const move = legalMoves.find(
+        (move) => isMoveItemType(MaterialType.Unit)(move) && move.itemIndex === context.index && move.location.type === LocationType.PlayerArtifacts
+      )
+      return move ? (
+        <PaperMenuButton key="place" move={move} title={i18next.t('move.place', 'Place')} {...position}>
+          <PlaceIcon />
+        </PaperMenuButton>
+      ) : undefined
+    }
+    // While a card is chosen, the other cards of my hand wait, and a unit of my kingdom only offers its place: it is
+    // replaced, or swapped with a unit of the kingdom
+    if (selected !== undefined && selected !== context.index && item.location.type === LocationType.PlayerUnitHand) return []
+    if (selected !== undefined && selected !== context.index && item.location.type === LocationType.PlayerUnitBoard) {
+      const move = !war && item.location.player === context.player ? getPlaceMoveTo(legalMoves, selected, item.location.x, item.location.y) : undefined
+      if (!move) return []
+      const fromHand = context.rules.material(MaterialType.Unit).getItem(selected).location.type === LocationType.PlayerUnitHand
+      const laidThisTurn = !!context.rules.remind<number[] | undefined>(Memory.PlayedCardsDuringDeployment, context.player)?.includes(context.index)
+      const label = fromHand ? <Trans i18nKey="move.place.replace" defaults="Replace" /> : <Trans i18nKey="move.place.swap" defaults="Swap" />
+      const title = !fromHand
+        ? undefined
+        : laidThisTurn
+          ? i18next.t('move.place.replace.back', 'This unit goes back to your hand')
+          : i18next.t('move.place.replace.discard', 'This unit is discarded')
+      return [
+        <PaperMenuButton key="target" move={move} label={label} title={title} x={0} y={0}>
+          <ReplaceIcon />
+        </PaperMenuButton>
+      ]
+    }
     if (item.location.type === LocationType.PlayerDraftHand) {
       return [
         button(UnitAction.Keep, { radius: 9.3, angle: -23.5 + tilt }, false),
         button(UnitAction.Discard, { radius: 8.55, angle: -6 + tilt }, false)
       ]
     }
-    // In my hand during the deployment, the discard stands above the card, where Keep stood during the recruitment
-    if (item.location.type === LocationType.PlayerUnitHand) return [button(UnitAction.Discard, { radius: 9.3, angle: -23.5 + tilt }, false)]
+    // In my hand during the deployment, the buttons stand above the card as during the recruitment: Place where Keep stood
+    if (item.location.type === LocationType.PlayerUnitHand) {
+      const place = { radius: 9.3, angle: -23.5 + tilt }
+      return [placeArtifact(place) ?? placeButton(place, PlaceIcon, 'move.place', 'Place'), button(UnitAction.Discard, { radius: 8.55, angle: -6 + tilt }, false)]
+    }
+    const place = placeButton(FIRST_UNIT_BUTTON, ActionsIcon, 'move.actions', 'Actions')
     return [
+      place,
       button(UnitAction.Save, { radius: 3, angle: -110 }, true),
-      button(UnitAction.Discard, { radius: 8, angle: -40 }, false),
-      button(UnitAction.TakeBack, { radius: 8, angle: -140 }, false),
+      // A kingdom full of cards would be covered with buttons: its units only offer to be chosen, and the one chosen offers
+      // to leave. A card laid this turn is taken back, and discarded from the hand if need be: one button is enough
+      ...(!place || selected === context.index
+        ? [actions[UnitAction.TakeBack] ? button(UnitAction.TakeBack, SECOND_UNIT_BUTTON, false) : button(UnitAction.Discard, SECOND_UNIT_BUTTON, false)]
+        : []),
       // One short word by the Age token: the header says what to do, and the whole words would hide the picture
       button(UnitAction.AddAge, { radius: 3.7, angle: 260 }, true, <Trans i18nKey="move.add.age.short" defaults="Place" />),
       button(UnitAction.Reactivate, { radius: 3.7, angle: 260 }, true)
@@ -267,6 +340,14 @@ export class UnitCardDescription extends CardDescription {
   }
 }
 
+
+/**
+ * The buttons of a unit of the kingdom, at its right edge: the first one under the line of 4 Age tokens, above the longest
+ * effects, beside the second line up to 6 tokens. The second one, only on the card chosen, is above it. On every card, the
+ * picture is all they cover, zoomed or not (the cost, the name and the effects are printed above and below it).
+ */
+const FIRST_UNIT_BUTTON: MenuPosition = { x: 3.45, y: -0.65 }
+const SECOND_UNIT_BUTTON: MenuPosition = { x: 3.45, y: -3.35 }
 
 /** A gold outline, still: the shine of the framework is for the cards that can be played, this one is only pointed at */
 const choiceSourceCss = css`

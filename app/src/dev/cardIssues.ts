@@ -1,7 +1,7 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '@gamepark/paper-tales/material/BuildingCharacteristics'
 import { Unit } from '@gamepark/paper-tales/material/Unit'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { unitCardCharacteristics } from '@gamepark/paper-tales/material/UnitCharacteristics'
 import { i18n } from 'i18next'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
 import { frenchBuildingCardDescription } from '../material/FrenchBuildingCardDescription'
@@ -26,7 +26,7 @@ export const unitEffectKey = (unit: Unit, index: number, count: number) => (coun
 
 /** The issues of a unit in a language: missing or broken texts, a missing image */
 export const unitIssues = (i18n: i18n, lng: string, unit: Unit): string[] => {
-  const effects = unitCardCaracteristics[unit].effect ?? []
+  const effects = unitCardCharacteristics[unit].effect ?? []
   const issues = [...textIssues(i18n, lng, `unit.name.${unit}`)]
   effects.forEach((_, index) => issues.push(...textIssues(i18n, lng, unitEffectKey(unit, index, effects.length))))
   if (i18n.exists(`unit.production.${unit}`, { lng })) issues.push(...textIssues(i18n, lng, `unit.production.${unit}`))
@@ -36,7 +36,7 @@ export const unitIssues = (i18n: i18n, lng: string, unit: Unit): string[] => {
 
 /** The issues of a building in a language: a missing text for a level that has an effect, a missing face */
 export const buildingIssues = (i18n: i18n, lng: string, building: Building): string[] => {
-  const pattern = buildingCardCaracteristics[building]
+  const pattern = buildingCardCharacteristics[building]
   const issues = i18n.exists(`building.${building}`, { lng }) ? [] : [`clé manquante : building.${building}`]
   ;[pattern.effect1 ?? [], pattern.effect2 ?? []].forEach((effects, level) =>
     effects.forEach((_, index) => issues.push(...textIssues(i18n, lng, buildingEffectKey(building, level, index, effects.length))))

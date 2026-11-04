@@ -1,7 +1,7 @@
 import { getEnumValues, ItemMoveType, MaterialGame, MaterialMove, MaterialMoveBuilder, MoveKind } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
-import { buildingCardCaracteristics } from '../material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '../material/BuildingCharacteristics'
 import { Gold } from '../material/Gold'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
@@ -10,8 +10,8 @@ import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
 import { Memory } from '../rules/Memory'
 import { Unit } from '../material/Unit'
-import { unitCardCaracteristics } from '../material/UnitCaracteristics'
-import { War } from '../rules/3_War/War'
+import { unitCardCharacteristics } from '../material/UnitCharacteristics'
+import { WarHelper } from '../rules/helpers/WarHelper'
 import { RuleId } from '../rules/RuleId'
 import { CustomMoveType } from '../rules/CustomMoveType'
 
@@ -73,8 +73,8 @@ describe('Rulebook p.5: the deal', () => {
 describe('Rulebook p.8: the end of the game', () => {
   it('every building gives Legend points by its face', () => {
     for (const building of getEnumValues(Building)) {
-      expect(buildingCardCaracteristics[building].points1).toBe(1)
-      expect(buildingCardCaracteristics[building].points2).toBe(3)
+      expect(buildingCardCharacteristics[building].points1).toBe(1)
+      expect(buildingCardCharacteristics[building].points2).toBe(3)
     }
   })
 
@@ -106,12 +106,12 @@ describe('Rulebook p.6 and p.8: the wars', () => {
   // No unit in play: every kingdom has a strength of 0
   it('a tie wins, even at 0: each kingdom wins against both neighbours', () => {
     const rules = new PaperTalesRules(newGame([PlayerColor.Blue, PlayerColor.Red, PlayerColor.Green]))
-    for (const player of rules.players) expect(new War(rules.game).getWarsWon(player)).toBe(2)
+    for (const player of rules.players) expect(new WarHelper(rules.game).getWarsWon(player)).toBe(2)
   })
 
   it('at 2 players, a tie wins a war, and at least double wins two: 0 against 0 wins two', () => {
     const rules = new PaperTalesRules(newGame([PlayerColor.Blue, PlayerColor.Red]))
-    for (const player of rules.players) expect(new War(rules.game).getWarsWon(player)).toBe(2)
+    for (const player of rules.players) expect(new WarHelper(rules.game).getWarsWon(player)).toBe(2)
   })
 })
 
@@ -138,7 +138,7 @@ describe('Rulebook p.5: deploying on a taken space', () => {
     const free = units(rules, LocationType.PlayerDraftHand).getIndexes()
     // Cheap cards: the 3 gold of Blue pay for each one
     const cheap = units(rules, LocationType.Deck)
-      .filter<Unit>((item) => unitCardCaracteristics[item.id].cost <= 1 && !(unitCardCaracteristics[item.id].effect ?? []).length)
+      .filter<Unit>((item) => unitCardCharacteristics[item.id].cost <= 1 && !(unitCardCharacteristics[item.id].effect ?? []).length)
       .getIndexes()
     const [older, first, second] = cheap
     const items = game.items[MaterialType.Unit]!

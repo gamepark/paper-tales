@@ -1,30 +1,20 @@
 import { CustomMove, isCustomMoveType, isMoveItemType, isMoveItemTypeAtOnce, isShuffleItemType, ItemMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
 import { sortBy } from 'es-toolkit/compat'
 import { Card, isArtifact, isUnit } from '../../material/Artifact'
-import { cardEffects } from '../../material/CardCaracteristics'
-import {
-  DeploymentEffect,
-  GainAgeToken,
-  GainAgeTokenOnChosenUnit,
-  GainTokenOnDeploy,
-  isDeploymentType,
-  isGainAgeTokenOnChosenUnit,
-  isImproveBuilding,
-  isMoveAgeToken,
-  isReactivateRevealEffects
-} from '../../material/effects/2_DeploymentEffects'
-import { EffectType, WhichBuilding, WhichUnit } from '../../material/effects/Effect'
+import { cardEffects } from '../../material/CardCharacteristics'
+import { DeploymentEffect, GainAgeToken, GainAgeTokenOnChosenUnit, GainTokenOnDeploy, isDeploymentType, isImproveBuilding, isMoveAgeToken } from '../../material/effects/2_DeploymentEffects'
+import { EffectType, WhichUnit } from '../../material/effects/Effect'
 import { golds } from '../../material/Gold'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../../material/UnitCharacteristics'
 import { PlayerColor } from '../../PlayerColor'
 import { BuildRandomBuildingData, CustomMoveType, GainAgeTokenOnChosenUnitEffect, ReactivateUnitData } from '../CustomMoveType'
 import { AgeTokens } from '../helpers/AgeTokens'
 import { BuildHelper } from '../helpers/BuildHelper'
+import { DeployEffectsHelper, isChoice } from '../helpers/DeployEffectsHelper'
 import { KingdomHelper } from '../helpers/KingdomHelper'
-import { ResourcesHelper } from '../helpers/ResourcesHelper'
 import { ScoreHelper } from '../helpers/ScoreHelper'
 import { Memory, PendingDeployEffect } from '../Memory'
 import { RuleId } from '../RuleId'
@@ -46,13 +36,6 @@ const priority: Record<DeploymentEffect['type'], number> = {
   [EffectType.GainTokenOnDeploy]: 7
 }
 
-/** The effects a Monarch chooses how to apply */
-export const isChoice = (effect: DeploymentEffect) =>
-  isGainAgeTokenOnChosenUnit(effect) ||
-  isMoveAgeToken(effect) ||
-  isReactivateRevealEffects(effect) ||
-  (isImproveBuilding(effect) && effect.whichBuilding === WhichBuilding.Choice)
-
 /** The effects that draw at random: the next effect waits for the draw to end */
 const isDraw = (effect: DeploymentEffect) =>
   effect.type === EffectType.Shapeshifter || effect.type === EffectType.DrawArtifact || effect.type === EffectType.BuildRandomLevel2
@@ -70,16 +53,18 @@ export enum DeckRefill {
  */
 export class DeployEffects extends SimultaneousRule {
   onRuleStart(): MaterialMove[] {
-    return this.game.players.flatMap((player) => {
+    // One move per Monarch: a move is built on the state it is called in, so a draw has to wait for the previous Monarch
+    // to have drawn, or two Monarchs would take the same card
+    return this.game.players.map((player) => {
       this.memorize(Memory.DeployEffects, this.sort(this.getTriggeredEffects(player)), player)
-      return this.resolve(player)
+      return this.customMove(CustomMoveType.ResolveDeployEffects, player)
     })
   }
 
   getTriggeredEffects(player: PlayerColor): PendingDeployEffect[] {
     const deployed = this.getDeployedIndexes(player)
     const cards = new KingdomHelper(this.game, player).cards.entries.flatMap(([source, card]) =>
-      cardEffects(card.id as Card)
+      cardEffects(card.id)
         .filter(isDeploymentType)
         .filter((effect) => !effect.onDeployment || deployed.includes(source))
         .map((effect) => ({ source, effect }))
@@ -92,13 +77,8 @@ export class DeployEffects extends SimultaneousRule {
     return sortBy(queue, (pending) => priority[pending.effect.type])
   }
 
-  getQueue(player: PlayerColor): PendingDeployEffect[] {
-    return this.remind<PendingDeployEffect[] | undefined>(Memory.DeployEffects, player) ?? []
-  }
-
-  /** The effect a Monarch is resolving, or has to choose how to apply */
-  getCurrentEffect(player: PlayerColor): PendingDeployEffect | undefined {
-    return this.getQueue(player)[0]
+  private get queues() {
+    return new DeployEffectsHelper(this.game)
   }
 
   /**
@@ -106,7 +86,7 @@ export class DeployEffects extends SimultaneousRule {
    * is resolved once they are played, see ResolveNextDeployEffect). The turn of the Monarch ends when none is left.
    */
   private resolve(player: PlayerColor): MaterialMove[] {
-    const queue = this.getQueue(player)
+    let queue = this.queues.getQueue(player)
     while (queue.length) {
       const pending = queue[0]
       if (isChoice(pending.effect)) {
@@ -121,7 +101,7 @@ export class DeployEffects extends SimultaneousRule {
           return isDraw(pending.effect) ? moves : [...moves, this.resolveNext(player)]
         }
       }
-      queue.shift()
+      queue = queue.slice(1)
     }
     this.forget(Memory.DeployEffects, player)
     return [this.endPlayerTurn(player)]
@@ -134,14 +114,14 @@ export class DeployEffects extends SimultaneousRule {
   /** The effect being resolved is done, with new effects to resolve (the ones of a unit drawn, or applied again by a Shadow) */
   private done(player: PlayerColor, added: PendingDeployEffect[] = []): MaterialMove[] {
     if (added.length) {
-      const [current, ...others] = this.getQueue(player)
+      const [current, ...others] = this.queues.getQueue(player)
       this.memorize(Memory.DeployEffects, [current, ...this.sort([...others, ...added])], player)
     }
     return [this.resolveNext(player)]
   }
 
   getActivePlayerLegalMoves(player: PlayerColor): MaterialMove[] {
-    const pending = this.getCurrentEffect(player)
+    const pending = this.queues.getCurrentEffect(player)
     return pending && isChoice(pending.effect) ? this.getChoiceMoves(player, pending) : []
   }
 
@@ -149,7 +129,7 @@ export class DeployEffects extends SimultaneousRule {
     const units = this.getPlayerUnits(player)
     switch (effect.type) {
       case EffectType.GainAgeTokenOnChosenUnit: {
-        if (!this.getChosenAgeTokens(player, effect)) return []
+        if (!this.queues.getChosenAgeTokens(player, effect)) return []
         const deployed = this.getDeployedIndexes(player)
         const targets = effect.among === WhichUnit.DeployedThisTurn ? units.index((index) => deployed.includes(index)) : units
         return targets.getIndexes().map((unitIndex) => this.customMove(CustomMoveType.GainAgeTokenOnChosenUnitEffect, { unitIndex, player }))
@@ -177,12 +157,6 @@ export class DeployEffects extends SimultaneousRule {
     }
   }
 
-  /** The Age tokens a Monarch places on the unit of their choice (the Master Alchemist: one for each food) */
-  getChosenAgeTokens(player: PlayerColor, effect: GainAgeTokenOnChosenUnit) {
-    if (effect.perResource === undefined) return effect.amount
-    return effect.amount * new ResourcesHelper(this.game, player).getResource(effect.perResource)
-  }
-
   /** The "when revealed" effects of a card in play */
   private getRevealEffects(index: number): PendingDeployEffect[] {
     const card = this.material(MaterialType.Unit).getItem<Card>(index).id
@@ -193,15 +167,16 @@ export class DeployEffects extends SimultaneousRule {
   }
 
   onCustomMove(move: CustomMove): MaterialMove[] {
+    if (isCustomMoveType(CustomMoveType.ResolveDeployEffects)(move)) return this.resolve(move.data as PlayerColor)
     if (isCustomMoveType(CustomMoveType.ResolveNextDeployEffect)(move)) {
       const player = move.data as PlayerColor
-      this.memorize(Memory.DeployEffects, this.getQueue(player).slice(1), player)
+      this.memorize(Memory.DeployEffects, this.queues.getQueue(player).slice(1), player)
       return this.resolve(player)
     }
     if (isCustomMoveType(CustomMoveType.GainAgeTokenOnChosenUnitEffect)(move)) {
       const { unitIndex, player } = move.data as GainAgeTokenOnChosenUnitEffect
-      const effect = this.getCurrentEffect(player)!.effect as GainAgeTokenOnChosenUnit
-      return [new AgeTokens(this).add(unitIndex, player, this.getChosenAgeTokens(player, effect)), ...this.done(player)]
+      const effect = this.queues.getCurrentEffect(player)!.effect as GainAgeTokenOnChosenUnit
+      return [new AgeTokens(this).add(unitIndex, player, this.queues.getChosenAgeTokens(player, effect)), ...this.done(player)]
     }
     if (isCustomMoveType(CustomMoveType.ReactivateUnit)(move)) {
       const { unitIndex, player } = move.data as ReactivateUnitData
@@ -314,13 +289,16 @@ export class DeployEffects extends SimultaneousRule {
     if (isMoveItemType(MaterialType.Unit)(move) && move.location.type === LocationType.PlayerArtifacts) {
       const player = move.location.player!
       // Drawn and discarded until an artifact is revealed, put into play for free (the Court Jester)
-      if (isArtifact(this.material(MaterialType.Unit).getItem<Card>(move.itemIndex).id)) return this.done(player)
+      if (isArtifact(this.material(MaterialType.Unit).getItem<Card>(move.itemIndex).id)) {
+        this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards, move.itemIndex], player)
+        return this.done(player)
+      }
       return this.discardDrawn(player, move.itemIndex)
     }
     // A choice made by a move: a building improved (the Djinn), an Age token moved (the Wizard Apprentice)
     const player = isMoveItemType(MaterialType.Building)(move) || isMoveItemType(MaterialType.Age)(move) ? this.getMovedItemPlayer(move) : undefined
     if (player !== undefined) {
-      const pending = this.getCurrentEffect(player)
+      const pending = this.queues.getCurrentEffect(player)
       if (pending && isChoice(pending.effect) && (isImproveBuilding(pending.effect) || isMoveAgeToken(pending.effect))) return this.done(player)
     }
     return []
@@ -333,7 +311,7 @@ export class DeployEffects extends SimultaneousRule {
 
   /** The current draw goes on, or ends when there is nothing left to draw */
   private drawAgain(player: PlayerColor): MaterialMove[] {
-    const pending = this.getCurrentEffect(player)!
+    const pending = this.queues.getCurrentEffect(player)!
     const type = pending.effect.type as EffectType.Shapeshifter | EffectType.DrawArtifact
     const moves = this.draw(player, type, pending.source)
     return moves.length ? moves : this.done(player)
@@ -351,8 +329,8 @@ export class DeployEffects extends SimultaneousRule {
    */
   private onShapeshifterDraw(player: PlayerColor, drawnIndex: number): MaterialMove[] {
     const card = this.material(MaterialType.Unit).getItem<Card>(drawnIndex).id
-    if (!isUnit(card) || unitCardCaracteristics[card].cost > 3) return this.discardDrawn(player, drawnIndex)
-    const shapeshifter = this.getCurrentEffect(player)!.source!
+    if (!isUnit(card) || unitCardCharacteristics[card].cost > 3) return this.discardDrawn(player, drawnIndex)
+    const shapeshifter = this.queues.getCurrentEffect(player)!.source!
     const tokens = new AgeTokens(this)
     this.memorize(Memory.PlayedCardsDuringDeployment, (cards: number[] = []) => [...cards.filter((index) => index !== shapeshifter), drawnIndex], player)
     return [

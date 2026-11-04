@@ -2,7 +2,7 @@ import { Artifact } from './Artifact'
 import { Effect, EffectType, WhichUnit } from './effects/Effect'
 import { MaterialType } from './MaterialType'
 import { Resources } from './Resources'
-import { ResourceProduction } from './UnitCaracteristics'
+import { ResourceProduction } from './UnitCharacteristics'
 
 export type ArtifactPattern = {
   /** The Legend points at the end of the game (rulebook p.11) */
@@ -12,7 +12,7 @@ export type ArtifactPattern = {
   effect?: Effect[]
 }
 
-export const artifactCaracteristics: Record<Artifact, ArtifactPattern> = {
+export const artifactCharacteristics: Record<Artifact, ArtifactPattern> = {
   [Artifact.LuxuriantGrove]: { points: 2, resources: [{ type: [Resources.Wood] }] },
   [Artifact.HornOfPlenty]: { points: 1, resources: [{ type: [Resources.Food] }] },
   [Artifact.ElementalScepter]: { points: 1, resources: [{ type: [Resources.Diamond] }] },

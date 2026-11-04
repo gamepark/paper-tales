@@ -1,4 +1,3 @@
-import { Building } from '@gamepark/paper-tales/material/Building'
 import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
@@ -28,7 +27,7 @@ export class PlayerBuildingBoardLocator extends Locator {
 
   getItemCoordinates(item: MaterialItem, context: ItemContext) {
     if (isWarView(context)) return getWarBuildingCoordinates(context, item.location.player, item.location.y ?? 0)
-    return getBuildingSlotCoordinates(context, item.id as Building)
+    return getBuildingSlotCoordinates(context, item.id)
   }
 
   hide(item: MaterialItem, context: ItemContext) {

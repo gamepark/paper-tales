@@ -18,16 +18,17 @@ import {
   scaleTransform
 } from './TableLayout'
 import { placeAtPanelWhenHidden } from './placeAtPanelWhenHidden'
-import { isWarArtifact } from './warArtifacts'
+import { isShownArtifact } from './warArtifacts'
 
 /**
  * The Legendary Artifacts of a Monarch (rulebook p.11): apart from the units, next to the buildings, in the order they
  * were put into play; face down until revealed. Shown with the buildings of the displayed area, and in the neighbours
- * view the ones that matter to the wars (see isWarArtifact), in a column at the right of the buildings of their kingdom.
+ * view the ones that matter to the wars and the ones gained this turn (see isShownArtifact), in a column at the right of
+ * the buildings of their kingdom.
  */
 class PlayerArtifactsLocator extends Locator {
   getPositionDependencies(location: Location, context: MaterialContext) {
-    return { ...getPlayerPositionDependencies(context), artifacts: this.countArtifacts(context, location.player) }
+    return { ...getPlayerPositionDependencies(context), artifacts: this.countArtifacts(context, location.player), shown: this.warArtifacts(context, location.player) }
   }
 
   private countArtifacts(context: MaterialContext, player?: number) {
@@ -39,13 +40,13 @@ class PlayerArtifactsLocator extends Locator {
     return { x: zone.x + zone.width / 2, y: zone.y + zone.height / 2 }
   }
 
-  /** The Artifacts of a Monarch that matter to the wars, in the order they were put into play */
+  /** The Artifacts of a Monarch that the neighbours view shows, in the order they were put into play */
   private warArtifacts(context: MaterialContext, player?: number) {
     return context.rules
       .material(MaterialType.Unit)
       .location(LocationType.PlayerArtifacts)
       .player(player)
-      .filter((item) => isWarArtifact(context, item.id as number, player))
+      .filter((item, index) => isShownArtifact(context, index, item.id as number, player))
       .sort((item) => item.location.x ?? 0)
       .getIndexes()
   }
@@ -53,13 +54,15 @@ class PlayerArtifactsLocator extends Locator {
   getItemCoordinates(item: MaterialItem, context: ItemContext) {
     if (isWarView(context)) {
       const indexes = this.warArtifacts(context, item.location.player)
-      return getWarArtifactCoordinates(context, item.location.player, Math.max(0, indexes.indexOf(context.index)), indexes.length)
+      // A card on its way here is not in the column yet: it comes last
+      const position = indexes.indexOf(context.index)
+      return getWarArtifactCoordinates(context, item.location.player, position === -1 ? indexes.length : position, position === -1 ? indexes.length + 1 : indexes.length)
     }
     return getArtifactCoordinates(context, item.location.x ?? 0, this.countArtifacts(context, item.location.player))
   }
 
   hide(item: MaterialItem, context: ItemContext) {
-    if (isWarView(context)) return !isKingdomDisplayed(context, item.location.player) || !isWarArtifact(context, item.id, item.location.player)
+    if (isWarView(context)) return !isKingdomDisplayed(context, item.location.player) || !isShownArtifact(context, context.index, item.id, item.location.player)
     return !isBuildingsDisplayed(context, item.location.player)
   }
 

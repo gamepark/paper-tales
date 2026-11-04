@@ -4,11 +4,11 @@ import { Card, isArtifact, isUnit } from '../material/Artifact'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Unit } from '../material/Unit'
-import { unitCardCaracteristics } from '../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../material/UnitCharacteristics'
 import { PaperTalesRules } from '../PaperTalesRules'
-import { PlaceUnitOnBoard } from '../rules/2_Deployment/PlaceUnitOnBoard'
 import { BuildHelper } from '../rules/helpers/BuildHelper'
 import { DeployCostHelper } from '../rules/helpers/DeployCostHelper'
+import { KingdomHelper } from '../rules/helpers/KingdomHelper'
 import { KingdomEvaluation } from './KingdomEvaluation'
 import { Taste } from './Taste'
 
@@ -53,8 +53,7 @@ export class DeploymentPlanner {
     const handUnits = unitCards.length <= MAX_UNITS_COMBINED ? unitCards : sortBy(unitCards, (card) => -this.plan([card]).value).slice(0, MAX_UNITS_COMBINED)
     const budget = new BuildHelper(this.rules.game, this.player).gold - this.costs.placedCost
     // The spaces where a unit can be laid: not on a unit laid this turn
-    const spaces = new PlaceUnitOnBoard(this.rules.game)
-      .getBoardSpaces(this.player)
+    const spaces = new KingdomHelper(this.rules.game, this.player).boardSpaces
       .filter((space) => !this.occupant(space.x, space.y).some((index) => this.placed.includes(index)))
       .map((space) => ({ ...space, empty: !this.occupant(space.x, space.y).length }))
       // The empty spaces of a lane are worth the same: they are side by side, to be filled in order (see twin)
@@ -72,7 +71,7 @@ export class DeploymentPlanner {
       for (const card of handUnits) {
         if (twinCard !== undefined && card <= twinCard) continue
         if (placements.some((placement) => placement.card === card)) continue
-        const cost = unitCardCaracteristics[units.getItem<Unit>(card).id].cost
+        const cost = unitCardCharacteristics[units.getItem<Unit>(card).id].cost
         if (spent + cost > budget) continue
         const undo = this.lay(card, { type: LocationType.PlayerUnitBoard, player: this.player, x, y, rotation: true })
         placeUnits(spaceIndex + 1, [...placements, { card, x, y }], spent + cost)
@@ -112,7 +111,7 @@ export class DeploymentPlanner {
     let spent = 0
     const undos: (() => void)[] = []
     for (const { card, x, y } of placements) {
-      spent += unitCardCaracteristics[units.getItem<Unit>(card).id].cost
+      spent += unitCardCharacteristics[units.getItem<Unit>(card).id].cost
       undos.push(this.lay(card, { type: LocationType.PlayerUnitBoard, player: this.player, x, y, rotation: true }))
     }
     artifacts.forEach((artifact, i) => {

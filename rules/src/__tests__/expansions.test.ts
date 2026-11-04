@@ -6,21 +6,21 @@
 import { CustomMove, isCustomMoveType, isEndPlayerTurn, isMoveItemType, MaterialGame, MaterialMove } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Artifact, artifacts, isArtifact } from '../material/Artifact'
-import { artifactCaracteristics } from '../material/ArtifactCaracteristics'
+import { artifactCharacteristics } from '../material/ArtifactCharacteristics'
 import { baseGameBuildings, beyondTheGatesBuildings, Building, permanentBuildings, whatForgesLegendsBuildings } from '../material/Building'
-import { buildingCardCaracteristics } from '../material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '../material/BuildingCharacteristics'
 import { Gold } from '../material/Gold'
 import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Resources } from '../material/Resources'
 import { beyondTheGatesUnits, deckOf, Unit, units, whatForgesLegendsUnits } from '../material/Unit'
-import { unitCardCaracteristics } from '../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../material/UnitCharacteristics'
 import { PaperTalesOptions } from '../PaperTalesOptions'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
-import { War } from '../rules/3_War/War'
-import { Income } from '../rules/4_Income/Income'
+import { WarHelper } from '../rules/helpers/WarHelper'
+import { IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { CustomMoveType } from '../rules/CustomMoveType'
 import { BuildAction, BuildHelper } from '../rules/helpers/BuildHelper'
 import { EndScoreHelper } from '../rules/helpers/EndScoreHelper'
@@ -100,9 +100,9 @@ const setGold = (rules: PaperTalesRules, player: PlayerColor, quantity: number) 
 }
 
 const gold = (rules: PaperTalesRules, player: PlayerColor) => new BuildHelper(rules.game, player).gold
-const power = (rules: PaperTalesRules, player: PlayerColor) => new War(rules.game).getPlayerPower(player)
+const power = (rules: PaperTalesRules, player: PlayerColor) => new WarHelper(rules.game).getPlayerPower(player)
 const resource = (rules: PaperTalesRules, player: PlayerColor, r: Resources) => new ResourcesHelper(rules.game, player).getResource(r)
-const income = (rules: PaperTalesRules, player: PlayerColor) => new Income(rules.game).getPlayerIncome(player)
+const income = (rules: PaperTalesRules, player: PlayerColor) => new IncomeHelper(rules.game).getPlayerIncome(player)
 const location = (rules: PaperTalesRules, index: number) => rules.material(MaterialType.Unit).getItem(index).location
 const level2 = (rules: PaperTalesRules, player: PlayerColor) =>
   rules.material(MaterialType.Building).location(LocationType.PlayerBuildingBoard).player(player).rotation(true).length
@@ -173,10 +173,10 @@ describe('Setup with the expansions as options', () => {
   })
 
   it('every card has its descriptor', () => {
-    for (const unit of units) expect(unitCardCaracteristics[unit]).toBeDefined()
-    for (const artifact of artifacts) expect(artifactCaracteristics[artifact].points).toBeGreaterThan(0)
+    for (const unit of units) expect(unitCardCharacteristics[unit]).toBeDefined()
+    for (const artifact of artifacts) expect(artifactCharacteristics[artifact].points).toBeGreaterThan(0)
     for (const building of [...beyondTheGatesBuildings, ...whatForgesLegendsBuildings]) {
-      expect(buildingCardCaracteristics[building]).toMatchObject({ points1: 1, points2: 3 })
+      expect(buildingCardCharacteristics[building]).toMatchObject({ points1: 1, points2: 3 })
     }
   })
 })

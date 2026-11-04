@@ -9,12 +9,12 @@ import { LocationType } from '../material/LocationType'
 import { MaterialType } from '../material/MaterialType'
 import { Resources } from '../material/Resources'
 import { baseGameDeck, Unit } from '../material/Unit'
-import { unitCardCaracteristics } from '../material/UnitCaracteristics'
+import { unitCardCharacteristics } from '../material/UnitCharacteristics'
 import { PaperTalesRules } from '../PaperTalesRules'
 import { PaperTalesSetup } from '../PaperTalesSetup'
 import { PlayerColor } from '../PlayerColor'
-import { War } from '../rules/3_War/War'
-import { Income } from '../rules/4_Income/Income'
+import { WarHelper } from '../rules/helpers/WarHelper'
+import { IncomeHelper } from '../rules/helpers/IncomeHelper'
 import { CustomMoveType } from '../rules/CustomMoveType'
 import { BuildAction, BuildHelper } from '../rules/helpers/BuildHelper'
 import { ResourcesHelper } from '../rules/helpers/ResourcesHelper'
@@ -65,9 +65,9 @@ const setGold = (rules: PaperTalesRules, player: PlayerColor, quantity: number) 
 
 const gold = (rules: PaperTalesRules, player: PlayerColor) => new BuildHelper(rules.game, player).gold
 const score = (rules: PaperTalesRules, player: PlayerColor) => new ScoreHelper(rules.game, player).score
-const power = (rules: PaperTalesRules, player: PlayerColor) => new War(rules.game).getPlayerPower(player)
+const power = (rules: PaperTalesRules, player: PlayerColor) => new WarHelper(rules.game).getPlayerPower(player)
 const resource = (rules: PaperTalesRules, player: PlayerColor, r: Resources) => new ResourcesHelper(rules.game, player).getResource(r)
-const income = (rules: PaperTalesRules, player: PlayerColor) => new Income(rules.game).getPlayerIncome(player)
+const income = (rules: PaperTalesRules, player: PlayerColor) => new IncomeHelper(rules.game).getPlayerIncome(player)
 
 const build = (rules: PaperTalesRules, player: PlayerColor, building: Building, level2 = false) => {
   const index = rules.material(MaterialType.Building).player(player).id(building).getIndex()
@@ -552,9 +552,9 @@ describe('Shapeshifter', () => {
     const kept = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitBoard).player(Blue)
     expect(kept.length).toBe(1)
     const keptUnit = kept.getItem<Unit>()!.id
-    expect(unitCardCaracteristics[keptUnit].cost).toBeLessThanOrEqual(3)
+    expect(unitCardCharacteristics[keptUnit].cost).toBeLessThanOrEqual(3)
     // The Shapeshifter token, plus the ones a unit drawn at random gives itself when revealed (Veteran, Cave Spirit, Monkey)
-    const ownTokens = (unitCardCaracteristics[keptUnit].effect ?? []).filter((effect): effect is GainAgeToken => isGainAgeToken(effect) && effect.whichUnit === WhichUnit.Myself)
+    const ownTokens = (unitCardCharacteristics[keptUnit].effect ?? []).filter((effect): effect is GainAgeToken => isGainAgeToken(effect) && effect.whichUnit === WhichUnit.Myself)
     expect(ageOn(rules, kept.getIndex())).toBe(1 + sumBy(ownTokens, (effect) => effect.amount))
   })
 
@@ -836,17 +836,17 @@ describe('Forest Spirit', () => {
 })
 
 describe('Landlord', () => {
-  printed(Unit.LandLord, 2, 1, 1)
+  printed(Unit.Landlord, 2, 1, 1)
 
   it('produces 1 wood', () => {
     const rules = newRules()
-    place(rules, Unit.LandLord, Blue, 0, 1)
+    place(rules, Unit.Landlord, Blue, 0, 1)
     expect(resource(rules, Blue, Resources.Wood)).toBe(1)
   })
 
   it('phase 5: ignore the land cost (2 buildings already built: 0 instead of 4 gold)', () => {
     const rules = newRules()
-    place(rules, Unit.LandLord, Blue, 0, 1)
+    place(rules, Unit.Landlord, Blue, 0, 1)
     build(rules, Blue, Building.Mine)
     build(rules, Blue, Building.Tavern)
     setGold(rules, Blue, 0)
@@ -856,7 +856,7 @@ describe('Landlord', () => {
 
   it('phase 5: building with the Landlord costs no gold', () => {
     const rules = newRules()
-    place(rules, Unit.LandLord, Blue, 0, 1)
+    place(rules, Unit.Landlord, Blue, 0, 1)
     build(rules, Blue, Building.Mine)
     setGold(rules, Blue, 1)
     run(rules, rules.startSimultaneousRule(RuleId.Build))

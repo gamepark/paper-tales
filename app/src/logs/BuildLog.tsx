@@ -1,9 +1,8 @@
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { BuildAction, BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
+import { BuildAction, BuildHelper, getBuildAction } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
 import { MaterialLogProps } from '@gamepark/react-game'
 import { EndPlayerTurn, MoveItem } from '@gamepark/rules-api'
@@ -21,7 +20,7 @@ import { Who } from './Who'
 export const BuildLog: FC<MaterialLogProps<MoveItem>> = ({ move, context }) => {
   const item = new PaperTalesRules(context.game).material(MaterialType.Building).getItem<Building>(move.itemIndex)
   const player = move.location.player as PlayerColor
-  const action = item.location.type !== LocationType.PlayerBuildingHand ? BuildAction.Upgrade : move.location.rotation ? BuildAction.BuildLevel2 : BuildAction.BuildLevel1
+  const action = getBuildAction(item, move.location)
   const key = buildKeys[action]
   const byEffect = context.game.rule?.id === RuleId.DeployEffects
   const source = byEffect ? deployEffectSource(context.game, player) : undefined

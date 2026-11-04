@@ -5,9 +5,9 @@ import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Resources } from '../../material/Resources'
 import { Unit } from '../../material/Unit'
-import { unitCardCaracteristics } from '../../material/UnitCaracteristics'
-import { War } from '../3_War/War'
-import { BASE_INCOME, Income } from '../4_Income/Income'
+import { unitCardCharacteristics } from '../../material/UnitCharacteristics'
+import { WarHelper } from './WarHelper'
+import { BASE_INCOME, IncomeHelper } from './IncomeHelper'
 import { AgeHelper } from './AgeHelper'
 import { AgeTokens } from './AgeTokens'
 import { BuildHelper } from './BuildHelper'
@@ -42,6 +42,17 @@ export class KingdomHelper extends MaterialRulesPart {
       .player(this.player)
   }
 
+  /** The spaces of the kingdom: 2 lanes of 2, and a third space on the front lane with a building of level 2 */
+  get boardSpaces(): { x: number; y: number }[] {
+    const spaces = [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+    return new BuildHelper(this.game, this.player).builtLevel2Buildings.length ? [...spaces, { x: 2, y: 0 }] : spaces
+  }
+
   /** How many times an effect applies. The source is the card that has the effect (none for a building) */
   count(count: Count, source?: number): number {
     switch (count.kind) {
@@ -58,17 +69,17 @@ export class KingdomHelper extends MaterialRulesPart {
       case CountKind.Artifacts:
         return this.artifacts.length
       case CountKind.UnitCosts:
-        return uniq(this.visibleUnits.map((unit) => unitCardCaracteristics[unit.id].cost)).length
+        return uniq(this.visibleUnits.map((unit) => unitCardCharacteristics[unit.id].cost)).length
       case CountKind.UnitsWithPower: {
-        const war = new War(this.game)
+        const war = new WarHelper(this.game)
         return this.units.filter((unit, index) => unit.id !== undefined && war.getUnitPower(unit, index) >= count.min).length
       }
       case CountKind.UnitsWithCost:
-        return this.visibleUnits.filter((unit) => unitCardCaracteristics[unit.id].cost >= count.min).length
+        return this.visibleUnits.filter((unit) => unitCardCharacteristics[unit.id].cost >= count.min).length
       case CountKind.IncomeGold:
-        return BASE_INCOME + new Income(this.game).getPlayerIncome(this.player)
+        return BASE_INCOME + new IncomeHelper(this.game).getPlayerIncome(this.player)
       case CountKind.Level2Buildings:
-        return new BuildHelper(this.game, this.player).buildLevel2Buildings.length
+        return new BuildHelper(this.game, this.player).builtLevel2Buildings.length
       case CountKind.DyingUnits:
         return new AgeHelper(this.game, this.player).dyingUnits.length
       case CountKind.OtherSurvivingUnits: {
@@ -83,7 +94,7 @@ export class KingdomHelper extends MaterialRulesPart {
     if (!condition) return true
     switch (condition.kind) {
       case ConditionKind.UnitWithCost:
-        return this.visibleUnits.some((unit) => unitCardCaracteristics[unit.id].cost >= condition.min)
+        return this.visibleUnits.some((unit) => unitCardCharacteristics[unit.id].cost >= condition.min)
       case ConditionKind.OnFrontLane:
         return source !== undefined && this.material(MaterialType.Unit).getItem(source).location.y === 0
     }

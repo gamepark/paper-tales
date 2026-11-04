@@ -19,7 +19,8 @@ import {
   viewMove
 } from '../locators/TableLayout'
 import { TableAnchor } from '../table/TableAnchor'
-import { paper, paperBackgroundCss, paperButtonResetCss, rust, tagPaperCss } from '../theme/tableTheme'
+import { EyeIcon } from '../material/icons/PaperIcons'
+import { paper, paperBackgroundCss, paperButtonResetCss, rust, rustDeep, tagPaperCss, tornDiscClip } from '../theme/tableTheme'
 import { PaperTalesPlayerPanel } from './PaperTalesPlayerPanel'
 
 /**
@@ -76,6 +77,9 @@ const ViewPanelButton: FC<{ player: PlayerColor }> = ({ player }) => {
       title={t('panel.view', { defaultValue: 'View the kingdom of {player}', player: name })}
     >
       <PaperTalesPlayerPanel player={player} />
+      <span css={eyeCss}>
+        <EyeIcon />
+      </span>
     </PlayMoveButton>
   )
 }
@@ -91,9 +95,46 @@ const viewedCss = css`
   transform: translateX(0.7em);
 `
 
+/**
+ * What tells that the panel can be clicked: an eye on a disc of rust paper, at the foot of the avatar, on every panel but
+ * the one displayed. Always there: nothing is hovered on a phone.
+ */
+const eyeCss = css`
+  position: absolute;
+  z-index: 1;
+  left: 2.3em;
+  top: 3em;
+  width: 1.6em;
+  height: 1.6em;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  filter: drop-shadow(0.08em 0.1em 0 #00000059);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: ${rust};
+    clip-path: ${tornDiscClip};
+    transition: background 0.15s;
+  }
+
+  button:hover > &::before {
+    background: ${rustDeep};
+  }
+
+  svg {
+    width: 1.15em;
+    height: 1.15em;
+  }
+`
+
 // The whole panel is the button: no button look, the paper sheet lifts under the pointer
 const panelButtonCss = css`
   ${paperButtonResetCss};
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;

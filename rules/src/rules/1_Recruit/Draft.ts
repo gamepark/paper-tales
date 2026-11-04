@@ -1,26 +1,10 @@
-import { isMoveItemType, ItemMove, MaterialMove, RuleMove, SimultaneousRule } from '@gamepark/rules-api'
+import { isMoveItemType, ItemMove, MaterialMove, SimultaneousRule } from '@gamepark/rules-api'
 import { LocationType } from '../../material/LocationType'
 import { MaterialType } from '../../material/MaterialType'
 import { Memory } from '../Memory'
 import { RuleId } from '../RuleId'
-import { GiveDraftToNeighbor } from './GiveDraftToNeighbor'
 
 export class Draft extends SimultaneousRule {
-  onRuleStart(_move: RuleMove): MaterialMove[] {
-    const moves: MaterialMove[] = []
-
-    const draftCards = this.material(MaterialType.Unit).location(LocationType.PlayerDraftHand)
-    if (draftCards.getQuantity() === this.game.players.length) {
-      // Last card of each draft hand goes automatically to the player's hand, then the draft is over
-      this.game.players.forEach((player) => {
-        moves.push(draftCards.player(player).moveItemsAtOnce({ type: LocationType.PlayerUnitHand, player }))
-      })
-      moves.push(this.startRule(RuleId.GiveDraftToNeighbor))
-    }
-
-    return moves
-  }
-
   getActivePlayerLegalMoves(playerId: number): MaterialMove[] {
     const moves: MaterialMove[] = []
 
@@ -73,8 +57,16 @@ export class Draft extends SimultaneousRule {
       .location(LocationType.PlayerDraftHand)
       .player(player)
       .index((index) => index !== move.itemIndex)
-    const receiver = new GiveDraftToNeighbor(this.game).getNextPlayer(player)
+    const receiver = this.getNextPlayer(player)
     return [...(rest.length ? [rest.moveItemsAtOnce({ type: LocationType.DraftTransit, player: receiver })] : []), this.endPlayerTurn(player)]
+  }
+
+  /** The hands go one way at odd turns, the other way at even turns */
+  private getNextPlayer(player: number) {
+    const players = this.game.players
+    const playerIndex = players.indexOf(player)
+    if (this.remind(Memory.Time) % 2 === 1) return players[(playerIndex + 1) % players.length]
+    return players[(playerIndex - 1 + players.length) % players.length]
   }
 
   getMovesAfterPlayersDone(): MaterialMove[] {

@@ -10,7 +10,6 @@ import { beyondTheGatesUnits, whatForgesLegendsUnits } from '@gamepark/paper-tal
 import { FC, ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { rust, tornClip } from '../../theme/tableTheme'
-import { BookPage } from './book/BookPage'
 import { ExpansionCards } from './ExpansionCards'
 import { helpIconComponents } from './book/helpIconComponents'
 
@@ -36,7 +35,7 @@ export const ExpansionRulesHelp: FC = () => {
     keys.map(([key, defaults]) => <Trans key={key} i18nKey={key} defaults={defaults} components={helpIconComponents} />)
 
   return (
-    <BookPage name={t('expansions.name', 'The expansions of this game')}>
+    <>
       {(options.beyondTheGatesUnits || options.beyondTheGatesBuildings) && (
         <Section
           title={t('expansions.btg', 'Beyond the gates')}
@@ -134,12 +133,12 @@ export const ExpansionRulesHelp: FC = () => {
             : []) as [string, string][])
         ])}
       />
-    </BookPage>
+    </>
   )
 }
 
 /** A part of the rules: its title, its rules one per line, then the cards it is about */
-const Section: FC<{ title: ReactNode; items: ReactNode[]; children?: ReactNode }> = ({ title, items, children }) =>
+export const Section: FC<{ title: ReactNode; items: ReactNode[]; children?: ReactNode }> = ({ title, items, children }) =>
   items.length ? (
     <section css={sectionCss}>
       <h4 css={titleCss}>{title}</h4>

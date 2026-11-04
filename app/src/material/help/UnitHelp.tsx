@@ -3,9 +3,9 @@ import { LocationType } from '@gamepark/paper-tales/material/LocationType'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { Card, isArtifact } from '@gamepark/paper-tales/material/Artifact'
-import { unitCardCaracteristics } from '@gamepark/paper-tales/material/UnitCaracteristics'
+import { unitCardCharacteristics } from '@gamepark/paper-tales/material/UnitCharacteristics'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
-import { War } from '@gamepark/paper-tales/rules/3_War/War'
+import { WarHelper } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { AgeHelper } from '@gamepark/paper-tales/rules/helpers/AgeHelper'
 import { AgeTokens } from '@gamepark/paper-tales/rules/helpers/AgeTokens'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
@@ -49,12 +49,12 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
       </HelpActionButton>
     )
   })
-  const card = item.id as Card | undefined
+  const card: Card | undefined = item.id
   if (card === undefined) return <HiddenUnitHelp {...props} />
   if (isArtifact(card)) return <ArtifactHelp {...props} actions={actionButtons} />
   const unit = card
 
-  const pattern = unitCardCaracteristics[unit]
+  const pattern = unitCardCharacteristics[unit]
   const effects = pattern.effect ?? []
   const owner = item.location?.player
   const inKingdom = item.location?.type === LocationType.PlayerUnitBoard && owner !== undefined && itemIndex !== undefined
@@ -62,7 +62,7 @@ export const UnitHelp: FC<MaterialHelpProps> = (props) => {
   const front = item.location?.y === 0
   // The unit as it lies in the kingdom, with its location
   const boardItem = inKingdom ? rules.material(MaterialType.Unit).getItem(itemIndex) : undefined
-  const strength = inKingdom && boardItem ? new War(rules.game).getUnitPower(boardItem, itemIndex) : pattern.power
+  const strength = inKingdom && boardItem ? new WarHelper(rules.game).getUnitPower(boardItem, itemIndex) : pattern.power
   const dying = inKingdom && !!boardItem && new AgeHelper(rules.game, owner!).isUnitDying(boardItem, itemIndex)
   const resourceCondition = effects.find(isChangeWarPower)?.ifResource?.[0]
   const produced = resourceCondition !== undefined && owner !== undefined ? new ResourcesHelper(rules.game, owner).getResource(resourceCondition) : 0

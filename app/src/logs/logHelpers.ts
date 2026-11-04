@@ -1,9 +1,11 @@
 import { Card } from '@gamepark/paper-tales/material/Artifact'
 import { LocationType } from '@gamepark/paper-tales/material/LocationType'
+import { EffectType } from '@gamepark/paper-tales/material/effects/Effect'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
+import { Unit } from '@gamepark/paper-tales/material/Unit'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { DeployEffects } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
+import { DeployEffectsHelper } from '@gamepark/paper-tales/rules/helpers/DeployEffectsHelper'
 import { DeployCostHelper } from '@gamepark/paper-tales/rules/helpers/DeployCostHelper'
 import { MoveComponentContext } from '@gamepark/react-game'
 import { CreateItem, isCreateItemType, isMoveItemTypeAtOnce, isStartPlayerTurn, isStartRule, isStartSimultaneousRule, MaterialGame, MaterialMove, MoveItem, MoveItemsAtOnce } from '@gamepark/rules-api'
@@ -82,10 +84,14 @@ export const revealedCard = (move: MoveItem) => (move as MoveItem & { reveal?: {
 /** A card of the deck (a unit, a Legendary Artifact), wherever it is */
 export const cardAt = (game: MaterialGame, index: number) => new PaperTalesRules(game).material(MaterialType.Unit).getItem<Card>(index)
 
-/** The card in play whose "when revealed" effect a Monarch is resolving, read on the game before the move */
+/**
+ * The card whose "when revealed" effect a Monarch is resolving, read on the game before the move. The Shapeshifter is named
+ * by its effect: when the unit that replaces it gets its Age token, it has left for the discard, where its id is hidden.
+ */
 export const deployEffectSource = (game: MaterialGame, player: PlayerColor): Card | undefined => {
-  const source = new DeployEffects(game).getCurrentEffect(player)?.source
-  return source === undefined ? undefined : cardAt(game, source).id
+  const pending = new DeployEffectsHelper(game).getCurrentEffect(player)
+  if (pending?.effect.type === EffectType.Shapeshifter) return Unit.Shapeshifter
+  return pending?.source === undefined ? undefined : cardAt(game, pending.source).id
 }
 
 /** The Legend points of a move of the score marker, read on the game before the move */

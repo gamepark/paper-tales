@@ -1,10 +1,10 @@
 import { Card } from '@gamepark/paper-tales/material/Artifact'
-import { cardEffects } from '@gamepark/paper-tales/material/CardCaracteristics'
+import { cardEffects } from '@gamepark/paper-tales/material/CardCharacteristics'
 import { isMysticEffect } from '@gamepark/paper-tales/material/effects/6_AgeEffects'
 import { MaterialType } from '@gamepark/paper-tales/material/MaterialType'
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
-import { DeployEffects, isChoice } from '@gamepark/paper-tales/rules/2_Deployment/DeployEffects'
+import { DeployEffectsHelper, isChoice } from '@gamepark/paper-tales/rules/helpers/DeployEffectsHelper'
 import { KingdomHelper } from '@gamepark/paper-tales/rules/helpers/KingdomHelper'
 import { Memory } from '@gamepark/paper-tales/rules/Memory'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
@@ -18,7 +18,7 @@ export const getChoiceSources = (rules: MaterialRules, player?: PlayerColor): nu
   if (player === undefined || !rules.isTurnToPlay(player)) return []
   switch (rules.game.rule?.id) {
     case RuleId.DeployEffects: {
-      const pending = new DeployEffects(rules.game).getCurrentEffect(player)
+      const pending = new DeployEffectsHelper(rules.game).getCurrentEffect(player)
       return pending?.source !== undefined && isChoice(pending.effect) ? [pending.source] : []
     }
     case RuleId.SaveUnitsWithMysticEffect: {

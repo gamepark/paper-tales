@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { Building } from '@gamepark/paper-tales/material/Building'
-import { buildingCardCaracteristics } from '@gamepark/paper-tales/material/BuildingCaracteristics'
+import { buildingCardCharacteristics } from '@gamepark/paper-tales/material/BuildingCharacteristics'
 import { i18n as I18n } from 'i18next'
 import { ReactNode } from 'react'
 import { Trans } from 'react-i18next'
@@ -25,7 +25,7 @@ export const buildingEffectKey = (building: Building, level: number, index: numb
  */
 export const buildingPrintedContent = (building: Building, i18n: I18n, lng = i18n.language): PrintedContent => {
   const t = i18n.getFixedT(lng)
-  const pattern = buildingCardCaracteristics[building]
+  const pattern = buildingCardCharacteristics[building]
   const levelLabel = (level: number) => (
     <LevelLabel level={level} label={t(level ? 'help.building.level.2' : 'help.building.level.1', level ? 'Level 2:' : 'Level 1+:')} />
   )

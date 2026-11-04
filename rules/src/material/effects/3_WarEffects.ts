@@ -7,7 +7,7 @@ export type GainTokenIfWinWar = {
   type: EffectType.GainTokenIfWinWar
   token: MaterialType.Gold | MaterialType.ScoreToken
   amount: number
-  perResource?: Resources[]
+  perResource?: Resources
 }
 export type ChangeWarPower = {
   type: EffectType.ChangeWarPower
@@ -17,7 +17,7 @@ export type ChangeWarPower = {
 }
 export type AddWarPower = {
   type: EffectType.AddWarPower
-  perResource?: Resources[] // Tableau injustifié ! A passer en Resources unique
+  perResource?: Resources
   perAgeToken?: AgeLocation
   perGoldOnIncomePhase?: true
   per?: Count

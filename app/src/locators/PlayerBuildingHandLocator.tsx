@@ -1,4 +1,3 @@
-import { Building } from '@gamepark/paper-tales/material/Building'
 import { ItemContext, Locator, MaterialContext } from '@gamepark/react-game'
 import { Location, MaterialItem } from '@gamepark/rules-api'
 import { buildingCardDescription } from '../material/BuildingCardDescription'
@@ -22,7 +21,7 @@ export class PlayerBuildingHandLocator extends Locator {
   }
 
   getItemCoordinates(item: MaterialItem, context: ItemContext) {
-    return getBuildingSlotCoordinates(context, item.id as Building)
+    return getBuildingSlotCoordinates(context, item.id)
   }
 
   hide(item: MaterialItem, context: ItemContext) {
@@ -34,7 +33,7 @@ export class PlayerBuildingHandLocator extends Locator {
   }
 
   getHoverTransform(item: MaterialItem, context: ItemContext) {
-    const { x, y } = getBuildingSlotCoordinates(context, item.id as Building)
+    const { x, y } = getBuildingSlotCoordinates(context, item.id)
     const scale = getBuildingScale(context)
     const zoom = getBuildingHoverZoom(context)
     const shift = getHoverShift({ x, y, width: buildingCardDescription.width * scale, height: buildingCardDescription.height * scale, zoom })

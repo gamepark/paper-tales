@@ -1,5 +1,5 @@
 import { Artifact } from '@gamepark/paper-tales/material/Artifact'
-import { artifactCaracteristics } from '@gamepark/paper-tales/material/ArtifactCaracteristics'
+import { artifactCharacteristics } from '@gamepark/paper-tales/material/ArtifactCharacteristics'
 import { i18n as I18n } from 'i18next'
 import { ReactNode } from 'react'
 import { Trans } from 'react-i18next'
@@ -19,7 +19,7 @@ import { SymbolLegend } from './SymbolLegend'
  */
 export const artifactPrintedContent = (artifact: Artifact, i18n: I18n, lng = i18n.language): PrintedContent => {
   const t = i18n.getFixedT(lng)
-  const pattern = artifactCaracteristics[artifact]
+  const pattern = artifactCharacteristics[artifact]
   const effects = pattern.effect ?? []
   const effectTexts: ReactNode[][] = [[], [], [], [], [], [], []]
   const effectKeys: string[][] = [[], [], [], [], [], [], []]

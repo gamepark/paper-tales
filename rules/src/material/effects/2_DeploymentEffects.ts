@@ -93,10 +93,6 @@ export function isDeploymentType(effect: Effect): effect is DeploymentEffect {
   )
 }
 
-export function isShapeshifter(effect: Effect): effect is Shapeshifter {
-  return effect.type === EffectType.Shapeshifter
-}
-
 export function isGainTokenOnDeploy(effect: Effect): effect is GainTokenOnDeploy {
   return effect.type === EffectType.GainTokenOnDeploy
 }
@@ -121,10 +117,3 @@ export function isReactivateRevealEffects(effect: Effect): effect is ReactivateR
   return effect.type === EffectType.ReactivateRevealEffects
 }
 
-export function isDrawArtifact(effect: Effect): effect is DrawArtifact {
-  return effect.type === EffectType.DrawArtifact
-}
-
-export function isBuildRandomLevel2(effect: Effect): effect is BuildRandomLevel2 {
-  return effect.type === EffectType.BuildRandomLevel2
-}

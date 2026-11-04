@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Resources } from '@gamepark/paper-tales/material/Resources'
 import { PlayerColor } from '@gamepark/paper-tales/PlayerColor'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
-import { War } from '@gamepark/paper-tales/rules/3_War/War'
+import { WarHelper } from '@gamepark/paper-tales/rules/helpers/WarHelper'
 import { BuildHelper } from '@gamepark/paper-tales/rules/helpers/BuildHelper'
 import { ResourcesHelper } from '@gamepark/paper-tales/rules/helpers/ResourcesHelper'
 import { ScoreHelper } from '@gamepark/paper-tales/rules/helpers/ScoreHelper'
@@ -20,7 +20,7 @@ import gold from '../images/tokens/Gold1.jpg'
 import { PANEL_HEIGHT } from '../locators/TableLayout'
 import { scoreTokenDescription } from '../material/ScoreTokenDescription'
 import { cutLine, paper, paperFont, patchTornClip, roundImageCss, rust, sheetTornClip, tornDiscClip } from '../theme/tableTheme'
-import { getColor } from '../utils/color'
+import { solidColor } from '../utils/color'
 import { DeltaBubble } from './DeltaBubble'
 import { PanelWarGains } from './PanelWarGains'
 import { useValueDelta } from './useValueDelta'
@@ -42,8 +42,8 @@ export const PaperTalesPlayerPanel: FC<PaperTalesPlayerPanelProps> = ({ player, 
   const scoreHelper = useMemo(() => new ScoreHelper(rules.game, player), [rules.game, player])
   const resourcesHelper = useMemo(() => new ResourcesHelper(rules.game, player), [rules.game, player])
   const buildHelper = useMemo(() => new BuildHelper(rules.game, player), [rules.game, player])
-  const war = useMemo(() => new War(rules.game), [rules.game])
-  const color = getColor(player).substring(0, 7)
+  const war = useMemo(() => new WarHelper(rules.game), [rules.game])
+  const color = solidColor(player)
   const light = player === PlayerColor.White || player === PlayerColor.Yellow
   // On the white sheet, the cream paper needs an ink outline to stand out
   const pale = player === PlayerColor.White
