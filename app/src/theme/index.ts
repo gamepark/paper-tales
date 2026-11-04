@@ -4,7 +4,7 @@ import tableBackground from '../images/table-background.webp'
 import { bookContainerCss, bookContentCss, bookHelpLayoutCss } from './book'
 import { BookmarkBackButton } from './BookmarkBackButton'
 import { BookmarkCloseButton } from './BookmarkCloseButton'
-import { dialogButtonCss, dialogDangerButtonCss, dialogFieldsCss, dialogMessageCss, dialogTextCss, dialogTitleCss } from './dialogs'
+import { dialogButtonCss, dialogDangerButtonCss, dialogFieldsCss, dialogMessageCss, dialogTextCss, dialogTitleCss, tutorialContainerCss } from './dialogs'
 import { chatBarCss, historyEntryCss, tabCss, tabSelectedCss } from './journal'
 import { journalPanelCss, mainButtonCss, menuEntryCss, menuPanelCss, popButtonCss } from './menu'
 import { PageCornerNavigation } from './PageCornerNavigation'
@@ -59,6 +59,15 @@ export const theme: Partial<GameTheme> = {
     header: resultHeaderCss,
     buttons: resultButtonsCss,
     table: resultTableCss
+  },
+  tutorial: {
+    container: tutorialContainerCss,
+    // Room under the Skip button of the framework, laid over the top of the popup, when there is one
+    content: css`
+      &:has(> button) {
+        padding-top: 2.7em;
+      }
+    `
   },
   header: {
     buttons: css`

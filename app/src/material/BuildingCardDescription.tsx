@@ -42,7 +42,7 @@ import { BuildingBookHelpDisplay } from './help/book/BuildingBookHelpDisplay'
 import { BuildIcon } from './icons/PaperIcons'
 import { PaperMenuButton } from './PaperMenuButton'
 import { canBuildNow } from '../locators/VeilLocators'
-import { hoveredItemMenuAboveCss } from './hoverMenuCss'
+import { hoveredFullColourCss, hoveredItemMenuAboveCss } from './hoverMenuCss'
 
 export class BuildingCardDescription extends CardDescription {
   height = 10
@@ -100,7 +100,7 @@ export class BuildingCardDescription extends CardDescription {
     const unbuilt = item.location.type === LocationType.PlayerBuildingHand
     const band = !isWarView(context) && unbuiltBandCss(i18next.t('building.unbuilt', 'Not built'))
     const buildable = unbuilt && canBuildNow(context, context.index)
-    return [hoverAboveCss, hoveredItemMenuAboveCss, band, band && (!unbuilt || buildable) && builtCss, band && buildable && landTag(context)]
+    return [hoverAboveCss, hoveredItemMenuAboveCss, hoveredFullColourCss, band, band && (!unbuilt || buildable) && builtCss, band && buildable && landTag(context)]
   }
 
   menuAlwaysVisible = true

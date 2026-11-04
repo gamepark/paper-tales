@@ -17,6 +17,7 @@ import { playerDraftHandLocator } from './PlayerDraftHandLocator'
 import { playerGoldStockLocator } from './PlayerGoldStockLocator'
 import { playerUnitBoardLocator } from './PlayerUnitBoardLocator'
 import { playerUnitHandLocator } from './PlayerUnitHandLocator'
+import { unitCostLocator } from './UnitCostLocator'
 import { buildingVeilLocator, unitVeilLocator } from './VeilLocators'
 
 export const Locators: Partial<Record<LocationType, Locator<PlayerColor, MaterialType, LocationType>>> = {
@@ -36,5 +37,6 @@ export const Locators: Partial<Record<LocationType, Locator<PlayerColor, Materia
   [LocationType.UnitVeil]: unitVeilLocator,
   [LocationType.BuildingVeil]: buildingVeilLocator,
   [LocationType.GameRules]: gameRulesLocator,
-  [LocationType.ArtifactCost]: artifactCostLocator
+  [LocationType.ArtifactCost]: artifactCostLocator,
+  [LocationType.UnitCost]: unitCostLocator
 }

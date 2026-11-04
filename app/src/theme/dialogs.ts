@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import { crimson, pageFold } from './book'
 import { teal } from './journal'
-import { cutLine, ochre, paper, paperMuted, rust, tableButtonCss } from './tableTheme'
+import { cutLine, ochre, paper, paperMuted, rust, smallCoverTornClip, tableButtonCss } from './tableTheme'
 
 /**
  * The message dialogs of the framework (give up, eject a player, full screen, bug report, failures, time stats): a
@@ -25,6 +25,20 @@ export const dialogMessageCss = css`
     box-shadow:
       0 0.18em 0 ${paperMuted},
       0 0.36em 0 #cdbfb3;
+  }
+`
+
+/** The popup of the tutorial: a single page of the book, with the fold of the pages and a cover torn for its size */
+export const tutorialContainerCss = css`
+  padding: 1.5em 1.3em 2em;
+
+  &::before {
+    clip-path: ${smallCoverTornClip};
+  }
+
+  &::after {
+    inset: 1.5em 1.3em 2em;
+    background: linear-gradient(90deg, ${pageFold} 0, ${paper} 1.2em);
   }
 `
 

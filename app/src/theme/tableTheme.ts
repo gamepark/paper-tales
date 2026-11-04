@@ -41,6 +41,8 @@ export const tornClip = tornPolygon(7, 9, 2.5)
 export const sheetTornClip = tornPolygon(7, 4, 1.2)
 /** The cover of the story book: a long sheet, torn very shallow */
 export const coverTornClip = tornPolygon(7, 1.3, 0.6, 44)
+/** The cover of a small window: as the depths are in % of the box, it needs deeper ones for the same tear as the book */
+export const smallCoverTornClip = tornPolygon(7, 3, 1, 22, 6)
 /** The cover of a side panel, as tall as the screen: its free side is torn all along, like the top and bottom edges */
 export const panelTornClip = tornPolygon(7, 1.3, 1.4, 24, 40)
 /** A light sheet glued in the story book (the rows of the help) */

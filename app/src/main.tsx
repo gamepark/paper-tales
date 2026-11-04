@@ -13,6 +13,7 @@ import { theme } from './theme'
 import App from './App'
 import { Locators } from './locators/Locators'
 import { Material, materialI18n } from './material/Material'
+import { Tutorial } from './tutorial/Tutorial'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
       theme={theme}
       logs={new PaperTalesLogs()}
       scoring={new PaperTalesScoring()}
+      tutorial={new Tutorial()}
       ai={(game: MaterialGame, playerId: number) => Promise.resolve(new PaperTalesBot(playerId).run(game))}
     >
       <App />

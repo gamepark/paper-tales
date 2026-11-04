@@ -16,6 +16,12 @@ export const WarHeader = () => {
   return <WarBeatHeader />
 }
 
+/** The wars announced by a popup of the tutorial, before they are told: no beat yet */
+export const WarAnnouncedHeader = () => {
+  const { t } = useTranslation()
+  return <>{t('header.war', 'Wars: each kingdom faces its two neighbours')}</>
+}
+
 /**
  * What the header says at each beat of the wars: the strength of the front rows, then the war against each neighbour of
  * the central kingdom, one after the other, then the points of the phase

@@ -12,3 +12,13 @@ export const hoveredItemMenuAboveCss = css`
     translate: 0 0 25em;
   }
 `
+
+/**
+ * The focus of a tutorial darkens what it is not about (the dark layer of the framework on a face, a colour: its shine on
+ * what can be played is an image). A hovered card is read in full colour.
+ */
+export const hoveredFullColourCss = css`
+  *:hover > & > * > *:first-of-type::after {
+    background-color: transparent;
+  }
+`

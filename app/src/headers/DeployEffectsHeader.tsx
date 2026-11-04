@@ -52,7 +52,7 @@ export const DeployEffectsHeader = () => {
       if (!card) return <>{t('header.reactivate.choose', 'Choose the unit the Shadow reactivates')}</>
       return <Trans i18nKey="header.reactivate.source" defaults="<0/>: trigger a Unit again" components={card} />
   }
-  if (rules.game.players.some((player) => rules.isTurnToPlay(player))) {
+  if (rules.game.rule?.players?.length) {
     // A spectator: the Monarchs, not the other ones
     if (me === undefined) return <>{t('header.deploy-effects.spectator', 'The Monarchs apply their deployment effects')}</>
     return <>{t('header.deploy-effects.wait', 'The other Monarchs apply their deployment effects')}</>

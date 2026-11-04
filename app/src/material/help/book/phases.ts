@@ -1,5 +1,6 @@
 import { PaperTalesRules } from '@gamepark/paper-tales/PaperTalesRules'
 import { RuleId } from '@gamepark/paper-tales/rules/RuleId'
+import { MaterialGame } from '@gamepark/rules-api'
 
 /** The step of the turn (0 to 5, 6 for the end of the game) each rule belongs to */
 const ruleSteps: Record<RuleId, number> = {
@@ -22,7 +23,14 @@ const ruleSteps: Record<RuleId, number> = {
   [RuleId.EndGame]: 6
 }
 
+/**
+ * In a tutorial, the wars wait behind the popups that announce them, the deployment effects being over: the popups are
+ * already about the wars. It holds until the wars start, even once the popup is closed.
+ */
+export const isWarAnnounced = (rules: { game: MaterialGame }) =>
+  !!rules.game.tutorial && rules.game.rule?.id === RuleId.DeployEffects && !rules.game.rule.players?.length
+
 export const currentPhaseIndex = (rules: PaperTalesRules) => {
-  const ruleId = rules.game.rule?.id as RuleId | undefined
+  const ruleId = isWarAnnounced(rules) ? RuleId.War : (rules.game.rule?.id as RuleId | undefined)
   return ruleId === undefined ? 6 : ruleSteps[ruleId]
 }

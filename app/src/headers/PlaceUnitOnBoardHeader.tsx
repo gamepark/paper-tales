@@ -17,7 +17,7 @@ const END_COUNTDOWN = 20
  * Deployment (rulebook p.5): place units face down, keep a single card, discard the others. While a card is chosen with
  * its button, the header names it and asks where to place it. The end button exists only once at most one card is left in
  * hand (the rule offers it then). It counts down from then on: the countdown starts over at each card moved, and waits
- * while the Monarch drags a card, reads a help or looks at another kingdom.
+ * while the Monarch drags a card, reads a help or looks at another kingdom, and does not run in a tutorial.
  */
 export const PlaceUnitOnBoardHeader = () => {
   const { t } = useTranslation()
@@ -43,7 +43,7 @@ export const PlaceUnitOnBoardHeader = () => {
   }
   const inHand = rules.material(MaterialType.Unit).location(LocationType.PlayerUnitHand).player(me).length
   if (endMove) {
-    const reading = dragging || !!rules.game.helpDisplay || !isMyAreaDisplayed(context, me)
+    const reading = dragging || !!rules.game.tutorial || !!rules.game.helpDisplay || !isMyAreaDisplayed(context, me)
     // A new key at each card moved: the button starts its countdown over
     const cards = rules.material(MaterialType.Unit).player(me).getItems().map(({ location }) => [location.type, location.x, location.y])
     return (

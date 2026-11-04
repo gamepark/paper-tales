@@ -266,6 +266,7 @@ app/src/                        → Frontend (React + Emotion CSS)
   panels/                       → Player panels (compact, laid on the table in a column)
   table/                        → Phase widgets laid on the table (draft direction, deployment gold, build info, war results, view buttons)
   animations/                   → PaperTalesAnimations.ts
+  tutorial/                     → The scripted first turn: TutorialSetup (the cards of the scenario, the rest at random), Tutorial (its steps), and a test that plays it to its end
 ```
 
 ## Game Phases (Round Flow)

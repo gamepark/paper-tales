@@ -93,7 +93,7 @@ import { isWarView } from '../locators/TableLayout'
 import { getChoiceSources } from '../table/choiceSources'
 import { ochre } from '../theme/tableTheme'
 import { artifactCostLocations } from '../locators/artifactCost'
-import { hoveredItemMenuAboveCss } from './hoverMenuCss'
+import { hoveredFullColourCss, hoveredItemMenuAboveCss } from './hoverMenuCss'
 import { UnitActionLabel } from './actions/UnitActionLabel'
 import { getPlaceMoves, getPlaceMoveTo, getSelectedUnit, selectToPlace, unselectToPlace } from './actions/PlaceActions'
 import { getUnitActions, UnitAction, unitActionIcons, unitActionTexts } from './actions/UnitActions'
@@ -201,6 +201,7 @@ export class UnitCardDescription extends CardDescription {
     const selected = getSelectedUnit(context)
     return [
       hoveredItemMenuAboveCss,
+      hoveredFullColourCss,
       getChoiceSources(context.rules, context.player).includes(context.index) && choiceSourceCss,
       selected !== undefined &&
         selected !== context.index &&

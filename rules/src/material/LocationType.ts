@@ -23,5 +23,7 @@ export enum LocationType {
   /** The rules proper to this game (2 players, expansions), a help page opened by the interface only */
   GameRules,
   /** What a Legendary Artifact of my hand would cost me now, drawn by the interface only on the card (parent) */
-  ArtifactCost
+  ArtifactCost,
+  /** The recruitment cost printed on a unit (parent), that the tutorial points at: drawn by the interface only */
+  UnitCost
 }
