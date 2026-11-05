@@ -251,7 +251,7 @@ export class Tutorial extends MaterialTutorial<PlayerColor, MaterialType, Locati
       },
       focus: (game) => ({ materials: [this.draftHand(game), this.hand(game)], ...this.keptCardsZone(), ...ON_HAND })
     },
-    this.pick(Unit.ForestSpirit, text('pick', 'Select this card.')),
+    this.pick(Unit.ForestSpirit, text('pick.spirit', 'Select the <strong>Forest Spirit</strong>.')),
     ...this.opponentsPick(),
     {
       popup: {
@@ -260,9 +260,9 @@ export class Tutorial extends MaterialTutorial<PlayerColor, MaterialType, Locati
       },
       focus: (game) => ({ materials: [this.draftHand(game), this.hand(game)], ...this.keptCardsZone(), ...ON_HAND })
     },
-    this.pick(Unit.Farmer, text('pick', 'Select this card.')),
+    this.pick(Unit.Farmer, text('pick.farmer', 'Select the <strong>Farmer</strong>.')),
     ...this.opponentsPick(),
-    this.pick(Unit.Hunter, text('pick.next', 'The draft goes on until all the players have selected 5 cards.\nSelect this card.')),
+    this.pick(Unit.Hunter, text('pick.hunter', 'The draft goes on until all the players have selected 5 cards.\nSelect the <strong>Hunter</strong>.')),
     ...this.opponentsPick(),
     {
       popup: { text: text('pick.free', 'Select the card of your choice.'), ...ABOVE_CHOICE },

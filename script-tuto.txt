@@ -15,17 +15,14 @@ Lors du Recrutement, tous les joueurs vont sélectionner 5 cartes Unité.
 
 C'est un draft : vous sélectionnez une carte qui vous intéresse, et passez les autres à votre voisin (à gauche aux tours 1 et 3, à droite aux tours 2 et 4).
 
-Sélectionnez cette carte.
-(Esprit des forêts)
+Sélectionnez l’Esprit des forêts.
 
 Tous les joueurs ont sélectionné une carte en même temps. Vous avez reçu ces 4 cartes de votre voisin de droite.
 
-Sélectionnez cette carte.
-(Fermier)
+Sélectionnez le Fermier.
 
 Le draft se poursuit jusqu'à ce que tous les joueurs aient sélectionné 5 cartes.
-Sélectionnez cette carte.
-(Chasseur)
+Sélectionnez le Chasseur.
 
 Sélectionnez la carte de votre choix.
 (carte qui sera conservée pour le tour d'après)
