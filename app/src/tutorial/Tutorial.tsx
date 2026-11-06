@@ -325,7 +325,7 @@ export class Tutorial extends MaterialTutorial<PlayerColor, MaterialType, Locati
     this.place(Unit.Blacksmith, BACK, text('place.blacksmith', 'Place the <strong>Blacksmith</strong> at the Back: she earns you <g1/> at each Income phase.')),
     {
       popup: {
-        text: text('deploy.end', 'You can keep <strong>a single card</strong> in hand for the next turn: the others are discarded.\nEnd your Deployment.'),
+        text: text('deploy.end', 'You can keep <strong>a single card</strong> in hand for the next turn: the others are discarded.\nEnd your Deployment by clicking the button in the header.'),
         ...ABOVE_HAND
       },
       focus: (game) => ({ materials: [this.hand(game)], ...ON_HAND }),
