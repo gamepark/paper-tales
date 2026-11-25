@@ -1,4 +1,4 @@
-import { MaterialGame, MaterialMove } from '@gamepark/rules-api'
+import { isEndPlayerTurn, MaterialGame, MaterialMove, MoveKind } from '@gamepark/rules-api'
 import { describe, expect, it } from 'vitest'
 import { Building } from '../material/Building'
 import { Gold } from '../material/Gold'
@@ -82,5 +82,40 @@ describe('Rulebook p.7: paying a construction', () => {
     // Temple directly at level 2 needs 3 crystals, or gold instead of a cost; no crystal and 2 gold is not enough
     const { rules } = setup([], 2)
     expect(new BuildHelper(rules.game, PlayerColor.Blue).getGoldToPay(Building.Temple, BuildAction.BuildLevel2)).toBeUndefined()
+  })
+})
+
+describe('Rulebook p.7: the constructions are chosen at the same time', () => {
+  const buildPhase = () => {
+    const game = new PaperTalesSetup().setup({ players: [{ id: PlayerColor.Blue }, { id: PlayerColor.Red }, { id: PlayerColor.Green }] }) as MaterialGame
+    const rules = new PaperTalesRules(game)
+    for (const player of rules.players) {
+      rules.play(rules.material(MaterialType.Gold).createItem({ id: Gold.Gold1, location: { type: LocationType.PlayerGoldStock, player }, quantity: 10 }))
+    }
+    playAll(rules, rules.startSimultaneousRule(RuleId.Build))
+    return rules
+  }
+  const construction = (rules: PaperTalesRules, player: PlayerColor) =>
+    rules.getLegalMoves(player).find((move) => move.kind === MoveKind.ItemMove && move.itemType === MaterialType.Building)!
+
+  it('a construction, or the choice not to build, reaches the others only once every Monarch has chosen', () => {
+    const rules = buildPhase()
+    const blueBuilds = construction(rules, PlayerColor.Blue)
+    expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Red)).toBe(true)
+    expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Blue)).toBe(false)
+    playAll(rules, blueBuilds)
+
+    const redPasses = rules.getLegalMoves(PlayerColor.Red).find(isEndPlayerTurn)!
+    expect(rules.keepMoveSecret(redPasses, PlayerColor.Blue)).toBe(true)
+    playAll(rules, redPasses)
+
+    const greenBuilds = construction(rules, PlayerColor.Green)
+    expect(rules.isUnpredictableMove(rules.startRule(RuleId.AgeEffects), PlayerColor.Green)).toBe(true)
+    playAll(rules, greenBuilds)
+
+    // Everyone has chosen: the phase is over, nothing is secret any more
+    expect(rules.game.rule?.id).not.toBe(RuleId.Build)
+    expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Red)).toBe(false)
+    expect(rules.keepMoveSecret(redPasses, PlayerColor.Blue)).toBe(false)
   })
 })

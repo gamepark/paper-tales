@@ -2,6 +2,10 @@ import {
   hideItemId,
   hideItemIdToOthers,
   HidingStrategy,
+  isEndPlayerTurn,
+  isMoveItemType,
+  isStartRule,
+  isStartSimultaneousRule,
   MaterialGame,
   MaterialItem,
   MaterialMove,
@@ -102,7 +106,24 @@ export class PaperTalesRules
    * for the server instead of building nothing
    */
   isUnpredictableMove(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player: PlayerColor) {
-    return isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move) || super.isUnpredictableMove(move, player)
+    return (
+      isCustomMoveType(CustomMoveType.BuildRandomBuilding)(move) ||
+      // The constructions are secret (see keepMoveSecret): a client cannot know when the last Monarch is done
+      (this.game.rule?.id === RuleId.Build && (isStartRule(move) || isStartSimultaneousRule(move))) ||
+      super.isUnpredictableMove(move, player)
+    )
+  }
+
+  /**
+   * The constructions are chosen at the same time (rulebook p.7): the construction of a Monarch (with its payment), or
+   * their choice not to build, reaches the others only once every Monarch has chosen
+   */
+  keepMoveSecret(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player: PlayerColor) {
+    if (this.game.rule?.id !== RuleId.Build) return false
+    if (isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard) {
+      return move.location.player !== player
+    }
+    return isEndPlayerTurn(move) && move.player !== player
   }
 
   /** The Titan builds a building drawn at random among the ones its Monarch has not built (see DeployEffects) */
