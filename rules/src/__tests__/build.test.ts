@@ -98,16 +98,17 @@ describe('Rulebook p.7: the constructions are chosen at the same time', () => {
   const construction = (rules: PaperTalesRules, player: PlayerColor) =>
     rules.getLegalMoves(player).find((move) => move.kind === MoveKind.ItemMove && move.itemType === MaterialType.Building)!
 
+  // Like the server: the secret is asked once the move is played, with its consequences
   it('a construction, or the choice not to build, reaches the others only once every Monarch has chosen', () => {
     const rules = buildPhase()
     const blueBuilds = construction(rules, PlayerColor.Blue)
+    playAll(rules, blueBuilds)
     expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Red)).toBe(true)
     expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Blue)).toBe(false)
-    playAll(rules, blueBuilds)
 
     const redPasses = rules.getLegalMoves(PlayerColor.Red).find(isEndPlayerTurn)!
-    expect(rules.keepMoveSecret(redPasses, PlayerColor.Blue)).toBe(true)
     playAll(rules, redPasses)
+    expect(rules.keepMoveSecret(redPasses, PlayerColor.Blue)).toBe(true)
 
     const greenBuilds = construction(rules, PlayerColor.Green)
     expect(rules.isUnpredictableMove(rules.startRule(RuleId.AgeEffects), PlayerColor.Green)).toBe(true)
@@ -117,5 +118,17 @@ describe('Rulebook p.7: the constructions are chosen at the same time', () => {
     expect(rules.game.rule?.id).not.toBe(RuleId.Build)
     expect(rules.keepMoveSecret(blueBuilds, PlayerColor.Red)).toBe(false)
     expect(rules.keepMoveSecret(redPasses, PlayerColor.Blue)).toBe(false)
+  })
+
+  it('the last reading of the war summary starts the constructions for everybody: it is not secret', () => {
+    const game = new PaperTalesSetup().setup({ players: [{ id: PlayerColor.Blue }, { id: PlayerColor.Red }, { id: PlayerColor.Green }] }) as MaterialGame
+    const rules = new PaperTalesRules(game)
+    playAll(rules, rules.startSimultaneousRule(RuleId.WarSummary))
+    const readings = rules.players.map((player) => rules.getLegalMoves(player).find(isEndPlayerTurn)!)
+    readings.forEach((reading) => playAll(rules, reading))
+    expect(rules.game.rule?.id).toBe(RuleId.Build)
+    for (const reading of readings) {
+      for (const player of rules.players) expect(rules.keepMoveSecret(reading, player)).toBe(false)
+    }
   })
 })

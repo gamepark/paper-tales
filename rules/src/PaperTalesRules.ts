@@ -116,14 +116,17 @@ export class PaperTalesRules
 
   /**
    * The constructions are chosen at the same time (rulebook p.7): the construction of a Monarch (with its payment), or
-   * their choice not to build, reaches the others only once every Monarch has chosen
+   * their choice not to build, reaches the others only once every Monarch has chosen.
+   * It is asked once the move is played, with its consequences: the last reading of the war summary has already started
+   * the constructions then. That Monarch has a construction to choose (they are active): it is not a choice not to build,
+   * the others must receive it to start the constructions too.
    */
   keepMoveSecret(move: MaterialMove<PlayerColor, MaterialType, LocationType>, player: PlayerColor) {
     if (this.game.rule?.id !== RuleId.Build) return false
     if (isMoveItemType(MaterialType.Building)(move) && move.location.type === LocationType.PlayerBuildingBoard) {
       return move.location.player !== player
     }
-    return isEndPlayerTurn(move) && move.player !== player
+    return isEndPlayerTurn(move) && move.player !== player && !this.isTurnToPlay(move.player)
   }
 
   /** The Titan builds a building drawn at random among the ones its Monarch has not built (see DeployEffects) */
