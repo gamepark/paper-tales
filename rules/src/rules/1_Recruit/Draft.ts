@@ -42,9 +42,9 @@ export class Draft extends SimultaneousRule {
   }
 
   /**
-   * A Monarch who has picked (with 2 players: kept one card and discarded one) passes the rest of their hand at once,
-   * face down, towards their neighbour (rulebook p.5): every Monarch passes in their own action, so that all the hands
-   * travel at the same time. The neighbour takes it once every Monarch has picked (see GiveDraftToNeighbor).
+   * A Monarch who has picked (with 2 players: kept one card and discarded one) is done: the rest of their hand stays in
+   * front of them until every Monarch has picked, then all the hands are passed at the same time (rulebook p.5, see
+   * GiveDraftToNeighbor)
    */
   beforeItemMove(move: ItemMove) {
     if (!isMoveItemType(MaterialType.Unit)(move)) return []
@@ -53,20 +53,7 @@ export class Draft extends SimultaneousRule {
       this.memorize(Memory.TwoPlayersDraftMoves, move.location.type, player)
       return []
     }
-    const rest = this.material(MaterialType.Unit)
-      .location(LocationType.PlayerDraftHand)
-      .player(player)
-      .index((index) => index !== move.itemIndex)
-    const receiver = this.getNextPlayer(player)
-    return [...(rest.length ? [rest.moveItemsAtOnce({ type: LocationType.DraftTransit, player: receiver })] : []), this.endPlayerTurn(player)]
-  }
-
-  /** The hands go one way at odd turns, the other way at even turns */
-  private getNextPlayer(player: number) {
-    const players = this.game.players
-    const playerIndex = players.indexOf(player)
-    if (this.remind(Memory.Time) % 2 === 1) return players[(playerIndex + 1) % players.length]
-    return players[(playerIndex - 1 + players.length) % players.length]
+    return [this.endPlayerTurn(player)]
   }
 
   getMovesAfterPlayersDone(): MaterialMove[] {

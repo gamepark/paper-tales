@@ -202,8 +202,9 @@ paperTalesAnimation
 paperTalesAnimation.configure(and(isRule(RuleId.DeployEffects), isMoveItemType(MaterialType.Building), isSeenMove)).duration(800).trajectory(fadeAtPanels)
 
 /**
- * The hands passed during the recruitment: each Monarch passes the rest of their hand in their own action (see Draft),
- * so that the hands travel at the same time, each one straight from the panel of its giver to the panel of its receiver.
+ * The hands passed during the recruitment: once every Monarch has picked, all the rests are passed at once (see
+ * GiveDraftToNeighbor), so that the hands travel at the same time, each one straight from the panel of its giver to the
+ * panel of its receiver.
  * The hand that goes from one end of the column to the other follows the return line of the turn order arrows instead,
  * in a gentle curve at the left of the panels.
  */
@@ -252,12 +253,20 @@ const passTrajectory = (context: ItemContext, move: MaterialMove): Trajectory =>
 // The hand passed to me stays on the panel of its giver until it reaches me (see DraftTransitLocator): nothing moves
 paperTalesAnimation
   .configure(
-    and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit), (move, context) => isMoveItemsAtOnce(move) && isAreaDisplayed(context, move.location.player))
+    and(isRule(RuleId.GiveDraftToNeighbor), passedTo(LocationType.DraftTransit), (move, context) => isMoveItemsAtOnce(move) && isAreaDisplayed(context, move.location.player))
   )
   .skip()
+// The hands are passed one after the other: the one that leaves the displayed area (mine) takes its time, the others
+// only hop from panel to panel, so that the wait stays short with 7 Monarchs
+const isPassedFromDisplayedArea = (move: MaterialMove, context: MaterialContext) =>
+  isMoveItemsAtOnce(move) && isAreaDisplayed(context, itemAt(context, move.itemType, move.indexes[0])?.location.player)
 paperTalesAnimation
-  .configure(and(isRule(RuleId.Draft), passedTo(LocationType.DraftTransit)))
+  .configure(and(isRule(RuleId.GiveDraftToNeighbor), passedTo(LocationType.DraftTransit), isPassedFromDisplayedArea))
   .duration(1200)
+  .trajectory((context, move) => ({ ...passTrajectory(context, move), fade: panelFade(context, move) }))
+paperTalesAnimation
+  .configure(and(isRule(RuleId.GiveDraftToNeighbor), passedTo(LocationType.DraftTransit)))
+  .duration(400)
   .trajectory((context, move) => ({ ...passTrajectory(context, move), fade: panelFade(context, move) }))
 
 // What nobody can see takes no time

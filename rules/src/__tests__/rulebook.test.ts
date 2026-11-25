@@ -204,3 +204,34 @@ describe('The Titan builds a building drawn at random', () => {
     expect(rules.isUnpredictableMove(move, PlayerColor.Blue)).toBe(true)
   })
 })
+
+describe('Rulebook p.5: the hands are passed when every Monarch has picked', () => {
+  it('keeps the rest of the hand in front of its Monarch until every Monarch has picked, then passes all the hands at once', () => {
+    const players = [PlayerColor.Blue, PlayerColor.Red, PlayerColor.Green]
+    const rules = new PaperTalesRules(newGame(players))
+    expect(rules.game.rule?.id).toBe(RuleId.Draft)
+    const hand = (player: PlayerColor) => units(rules, LocationType.PlayerDraftHand).player(player)
+    /** The player keeps the first card offered; returns the ids of the rest of their hand */
+    const pick = (player: PlayerColor) => {
+      const move = rules.getLegalMoves(player)[0]
+      const rest = hand(player).index((index) => move.kind === MoveKind.ItemMove && move.type === ItemMoveType.Move && index !== move.itemIndex)
+      const ids = rest.getItems().map((item) => item.id).sort()
+      playConsequences(rules, move)
+      return ids
+    }
+
+    const rests = [pick(PlayerColor.Blue)]
+    // Blue has picked: the rest stays in front of Blue, nothing is offered any more
+    expect(hand(PlayerColor.Blue).getItems().map((item) => item.id).sort()).toEqual(rests[0])
+    expect(units(rules, LocationType.DraftTransit).length).toBe(0)
+    expect(rules.getLegalMoves(PlayerColor.Blue)).toEqual([])
+    rests.push(pick(PlayerColor.Red), pick(PlayerColor.Green))
+
+    // Every Monarch has picked: each rest has reached the next Monarch (to the left at the 1st turn)
+    expect(rules.game.rule?.id).toBe(RuleId.Draft)
+    expect(units(rules, LocationType.DraftTransit).length).toBe(0)
+    players.forEach((_giver, index) => {
+      expect(hand(players[(index + 1) % players.length]).getItems().map((item) => item.id).sort()).toEqual(rests[index])
+    })
+  })
+})
